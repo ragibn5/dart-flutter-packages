@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="stage" type="FlutterRunConfigurationType"
+        factoryName="Flutter">
+        <option name="buildFlavor" value="stage" />
+        <option name="filePath" value="$PROJECT_DIR$/lib/main_stage.dart" />
+        <method v="2" />
+    </configuration>
+</component>

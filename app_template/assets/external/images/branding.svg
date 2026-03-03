@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" width="400" height="160">
+    <!-- Background remains transparent -->
+
+    <!-- Flutter logo (scaled 2x from original) -->
+    <g transform="translate(40,20) scale(0.5)">
+        <path d="M 50 0 L 250 0 L 150 100 L 250 200 L 50 200 L 150 100 Z" fill="#54C5F8"/>
+        <path d="M 150 100 L 50 0 L 150 0 Z" fill="#54C5F8" opacity="0.8"/>
+        <path d="M 150 100 L 250 200 L 150 200 Z" fill="#01579B"/>
+        <path d="M 50 200 L 150 200 L 100 250 Z" fill="#54C5F8"/>
+    </g>
+
+    <!-- Text "Flutter" (2x scale) -->
+    <text x="160" y="100" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#0A558C">Flutter</text>
+</svg>

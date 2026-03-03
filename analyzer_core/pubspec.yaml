@@ -1,0 +1,29 @@
+name: analyzer_core
+description: Core analyzer components used to create analyzer plugins.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analyzer_core
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  meta: ^1.16.0
+  equatable: ^2.0.7
+  analyzer: ^7.4.5
+
+dev_dependencies:
+  # Test
+  test: ^1.25.5
+
+  # Lints
+  lints: ^5.0.0
+  very_good_analysis: ^7.0.0

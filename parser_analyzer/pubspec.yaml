@@ -1,0 +1,32 @@
+name: parser_analyzer
+description: Collection of analysis tools for public components of `parser`.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/parser_analyer
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  analyzer: ^7.4.5
+
+  analyzer_core:
+    path: ../analyzer_core
+  parser_annotations:
+    path: ../parser_annotations
+
+dev_dependencies:
+  # Test
+  test: ^1.25.5
+
+  # Lints
+  lints: ^5.0.0
+  very_good_analysis: ^7.0.0

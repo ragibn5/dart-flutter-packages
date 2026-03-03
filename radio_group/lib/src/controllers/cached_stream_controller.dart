@@ -1,0 +1,37 @@
+import 'dart:async';
+
+/// A [StreamController] wrapper to hold the last data added to the stream.
+final class CachedStreamController<T> {
+  T? _lastItem;
+  final StreamController<T> _controller;
+
+  /// Create a [CachedStreamController] from an explicit
+  /// [StreamController] instance.
+  CachedStreamController(StreamController<T> controller)
+      : _controller = controller;
+
+  /// Create a single subscriber [CachedStreamController]
+  factory CachedStreamController.single() {
+    return CachedStreamController(StreamController<T>());
+  }
+
+  /// Create a broadcast subscriber [CachedStreamController]
+  factory CachedStreamController.broadcast() {
+    return CachedStreamController(StreamController<T>.broadcast());
+  }
+
+  /// Add an item to the stream
+  void add(T item) {
+    _lastItem = item;
+    _controller.add(item);
+  }
+
+  /// Get the last item of this stream
+  T? get lastItem => _lastItem;
+
+  /// Expose the stream for listening
+  Stream<T> get stream => _controller.stream;
+
+  /// Close the stream
+  void close() => _controller.close();
+}

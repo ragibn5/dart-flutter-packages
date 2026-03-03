@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1152 1152">
+  <!-- Background is transparent by default -->
+  
+  <!-- Flutter logo centered in a 384x384 area -->
+  <g transform="translate(384,384) scale(1.5)">
+    <!-- Flutter logo shape - scaled to fit within 384x384 area -->
+    <path d="M 50 0 L 250 0 L 150 100 L 250 200 L 50 200 L 150 100 Z" fill="#54C5F8"/>
+    <path d="M 150 100 L 50 0 L 150 0 Z" fill="#54C5F8" opacity="0.8"/>
+    <path d="M 150 100 L 250 200 L 150 200 Z" fill="#01579B"/>
+    <path d="M 50 200 L 150 200 L 100 250 Z" fill="#54C5F8"/>
+  </g>
+</svg>

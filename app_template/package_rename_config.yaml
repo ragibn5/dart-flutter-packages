@@ -1,0 +1,32 @@
+package_rename_config-dev:
+  android:
+    # Put the new base package name here (without flavor suffix)
+    package_name: com.ragibn5.fat
+
+    # Do not touch these
+    override_old_package: com.ragibn5.fat
+    lang: kotlin
+  ios:
+    # Put the bundle name (this is NOT the app name, this is usually used as process name)
+    bundle_name: vfat
+
+    # Put the new base package name here, keeping the last .dev suffix unchanged.
+    # i.e., only change the 'com.ragibn5.fat' part to whatever your want.
+    package_name: com.ragibn5.fat.dev
+
+
+package_rename_config-exp:
+  android:
+    # Put the new base package name here (without flavor suffix)
+    package_name: com.ragibn5.fat
+
+    # Do not touch these
+    override_old_package: com.ragibn5.fat
+    lang: kotlin
+  ios:
+    # Put the bundle name (this is NOT the app name, this is usually used as process name)
+    bundle_name: vfat
+
+    # Put the new base package name here, keeping the last .dev suffix unchanged.
+    # i.e., only change the 'com.ragibn5.fat' part to whatever your want.
+    package_name: com.ragibn5.fat.exp

@@ -1,0 +1,202 @@
+name: app_template
+description: "A template to start new applications from."
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/app_template
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1+1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.8.1
+
+# Regular dependencies
+# (Bundled in executable artifact)
+dependencies:
+  # SDK
+  flutter:
+    sdk: flutter
+
+  # Localization
+  intl: any
+  intl_utils: ^2.8.11
+  flutter_localizations:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^3.13.0
+  firebase_analytics: ^11.4.5
+  firebase_crashlytics: ^4.3.5
+
+  # Others (3rd party)
+  flutter_native_splash: ^2.4.6
+  path: ^1.9.1
+  recase: ^4.1.0
+  json_annotation: ^4.9.0
+  get_it: ^8.0.3
+  injectable: ^2.7.1+4
+  bloc: ^9.2.0
+  flutter_bloc: ^9.1.0
+  auto_route: 10.1.2
+  shared_preferences: ^2.5.4
+  sqflite: ^2.4.2
+  flutter_svg: ^2.1.0
+  flutter_screenutil: ^5.9.3
+  package_info_plus: ^8.3.0
+  jwt_decoder: ^2.0.1
+  dio: ^5.8.0+1
+  equatable: ^2.0.8
+  path_provider: ^2.1.5
+
+  # Others (In-house)
+  string_extensions:
+    path: ../string_extensions
+  datetime_utils:
+    path: ../datetime_utils
+  dlogger:
+    path: ../dlogger
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  # Test - SDK
+  flutter_test:
+    sdk: flutter
+
+  # Test - 3rd-party
+  mocktail: ^1.0.4
+  bloc_test: ^10.0.0
+
+  # Database - SqfLite
+  sqflite_common_ffi: ^2.4.0+2
+  # Lints
+  flutter_lints: ^5.0.0
+  very_good_analysis: ^7.0.0
+  clean_arch_lint:
+    path: ../clean_arch_lint
+
+  # Generators
+  build_runner: ^2.4.15
+
+  # Others
+  flutter_launcher_icons: ^0.14.3
+  json_serializable: ^6.9.4
+  injectable_generator: ^2.7.0
+  auto_route_generator: ^10.0.1
+  flutter_gen_runner: ^5.10.0
+  package_rename: ^1.10.1
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # Enables generation of localized strings from arb files
+  generate: true
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # Add assets to your application.
+  # To conditionally binding assets, for example based on flavors, see:
+  # https://docs.flutter.dev/deployment/flavors#conditionally-bundling-assets-based-on-flavor
+  #
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+  #
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+  assets:
+    - path: assets/icons/
+    - path: assets/images/
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font.
+  #
+  # All the common variants of the `Roboto` font is added for demonstration.
+  # (i.e. w100 to w900, regular and italic versions for all weight variants)
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Roboto-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: assets/fonts/Roboto-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Roboto-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/fonts/Roboto-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Roboto-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Roboto-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Roboto-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Roboto-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/Roboto-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Roboto-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: assets/fonts/Roboto-Black.ttf
+          weight: 900
+        - asset: assets/fonts/Roboto-BlackItalic.ttf
+          weight: 900
+          style: italic
+
+# Flutter gen config.
+# See https://pub.dev/packages/flutter_gen for more information.
+flutter_gen:
+  output: lib/generated/assets/
+  line_length: 80
+  assets:
+    outputs:
+      class_name: AppAssets
+  fonts:
+    outputs:
+      class_name: AppFonts
+  colors:
+    inputs:
+      - assets/colors/colors.xml
+    outputs:
+      class_name: AppColors
+  integrations:
+    image: true
+    flutter_svg: true
+
+# Flutter intl config.
+flutter_intl:
+  enabled: true

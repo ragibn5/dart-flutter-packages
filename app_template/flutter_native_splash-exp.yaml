@@ -1,0 +1,35 @@
+# Please replace the colors and images with your desired ones.
+# Provided ones are just for demonstration.
+#
+# `splash.png` should have the following property:
+# - Frame/Canvas: 1152 * 1152 pixels, transparent background.
+# - Icon/Content: Content should be fully inside a circle of diameter 768,
+#                 centered at the previously described frame of 1152 * 1152.
+#                 That is, it should be at most 543.1 * 543.1 pixels. Any larger,
+#                 and the content may be cut out by system.
+#                 Recommended: 384 * 384.
+# `branding.png` should be at least 200(width) * 80(height), or larger, but of same aspect ratio.
+#
+# Finally, run the following command to generate required files and apply the changes:
+# ```bash
+# dart run flutter_native_splash:create --all-flavors
+# ```
+#
+# For more customization options, please see:
+# https://pub.dev/packages/flutter_native_splash
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/external/images/splash.png
+  branding: assets/external/images/branding.png
+  color_dark: "#121212"
+  image_dark: assets/external/images/splash.png
+  branding_dark: assets/external/images/branding.png
+  branding_bottom_padding: 24
+
+  android_12:
+    image: assets/external/images/splash.png
+    icon_background_color: "#ffffff"
+    image_dark: assets/external/images/splash.png
+    icon_background_color_dark: "#121212"
+
+  web: false

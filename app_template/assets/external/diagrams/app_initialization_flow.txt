@@ -1,0 +1,22 @@
+App initialization flow:
+
+runFlavoredApp(startupConfig: StartupConfig.dev());
+within guarder zone:
+	(WidgetsFlutterBinding.ensureInitialized())
+	FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+	await Firebase.initializeApp(options: startupConfig.firebaseOptions);
+	await configureDependencies(Environment(startupConfig.flavor.name));
+	runApp(AppRoot(): Controlled by AppBloc)
+		Fire AppInitializationRequested event:
+			await _appInitializerService.initializeAppComponents();
+				await _crashlyticsService.initialize();
+			    await _analyticsService.initialize();
+			    await _appDatabase.initialize();
+			await _sessionInitializerService.initializeSessionComponents();
+				await _analyticsService.setSessionData(...user-id and other session data...)
+				await _crashlyticsService.setSessionData(...user-id and other session data...)
+			Fire _ListenLocaleChangeRequested event: Starts listening for _appPreferenceService.getLocaleStream() and emit AppInitializationSuccess with new locale.
+			Fire _ListenThemeModeChangeRequested event: Starts listening for _appPreferenceService.getThemeModeStream() and emit AppInitializationSuccess with new themeMode.
+			Finally emit AppInitializationSuccess with current locale and theme-mode (from preferences).
+	FlutterNativeSplash.remove();
+

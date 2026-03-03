@@ -1,0 +1,132 @@
+# Flutter Launcher Icons Configuration
+# Package: flutter_launcher_icons
+# Documentation: https://pub.dev/packages/flutter_launcher_icons
+
+flutter_launcher_icons:
+
+  # ==================== UNIVERSAL SOURCE IMAGE ====================
+  # Universal source image used for all platforms (if platform-specific images are not provided)
+  # If you specify this, other configs bellow this one are not required.
+  # NOTE: Platform specific configs are preferred over universal `image_path`.
+  #
+  # Recommended specs:
+  # - Dimensions: 1024x1024 pixels.
+  # - Format: 32 bit PNG (No transparent pixels, or background or clipping).
+  # - SAFE AREA: Keep content within 768x768 pixels circle (centered).
+  # - DANGER ZONE: Outer areas (outside safe area) may be clipped, or masked.
+  image_path: "assets/external/images/app_icon_padded.png"
+
+  # ==================== ANDROID CONFIGURATION ====================
+  android: true
+
+  # Minimum Android SDK version (affects available features)
+  # - Min supported: 16
+  # - Default: 21
+  # - Recommended: 21+ for adaptive icon support
+  min_sdk_android: 21
+
+  # Android-specific source image (overrides universal image_path for Android)
+  # LEGACY ICONS (Android 7.1 and below):
+  # - Dimensions: 1024x1024 pixels.
+  # - Format: 32 bit PNG (No transparent pixels, or background or clipping).
+  # - SAFE AREA: Keep content within 768x768 pixels circle (centered).
+  # - DANGER ZONE: Outer areas (outside safe area) may be clipped, or masked.
+  # image_path_android: "assets/external/images/app_icon_padded.png"
+
+  # ADAPTIVE ICON CONFIGURATION (Android 8.0+ / API 26+)
+  #
+  # == Background layer for adaptive icon ==
+  # - Can be a color code (Hex format), or an image.
+  # - Background image specs (if not using hex color):
+  #   - Dimensions: 1024x1024 pixels.
+  #   - Format: 32 bit PNG (No transparent pixels, or background or clipping).
+  #   Note: Background may be visible through foreground transparency.
+  # adaptive_icon_background: "assets/external/images/background.png"
+  #
+  # == Foreground layer for adaptive icon ==
+  # Specs for 1024x1024 source image:
+  # - Dimensions: 1024x1024 pixels.
+  # - Format: 32 bit PNG (Transparent pixels allowed).
+  # - SAFE AREA: 625x625 pixels square (centered) - guaranteed never to be clipped.
+  # - DANGER ZONE: Outer areas (outside safe area) may be clipped, or masked.
+  # adaptive_icon_foreground: "assets/external/images/foreground.png"
+  # == Padding of foreground adaptive icon layer ==
+  # Defaults to 16 %, should be 0, as we expect the designer handled this.
+  adaptive_icon_foreground_inset: 0
+  #
+  # == Monochrome version for themed icons (Android 13+ / API 33+) ==
+  # Specs for 1024x1024 source image:
+  # - Dimensions: 1024x1024 pixels.
+  # - Format: Monochromatic PNG (Transparent pixels allowed).
+  # - SAFE AREA: 625x625 pixels square (centered) - guaranteed never to be clipped.
+  # - DANGER ZONE: Outer areas (outside safe area) may be clipped, or masked.
+  # adaptive_icon_monochrome: "assets/external/images/monochrome.png"
+
+  # ==================== IOS CONFIGURATION ====================
+  ios: true
+
+  # iOS-specific source image (overrides universal image_path for iOS)
+  # Recommended specs:
+  # - Dimensions: 1024x1024 pixels
+  # - Format: 32 bit PNG (No transparent pixels, or background or clipping).
+  # - SAFE AREA: Content should fill most of the 1024x1024 frame (iOS doesn't use circle masking)
+  # - Corner radius: Applied automatically by iOS (don't add your own)
+  # - Background: Can be transparent or solid color
+  # image_path_ios: "assets/external/images/app_icon_padded.png"
+
+  # Remove alpha channel from iOS icons (recommended for App Store)
+  # iOS icons shouldn't have transparency in most cases
+  remove_alpha_ios: true
+  remove_alpha_channel_ios: true
+
+  # Dark mode transparent icon (iOS 18+)
+  # Specs:
+  # - Dimensions: 1024x1024 pixels
+  # - Format: PNG with transparency
+  # - Should be designed for dark backgrounds
+  # - Used when device is in dark mode and supports transparent icons
+  # image_path_ios_dark_transparent: "assets/external/images/app_icon_dark.png"
+
+  # Tinted grayscale version for iOS (iOS 18+)
+  # Specs:
+  # - Dimensions: 1024x1024 pixels
+  # - Format: PNG
+  # - Should be a grayscale version of your icon
+  # - Used for tinted appearances in certain contexts
+  # image_path_ios_tinted_grayscale: "assets/external/images/app_icon_tinted.png"
+
+  # Automatically desaturate the main icon to create tinted grayscale version
+  # Set to true if you want the plugin to auto-generate the tinted version
+  # Set to false if you're providing a custom tinted image above
+  # desaturate_tinted_to_grayscale_ios: true
+
+  # ==================== WEB CONFIGURATION ====================
+  web:
+    # Generate web app icons (favicon, PWA icons, etc.)
+    generate: false
+
+    # Web icon specs:
+    # - Source should be 512x512 minimum
+    # - Should work well at small sizes (16x16, 32x32)
+    # - Solid background recommended (no transparency for favicon)
+
+  # ==================== WINDOWS CONFIGURATION ====================
+  windows:
+    # Generate Windows app icons
+    generate: false
+
+    # Windows icon specs:
+    # - Source should be 256x256 minimum
+    # - Should be recognizable at 16x16 pixels
+    # - Solid background recommended
+
+  # ==================== MACOS CONFIGURATION ====================
+  macos:
+    # Generate macOS app icons
+    generate: false
+
+    # macOS icon specs:
+    # - Source should be 1024x1024 minimum
+    # - Should work well at all sizes
+    # - Can have transparency
+    # - Rounded corners applied automatically

@@ -1,0 +1,29 @@
+name: generator_core
+description: Core code generation components used to create code generator packages.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/generator_core
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  yaml: ^3.1.3
+  build: ^2.4.2
+  source_gen: ^2.0.0
+
+dev_dependencies:
+  # Test
+  test: ^1.25.5
+
+  # Lints
+  lints: ^5.0.0
+  very_good_analysis: ^7.0.0

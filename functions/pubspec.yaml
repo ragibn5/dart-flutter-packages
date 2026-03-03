@@ -1,0 +1,28 @@
+name: functions
+description: A collection of reusable functions missing in core dart sdk.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/functions
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.0.6
+
+# Regular dependencies
+# (Bundled in executable artifact)
+dependencies:
+  # path: ^1.8.0
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  lints: ^2.0.0
+  very_good_analysis: ^5.1.0
+  test: ^1.21.0

@@ -1,0 +1,92 @@
+// ignore_for_file: avoid_dynamic_calls
+
+import 'dart:io';
+
+import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:functions/functions.dart';
+import 'package:meta/meta.dart';
+import 'package:path/path.dart' as path;
+import 'package:yaml/yaml.dart';
+
+abstract class ContextConfigLoader<C extends ContextConfig> {
+  /// Load plugin specific config.
+  ///
+  /// You may use the passed [PackageInfo] instance directly
+  /// to construct return value ([ContextConfig] requires a [PackageInfo]).
+  C loadPluginConfig(RuleContext context, PackageInfo packageInfo);
+
+  /// Load the config for the given [RuleContext] instance.
+  @mustCallSuper
+  ContextConfig loadConfig(RuleContext context) {
+    final packageInfo = _extractPackageInfo(context);
+    return loadPluginConfig(context, packageInfo);
+  }
+
+  /// Extracts [PackageInfo] from the given [RuleContext].
+  ///
+  /// This method attempts to identify the Dart package containing the
+  /// compilation unit being analyzed.
+  ///
+  /// If the unit is not part of a package (e.g., a standalone script),
+  /// or if the `pubspec.yaml` is missing or invalid, it returns a [PackageInfo]
+  /// with a `null` name and uses the directory containing the compilation unit
+  /// as the location.
+  PackageInfo _extractPackageInfo(RuleContext context) {
+    final package = context.package;
+    final unitLocation = context.definingUnit.file.parent.path;
+    if (package == null) {
+      // Not from a dart package.
+      // - Package name is null.
+      // - Package location (Compilation unit location tbh) is the parent dir.
+      return PackageInfo(name: null, location: unitLocation);
+    }
+
+    final packageRootPath = package.root.path;
+    final pubspecFile = File(path.join(packageRootPath, 'pubspec.yaml'));
+    if (!pubspecFile.existsSync()) {
+      // If there is no pubspec file and the analysis server still identified
+      // it as a dart package (not likely going to happen), considering it as
+      // non-package compilation unit. So,
+      // - Package name is null.
+      // - Package location (Compilation unit location tbh) is the parent dir.
+      return PackageInfo(name: null, location: unitLocation);
+    }
+
+    final pubspecContent = pubspecFile.readAsStringSync();
+    final parsedPubspec = runCatching(
+      () => loadYaml(pubspecContent) as YamlMap?,
+      defaultValue: null,
+    );
+    if (parsedPubspec == null) {
+      // If twe were unable to load/parse the pubspec.yaml file
+      // (not likely going to happen), considering it as non-package
+      // compilation unit. So,
+      // - Package name is null.
+      // - Package location (Compilation unit location tbh) is the parent dir.
+      return PackageInfo(name: null, location: unitLocation);
+    }
+
+    final packageName = runCatching(
+      () => parsedPubspec['name'] as String,
+      defaultValue: null,
+    );
+    if (packageName == null) {
+      // If twe were unable to find the name field within the pubspec.yaml
+      // file (not likely going to happen), considering it as non-package
+      // compilation unit. So,
+      // - Package name is null.
+      // - Package location (Compilation unit location tbh) is the parent dir.
+      return PackageInfo(name: null, location: unitLocation);
+    }
+
+    // At this point, we are sure that the compilation unit belongs
+    // to a valid dart package. So,
+    // - We have a valid package name.
+    // - Package location is the root of the package.
+    final packageInfo = PackageInfo(
+      name: packageName,
+      location: packageRootPath,
+    );
+    return packageInfo;
+  }
+}

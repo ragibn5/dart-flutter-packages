@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "appTitle": "enFAT",
+  "startupGenericErrorMessage": "Startup error, please contact support.",
+  "login": "Login",
+  "logOut": "Log out",
+  "hello": "Hello!",
+  "cancel": "Cancel",
+  "close": "Close",
+  "retry": "Retry",
+  "skip": "Skip",
+  "updateNow": "Update now",
+  "enterUsername": "Enter username"
+}

@@ -1,0 +1,20 @@
+import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+class AppThemeModeMapper extends JsonConverter<AppThemeMode?, String?> {
+  const AppThemeModeMapper();
+
+  @override
+  AppThemeMode? fromJson(String? json) {
+    if (json == null) {
+      return null;
+    }
+
+    return AppThemeMode.values.where((e) => e.name == json).firstOrNull;
+  }
+
+  @override
+  String? toJson(AppThemeMode? object) {
+    return object?.name;
+  }
+}

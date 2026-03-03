@@ -1,0 +1,30 @@
+name: dlogger
+description: A simple and extensible logging solution for dart and flutter apps with handy pre-built loggers.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/dlogger
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.0.6
+
+# Add regular dependencies here.
+dependencies:
+   path: ^1.8.0
+   mocktail: any
+
+dev_dependencies:
+  # Test
+  test: ^1.24.9
+  mockito: ^5.4.2
+
+  # Lints
+  lints: ^3.0.0
+  very_good_analysis: ^5.1.0
