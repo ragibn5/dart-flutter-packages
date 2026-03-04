@@ -5,5 +5,5 @@ class SessionData {
   final SessionLogger logger;
   final ContextConfig config;
 
-  SessionData({required this.logger, required this.config});
+  const SessionData({required this.logger, required this.config});
 }

@@ -13,7 +13,7 @@ abstract class ContextConfig implements Mappable {
   /// The configuration for global scanning scope.
   final ScanConfig scanConfig;
 
-  ContextConfig({
+  const ContextConfig({
     required this.packageInfo,
     required this.logConfig,
     this.scanConfig = const ScanConfig(),
