@@ -24,7 +24,7 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
   /// **Note,**
   /// This method will not be called if the node is filtered
   /// out by lint configuration, or in any erroneous cases.
-  void registerPackageNodeProcessors(
+  void registerSessionedNodeProcessors(
     RuleContext context,
     RuleVisitorRegistry registry,
     RuleSessionContext<T> sessionContext,
@@ -77,7 +77,7 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
       return;
     }
 
-    registerPackageNodeProcessors(
+    registerSessionedNodeProcessors(
       context,
       registry,
       RuleSessionContext(config: config, logger: logger),

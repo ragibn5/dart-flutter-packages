@@ -47,13 +47,13 @@ class _TestSessionManagedAnalysisRuleImpl
       const LintCode('sample_lint_code', 'Sample lint description');
 
   @override
-  void registerPackageNodeProcessors(
+  void registerSessionedNodeProcessors(
     RuleContext context,
     RuleVisitorRegistry registry,
     RuleSessionContext<_MockContextConfig> sessionContext,
   ) {
     // Capture the incoming params to verify
-    // call to registerPackageNodeProcessors.
+    // call to registerSessionedNodeProcessors.
     this.context = context;
     this.registry = registry;
     this.sessionContext = sessionContext;
