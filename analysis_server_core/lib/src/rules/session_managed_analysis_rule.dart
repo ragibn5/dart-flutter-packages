@@ -36,12 +36,12 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
     RuleVisitorRegistry registry,
     RuleContext context,
   ) {
-    final srcPath = context.definingUnit.file.path;
-
-    final sessionDataFetchResult = sessionDataManager.getSessionDataFor(
-      context,
-    );
+    final sessionDataFetchResult = sessionDataManager.getSessionDataFor(context);
     final sessionData = sessionDataFetchResult.sessionData;
+    final logger = sessionData.logger;
+    final config = sessionData.config;
+    final scanConfig = config.scanConfig;
+    final srcPath = context.definingUnit.file.path;
     if (sessionDataFetchResult.isNewlyCreated) {
       sessionData.logger.logInfo(
         tag: '$SessionDataManager',
@@ -49,10 +49,6 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
         extras: sessionData.config.toMap(),
       );
     }
-
-    final logger = sessionData.logger;
-    final config = sessionData.config;
-    final scanConfig = config.scanConfig;
 
     if (config is! T) {
       logger.logWarning(
