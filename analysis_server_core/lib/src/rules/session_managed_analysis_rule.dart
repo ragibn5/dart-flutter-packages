@@ -36,7 +36,9 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
     RuleVisitorRegistry registry,
     RuleContext context,
   ) {
-    final sessionDataFetchResult = sessionDataManager.getSessionDataFor(context);
+    final sessionDataFetchResult = sessionDataManager.getSessionDataFor(
+      context,
+    );
     final sessionData = sessionDataFetchResult.sessionData;
     final logger = sessionData.logger;
     final config = sessionData.config;
