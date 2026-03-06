@@ -61,7 +61,7 @@ class _TestSessionManagedAnalysisRuleImpl
 }
 
 void main() {
-  const aCompilationUnitPath = 'x/y/z/a.dart';
+  const aCompilationUnitPath = 'x/y/z/lib/a.dart';
   const ruleMetadata = RuleMetadata('name', 'description');
 
   late _MockRuleVisitorRegistry mockRuleVisitorRegistry;
