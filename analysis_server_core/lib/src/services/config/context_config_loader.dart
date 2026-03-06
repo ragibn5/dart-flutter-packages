@@ -33,12 +33,12 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
   /// as the location.
   PackageInfo _extractPackageInfo(RuleContext context) {
     final package = context.package;
-    final unitLocation = context.definingUnit.file.parent.path;
+    final unitParentLocation = context.definingUnit.file.parent.path;
     if (package == null) {
       // Not from a dart package.
       // - Package name is null.
-      // - Package location (Compilation unit location tbh) is the parent dir.
-      return PackageInfo(name: null, location: unitLocation);
+      // - Package location unit's parent dir.
+      return PackageInfo(name: null, location: unitParentLocation);
     }
 
     final packageRootPath = package.root.path;
@@ -49,7 +49,7 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
       // non-package compilation unit. So,
       // - Package name is null.
       // - Package location (Compilation unit location tbh) is the parent dir.
-      return PackageInfo(name: null, location: unitLocation);
+      return PackageInfo(name: null, location: unitParentLocation);
     }
 
     final pubspecContent = pubspecFile.readAsStringSync();
@@ -63,7 +63,7 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
       // compilation unit. So,
       // - Package name is null.
       // - Package location (Compilation unit location tbh) is the parent dir.
-      return PackageInfo(name: null, location: unitLocation);
+      return PackageInfo(name: null, location: unitParentLocation);
     }
 
     final packageName = runCatching(
@@ -76,7 +76,7 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
       // compilation unit. So,
       // - Package name is null.
       // - Package location (Compilation unit location tbh) is the parent dir.
-      return PackageInfo(name: null, location: unitLocation);
+      return PackageInfo(name: null, location: unitParentLocation);
     }
 
     // At this point, we are sure that the compilation unit belongs
