@@ -2,8 +2,8 @@
 
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:analysis_server_core/src/models/session_data.dart';
-import 'package:analysis_server_core/src/services/logger/session_logger.dart';
 import 'package:analysis_server_core/src/models/session_data_fetch_result.dart';
+import 'package:analysis_server_core/src/services/logger/session_logger.dart';
 import 'package:analyzer/file_system/file_system.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';

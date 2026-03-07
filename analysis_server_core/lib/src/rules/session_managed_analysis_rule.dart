@@ -9,10 +9,9 @@ import 'package:meta/meta.dart';
 
 abstract class SessionManagedAnalysisRule<T extends ContextConfig>
     extends AnalysisRule {
-  final RuleMetadata metadata;
-  final SessionDataManager sessionDataManager;
+  final SessionDataManager _sessionDataManager;
 
-  SessionManagedAnalysisRule(this.metadata, this.sessionDataManager)
+  SessionManagedAnalysisRule(RuleMetadata metadata, this._sessionDataManager)
     : super(name: metadata.name, description: metadata.description);
 
   /// Register processors for the node being analyzed.
@@ -36,7 +35,7 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
     RuleVisitorRegistry registry,
     RuleContext context,
   ) {
-    final sessionDataFetchResult = sessionDataManager.getSessionDataFor(
+    final sessionDataFetchResult = _sessionDataManager.getSessionDataFor(
       context,
     );
     final sessionData = sessionDataFetchResult.sessionData;
