@@ -109,7 +109,9 @@ void main() {
   }
 
   test('Default constructor should: enable logger + enable all levels', () {
-    final localSUT = SessionLoggerImpl({'x': mockCompositeLogger});
+    final SessionLogger localSUT = SessionLoggerImpl({
+      'x': mockCompositeLogger,
+    });
     expect(localSUT.enabled, true);
     expect(localSUT.allowedLevels, SessionLogLevel.values.toSet());
   });

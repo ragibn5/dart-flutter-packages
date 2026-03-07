@@ -4,6 +4,12 @@ import 'package:meta/meta.dart';
 enum SessionLogLevel { INFO, WARNING, ERROR }
 
 abstract interface class SessionLogger {
+  @visibleForTesting
+  bool get enabled;
+
+  @visibleForTesting
+  Set<SessionLogLevel> get allowedLevels;
+
   /// Enable or disable the entire logger.
   ///
   /// **Note:**
@@ -74,9 +80,11 @@ class SessionLoggerImpl implements SessionLogger {
     this._allowedLevels,
   );
 
+  @override
   @visibleForTesting
   bool get enabled => _enabled;
 
+  @override
   @visibleForTesting
   Set<SessionLogLevel> get allowedLevels => Set.unmodifiable(_allowedLevels);
 
