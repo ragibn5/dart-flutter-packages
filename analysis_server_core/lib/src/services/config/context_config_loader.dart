@@ -1,14 +1,22 @@
 // ignore_for_file: avoid_dynamic_calls
 
-import 'dart:io';
-
 import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_core/src/services/config/config_source_provider.dart';
 import 'package:functions/functions.dart';
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
 abstract class ContextConfigLoader<C extends ContextConfig> {
+  final ConfigSourceProvider configSourceProvider;
+
+  ContextConfigLoader() : this._(ConfigSourceProviderImpl());
+
+  @visibleForTesting
+  ContextConfigLoader.test(ConfigSourceProvider configSourceProvider)
+    : this._(configSourceProvider);
+
+  ContextConfigLoader._(this.configSourceProvider);
+
   /// Load plugin specific config.
   ///
   /// You may use the passed [PackageInfo] instance directly
@@ -42,7 +50,10 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
     }
 
     final packageRootPath = package.root.path;
-    final pubspecFile = File(path.join(packageRootPath, 'pubspec.yaml'));
+    final pubspecFile = configSourceProvider.getConfigSource(
+      package,
+      'pubspec.yaml',
+    );
     if (!pubspecFile.existsSync()) {
       // If there is no pubspec file and the analysis server still identified
       // it as a dart package (not likely going to happen), considering it as
@@ -83,10 +94,6 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
     // to a valid dart package. So,
     // - We have a valid package name.
     // - Package location is the root of the package.
-    final packageInfo = PackageInfo(
-      name: packageName,
-      location: packageRootPath,
-    );
-    return packageInfo;
+    return PackageInfo(name: packageName, location: packageRootPath);
   }
 }
