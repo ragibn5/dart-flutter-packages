@@ -18,7 +18,7 @@ class PackageInfo implements Mappable {
   ///   files, this is the parent of the file.
   final String location;
 
-  PackageInfo({required this.name, required this.location});
+  const PackageInfo({required this.name, required this.location});
 
   @override
   Map<String, dynamic> toMap() => {'name': name, 'location': location};

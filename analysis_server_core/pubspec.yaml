@@ -24,6 +24,7 @@ dependencies:
   analysis_server_plugin: ^0.3.0
   analyzer_plugin: ^0.13.0
   analyzer: ^8.0.0
+  mocktail: ^1.0.4
   functions:
     path: ../functions
   dlogger:

@@ -28,7 +28,7 @@ class DependencyDirectionRule
   DiagnosticCode get diagnosticCode => DDR_LINT_CODE;
 
   @override
-  void registerPackageNodeProcessors(
+  void registerSessionedNodeProcessors(
     RuleContext context,
     RuleVisitorRegistry registry,
     RuleSessionContext<CleanArchLintConfig> sessionContext,

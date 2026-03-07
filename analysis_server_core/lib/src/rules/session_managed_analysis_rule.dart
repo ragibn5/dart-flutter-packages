@@ -9,10 +9,9 @@ import 'package:meta/meta.dart';
 
 abstract class SessionManagedAnalysisRule<T extends ContextConfig>
     extends AnalysisRule {
-  final RuleMetadata metadata;
-  final SessionDataManager sessionDataManager;
+  final SessionDataManager _sessionDataManager;
 
-  SessionManagedAnalysisRule(this.metadata, this.sessionDataManager)
+  SessionManagedAnalysisRule(RuleMetadata metadata, this._sessionDataManager)
     : super(name: metadata.name, description: metadata.description);
 
   /// Register processors for the node being analyzed.
@@ -24,7 +23,7 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
   /// **Note,**
   /// This method will not be called if the node is filtered
   /// out by lint configuration, or in any erroneous cases.
-  void registerPackageNodeProcessors(
+  void registerSessionedNodeProcessors(
     RuleContext context,
     RuleVisitorRegistry registry,
     RuleSessionContext<T> sessionContext,
@@ -36,12 +35,14 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
     RuleVisitorRegistry registry,
     RuleContext context,
   ) {
-    final srcPath = context.definingUnit.file.path;
-
-    final sessionDataFetchResult = sessionDataManager.getSessionDataFor(
+    final sessionDataFetchResult = _sessionDataManager.getSessionDataFor(
       context,
     );
     final sessionData = sessionDataFetchResult.sessionData;
+    final logger = sessionData.logger;
+    final config = sessionData.config;
+    final scanConfig = config.scanConfig;
+    final srcPath = context.definingUnit.file.path;
     if (sessionDataFetchResult.isNewlyCreated) {
       sessionData.logger.logInfo(
         tag: '$SessionDataManager',
@@ -49,10 +50,6 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
         extras: sessionData.config.toMap(),
       );
     }
-
-    final logger = sessionData.logger;
-    final config = sessionData.config;
-    final scanConfig = config.scanConfig;
 
     if (config is! T) {
       logger.logWarning(
@@ -81,7 +78,7 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
       return;
     }
 
-    registerPackageNodeProcessors(
+    registerSessionedNodeProcessors(
       context,
       registry,
       RuleSessionContext(config: config, logger: logger),

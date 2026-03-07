@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:analysis_server_core/src/models/session_data.dart';
 import 'package:analysis_server_core/src/services/config/context_config_loader.dart';
 import 'package:analysis_server_core/src/services/logger/session_logger.dart';
-import 'package:analysis_server_core/src/services/logger/session_logger_impl.dart';
 import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:dlogger/dlogger.dart';
 import 'package:intl/intl.dart';
