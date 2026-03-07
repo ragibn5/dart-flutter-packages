@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:yaml/yaml.dart';
 
 abstract class ContextConfigLoader<C extends ContextConfig> {
-  final ConfigSourceProvider configSourceProvider;
+  final ConfigSourceProvider _configSourceProvider;
 
   ContextConfigLoader() : this._(ConfigSourceProviderImpl());
 
@@ -15,7 +15,7 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
   ContextConfigLoader.test(ConfigSourceProvider configSourceProvider)
     : this._(configSourceProvider);
 
-  ContextConfigLoader._(this.configSourceProvider);
+  ContextConfigLoader._(this._configSourceProvider);
 
   /// Load plugin specific config.
   ///
@@ -50,7 +50,7 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
     }
 
     final packageRootPath = package.root.path;
-    final pubspecFile = configSourceProvider.getConfigSource(
+    final pubspecFile = _configSourceProvider.getConfigSource(
       package,
       'pubspec.yaml',
     );
