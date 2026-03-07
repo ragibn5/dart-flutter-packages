@@ -5,25 +5,52 @@ import 'dart:io';
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
+import 'package:clean_arch_lint/src/models/default_config_options.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule.dart';
+import 'package:clean_arch_lint/src/services/config/config_source_provider.dart';
 import 'package:functions/functions.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
 class CleanArchLintConfigLoader extends ContextConfigLoader {
+  final DefaultConfigOptions _defaultConfigOptions;
+  final ConfigSourceProvider _configSourceProvider;
+
+  CleanArchLintConfigLoader()
+    : this._(
+        DefaultConfigOptions(
+          logConfig: LogConfig(
+            logDirectoryRelativePathFromProjectRoot: path.joinAll([
+              'logs',
+              'analysis_plugins',
+              'clean_arch_lint',
+            ]),
+          ),
+          scanConfig: const ScanConfig(),
+          ddrConfig: const DependencyDirectionRuleConfig(),
+        ),
+        ConfigSourceProviderImpl(),
+      );
+
+  @visibleForTesting
+  CleanArchLintConfigLoader.test(
+    DefaultConfigOptions defaultConfigOptions,
+    ConfigSourceProvider configSourceProvider,
+  ) : this._(defaultConfigOptions, configSourceProvider);
+
+  CleanArchLintConfigLoader._(
+    this._defaultConfigOptions,
+    this._configSourceProvider,
+  );
+
   @override
   ContextConfig loadPluginConfig(RuleContext context, PackageInfo packageInfo) {
-    final defaultLogDirRelativePathFromProjectRoot = path.join(
-      'logs',
-      'analysis_plugins',
-      'clean_arch_lint',
-    );
     final fallbackConfig = CleanArchLintConfig(
       packageInfo: packageInfo,
-      logConfig: LogConfig(
-        logDirectoryRelativePathFromProjectRoot:
-            defaultLogDirRelativePathFromProjectRoot,
-      ),
+      logConfig: _defaultConfigOptions.logConfig,
+      scanConfig: _defaultConfigOptions.scanConfig,
+      ddrConfig: _defaultConfigOptions.ddrConfig,
     );
 
     if (packageInfo.name == null) {
@@ -34,8 +61,9 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
       return fallbackConfig;
     }
 
-    final pluginConfigFile = File(
-      path.join(packageInfo.location, 'clean_arch_lint_config.yaml'),
+    final pluginConfigFile = _configSourceProvider.getConfigSource(
+      packageInfo,
+      'clean_arch_lint_config.yaml',
     );
     if (!pluginConfigFile.existsSync()) {
       // If the plugin config file doesn't exist, then will use fallback config.
@@ -53,46 +81,46 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
 
     return CleanArchLintConfig(
       packageInfo: packageInfo,
-      ddrConfig: _extractDDRConfig(parsedConfig),
+      logConfig: _extractLogConfig(parsedConfig),
       scanConfig: _extractScanConfig(parsedConfig),
-      logConfig: _extractLogConfig(
-        parsedConfig,
-        defaultLogDirRelativePathFromProjectRoot,
-      ),
+      ddrConfig: _extractDDRConfig(parsedConfig),
     );
   }
 
-  LogConfig _extractLogConfig(
-    YamlMap rootConfigMap,
-    String defaultLogDirectoryRelativePathFromProjectRoot,
-  ) {
+  LogConfig _extractLogConfig(YamlMap rootConfigMap) {
     final logConfigYaml = runCatching(
       () => rootConfigMap['log_config'] as YamlMap?,
       defaultValue: null,
     );
     if (logConfigYaml == null) {
-      return LogConfig(
-        logDirectoryRelativePathFromProjectRoot:
-            defaultLogDirectoryRelativePathFromProjectRoot,
-      );
+      return _defaultConfigOptions.logConfig;
     }
 
+    final defaultLogDirectoryRelativePathFromProjectRoot =
+        _defaultConfigOptions.logConfig.logDirectoryRelativePathFromProjectRoot;
+    final defaultEnabledStatus = _defaultConfigOptions.logConfig.enabled;
+    final defaultInfoLogAllowed = _defaultConfigOptions.logConfig.allowInfoLog;
+    final defaultWarningLogAllowed =
+        _defaultConfigOptions.logConfig.allowWarningLog;
+    final defaultErrorLogAllowed =
+        _defaultConfigOptions.logConfig.allowErrorLog;
     return LogConfig(
       enabled: runCatching(
-        () => logConfigYaml['enabled'] as bool? ?? false,
-        defaultValue: false,
+        () => logConfigYaml['enabled'] as bool? ?? defaultEnabledStatus,
+        defaultValue: defaultEnabledStatus,
       ),
       allowInfoLog: runCatching(
-        () => logConfigYaml['allow_info'] as bool? ?? false,
-        defaultValue: false,
+        () => logConfigYaml['allow_info'] as bool? ?? defaultInfoLogAllowed,
+        defaultValue: defaultInfoLogAllowed,
       ),
       allowWarningLog: runCatching(
-        () => logConfigYaml['allow_warning'] as bool? ?? false,
-        defaultValue: false,
+        () =>
+            logConfigYaml['allow_warning'] as bool? ?? defaultWarningLogAllowed,
+        defaultValue: defaultWarningLogAllowed,
       ),
       allowErrorLog: runCatching(
-        () => logConfigYaml['allow_error'] as bool? ?? true,
-        defaultValue: true,
+        () => logConfigYaml['allow_error'] as bool? ?? defaultErrorLogAllowed,
+        defaultValue: defaultErrorLogAllowed,
       ),
       logDirectoryRelativePathFromProjectRoot: runCatching(
         () =>
@@ -112,17 +140,23 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
       defaultValue: null,
     );
     if (scanConfigYaml == null) {
-      return const ScanConfig();
+      return _defaultConfigOptions.scanConfig;
     }
 
+    final defaultScanLibDirStatus = _defaultConfigOptions.scanConfig.scanLibDir;
+    final defaultScanTestDirStatus =
+        _defaultConfigOptions.scanConfig.scanTestDir;
     return ScanConfig(
       scanLibDir: runCatching(
-        () => scanConfigYaml['scan_lib_dir'] as bool? ?? true,
-        defaultValue: true,
+        () =>
+            scanConfigYaml['scan_lib_dir'] as bool? ?? defaultScanLibDirStatus,
+        defaultValue: defaultScanLibDirStatus,
       ),
       scanTestDir: runCatching(
-        () => scanConfigYaml['scan_test_dir'] as bool? ?? false,
-        defaultValue: false,
+        () =>
+            scanConfigYaml['scan_test_dir'] as bool? ??
+            defaultScanTestDirStatus,
+        defaultValue: defaultScanTestDirStatus,
       ),
     );
   }
@@ -134,17 +168,24 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
       defaultValue: null,
     );
     if (ddrConfigYaml == null) {
-      return const DependencyDirectionRuleConfig();
+      return _defaultConfigOptions.ddrConfig;
     }
+
+    final defaultDomainDirName = _defaultConfigOptions.ddrConfig.domainDirName;
+    final defaultCoreDartPackageExclusionStatus =
+        _defaultConfigOptions.ddrConfig.excludeCoreDartPackages;
 
     return DependencyDirectionRuleConfig(
       domainDirName: runCatching(
-        () => ddrConfigYaml['domain_dir_name'] as String,
-        defaultValue: 'domain',
+        () =>
+            ddrConfigYaml['domain_dir_name'] as String? ?? defaultDomainDirName,
+        defaultValue: defaultDomainDirName,
       ),
       excludeCoreDartPackages: runCatching(
-        () => ddrConfigYaml['exclude_core_dart_packages'] as bool,
-        defaultValue: true,
+        () =>
+            ddrConfigYaml['exclude_core_dart_packages'] as bool? ??
+            defaultCoreDartPackageExclusionStatus,
+        defaultValue: defaultCoreDartPackageExclusionStatus,
       ),
       excludedProjectPaths: runCatching(
         () =>
