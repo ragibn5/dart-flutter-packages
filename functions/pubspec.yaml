@@ -18,7 +18,7 @@ environment:
 # Regular dependencies
 # (Bundled in executable artifact)
 dependencies:
-  # path: ^1.8.0
+  mocktail: ^1.0.4
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
