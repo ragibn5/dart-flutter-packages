@@ -12,21 +12,21 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-class MockRuleContext extends Mock implements RuleContext {}
+class _MockRuleContext extends Mock implements RuleContext {}
 
-class MockPackageInfo extends Mock implements PackageInfo {}
+class _MockPackageInfo extends Mock implements PackageInfo {}
 
-class MockConfigFile extends Mock implements File {}
+class _MockConfigFile extends Mock implements File {}
 
-class MockLogConfig extends Mock implements LogConfig {}
+class _MockLogConfig extends Mock implements LogConfig {}
 
-class MockScanConfig extends Mock implements ScanConfig {}
+class _MockScanConfig extends Mock implements ScanConfig {}
 
-class MockDDRConfig extends Mock implements DependencyDirectionRuleConfig {}
+class _MockDDRConfig extends Mock implements DependencyDirectionRuleConfig {}
 
-class MockDefaultConfigOptions extends Mock implements DefaultConfigOptions {}
+class _MockDefaultConfigOptions extends Mock implements DefaultConfigOptions {}
 
-class MockConfigSourceProvider extends Mock implements ConfigSourceProvider {}
+class _MockConfigSourceProvider extends Mock implements ConfigSourceProvider {}
 
 void main() {
   // Default config = default-log-dir-relative-path-parts + passed-package-config
@@ -46,26 +46,26 @@ void main() {
   const defaultExcludedProjectPaths = <String>[];
   const defaultExcludedLibraryPackages = <String>[];
 
-  late MockRuleContext mockRuleContext;
-  late MockPackageInfo mockPackageInfo;
-  late MockConfigFile mockConfigFile;
-  late MockLogConfig mockDefaultLogConfig;
-  late MockScanConfig mockDefaultScanConfig;
-  late MockDDRConfig mockDefaultDDRConfig;
-  late MockDefaultConfigOptions mockDefaultConfigOptions;
-  late MockConfigSourceProvider mockConfigSourceProvider;
+  late _MockRuleContext mockRuleContext;
+  late _MockPackageInfo mockPackageInfo;
+  late _MockConfigFile mockConfigFile;
+  late _MockLogConfig mockDefaultLogConfig;
+  late _MockScanConfig mockDefaultScanConfig;
+  late _MockDDRConfig mockDefaultDDRConfig;
+  late _MockDefaultConfigOptions mockDefaultConfigOptions;
+  late _MockConfigSourceProvider mockConfigSourceProvider;
 
   late CleanArchLintConfigLoader sut;
 
   setUp(() {
-    mockRuleContext = MockRuleContext();
-    mockPackageInfo = MockPackageInfo();
-    mockConfigFile = MockConfigFile();
-    mockDefaultLogConfig = MockLogConfig();
-    mockDefaultScanConfig = MockScanConfig();
-    mockDefaultDDRConfig = MockDDRConfig();
-    mockDefaultConfigOptions = MockDefaultConfigOptions();
-    mockConfigSourceProvider = MockConfigSourceProvider();
+    mockRuleContext = _MockRuleContext();
+    mockPackageInfo = _MockPackageInfo();
+    mockConfigFile = _MockConfigFile();
+    mockDefaultLogConfig = _MockLogConfig();
+    mockDefaultScanConfig = _MockScanConfig();
+    mockDefaultDDRConfig = _MockDDRConfig();
+    mockDefaultConfigOptions = _MockDefaultConfigOptions();
+    mockConfigSourceProvider = _MockConfigSourceProvider();
 
     sut = CleanArchLintConfigLoader.test(
       mockDefaultConfigOptions,
