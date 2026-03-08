@@ -28,9 +28,3 @@ class CleanArchLintPlugin extends Plugin {
     registry.registerWarningRule(DependencyDirectionRule(_sessionDataManager));
   }
 }
-
-void logToFile(Object? content) {
-  File(
-    '/Users/ragib/AndroidStudioProjects/dart-flutter-packages/app_template/analysis_logs/clean_arch_lint/X.log',
-  ).writeAsStringSync(const JsonEncoder.withIndent(' ').convert(content));
-}
