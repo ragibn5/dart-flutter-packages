@@ -6,6 +6,7 @@ export 'package:analysis_server_plugin/registry.dart';
 export 'package:analyzer/analysis_rule/analysis_rule.dart';
 export 'package:analyzer/analysis_rule/rule_context.dart';
 export 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
+export 'package:analyzer/dart/analysis/utilities.dart';
 export 'package:analyzer/dart/ast/ast.dart';
 export 'package:analyzer/dart/ast/visitor.dart';
 export 'package:analyzer/error/error.dart';

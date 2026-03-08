@@ -2,6 +2,7 @@ import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:clean_arch_lint/src/extensions/string_extensions.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/import_uri.dart';
+import 'package:clean_arch_lint/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:meta/meta.dart';
 
 class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
@@ -11,24 +12,34 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final RuleSessionContext<CleanArchLintConfig> sessionContext;
 
-  DependencyDirectionRuleVisitor(this.rule, this.sessionContext);
+  final ImportUriBuilder _importUriBuilder;
+
+  DependencyDirectionRuleVisitor(
+    AnalysisRule rule,
+    RuleSessionContext<CleanArchLintConfig> sessionContext,
+  ) : this._(rule, sessionContext, ImportUriBuilder());
+
+  @visibleForTesting
+  DependencyDirectionRuleVisitor.test(
+    AnalysisRule rule,
+    RuleSessionContext<CleanArchLintConfig> sessionContext,
+    ImportUriBuilder importUriBuilder,
+  ) : this._(rule, sessionContext, importUriBuilder);
+
+  DependencyDirectionRuleVisitor._(
+    this.rule,
+    this.sessionContext,
+    this._importUriBuilder,
+  );
 
   @override
   void visitImportDirective(ImportDirective node) {
-    final importUriString = node.uri.stringValue;
-    if (importUriString == null) {
-      sessionContext.logger.logInfo(
-        tag: '$DependencyDirectionRuleVisitor',
-        message: 'Invalid import uri (ignoring): $importUriString',
-      );
-      return;
-    }
-
-    final importUri = ImportUri.fromImportNode(node);
+    final importUri = _importUriBuilder.fromImportNode(node);
     if (importUri == null) {
       sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
-        message: 'Unsupported import uri (ignoring): $importUriString',
+        message:
+            'Invalid/Unsupported import uri (ignoring): ${node.uri.stringValue}',
       );
       return;
     }
