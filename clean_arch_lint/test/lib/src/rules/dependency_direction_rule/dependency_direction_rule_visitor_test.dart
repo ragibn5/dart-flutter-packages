@@ -7,8 +7,9 @@ import 'package:clean_arch_lint/src/models/ddr_config.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
 import 'package:clean_arch_lint/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
+
+import '../../../utils/parsers/import_directive_parsers.dart';
 
 class _MockAnalysisRule extends Mock implements AnalysisRule {}
 
@@ -38,21 +39,6 @@ void main() {
   late _MockImportUriBuilder mockImportUriBuilder;
 
   late DependencyDirectionRuleVisitor sut;
-
-  ImportDirective? parseImportDirective(String content) {
-    return parseString(
-      content: content,
-    ).unit.directives.whereType<ImportDirective>().firstOrNull;
-  }
-
-  ImportDirective parseValidImportDirective(String content) {
-    final importDirective = parseImportDirective(content);
-    if (importDirective == null) {
-      fail('Expected valid import directive definition, got: |$content|');
-    }
-
-    return importDirective;
-  }
 
   void givenImportUri(ImportDirective directive) {
     when(
