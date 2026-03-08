@@ -1,10 +1,12 @@
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: avoid_redundant_argument_values
 
-import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:analysis_server_core/src/models/session_data.dart';
 import 'package:analysis_server_core/src/services/session/session_data_factory.dart';
-import 'package:analyzer/file_system/file_system.dart';
+import 'package:analysis_server_core/src/services/session/session_data_manager.dart';
+import 'package:analysis_server_core/src/typedefs/typedefs.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:analyzer/workspace/workspace.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
@@ -17,9 +19,9 @@ class _MockWorkspacePackage extends Mock implements WorkspacePackage {}
 
 class _MockRuleContextUnit extends Mock implements RuleContextUnit {}
 
-class _MockRuleContextFolder extends Mock implements Folder {}
+class _MockRuleContextFolder extends Mock implements AnalyzerFolder {}
 
-class _MockRuleContextFile extends Mock implements File {}
+class _MockRuleContextFile extends Mock implements AnalyzerFile {}
 
 class _MockSessionData extends Mock implements SessionData {}
 

@@ -1,9 +1,17 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_core/src/models/context_config.dart';
+import 'package:analysis_server_core/src/models/rule_metadata.dart';
+import 'package:analysis_server_core/src/models/rule_session_context.dart';
+import 'package:analysis_server_core/src/models/scan_config.dart';
 import 'package:analysis_server_core/src/models/session_data.dart';
 import 'package:analysis_server_core/src/models/session_data_fetch_result.dart';
+import 'package:analysis_server_core/src/rules/session_managed_analysis_rule.dart';
 import 'package:analysis_server_core/src/services/logger/session_logger.dart';
+import 'package:analysis_server_core/src/services/session/session_data_manager.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
+import 'package:analyzer/error/error.dart';
 import 'package:analyzer/file_system/file_system.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';

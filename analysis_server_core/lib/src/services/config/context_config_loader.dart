@@ -1,7 +1,9 @@
 // ignore_for_file: avoid_dynamic_calls
 
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_core/src/models/context_config.dart';
+import 'package:analysis_server_core/src/models/package_info.dart';
 import 'package:analysis_server_core/src/services/config/config_source_provider.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:functions/functions.dart';
 import 'package:meta/meta.dart';
 import 'package:yaml/yaml.dart';
