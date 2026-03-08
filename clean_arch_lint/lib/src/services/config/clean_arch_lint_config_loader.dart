@@ -1,7 +1,5 @@
 // ignore_for_file: avoid_dynamic_calls
 
-import 'dart:io';
-
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
@@ -123,12 +121,10 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
         defaultValue: defaultErrorLogAllowed,
       ),
       logDirectoryRelativePathFromProjectRoot: runCatching(
-        () =>
-            (logConfigYaml['log_dir_relative_path'] as String?)?.replaceAll(
-              '/',
-              Platform.pathSeparator,
-            ) ??
-            defaultLogDirectoryRelativePathFromProjectRoot,
+        () => _normalizePath(
+          logConfigYaml['log_dir_relative_path'] as String? ??
+              defaultLogDirectoryRelativePathFromProjectRoot,
+        ),
         defaultValue: defaultLogDirectoryRelativePathFromProjectRoot,
       ),
     );
@@ -190,7 +186,9 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
       excludedProjectPaths: runCatching(
         () =>
             (ddrConfigYaml['excluded_project_paths'] as List?)
-                ?.cast<String>() ??
+                ?.cast<String>()
+                .map(_normalizePath)
+                .toList() ??
             [],
         defaultValue: [],
       ),
@@ -202,5 +200,20 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
         defaultValue: [],
       ),
     );
+  }
+
+  String _normalizePath(String filePath) {
+    final platformSeparatorFixedPath = filePath.replaceAll(
+      RegExp(r'[\\/]'),
+      path.separator,
+    );
+
+    final normalizedFixedPath = path.normalize(platformSeparatorFixedPath);
+    final normalizedPathSuffix =
+        platformSeparatorFixedPath.endsWith(path.separator)
+        ? path.separator
+        : '';
+
+    return '$normalizedFixedPath$normalizedPathSuffix';
   }
 }

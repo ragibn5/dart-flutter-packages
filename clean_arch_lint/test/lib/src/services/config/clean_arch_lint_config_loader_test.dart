@@ -9,6 +9,7 @@ import 'package:clean_arch_lint/src/models/default_config_options.dart';
 import 'package:clean_arch_lint/src/services/config/clean_arch_lint_config_loader.dart';
 import 'package:clean_arch_lint/src/services/config/config_source_provider.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -211,7 +212,7 @@ void main() {
         allow_info: true
         allow_warning: true
         allow_error: true
-        log_dir_relative_path: analysis_logs/analysis_plugins/clean_arch_lint
+        log_dir_relative_path: analysis_logs/analysis_plugins/clean_arch_lint/
   
       scan_config:
         scan_lib_dir: true
@@ -221,8 +222,8 @@ void main() {
         domain_dir_name: dmn
         exclude_core_dart_packages: false
         excluded_project_paths:
-          - core/
-          - shard/
+          - /core/
+          - /shard/
         excluded_library_packages:
           - freezed
           - equatable
@@ -253,7 +254,7 @@ void main() {
             .having(
               (p) => p.logConfig.logDirectoryRelativePathFromProjectRoot,
               'logConfig.logDirectoryRelativePathFromProjectRoot',
-              'analysis_logs/analysis_plugins/clean_arch_lint',
+              'analysis_logs/analysis_plugins/clean_arch_lint/',
             )
             .having(
               (p) => p.scanConfig.scanLibDir,
@@ -278,13 +279,49 @@ void main() {
             .having(
               (p) => p.ddrConfig.excludedProjectPaths,
               'ddrConfig.excludedProjectPaths',
-              ['core/', 'shard/'],
+              ['/core/', '/shard/'],
             )
             .having(
               (p) => p.ddrConfig.excludedLibraryPackages,
               'ddrConfig.excludedLibraryPackages',
               ['freezed', 'equatable'],
             ),
+      );
+    },
+  );
+
+  test(
+    'If all went well, and log/scan/ddr config contains invalid platform separator, it is auto fixed',
+    () {
+      when(() => mockConfigFile.readAsStringSync()).thenReturn(r'''
+      log_config:
+        log_dir_relative_path: analysis_logs\analysis_plugins\clean_arch_lint
+    
+      clean_arch_dependency_direction:
+        excluded_project_paths:
+          - core\
+          - shard\
+        excluded_library_packages:
+          - freezed
+          - equatable
+      ''');
+
+      final config = sut.loadPluginConfig(mockRuleContext, mockPackageInfo);
+
+      expect(
+        config,
+        isA<CleanArchLintConfig>()
+            .having((p) => p.packageInfo, 'packageInfo', mockPackageInfo)
+            .having(
+              (p) => p.logConfig.logDirectoryRelativePathFromProjectRoot,
+              'logConfig.logDirectoryRelativePathFromProjectRoot',
+              path.join('analysis_logs', 'analysis_plugins', 'clean_arch_lint'),
+            )
+            .having(
+              (p) => p.ddrConfig.excludedProjectPaths,
+              'ddrConfig.excludedProjectPaths',
+              ['core${path.separator}', 'shard${path.separator}'],
+            )
       );
     },
   );

@@ -2,6 +2,7 @@ import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:clean_arch_lint/src/extensions/string_extensions.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/import_uri.dart';
+import 'package:meta/meta.dart';
 
 class DependencyDirectionRule
     extends SessionManagedAnalysisRule<CleanArchLintConfig> {
@@ -57,16 +58,19 @@ class DependencyDirectionRule
 }
 
 class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
-  final AnalysisRule _rule;
-  final RuleSessionContext<CleanArchLintConfig> _sessionContext;
+  @visibleForTesting
+  final AnalysisRule rule;
 
-  DependencyDirectionRuleVisitor(this._rule, this._sessionContext);
+  @visibleForTesting
+  final RuleSessionContext<CleanArchLintConfig> sessionContext;
+
+  DependencyDirectionRuleVisitor(this.rule, this.sessionContext);
 
   @override
   void visitImportDirective(ImportDirective node) {
     final importUriString = node.uri.stringValue;
     if (importUriString == null) {
-      _sessionContext.logger.logInfo(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Invalid import uri (ignoring): $importUriString',
       );
@@ -75,7 +79,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
 
     final importUri = ImportUri.fromImportNode(node);
     if (importUri == null) {
-      _sessionContext.logger.logInfo(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Unsupported import uri (ignoring): $importUriString',
       );
@@ -83,20 +87,20 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     }
 
     if (_shouldReportImport(importUri)) {
-      _rule.reportAtNode(node);
+      rule.reportAtNode(node);
     }
   }
 
   bool _shouldReportDartCoreImport(ImportUri importUri) {
-    if (_sessionContext.config.ddrConfig.excludeCoreDartPackages) {
-      _sessionContext.logger.logInfo(
+    if (sessionContext.config.ddrConfig.excludeCoreDartPackages) {
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Core dart import (ignoring): $importUri',
       );
       return false;
     }
 
-    _sessionContext.logger.logInfo(
+    sessionContext.logger.logInfo(
       tag: '$DependencyDirectionRuleVisitor',
       message: 'Reporting non-domain core dart import: $importUri',
     );
@@ -119,7 +123,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     // If scheme is `package` and package name is the
     // session context's package name, it is the main host package.
     if (importUri.scheme == 'package' &&
-        importUri.packageName == _sessionContext.config.packageInfo.name) {
+        importUri.packageName == sessionContext.config.packageInfo.name) {
       return _shouldReportOwnPackageImport(importUri);
     }
 
@@ -127,27 +131,27 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
   }
 
   bool _shouldReportOwnPackageImport(ImportUri importUri) {
-    final domainPathSegment = _sessionContext.config.ddrConfig.domainDirName
+    final domainPathSegment = sessionContext.config.ddrConfig.domainDirName
         .surroundingPathSeparator();
     if (importUri.path.contains(domainPathSegment)) {
-      _sessionContext.logger.logInfo(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Domain import (ignoring): $importUri',
       );
       return false;
     }
 
-    if (_sessionContext.config.ddrConfig.excludedProjectPaths.any(
+    if (sessionContext.config.ddrConfig.excludedProjectPaths.any(
       importUri.path.startsWith,
     )) {
-      _sessionContext.logger.logInfo(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Excluded project import (ignoring): $importUri',
       );
       return false;
     }
 
-    _sessionContext.logger.logInfo(
+    sessionContext.logger.logInfo(
       tag: '$DependencyDirectionRuleVisitor',
       message: 'Reporting non-domain import: $importUri',
     );
@@ -158,17 +162,17 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
   bool _shouldReportLibraryPackageImport(ImportUri importUri) {
     final importedPackage = importUri.packageName;
     if (importedPackage != null &&
-        _sessionContext.config.ddrConfig.excludedLibraryPackages.any(
+        sessionContext.config.ddrConfig.excludedLibraryPackages.any(
           importedPackage.startsWith,
         )) {
-      _sessionContext.logger.logInfo(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Excluded package import (ignoring): $importUri',
       );
       return false;
     }
 
-    _sessionContext.logger.logInfo(
+    sessionContext.logger.logInfo(
       tag: '$DependencyDirectionRuleVisitor',
       message: 'Reporting package import: $importUri',
     );
