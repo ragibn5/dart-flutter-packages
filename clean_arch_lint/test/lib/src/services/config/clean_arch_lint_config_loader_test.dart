@@ -321,7 +321,7 @@ void main() {
               (p) => p.ddrConfig.excludedProjectPaths,
               'ddrConfig.excludedProjectPaths',
               ['core${path.separator}', 'shard${path.separator}'],
-            )
+            ),
       );
     },
   );
