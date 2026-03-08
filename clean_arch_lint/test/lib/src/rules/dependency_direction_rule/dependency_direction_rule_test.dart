@@ -3,7 +3,8 @@
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
-import 'package:clean_arch_lint/src/rules/dependency_direction_rule.dart';
+import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule.dart';
+import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';

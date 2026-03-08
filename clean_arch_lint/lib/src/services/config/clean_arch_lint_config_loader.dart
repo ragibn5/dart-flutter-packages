@@ -4,7 +4,7 @@ import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
 import 'package:clean_arch_lint/src/models/default_config_options.dart';
-import 'package:clean_arch_lint/src/rules/dependency_direction_rule.dart';
+import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule.dart';
 import 'package:clean_arch_lint/src/services/config/config_source_provider.dart';
 import 'package:functions/functions.dart';
 import 'package:meta/meta.dart';
