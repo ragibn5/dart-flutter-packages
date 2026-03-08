@@ -9,59 +9,59 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-class FakeDependencyDirectionRuleVisitor extends Fake
+class _FakeDependencyDirectionRuleVisitor extends Fake
     implements DependencyDirectionRuleVisitor {}
 
-class MockSessionDataManager extends Mock implements SessionDataManager {}
+class _MockSessionDataManager extends Mock implements SessionDataManager {}
 
-class MockRuleContext extends Mock implements RuleContext {}
+class _MockRuleContext extends Mock implements RuleContext {}
 
-class MockRuleContextUnit extends Mock implements RuleContextUnit {}
+class _MockRuleContextUnit extends Mock implements RuleContextUnit {}
 
-class MockAnalyzerFile extends Mock implements AnalyzerFile {}
+class _MockAnalyzerFile extends Mock implements AnalyzerFile {}
 
-class MockRuleVisitorRegistry extends Mock implements RuleVisitorRegistry {}
+class _MockRuleVisitorRegistry extends Mock implements RuleVisitorRegistry {}
 
-class MockRuleSessionContext extends Mock
-    implements RuleSessionContext<MockCleanArchLintConfig> {}
+class _MockRuleSessionContext extends Mock
+    implements RuleSessionContext<_MockCleanArchLintConfig> {}
 
-class MockCleanArchLintConfig extends Mock implements CleanArchLintConfig {}
+class _MockCleanArchLintConfig extends Mock implements CleanArchLintConfig {}
 
-class MockDependencyDirectionRuleConfig extends Mock
+class _MockDependencyDirectionRuleConfig extends Mock
     implements DependencyDirectionRuleConfig {}
 
-class MockSessionLogger extends Mock implements SessionLogger {}
+class _MockSessionLogger extends Mock implements SessionLogger {}
 
 void main() {
   const domainDirectoryName = 'domain';
   const contextUnitLocation = 'a/b/c/lib/x.dart';
 
-  late MockSessionDataManager mockSessionDataManager;
-  late MockRuleContext mockRuleContext;
-  late MockRuleContextUnit mockRuleContextUnit;
-  late MockAnalyzerFile mockContextUnitFile;
-  late MockRuleVisitorRegistry mockRuleVisitorRegistry;
-  late MockRuleSessionContext mockRuleSessionContext;
-  late MockCleanArchLintConfig mockCleanArchLintConfig;
-  late MockDependencyDirectionRuleConfig mockDDRConfig;
-  late MockSessionLogger mockSessionLogger;
+  late _MockSessionDataManager mockSessionDataManager;
+  late _MockRuleContext mockRuleContext;
+  late _MockRuleContextUnit mockRuleContextUnit;
+  late _MockAnalyzerFile mockContextUnitFile;
+  late _MockRuleVisitorRegistry mockRuleVisitorRegistry;
+  late _MockRuleSessionContext mockRuleSessionContext;
+  late _MockCleanArchLintConfig mockCleanArchLintConfig;
+  late _MockDependencyDirectionRuleConfig mockDDRConfig;
+  late _MockSessionLogger mockSessionLogger;
 
   late DependencyDirectionRule sut;
 
   setUpAll(() {
-    registerFallbackValue(FakeDependencyDirectionRuleVisitor());
+    registerFallbackValue(_FakeDependencyDirectionRuleVisitor());
   });
 
   setUp(() {
-    mockSessionDataManager = MockSessionDataManager();
-    mockRuleContext = MockRuleContext();
-    mockRuleContextUnit = MockRuleContextUnit();
-    mockContextUnitFile = MockAnalyzerFile();
-    mockRuleVisitorRegistry = MockRuleVisitorRegistry();
-    mockRuleSessionContext = MockRuleSessionContext();
-    mockCleanArchLintConfig = MockCleanArchLintConfig();
-    mockDDRConfig = MockDependencyDirectionRuleConfig();
-    mockSessionLogger = MockSessionLogger();
+    mockSessionDataManager = _MockSessionDataManager();
+    mockRuleContext = _MockRuleContext();
+    mockRuleContextUnit = _MockRuleContextUnit();
+    mockContextUnitFile = _MockAnalyzerFile();
+    mockRuleVisitorRegistry = _MockRuleVisitorRegistry();
+    mockRuleSessionContext = _MockRuleSessionContext();
+    mockCleanArchLintConfig = _MockCleanArchLintConfig();
+    mockDDRConfig = _MockDependencyDirectionRuleConfig();
+    mockSessionLogger = _MockSessionLogger();
 
     sut = DependencyDirectionRule(mockSessionDataManager);
 
