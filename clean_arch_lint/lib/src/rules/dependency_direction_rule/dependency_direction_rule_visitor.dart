@@ -38,23 +38,6 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     }
   }
 
-  bool _shouldReportDartCoreImport(ImportUri importUri) {
-    if (sessionContext.config.ddrConfig.excludeCoreDartPackages) {
-      sessionContext.logger.logInfo(
-        tag: '$DependencyDirectionRuleVisitor',
-        message: 'Core dart import (ignoring): $importUri',
-      );
-      return false;
-    }
-
-    sessionContext.logger.logInfo(
-      tag: '$DependencyDirectionRuleVisitor',
-      message: 'Reporting non-domain core dart import: $importUri',
-    );
-
-    return true;
-  }
-
   bool _shouldReportImport(ImportUri importUri) {
     // Dart core imports
     if (importUri.scheme == 'dart') {
@@ -75,6 +58,23 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     }
 
     return _shouldReportLibraryPackageImport(importUri);
+  }
+
+  bool _shouldReportDartCoreImport(ImportUri importUri) {
+    if (sessionContext.config.ddrConfig.excludeCoreDartPackages) {
+      sessionContext.logger.logInfo(
+        tag: '$DependencyDirectionRuleVisitor',
+        message: 'Core dart import (ignoring): $importUri',
+      );
+      return false;
+    }
+
+    sessionContext.logger.logInfo(
+      tag: '$DependencyDirectionRuleVisitor',
+      message: 'Reporting non-domain core dart import: $importUri',
+    );
+
+    return true;
   }
 
   bool _shouldReportOwnPackageImport(ImportUri importUri) {
