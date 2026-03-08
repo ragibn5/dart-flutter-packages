@@ -2,9 +2,13 @@
 
 import 'dart:io' as dart_io;
 
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_core/src/models/context_config.dart';
+import 'package:analysis_server_core/src/models/package_info.dart';
 import 'package:analysis_server_core/src/services/config/config_source_provider.dart';
+import 'package:analysis_server_core/src/services/config/context_config_loader.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:analyzer/file_system/file_system.dart' as analyzer_io;
+import 'package:analyzer/workspace/workspace.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';

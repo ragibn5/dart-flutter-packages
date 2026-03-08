@@ -1,9 +1,14 @@
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: avoid_redundant_argument_values
 
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_core/src/models/context_config.dart';
+import 'package:analysis_server_core/src/models/log_config.dart';
+import 'package:analysis_server_core/src/models/package_info.dart';
+import 'package:analysis_server_core/src/models/scan_config.dart';
+import 'package:analysis_server_core/src/services/config/context_config_loader.dart';
 import 'package:analysis_server_core/src/services/logger/session_logger.dart';
 import 'package:analysis_server_core/src/services/session/session_data_factory.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';

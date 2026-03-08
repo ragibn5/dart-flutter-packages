@@ -1,8 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:analysis_server_core/analysis_server_core.dart';
-import 'package:clean_arch_lint/src/rules/dependency_direction_rule.dart';
+import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule.dart';
 import 'package:clean_arch_lint/src/services/config/clean_arch_lint_config_loader.dart';
 
 /// The plugin entry point.
@@ -27,10 +24,4 @@ class CleanArchLintPlugin extends Plugin {
   void register(PluginRegistry registry) {
     registry.registerWarningRule(DependencyDirectionRule(_sessionDataManager));
   }
-}
-
-void logToFile(Object? content) {
-  File(
-    '/Users/ragib/AndroidStudioProjects/dart-flutter-packages/app_template/analysis_logs/clean_arch_lint/X.log',
-  ).writeAsStringSync(const JsonEncoder.withIndent(' ').convert(content));
 }
