@@ -19,98 +19,96 @@ class _FakeFileMode extends Fake implements FileMode {}
 class _FakeEncoding extends Fake implements Encoding {}
 
 void main() {
-  group('DefaultFileWriter', () {
-    final lineSeparator = Platform.isWindows ? '\r\n' : '\n';
+  final lineSeparator = Platform.isWindows ? '\r\n' : '\n';
 
-    late _MockFile mockFile;
-    late _MockDirectory mockDirectory;
+  late _MockFile mockFile;
+  late _MockDirectory mockDirectory;
 
-    late DefaultFileWriter writer;
+  late DefaultFileWriter writer;
 
-    setUpAll(() {
-      registerFallbackValue(_FakeFile());
-      registerFallbackValue(_FakeFileMode());
-      registerFallbackValue(_FakeEncoding());
-    });
+  setUpAll(() {
+    registerFallbackValue(_FakeFile());
+    registerFallbackValue(_FakeFileMode());
+    registerFallbackValue(_FakeEncoding());
+  });
 
-    setUp(() {
-      mockFile = _MockFile();
-      mockDirectory = _MockDirectory();
+  setUp(() {
+    mockFile = _MockFile();
+    mockDirectory = _MockDirectory();
 
-      writer = DefaultFileWriter(lineSeparator);
-    });
+    writer = DefaultFileWriter(lineSeparator);
+  });
 
-    test('Returns Result.exception on any exception', () {
-      when(mockFile.existsSync).thenThrow(Exception('File does not exist'));
+  test('Returns Result.exception on any exception', () {
+    when(mockFile.existsSync).thenThrow(Exception('File does not exist'));
 
-      final result = writer.writeSync(mockFile, 'content');
+    final result = writer.writeSync(mockFile, 'content');
 
-      result.fold(
-        onSuccess: (_) => fail('Expected exception, got success'),
-        onException: (e, st) => null,
-      );
-    });
+    result.fold(
+      onSuccess: (_) => fail('Expected exception, got success'),
+      onException: (e, st) => null,
+    );
+  });
 
-    test('Creates parent directory if it does not exist', () {
-      when(() => mockFile.parent).thenReturn(mockDirectory);
-      when(() => mockDirectory.existsSync()).thenReturn(false);
+  test('Creates parent directory if it does not exist', () {
+    when(() => mockFile.parent).thenReturn(mockDirectory);
+    when(() => mockDirectory.existsSync()).thenReturn(false);
 
-      writer.writeSync(mockFile, 'content');
+    writer.writeSync(mockFile, 'content');
 
-      verify(() => mockDirectory.createSync(recursive: true)).called(1);
-    });
+    verify(() => mockDirectory.createSync(recursive: true)).called(1);
+  });
 
-    test('Does not create parent directory if it already exist', () {
-      when(() => mockFile.parent).thenReturn(mockDirectory);
-      when(() => mockDirectory.existsSync()).thenReturn(true);
+  test('Does not create parent directory if it already exist', () {
+    when(() => mockFile.parent).thenReturn(mockDirectory);
+    when(() => mockDirectory.existsSync()).thenReturn(true);
 
-      writer.writeSync(mockFile, 'content');
+    writer.writeSync(mockFile, 'content');
 
-      verifyNever(() => mockDirectory.createSync(recursive: true));
-    });
+    verifyNever(() => mockDirectory.createSync(recursive: true));
+  });
 
-    test('Maps exact input params to file.writeAsStringSync', () {
-      const content = 'content';
-      const mode = FileMode.append;
-      const encoding = utf8;
-      const flush = true;
+  test('Maps exact input params to file.writeAsStringSync', () {
+    const content = 'content';
+    const mode = FileMode.append;
+    const encoding = utf8;
+    const flush = true;
 
-      when(() => mockFile.parent).thenReturn(mockDirectory);
-      when(() => mockDirectory.existsSync()).thenReturn(false);
-      when(() => mockDirectory.createSync(recursive: true)).thenReturn(null);
+    when(() => mockFile.parent).thenReturn(mockDirectory);
+    when(() => mockDirectory.existsSync()).thenReturn(false);
+    when(() => mockDirectory.createSync(recursive: true)).thenReturn(null);
 
-      writer.writeSync(mockFile, content, mode: mode, flush: flush);
+    writer.writeSync(mockFile, content, mode: mode, flush: flush);
 
-      verify(
-        () => mockFile.writeAsStringSync(
-          '$content$lineSeparator',
-          mode: mode,
-          encoding: encoding,
-          flush: flush,
-        ),
-      ).called(1);
-    });
-
-    test('Valid case returns Result.success', () {
-      const content = 'content';
-      const mode = FileMode.append;
-      const encoding = utf8;
-      const flush = true;
-
-      when(() => mockFile.parent).thenReturn(mockDirectory);
-      when(() => mockDirectory.existsSync()).thenReturn(false);
-      when(() => mockDirectory.createSync(recursive: true)).thenReturn(null);
-
-      final result = writer.writeSync(
-        mockFile,
-        content,
+    verify(
+      () => mockFile.writeAsStringSync(
+        '$content$lineSeparator',
         mode: mode,
         encoding: encoding,
         flush: flush,
-      );
+      ),
+    ).called(1);
+  });
 
-      expect(result.isSuccess, true);
-      expect(result.isException, false);
-    });
+  test('Valid case returns Result.success', () {
+    const content = 'content';
+    const mode = FileMode.append;
+    const encoding = utf8;
+    const flush = true;
+
+    when(() => mockFile.parent).thenReturn(mockDirectory);
+    when(() => mockDirectory.existsSync()).thenReturn(false);
+    when(() => mockDirectory.createSync(recursive: true)).thenReturn(null);
+
+    final result = writer.writeSync(
+      mockFile,
+      content,
+      mode: mode,
+      encoding: encoding,
+      flush: flush,
+    );
+
+    expect(result.isSuccess, true);
+    expect(result.isException, false);
   });
 }
