@@ -5,30 +5,26 @@ import 'package:test/test.dart';
 void main() {
   const converter = ISODateTimeConverters();
 
-  group('toISO8601LocalString', () {
-    test('toISO8601LocalString returns correct local ISO 8601 string', () {
-      final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
+  test('toISO8601LocalString returns correct local ISO 8601 string', () {
+    final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
 
-      final localString = converter.toISO8601LocalString(dateTime);
+    final localString = converter.toISO8601LocalString(dateTime);
 
-      expect(
-        localString,
-        equals(dateTime.toISO8601LocalString()),
-      );
-    });
+    expect(
+      localString,
+      equals(dateTime.toISO8601LocalString()),
+    );
   });
 
-  group('toISO8601UtcString', () {
-    test('toISO8601UtcString returns correct UTC ISO 8601 string', () {
-      final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
+  test('toISO8601UtcString returns correct UTC ISO 8601 string', () {
+    final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
 
-      final utcString = converter.toISO8601UtcString(dateTime);
+    final utcString = converter.toISO8601UtcString(dateTime);
 
-      expect(
-        utcString,
-        equals(dateTime.toISO8601UtcString()),
-      );
-    });
+    expect(
+      utcString,
+      equals(dateTime.toISO8601UtcString()),
+    );
   });
 
   group('fromISO8601StringToLocal', () {

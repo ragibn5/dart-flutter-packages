@@ -5,43 +5,37 @@ import 'package:test/test.dart';
 void main() {
   const converter = RFCDateTimeConverters();
 
-  group('toRFC3339String', () {
-    test('toRFC3339String returns correct RFC 3339 string', () {
-      final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
+  test('toRFC3339String returns correct RFC 3339 string', () {
+    final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
 
-      final rfcString = converter.toRFC3339String(dateTime);
+    final rfcString = converter.toRFC3339String(dateTime);
 
-      expect(
-        rfcString,
-        equals(dateTime.toIso8601String()),
-      );
-    });
+    expect(
+      rfcString,
+      equals(dateTime.toIso8601String()),
+    );
   });
 
-  group('toRFC3339LocalString', () {
-    test('toRFC3339LocalString returns correct local RFC 3339 string', () {
-      final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
+  test('toRFC3339LocalString returns correct local RFC 3339 string', () {
+    final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
 
-      final localRfcString = converter.toRFC3339LocalString(dateTime);
+    final localRfcString = converter.toRFC3339LocalString(dateTime);
 
-      expect(
-        localRfcString,
-        equals(dateTime.toISO8601LocalString()),
-      );
-    });
+    expect(
+      localRfcString,
+      equals(dateTime.toISO8601LocalString()),
+    );
   });
 
-  group('toRFC3339UtcString', () {
-    test('toRFC3339UtcString returns correct UTC RFC 3339 string', () {
-      final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
+  test('toRFC3339UtcString returns correct UTC RFC 3339 string', () {
+    final dateTime = DateTime(2023, 10, 5, 12, 30, 45);
 
-      final utcRfcString = converter.toRFC3339UtcString(dateTime);
+    final utcRfcString = converter.toRFC3339UtcString(dateTime);
 
-      expect(
-        utcRfcString,
-        equals(dateTime.toISO8601UtcString()),
-      );
-    });
+    expect(
+      utcRfcString,
+      equals(dateTime.toISO8601UtcString()),
+    );
   });
 
   group('fromRFC3339StringToLocal', () {
