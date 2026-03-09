@@ -2,12 +2,12 @@
 
 import 'dart:collection';
 
-import 'package:test/test.dart';
 import 'package:collection_extensions/collection_extensions.dart';
+import 'package:test/test.dart';
 
 void main() {
-  group('QueueExtension replaceWhere', () {
-    test('should replace matching elements', () {
+  group('QueueExtension.replaceWhere', () {
+    test('Should replace matching elements', () {
       final queue = Queue.of([1, 2, 3, 4, 5]);
 
       final result = queue.replaceWhere(
@@ -18,7 +18,7 @@ void main() {
       expect(result, Queue.of([1, 4, 3, 8, 5]));
     });
 
-    test('should not replace elements when no match is found', () {
+    test('Should not replace elements when no match is found', () {
       final queue = Queue.of([1, 2, 3, 4, 5]);
 
       final result = queue.replaceWhere(
@@ -29,7 +29,7 @@ void main() {
       expect(result, Queue.of([1, 2, 3, 4, 5]));
     });
 
-    test('should replace all matching elements', () {
+    test('Should replace all matching elements', () {
       final queue = Queue.of(['apple', 'banana', 'cherry', 'apple']);
 
       final result = queue.replaceWhere(
@@ -40,7 +40,7 @@ void main() {
       expect(result, Queue.of(['orange', 'banana', 'cherry', 'orange']));
     });
 
-    test('should replace elements based on complex conditions', () {
+    test('Should replace elements based on complex conditions', () {
       final queue = Queue.of([1, 2, 3, 4, 5, 6]);
 
       final result = queue.replaceWhere(
@@ -51,7 +51,7 @@ void main() {
       expect(result, Queue.of([1, 2, 3, 40, 5, 60]));
     });
 
-    test('should return an empty queue when the original queue is empty', () {
+    test('Should return an empty queue when the original queue is empty', () {
       final queue = Queue<int>();
 
       final result = queue.replaceWhere(
@@ -63,7 +63,7 @@ void main() {
     });
 
     test(
-        'should return a queue with original elements when no element matches the condition',
+        'Should return a queue with original elements when no element matches the condition',
         () {
       final queue = Queue.of([1, 2, 3, 4, 5]);
 
@@ -75,7 +75,7 @@ void main() {
       expect(result, Queue.of([1, 2, 3, 4, 5]));
     });
 
-    test('should replace elements when only one element matches', () {
+    test('Should replace elements when only one element matches', () {
       final queue = Queue.of([1, 2, 3]);
 
       final result = queue.replaceWhere(
