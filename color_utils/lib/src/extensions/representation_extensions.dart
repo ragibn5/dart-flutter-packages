@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:flutter/painting.dart';
 
 extension RepresentationExtension on Color {
   /// Provides the hex representation of this color.
