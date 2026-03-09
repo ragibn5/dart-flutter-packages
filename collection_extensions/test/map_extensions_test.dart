@@ -1,10 +1,10 @@
-import 'package:test/test.dart';
 import 'package:collection_extensions/collection_extensions.dart';
+import 'package:test/test.dart';
 
 void main() {
-  group('MapExtension replaceWhere', () {
+  group('MapExtension.replaceWhere', () {
     group('replaceWhereValue', () {
-      test('should replace values when they match the condition', () {
+      test('Should replace values when they match the condition', () {
         final map = {'a': 1, 'b': 2, 'c': 3};
 
         final result = map.replaceWhereValue(
@@ -15,7 +15,7 @@ void main() {
         expect(result, {'a': 1, 'b': 20, 'c': 3});
       });
 
-      test('should not replace values when no value matches the condition', () {
+      test('Should not replace values when no value matches the condition', () {
         final map = {'a': 1, 'b': 2, 'c': 3};
 
         final result = map.replaceWhereValue(
@@ -26,7 +26,7 @@ void main() {
         expect(result, {'a': 1, 'b': 2, 'c': 3});
       });
 
-      test('should replace all matching values', () {
+      test('Should replace all matching values', () {
         final map = {'a': 'apple', 'b': 'banana', 'c': 'apple'};
 
         final result = map.replaceWhereValue(
@@ -37,7 +37,7 @@ void main() {
         expect(result, {'a': 'orange', 'b': 'banana', 'c': 'orange'});
       });
 
-      test('should return an empty map when the original map is empty', () {
+      test('Should return an empty map when the original map is empty', () {
         final map = <String, int>{};
 
         final result = map.replaceWhereValue(
@@ -50,7 +50,7 @@ void main() {
     });
 
     group('replaceWhereEntry', () {
-      test('should replace entries when they match the condition', () {
+      test('Should replace entries when they match the condition', () {
         final map = {'a': 1, 'b': 2, 'c': 3};
 
         final result = map.replaceWhereEntry(
@@ -62,7 +62,7 @@ void main() {
         expect(result, {'a': 1, 'b': 20, 'c': 3});
       });
 
-      test('should not replace entries when no entry matches the condition',
+      test('Should not replace entries when no entry matches the condition',
           () {
         final map = {'a': 1, 'b': 2, 'c': 3};
 
@@ -75,7 +75,7 @@ void main() {
         expect(result, {'a': 1, 'b': 2, 'c': 3});
       });
 
-      test('should replace entries based on complex conditions', () {
+      test('Should replace entries based on complex conditions', () {
         final map = {'a': 1, 'b': 2, 'c': 3, 'd': 4};
 
         final result = map.replaceWhereEntry(
@@ -87,7 +87,7 @@ void main() {
         expect(result, {'a': 1, 'b': 20, 'c': 3, 'd': 40});
       });
 
-      test('should return an empty map when the original map is empty', () {
+      test('Should return an empty map when the original map is empty', () {
         final map = <String, int>{};
 
         final result = map.replaceWhereEntry(
