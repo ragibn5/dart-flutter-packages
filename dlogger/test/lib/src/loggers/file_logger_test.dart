@@ -32,7 +32,7 @@ void main() {
   late _MockFormatter mockFormatter;
   late StreamController<LogData> controller;
 
-  late FileLogger logger;
+  late FileLogger sut;
 
   String tempFileNameBuilder(LogData data) => 'log-${data.level}.txt';
 
@@ -48,7 +48,7 @@ void main() {
 
     controller = StreamController<LogData>();
 
-    logger = FileLogger.test(
+    sut = FileLogger.test(
       tempDir,
       tempFileNameBuilder,
       mockFormatter,
@@ -70,7 +70,7 @@ void main() {
   });
 
   test('no writes after dispose', () async {
-    logger
+    sut
       ..dispose()
       ..log(
         LogData(
@@ -102,7 +102,7 @@ void main() {
     final expectedFile =
         File('${tempDir.path}${path.separator}${tempFileNameBuilder(data)}');
 
-    logger.log(data);
+    sut.log(data);
 
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
@@ -125,7 +125,7 @@ void main() {
     );
     when(() => mockFormatter.format(any())).thenReturn(expectedMessage);
 
-    logger.log(data);
+    sut.log(data);
 
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
@@ -139,7 +139,7 @@ void main() {
   });
 
   test('writes in correct mode', () async {
-    logger.log(
+    sut.log(
       LogData(
         level: LogLevel.DEBUG,
         message: 'message',
@@ -160,7 +160,7 @@ void main() {
   });
 
   test('dispose closes stream', () async {
-    logger.dispose();
+    sut.dispose();
 
     expect(controller.isClosed, true);
   });
@@ -192,7 +192,7 @@ void main() {
 
     // Log all messages
     for (var i = 0; i < count; ++i) {
-      logger.log(
+      sut.log(
         LogData(
             tag: tag,
             level: LogLevel.DEBUG,

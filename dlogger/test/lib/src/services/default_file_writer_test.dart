@@ -24,7 +24,7 @@ void main() {
   late _MockFile mockFile;
   late _MockDirectory mockDirectory;
 
-  late DefaultFileWriter writer;
+  late DefaultFileWriter sut;
 
   setUpAll(() {
     registerFallbackValue(_FakeFile());
@@ -36,13 +36,13 @@ void main() {
     mockFile = _MockFile();
     mockDirectory = _MockDirectory();
 
-    writer = DefaultFileWriter(lineSeparator);
+    sut = DefaultFileWriter(lineSeparator);
   });
 
   test('Returns Result.exception on any exception', () {
     when(mockFile.existsSync).thenThrow(Exception('File does not exist'));
 
-    final result = writer.writeSync(mockFile, 'content');
+    final result = sut.writeSync(mockFile, 'content');
 
     result.fold(
       onSuccess: (_) => fail('Expected exception, got success'),
@@ -54,7 +54,7 @@ void main() {
     when(() => mockFile.parent).thenReturn(mockDirectory);
     when(() => mockDirectory.existsSync()).thenReturn(false);
 
-    writer.writeSync(mockFile, 'content');
+    sut.writeSync(mockFile, 'content');
 
     verify(() => mockDirectory.createSync(recursive: true)).called(1);
   });
@@ -63,7 +63,7 @@ void main() {
     when(() => mockFile.parent).thenReturn(mockDirectory);
     when(() => mockDirectory.existsSync()).thenReturn(true);
 
-    writer.writeSync(mockFile, 'content');
+    sut.writeSync(mockFile, 'content');
 
     verifyNever(() => mockDirectory.createSync(recursive: true));
   });
@@ -78,7 +78,7 @@ void main() {
     when(() => mockDirectory.existsSync()).thenReturn(false);
     when(() => mockDirectory.createSync(recursive: true)).thenReturn(null);
 
-    writer.writeSync(mockFile, content, mode: mode, flush: flush);
+    sut.writeSync(mockFile, content, mode: mode, flush: flush);
 
     verify(
       () => mockFile.writeAsStringSync(
@@ -100,7 +100,7 @@ void main() {
     when(() => mockDirectory.existsSync()).thenReturn(false);
     when(() => mockDirectory.createSync(recursive: true)).thenReturn(null);
 
-    final result = writer.writeSync(
+    final result = sut.writeSync(
       mockFile,
       content,
       mode: mode,

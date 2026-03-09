@@ -18,7 +18,7 @@ void main() {
   late List<LogFilter> mockFilters;
   late Map<String, Logger> mockLoggers;
 
-  late CompositeLogger logger;
+  late CompositeLogger sut;
 
   setUpAll(() {
     registerFallbackValue(_FakeLogData());
@@ -44,10 +44,10 @@ void main() {
       () => mockFilter2.shouldBlock(any(), loggerId: any(named: 'loggerId')),
     ).thenReturn(false);
 
-    logger = CompositeLogger(mockLoggers, mockFilters);
+    sut = CompositeLogger(mockLoggers, mockFilters);
   });
 
-  test("If any filter blocks, shouldn't call any injected logger's log method",
+  test("If any filter blocks, shouldn't call any injected sut's log method",
       () {
     when(
       () => mockFilter1.shouldBlock(any(), loggerId: any(named: 'loggerId')),
@@ -56,7 +56,7 @@ void main() {
       () => mockFilter2.shouldBlock(any(), loggerId: any(named: 'loggerId')),
     ).thenReturn(false);
 
-    logger.log(
+    sut.log(
       LogData(
         tag: tag,
         level: LogLevel.INFO,
@@ -69,8 +69,7 @@ void main() {
     verifyNever(() => mockLogger2.log(any()));
   });
 
-  test("If no filter blocks, should invoke all injected logger's log method",
-      () {
+  test("If no filter blocks, should invoke all injected sut's log method", () {
     final logData = LogData(
       tag: tag,
       level: LogLevel.INFO,
@@ -78,7 +77,7 @@ void main() {
       message: 'message',
     );
 
-    logger.log(logData);
+    sut.log(logData);
 
     verify(() => mockLogger1.log(logData)).called(1);
     verify(() => mockLogger2.log(logData)).called(1);

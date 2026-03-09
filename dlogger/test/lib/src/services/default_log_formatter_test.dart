@@ -72,7 +72,7 @@ void main() {
       );
 
       final prettyOutput =
-      const DefaultLogFormatter(prettyPrintExtras: true).format(current);
+          const DefaultLogFormatter(prettyPrintExtras: true).format(current);
       expect(prettyOutput, matches(logRegex));
       expect(
         getLineCount(prettyOutput),
@@ -87,7 +87,7 @@ void main() {
       );
 
       final nonPrettyOutput =
-      const DefaultLogFormatter(prettyPrintExtras: false).format(current);
+          const DefaultLogFormatter(prettyPrintExtras: false).format(current);
       expect(nonPrettyOutput, matches(logRegex));
       expect(
         getLineCount(nonPrettyOutput),

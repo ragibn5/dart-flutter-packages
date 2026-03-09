@@ -17,7 +17,7 @@ void main() {
 
   late _MockFormatter mockFormatter;
 
-  late ConsoleLogger logger;
+  late ConsoleLogger _logger;
 
   setUpAll(() {
     registerFallbackValue(_FakeLogData());
@@ -25,7 +25,7 @@ void main() {
 
   setUp(() {
     mockFormatter = _MockFormatter();
-    logger = ConsoleLogger.test(mockFormatter);
+    _logger = ConsoleLogger.test(mockFormatter);
 
     when(() => mockFormatter.format(any())).thenReturn(formattedMessage);
   });
@@ -35,7 +35,7 @@ void main() {
 
     runZoned(
       () {
-        logger
+        _logger
           ..log(
             LogData(
               tag: tag,
