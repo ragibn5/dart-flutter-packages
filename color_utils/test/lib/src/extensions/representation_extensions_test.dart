@@ -1,10 +1,9 @@
-import 'dart:ui';
-
 import 'package:color_utils/color_utils.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('Color Hex Extension', () {
+  group('toHexString', () {
     test('toHexString should return the correct hex representation', () {
       const color = Color(0xFFAABBCC);
       expect(color.toHexString(), equals('#FFAABBCC'));

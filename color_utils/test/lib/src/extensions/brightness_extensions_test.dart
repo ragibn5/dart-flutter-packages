@@ -1,10 +1,9 @@
-import 'dart:ui';
-
 import 'package:color_utils/color_utils.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('BrightnessExtension', () {
+  group('darken', () {
     test('darken should return a darker color', () {
       const color = Color(0xFF808080);
       final darkenedColor = color.darken(0.2);
@@ -26,6 +25,15 @@ void main() {
       );
     });
 
+    test('darken should throw assertion error if amount is out of range', () {
+      const color = Color(0xFF808080);
+
+      expect(() => color.darken(-0.1), throwsAssertionError);
+      expect(() => color.darken(1.1), throwsAssertionError);
+    });
+  });
+
+  group('lighten', () {
     test('lighten should return a lighter color', () {
       const color = Color(0xFF808080);
       final lightenedColor = color.lighten(0.2);
@@ -45,13 +53,6 @@ void main() {
         lightenedColor,
         equals(const Color(0xFFFFFFFF)),
       );
-    });
-
-    test('darken should throw assertion error if amount is out of range', () {
-      const color = Color(0xFF808080);
-
-      expect(() => color.darken(-0.1), throwsAssertionError);
-      expect(() => color.darken(1.1), throwsAssertionError);
     });
 
     test('lighten should throw assertion error if amount is out of range', () {
