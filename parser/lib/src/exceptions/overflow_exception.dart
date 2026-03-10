@@ -9,7 +9,6 @@ class OverflowException implements Exception {
 
   @override
   String toString() {
-    // ignore: no_runtimeType_toString
-    return '\n*** $runtimeType ***\n$message';
+    return '$OverflowException: $message';
   }
 }
