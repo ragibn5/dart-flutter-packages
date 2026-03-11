@@ -23,13 +23,24 @@ class LeadingTrailingAwareChildBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (_leadingWidgets.isNotEmpty && (_index < _leadingWidgets.length)) {
-      return _leadingWidgets[_index];
-    } else if (_trailingWidgets.isNotEmpty &&
-        _index >= (_leadingWidgets.length + _itemCount)) {
-      return _trailingWidgets[_index - (_leadingWidgets.length + _itemCount)];
-    } else {
-      return _builder(_index - _leadingWidgets.length);
+    final totalWidgets =
+        _leadingWidgets.length + _itemCount + _trailingWidgets.length;
+    if (_index < 0 || _index >= totalWidgets) {
+      throw RangeError.range(_index, 0, totalWidgets, 'index');
     }
+
+    // Leading region
+    if (_index < _leadingWidgets.length && _leadingWidgets.isNotEmpty) {
+      return _leadingWidgets[_index];
+    }
+
+    // Trailing region
+    final trailingStart = _leadingWidgets.length + _itemCount;
+    if (_index >= trailingStart && _trailingWidgets.isNotEmpty) {
+      return _trailingWidgets[_index - trailingStart];
+    }
+
+    // Content region (builder)
+    return _builder(_index - _leadingWidgets.length);
   }
 }
