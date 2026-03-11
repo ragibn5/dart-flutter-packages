@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:radio_group/src/configs/radio_group_layout_config.dart';
 import 'package:radio_group/src/models/radio_item_ui_model.dart';
-import 'package:radio_group/src/radio_groups/grid_radio_group.dart';
-import 'package:radio_group/src/radio_groups/list_radio_group.dart';
-import 'package:radio_group/src/radio_groups/wrap_radio_group.dart';
+import 'package:radio_group/src/widgets/grid_radio_group.dart';
+import 'package:radio_group/src/widgets/list_radio_group.dart';
+import 'package:radio_group/src/widgets/wrap_radio_group.dart';
 
 class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
   final List<T> _uiModels;

@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:radio_group/src/configs/radio_group_layout_config.dart';
 import 'package:radio_group/src/models/radio_item_ui_model.dart';
-import 'package:radio_group/src/radio_groups/radio_group_base.dart';
+import 'package:radio_group/src/widgets/radio_group_base.dart';
 
 class _TestRadioItemUiModel extends RadioItemUiModel {
   const _TestRadioItemUiModel({required super.shouldBeSelected});

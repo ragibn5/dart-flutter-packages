@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:radio_group/src/configs/radio_group_layout_config.dart';
 import 'package:radio_group/src/models/radio_item_ui_model.dart';
-import 'package:radio_group/src/radio_groups/grid_radio_group.dart';
+import 'package:radio_group/src/widgets/grid_radio_group.dart';
 
 class _TestRadioItemUiModel extends RadioItemUiModel {
   _TestRadioItemUiModel() : super(shouldBeSelected: true);
