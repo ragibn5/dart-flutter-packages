@@ -5,7 +5,7 @@ import 'package:radio_group/src/radio_groups/radio_group_base.dart';
 import 'package:radio_group/src/widgets/leading_trailing_aware_child.dart';
 
 class WrapRadioGroup<T extends RadioItemUiModel>
-    extends RadioGroupBase<T, WrapRadioGroupLayoutConfig> {
+    extends RadioGroupBase<T, WrapLayoutConfig> {
   final List<Widget> _leadingWidgets;
   final List<Widget> _trailingWidgets;
 
@@ -24,7 +24,7 @@ class WrapRadioGroup<T extends RadioItemUiModel>
   @override
   Widget buildContentWidget(
     int itemCount,
-    WrapRadioGroupLayoutConfig layoutConfig,
+    WrapLayoutConfig layoutConfig,
     Widget Function(int index) cellBuilder,
   ) {
     final children = <Widget>[];

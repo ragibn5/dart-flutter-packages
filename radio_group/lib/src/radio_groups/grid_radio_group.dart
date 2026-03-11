@@ -5,7 +5,7 @@ import 'package:radio_group/src/radio_groups/radio_group_base.dart';
 import 'package:radio_group/src/widgets/leading_trailing_aware_child.dart';
 
 class GridRadioGroup<T extends RadioItemUiModel>
-    extends RadioGroupBase<T, GridRadioGroupLayoutConfig> {
+    extends RadioGroupBase<T, GridLayoutConfig> {
   final List<Widget> _leadingWidgets;
   final List<Widget> _trailingWidgets;
 
@@ -24,7 +24,7 @@ class GridRadioGroup<T extends RadioItemUiModel>
   @override
   Widget buildContentWidget(
     int itemCount,
-    GridRadioGroupLayoutConfig layoutConfig,
+    GridLayoutConfig layoutConfig,
     Widget Function(int index) cellBuilder,
   ) {
     return GridView.builder(
