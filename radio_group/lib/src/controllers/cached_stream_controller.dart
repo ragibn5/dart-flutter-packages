@@ -1,7 +1,7 @@
 import 'dart:async';
 
 /// A [StreamController] wrapper to hold the last data added to the stream.
-final class CachedStreamController<T> {
+class CachedStreamController<T> {
   T? _lastItem;
   final StreamController<T> _controller;
 
