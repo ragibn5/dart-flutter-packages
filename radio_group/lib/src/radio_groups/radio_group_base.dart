@@ -91,10 +91,10 @@ class _RadioGroupBaseState<T extends RadioItemUiModel,
       return null;
     }
 
-    assert(
-      initialSelectionIndex >= 0 && initialSelectionIndex < uiModes.length,
-      'Index is out of promised bound',
-    );
+    if (initialSelectionIndex < 0 || initialSelectionIndex >= uiModes.length) {
+      // Initial selection index is out of bounds, ignoring.
+      return null;
+    }
 
     return widget._uiModels[initialSelectionIndex].shouldBeSelected
         ? initialSelectionIndex
