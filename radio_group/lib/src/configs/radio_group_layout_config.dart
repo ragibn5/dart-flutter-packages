@@ -11,7 +11,7 @@ final class ListLayoutConfig extends RadioGroupLayoutConfig {
   final bool shrinkWrap;
   final ScrollPhysics physics;
 
-  ListLayoutConfig({
+  const ListLayoutConfig({
     this.axis = Axis.vertical,
     this.spacing = 0,
     this.padding = EdgeInsets.zero,
@@ -105,7 +105,7 @@ final class WrapLayoutConfig extends RadioGroupLayoutConfig {
   final double spacing;
   final double runSpacing;
 
-  WrapLayoutConfig({
+  const WrapLayoutConfig({
     this.axis = Axis.horizontal,
     this.spacing = 0,
     this.runSpacing = 0,
