@@ -65,13 +65,13 @@ void main() {
       ),
     );
 
-    final grid = tester.widget<GridView>(find.byType(GridView));
-    expect(grid.shrinkWrap, layoutConfig.shrinkWrap);
-    expect(grid.padding, layoutConfig.padding);
-    expect(grid.physics, layoutConfig.physics);
-    expect(grid.scrollDirection, layoutConfig.axis);
+    final gridView = tester.widget<GridView>(find.byType(GridView));
+    expect(gridView.shrinkWrap, layoutConfig.shrinkWrap);
+    expect(gridView.padding, layoutConfig.padding);
+    expect(gridView.physics, layoutConfig.physics);
+    expect(gridView.scrollDirection, layoutConfig.axis);
     expect(
-        grid.gridDelegate,
+        gridView.gridDelegate,
         isA<SliverGridDelegateWithFixedCrossAxisCount>().having(
             (p) => p.crossAxisCount,
             'crossAxisCount',
@@ -94,9 +94,9 @@ void main() {
       ),
     );
 
-    final grid = tester.widget<GridView>(find.byType(GridView));
+    final gridView = tester.widget<GridView>(find.byType(GridView));
     expect(
-        grid.gridDelegate,
+        gridView.gridDelegate,
         isA<SliverGridDelegateWithFixedCrossAxisCount>()
             .having((p) => p.mainAxisSpacing, 'mainAxisSpacing',
                 layoutConfig.verticalSpacing)
@@ -120,9 +120,9 @@ void main() {
       ),
     );
 
-    final grid = tester.widget<GridView>(find.byType(GridView));
+    final gridView = tester.widget<GridView>(find.byType(GridView));
     expect(
-        grid.gridDelegate,
+        gridView.gridDelegate,
         isA<SliverGridDelegateWithFixedCrossAxisCount>()
             .having((p) => p.mainAxisSpacing, 'mainAxisSpacing',
                 layoutConfig.horizontalSpacing)
@@ -143,8 +143,8 @@ void main() {
       ),
     );
 
-    final grid = tester.widget<GridView>(find.byType(GridView));
-    expect(grid.semanticChildCount, 7);
+    final gridView = tester.widget<GridView>(find.byType(GridView));
+    expect(gridView.semanticChildCount, 7);
   });
 
   testWidgets('The cellBuilder invoked only for radio items', (tester) async {
