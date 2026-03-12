@@ -6,76 +6,67 @@ import 'package:selection_group/src/widgets/selection_groups/list_selection_grou
 import 'package:selection_group/src/widgets/selection_groups/wrap_selection_group.dart';
 
 class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
-  final List<T> _uiModels;
-  final SelectionGroupLayoutConfig _layoutConfig;
-  final Widget Function(T model, {required bool selected}) _cellBuilder;
-  final void Function(List<int> newSelectionIndices) _onSelectionChanged;
-
-  final int? _maxSelectionCount;
-  final List<int> _initialSelectionIndices;
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
-  final void Function()? _onSelectionOverflow;
+  final List<T> uiModels;
+  final SelectionGroupLayoutConfig layoutConfig;
+  final int? maxSelectionCount;
+  final List<int> initialSelectionIndices;
+  final void Function()? onSelectionOverflow;
+  final void Function(List<int> newSelectionIndices) onSelectionChanged;
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
+  final Widget Function(T model, {required bool selected}) cellBuilder;
 
   const SelectionGroup({
     super.key,
-    required List<T> uiModels,
-    required SelectionGroupLayoutConfig layoutConfig,
-    required Widget Function(T model, {required bool selected}) cellBuilder,
-    required void Function(List<int> newSelectionIndices) onSelectionChanged,
-    int? maxSelectionCount,
-    List<int> initialSelectionIndices = const [],
-    void Function()? onSelectionOverflow,
-    List<Widget> leadingWidgets = const [],
-    List<Widget> trailingWidgets = const [],
-  })  : _uiModels = uiModels,
-        _layoutConfig = layoutConfig,
-        _cellBuilder = cellBuilder,
-        _onSelectionChanged = onSelectionChanged,
-        _maxSelectionCount = maxSelectionCount,
-        _initialSelectionIndices = initialSelectionIndices,
-        _onSelectionOverflow = onSelectionOverflow,
-        _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    required this.uiModels,
+    required this.layoutConfig,
+    this.maxSelectionCount,
+    this.initialSelectionIndices = const [],
+    this.onSelectionOverflow,
+    required this.onSelectionChanged,
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+    required this.cellBuilder,
+  });
 
   @override
   Widget build(BuildContext context) {
-    switch (_layoutConfig) {
+    switch (layoutConfig) {
       case ListLayoutConfig():
         return ListSelectionGroup(
-          uiModels: _uiModels,
-          layoutConfig: _layoutConfig as ListLayoutConfig,
-          onSelectionChanged: _onSelectionChanged,
-          cellBuilder: _cellBuilder,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
-          maxSelectionCount: _maxSelectionCount,
-          initialSelectionIndices: _initialSelectionIndices,
-          onSelectionOverflow: _onSelectionOverflow,
+          uiModels: uiModels,
+          layoutConfig: layoutConfig as ListLayoutConfig,
+          onSelectionChanged: onSelectionChanged,
+          cellBuilder: cellBuilder,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
+          maxSelectionCount: maxSelectionCount,
+          initialSelectionIndices: initialSelectionIndices,
+          onSelectionOverflow: onSelectionOverflow,
         );
       case GridLayoutConfig():
         return GridSelectionGroup(
-          uiModels: _uiModels,
-          layoutConfig: _layoutConfig as GridLayoutConfig,
-          onSelectionChanged: _onSelectionChanged,
-          cellBuilder: _cellBuilder,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
-          maxSelectionCount: _maxSelectionCount,
-          initialSelectionIndices: _initialSelectionIndices,
-          onSelectionOverflow: _onSelectionOverflow,
+          uiModels: uiModels,
+          layoutConfig: layoutConfig as GridLayoutConfig,
+          onSelectionChanged: onSelectionChanged,
+          cellBuilder: cellBuilder,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
+          maxSelectionCount: maxSelectionCount,
+          initialSelectionIndices: initialSelectionIndices,
+          onSelectionOverflow: onSelectionOverflow,
         );
       case WrapLayoutConfig():
         return WrapSelectionGroup(
-          uiModels: _uiModels,
-          layoutConfig: _layoutConfig as WrapLayoutConfig,
-          onSelectionChanged: _onSelectionChanged,
-          cellBuilder: _cellBuilder,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
-          maxSelectionCount: _maxSelectionCount,
-          initialSelectionIndices: _initialSelectionIndices,
-          onSelectionOverflow: _onSelectionOverflow,
+          uiModels: uiModels,
+          layoutConfig: layoutConfig as WrapLayoutConfig,
+          onSelectionChanged: onSelectionChanged,
+          cellBuilder: cellBuilder,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
+          maxSelectionCount: maxSelectionCount,
+          initialSelectionIndices: initialSelectionIndices,
+          onSelectionOverflow: onSelectionOverflow,
         );
     }
   }
