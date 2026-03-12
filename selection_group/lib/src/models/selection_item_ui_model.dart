@@ -1,7 +1,7 @@
 abstract class SelectionItemUiModel {
   final bool shouldBeSelected;
 
-  SelectionItemUiModel({
+  const SelectionItemUiModel({
     this.shouldBeSelected = true,
   });
 }
