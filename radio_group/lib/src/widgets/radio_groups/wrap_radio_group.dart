@@ -6,8 +6,8 @@ import 'package:radio_group/src/widgets/radio_groups/radio_group_base.dart';
 
 class WrapRadioGroup<T extends RadioItemUiModel>
     extends RadioGroupBase<T, WrapLayoutConfig> {
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
 
   const WrapRadioGroup({
     super.key,
@@ -16,10 +16,9 @@ class WrapRadioGroup<T extends RadioItemUiModel>
     required super.cellBuilder,
     required super.onSelectionChanged,
     super.initialSelectionIndex,
-    List<Widget> leadingWidgets = const [],
-    List<Widget> trailingWidgets = const [],
-  })  : _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+  });
 
   @override
   Widget buildContentWidget(
@@ -29,7 +28,7 @@ class WrapRadioGroup<T extends RadioItemUiModel>
   ) {
     final children = <Widget>[];
     final totalChildrenCount =
-        itemCount + _leadingWidgets.length + _trailingWidgets.length;
+        itemCount + leadingWidgets.length + trailingWidgets.length;
 
     for (var i = 0; i < totalChildrenCount; i++) {
       children.add(
@@ -37,8 +36,8 @@ class WrapRadioGroup<T extends RadioItemUiModel>
           index: i,
           itemCount: itemCount,
           builder: cellBuilder,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
         ),
       );
     }
