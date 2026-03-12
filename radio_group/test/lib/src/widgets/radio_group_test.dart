@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:radio_group/radio_group.dart';
@@ -10,6 +12,8 @@ class _TestModel extends RadioItemUiModel {
 }
 
 void main() {
+  final testModels = List.generate(3, (_) => const _TestModel());
+
   Widget wrap(Widget child) {
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -17,17 +21,15 @@ void main() {
     );
   }
 
-  final testModels = List.generate(3, (_) => const _TestModel());
-
   testWidgets(
-      'RadioGroup delegates to ListRadioGroup when layout is ListLayoutConfig',
+      'RadioGroup delegates to ListRadioGroup when layout config is a ListLayoutConfig',
       (tester) async {
-    const layout = ListLayoutConfig();
+    const layoutConfig = ListLayoutConfig();
     await tester.pumpWidget(
       wrap(
         RadioGroup<_TestModel>(
           uiModels: testModels,
-          layoutConfig: layout,
+          layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
           onSelectionChanged: (_) {},
         ),
@@ -40,14 +42,14 @@ void main() {
   });
 
   testWidgets(
-      'RadioGroup delegates to GridRadioGroup when layout is GridLayoutConfig',
+      'RadioGroup delegates to GridRadioGroup when layout config is a GridLayoutConfig',
       (tester) async {
-    const layout = GridLayoutConfig();
+    const layoutConfig = GridLayoutConfig();
     await tester.pumpWidget(
       wrap(
         RadioGroup<_TestModel>(
           uiModels: testModels,
-          layoutConfig: layout,
+          layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
           onSelectionChanged: (_) {},
         ),
@@ -60,14 +62,14 @@ void main() {
   });
 
   testWidgets(
-      'RadioGroup delegates to WrapRadioGroup when layout is WrapLayoutConfig',
+      'RadioGroup delegates to WrapRadioGroup when layout config is a WrapLayoutConfig',
       (tester) async {
-    const layout = WrapLayoutConfig();
+    const layoutConfig = WrapLayoutConfig();
     await tester.pumpWidget(
       wrap(
         RadioGroup<_TestModel>(
           uiModels: testModels,
-          layoutConfig: layout,
+          layoutConfig: layoutConfig,
           cellBuilder: (model, {required selected}) => const SizedBox(),
           onSelectionChanged: (_) {},
         ),
