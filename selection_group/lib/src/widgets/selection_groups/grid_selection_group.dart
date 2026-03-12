@@ -43,9 +43,34 @@ class GridSelectionGroup<T extends SelectionItemUiModel>
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: layoutConfig.crossAxisItemCount,
-        mainAxisSpacing: layoutConfig.verticalSpacing,
-        crossAxisSpacing: layoutConfig.horizontalSpacing,
+        mainAxisSpacing: _calculateMainAxisSpacing(layoutConfig),
+        crossAxisSpacing: _calculateCrossAxisSpacing(layoutConfig),
       ),
     );
+  }
+
+  double _calculateMainAxisSpacing(GridLayoutConfig layoutConfig) {
+    final mainAxis = switch (layoutConfig.axis) {
+      Axis.vertical => Axis.vertical,
+      _ => Axis.horizontal
+    };
+
+    return _getSpacingForAxis(mainAxis, layoutConfig);
+  }
+
+  double _calculateCrossAxisSpacing(GridLayoutConfig layoutConfig) {
+    final crossAxis = switch (layoutConfig.axis) {
+      Axis.vertical => Axis.horizontal,
+      _ => Axis.vertical
+    };
+
+    return _getSpacingForAxis(crossAxis, layoutConfig);
+  }
+
+  double _getSpacingForAxis(Axis axis, GridLayoutConfig layoutConfig) {
+    return switch (axis) {
+      Axis.vertical => layoutConfig.verticalSpacing,
+      Axis.horizontal => layoutConfig.horizontalSpacing
+    };
   }
 }
