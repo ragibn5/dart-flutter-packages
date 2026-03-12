@@ -16,8 +16,6 @@ void main() {
     registerFallbackValue(_TestRadioItemUiModel());
   });
 
-  setUp(() {});
-
   List<RadioItemUiModel> createModels(int count) {
     return List.generate(count, (_) => _TestRadioItemUiModel());
   }
