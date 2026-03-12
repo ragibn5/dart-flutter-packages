@@ -6,8 +6,8 @@ import 'package:radio_group/src/widgets/radio_groups/radio_group_base.dart';
 
 class GridRadioGroup<T extends RadioItemUiModel>
     extends RadioGroupBase<T, GridLayoutConfig> {
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
 
   const GridRadioGroup({
     super.key,
@@ -16,10 +16,9 @@ class GridRadioGroup<T extends RadioItemUiModel>
     required super.cellBuilder,
     required super.onSelectionChanged,
     super.initialSelectionIndex,
-    List<Widget> leadingWidgets = const [],
-    List<Widget> trailingWidgets = const [],
-  })  : _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+  });
 
   @override
   Widget buildContentWidget(
@@ -32,13 +31,13 @@ class GridRadioGroup<T extends RadioItemUiModel>
       padding: layoutConfig.padding,
       physics: layoutConfig.physics,
       scrollDirection: layoutConfig.axis,
-      itemCount: itemCount + _leadingWidgets.length + _trailingWidgets.length,
+      itemCount: itemCount + leadingWidgets.length + trailingWidgets.length,
       itemBuilder: (context, index) => LeadingTrailingAwareChildBuilder(
         index: index,
         itemCount: itemCount,
         builder: cellBuilder,
-        leadingWidgets: _leadingWidgets,
-        trailingWidgets: _trailingWidgets,
+        leadingWidgets: leadingWidgets,
+        trailingWidgets: trailingWidgets,
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: layoutConfig.crossAxisItemCount,
