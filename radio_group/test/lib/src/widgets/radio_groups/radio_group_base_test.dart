@@ -61,7 +61,7 @@ void main() {
     expect(find.textContaining('not'), findsOneWidget);
   });
 
-  testWidgets('Initial selection ignored if model shouldBeSelected is false',
+  testWidgets('Initial selection ignored if shouldBeSelected is false',
       (tester) async {
     final models = [
       const _TestRadioItemUiModel(shouldBeSelected: false),
@@ -84,7 +84,7 @@ void main() {
   });
 
   testWidgets(
-      'Initial selection ignored if model the provided initial selection index out of bounds',
+      'Initial selection ignored if the provided initial selection index out of bounds',
       (tester) async {
     final models = [
       const _TestRadioItemUiModel(shouldBeSelected: false),
