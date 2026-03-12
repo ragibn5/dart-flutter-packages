@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:radio_group/radio_group.dart';
-import 'package:radio_group/src/widgets/grid_radio_group.dart';
-import 'package:radio_group/src/widgets/list_radio_group.dart';
-import 'package:radio_group/src/widgets/wrap_radio_group.dart';
+import 'package:radio_group/src/widgets/radio_groups/grid_radio_group.dart';
+import 'package:radio_group/src/widgets/radio_groups/list_radio_group.dart';
+import 'package:radio_group/src/widgets/radio_groups/wrap_radio_group.dart';
 
 class _TestModel extends RadioItemUiModel {
   const _TestModel();

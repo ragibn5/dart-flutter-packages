@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:radio_group/src/configs/radio_group_layout_config.dart';
 import 'package:radio_group/src/models/radio_item_ui_model.dart';
-import 'package:radio_group/src/widgets/leading_trailing_aware_child.dart';
-import 'package:radio_group/src/widgets/radio_group_base.dart';
+import 'package:radio_group/src/widgets/builders/leading_trailing_aware_child_builder.dart';
+import 'package:radio_group/src/widgets/radio_groups/radio_group_base.dart';
 
 class GridRadioGroup<T extends RadioItemUiModel>
     extends RadioGroupBase<T, GridLayoutConfig> {

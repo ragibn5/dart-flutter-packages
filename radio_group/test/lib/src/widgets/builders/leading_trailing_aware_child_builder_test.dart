@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:radio_group/src/widgets/leading_trailing_aware_child.dart';
+import 'package:radio_group/src/widgets/builders/leading_trailing_aware_child_builder.dart';
 
 void main() {
   Widget wrap(Widget child) {
