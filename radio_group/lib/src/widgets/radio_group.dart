@@ -8,10 +8,8 @@ import 'package:radio_group/src/widgets/radio_groups/wrap_radio_group.dart';
 class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
   final List<T> uiModels;
   final RadioGroupLayoutConfig layoutConfig;
-
   final int? initialSelectionIndex;
   final void Function(T selectedModel) onSelectionChanged;
-
   final List<Widget> leadingWidgets;
   final List<Widget> trailingWidgets;
   final Widget Function(T model, {required bool selected}) cellBuilder;
