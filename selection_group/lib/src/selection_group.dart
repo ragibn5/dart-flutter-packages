@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:selection_group/src/configs/selection_group_layout_config.dart';
 import 'package:selection_group/src/models/selection_item_ui_model.dart';
-import 'package:selection_group/src/selection_groups/grid_selection_group.dart';
-import 'package:selection_group/src/selection_groups/list_selection_group.dart';
-import 'package:selection_group/src/selection_groups/wrap_selection_group.dart';
+import 'package:selection_group/src/widgets/selection_groups/grid_selection_group.dart';
+import 'package:selection_group/src/widgets/selection_groups/list_selection_group.dart';
+import 'package:selection_group/src/widgets/selection_groups/wrap_selection_group.dart';
 
 class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
   final List<T> _uiModels;

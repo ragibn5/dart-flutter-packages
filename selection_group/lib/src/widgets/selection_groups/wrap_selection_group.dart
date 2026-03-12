@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:selection_group/src/configs/selection_group_layout_config.dart';
 import 'package:selection_group/src/models/selection_item_ui_model.dart';
-import 'package:selection_group/src/selection_groups/selection_group_base.dart';
-import 'package:selection_group/src/widgets/leading_trailing_aware_child.dart';
+import 'package:selection_group/src/widgets/selection_groups/selection_group_base.dart';
+import 'package:selection_group/src/widgets/builders/leading_trailing_aware_child_builders.dart';
 
 class WrapSelectionGroup<T extends SelectionItemUiModel>
     extends SelectionGroupBase<T, WrapLayoutConfig> {

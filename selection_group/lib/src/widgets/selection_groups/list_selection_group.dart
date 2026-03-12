@@ -1,15 +1,15 @@
 import 'package:flutter/widgets.dart';
 import 'package:selection_group/src/configs/selection_group_layout_config.dart';
 import 'package:selection_group/src/models/selection_item_ui_model.dart';
-import 'package:selection_group/src/selection_groups/selection_group_base.dart';
-import 'package:selection_group/src/widgets/leading_trailing_aware_child.dart';
+import 'package:selection_group/src/widgets/selection_groups/selection_group_base.dart';
+import 'package:selection_group/src/widgets/builders/leading_trailing_aware_child_builders.dart';
 
-class GridSelectionGroup<T extends SelectionItemUiModel>
-    extends SelectionGroupBase<T, GridLayoutConfig> {
+class ListSelectionGroup<T extends SelectionItemUiModel>
+    extends SelectionGroupBase<T, ListLayoutConfig> {
   final List<Widget> _leadingWidgets;
   final List<Widget> _trailingWidgets;
 
-  const GridSelectionGroup({
+  const ListSelectionGroup({
     super.key,
     required super.uiModels,
     required super.layoutConfig,
@@ -26,26 +26,25 @@ class GridSelectionGroup<T extends SelectionItemUiModel>
   @override
   Widget buildContentWidget(
     int itemCount,
-    GridLayoutConfig layoutConfig,
+    ListLayoutConfig layoutConfig,
     Widget Function(int index) cellBuilder,
   ) {
-    return GridView.builder(
+    return ListView.separated(
       shrinkWrap: layoutConfig.shrinkWrap,
       padding: layoutConfig.padding,
       physics: layoutConfig.physics,
       scrollDirection: layoutConfig.axis,
       itemCount: itemCount + _leadingWidgets.length + _trailingWidgets.length,
+      separatorBuilder: (context, index) => switch (layoutConfig.axis) {
+        Axis.horizontal => SizedBox(width: layoutConfig.spacing),
+        Axis.vertical => SizedBox(height: layoutConfig.spacing),
+      },
       itemBuilder: (context, index) => LeadingTrailingAwareChildBuilder(
         index: index,
         itemCount: itemCount,
         builder: cellBuilder,
         leadingWidgets: _leadingWidgets,
         trailingWidgets: _trailingWidgets,
-      ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: layoutConfig.crossAxisItemCount,
-        mainAxisSpacing: layoutConfig.verticalSpacing,
-        crossAxisSpacing: layoutConfig.horizontalSpacing,
       ),
     );
   }
