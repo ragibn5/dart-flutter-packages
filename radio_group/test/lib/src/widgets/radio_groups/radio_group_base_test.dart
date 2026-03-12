@@ -176,7 +176,6 @@ void main() {
 
     await tester.tap(find.text('not'));
     await tester.pump();
-    await tester.pump();
 
     expect(selected, models.first);
   });
