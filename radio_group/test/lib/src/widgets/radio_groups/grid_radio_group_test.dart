@@ -34,10 +34,10 @@ void main() {
         body: GridRadioGroup<RadioItemUiModel>(
           uiModels: models,
           layoutConfig: layoutConfig,
-          cellBuilder: cellBuilder,
           onSelectionChanged: onSelectionChanged,
           leadingWidgets: leading,
           trailingWidgets: trailing,
+          cellBuilder: cellBuilder,
         ),
       ),
     );
@@ -45,10 +45,10 @@ void main() {
 
   testWidgets('Renders GridView with correct configuration', (tester) async {
     const layoutConfig = GridLayoutConfig(
+      axis: Axis.horizontal,
       crossAxisItemCount: 2,
       verticalSpacing: 8,
       horizontalSpacing: 6,
-      axis: Axis.horizontal,
       padding: EdgeInsets.all(12),
       shrinkWrap: false,
       physics: AlwaysScrollableScrollPhysics(),
@@ -78,9 +78,9 @@ void main() {
 
   testWidgets('Vertical axis spacing mapping is correct', (tester) async {
     const layoutConfig = GridLayoutConfig(
+      axis: Axis.vertical,
       verticalSpacing: 8,
       horizontalSpacing: 6,
-      axis: Axis.vertical,
     );
 
     await tester.pumpWidget(
@@ -104,9 +104,9 @@ void main() {
 
   testWidgets('Horizontal axis spacing mapping is correct', (tester) async {
     const layoutConfig = GridLayoutConfig(
+      axis: Axis.horizontal,
       verticalSpacing: 8,
       horizontalSpacing: 6,
-      axis: Axis.horizontal,
     );
 
     await tester.pumpWidget(
