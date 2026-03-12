@@ -33,29 +33,29 @@ class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
       ListLayoutConfig() => ListRadioGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as ListLayoutConfig,
-          onSelectionChanged: onSelectionChanged,
-          cellBuilder: cellBuilder,
           initialSelectionIndex: initialSelectionIndex,
+          onSelectionChanged: onSelectionChanged,
           leadingWidgets: leadingWidgets,
           trailingWidgets: trailingWidgets,
+          cellBuilder: cellBuilder,
         ),
       GridLayoutConfig() => GridRadioGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as GridLayoutConfig,
-          onSelectionChanged: onSelectionChanged,
-          cellBuilder: cellBuilder,
           initialSelectionIndex: initialSelectionIndex,
+          onSelectionChanged: onSelectionChanged,
           leadingWidgets: leadingWidgets,
           trailingWidgets: trailingWidgets,
+          cellBuilder: cellBuilder,
         ),
       WrapLayoutConfig() => WrapRadioGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as WrapLayoutConfig,
-          onSelectionChanged: onSelectionChanged,
-          cellBuilder: cellBuilder,
           initialSelectionIndex: initialSelectionIndex,
+          onSelectionChanged: onSelectionChanged,
           leadingWidgets: leadingWidgets,
           trailingWidgets: trailingWidgets,
+          cellBuilder: cellBuilder,
         )
     };
   }

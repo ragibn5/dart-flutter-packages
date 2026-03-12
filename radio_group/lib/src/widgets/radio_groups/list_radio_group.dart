@@ -13,11 +13,11 @@ class ListRadioGroup<T extends RadioItemUiModel>
     super.key,
     required super.uiModels,
     required super.layoutConfig,
-    required super.cellBuilder,
-    required super.onSelectionChanged,
     super.initialSelectionIndex,
+    required super.onSelectionChanged,
     this.leadingWidgets = const [],
     this.trailingWidgets = const [],
+    required super.cellBuilder,
   });
 
   @override
