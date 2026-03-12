@@ -34,10 +34,10 @@ void main() {
         body: WrapSelectionGroup<SelectionItemUiModel>(
           uiModels: models,
           layoutConfig: layoutConfig,
-          cellBuilder: cellBuilder,
           onSelectionChanged: onSelectionChanged,
           leadingWidgets: leading,
           trailingWidgets: trailing,
+          cellBuilder: cellBuilder,
         ),
       ),
     );
