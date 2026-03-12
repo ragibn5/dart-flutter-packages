@@ -1,35 +1,34 @@
 import 'package:flutter/widgets.dart';
 import 'package:radio_group/src/configs/radio_group_layout_config.dart';
 import 'package:radio_group/src/models/radio_item_ui_model.dart';
-import 'package:radio_group/src/radio_groups/radio_group_base.dart';
-import 'package:radio_group/src/widgets/leading_trailing_aware_child.dart';
+import 'package:radio_group/src/widgets/builders/leading_trailing_aware_child_builder.dart';
+import 'package:radio_group/src/widgets/radio_groups/radio_group_base.dart';
 
 class WrapRadioGroup<T extends RadioItemUiModel>
-    extends RadioGroupBase<T, WrapRadioGroupLayoutConfig> {
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
+    extends RadioGroupBase<T, WrapLayoutConfig> {
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
 
   const WrapRadioGroup({
     super.key,
     required super.uiModels,
     required super.layoutConfig,
-    required super.cellBuilder,
-    required super.onSelectionChanged,
     super.initialSelectionIndex,
-    List<Widget> leadingWidgets = const [],
-    List<Widget> trailingWidgets = const [],
-  })  : _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    required super.onSelectionChanged,
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+    required super.cellBuilder,
+  });
 
   @override
   Widget buildContentWidget(
     int itemCount,
-    WrapRadioGroupLayoutConfig layoutConfig,
+    WrapLayoutConfig layoutConfig,
     Widget Function(int index) cellBuilder,
   ) {
     final children = <Widget>[];
     final totalChildrenCount =
-        itemCount + _leadingWidgets.length + _trailingWidgets.length;
+        itemCount + leadingWidgets.length + trailingWidgets.length;
 
     for (var i = 0; i < totalChildrenCount; i++) {
       children.add(
@@ -37,8 +36,8 @@ class WrapRadioGroup<T extends RadioItemUiModel>
           index: i,
           itemCount: itemCount,
           builder: cellBuilder,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
         ),
       );
     }
