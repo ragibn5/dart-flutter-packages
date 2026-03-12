@@ -2,7 +2,7 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:selection_group/src/widgets/builders/leading_trailing_aware_child_builders.dart';
+import 'package:selection_group/src/widgets/builders/leading_trailing_aware_child_builder.dart';
 
 void main() {
   Widget wrap(Widget child) {
