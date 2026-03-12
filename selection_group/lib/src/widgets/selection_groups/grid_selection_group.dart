@@ -6,22 +6,21 @@ import 'package:selection_group/src/widgets/selection_groups/selection_group_bas
 
 class GridSelectionGroup<T extends SelectionItemUiModel>
     extends SelectionGroupBase<T, GridLayoutConfig> {
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
 
   const GridSelectionGroup({
     super.key,
     required super.uiModels,
     required super.layoutConfig,
-    required super.cellBuilder,
-    required super.onSelectionChanged,
     super.maxSelectionCount,
     super.initialSelectionIndices,
     super.onSelectionOverflow,
-    List<Widget> leadingWidgets = const [],
-    List<Widget> trailingWidgets = const [],
-  })  : _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    required super.onSelectionChanged,
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+    required super.cellBuilder,
+  });
 
   @override
   Widget buildContentWidget(
@@ -34,13 +33,13 @@ class GridSelectionGroup<T extends SelectionItemUiModel>
       padding: layoutConfig.padding,
       physics: layoutConfig.physics,
       scrollDirection: layoutConfig.axis,
-      itemCount: itemCount + _leadingWidgets.length + _trailingWidgets.length,
+      itemCount: itemCount + leadingWidgets.length + trailingWidgets.length,
       itemBuilder: (context, index) => LeadingTrailingAwareChildBuilder(
         index: index,
         itemCount: itemCount,
         builder: cellBuilder,
-        leadingWidgets: _leadingWidgets,
-        trailingWidgets: _trailingWidgets,
+        leadingWidgets: leadingWidgets,
+        trailingWidgets: trailingWidgets,
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: layoutConfig.crossAxisItemCount,
