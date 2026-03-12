@@ -29,9 +29,8 @@ class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (layoutConfig) {
-      case ListLayoutConfig():
-        return ListRadioGroup(
+    return switch (layoutConfig) {
+      ListLayoutConfig() => ListRadioGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as ListLayoutConfig,
           onSelectionChanged: onSelectionChanged,
@@ -39,9 +38,8 @@ class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
           initialSelectionIndex: initialSelectionIndex,
           leadingWidgets: leadingWidgets,
           trailingWidgets: trailingWidgets,
-        );
-      case GridLayoutConfig():
-        return GridRadioGroup(
+        ),
+      GridLayoutConfig() => GridRadioGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as GridLayoutConfig,
           onSelectionChanged: onSelectionChanged,
@@ -49,9 +47,8 @@ class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
           initialSelectionIndex: initialSelectionIndex,
           leadingWidgets: leadingWidgets,
           trailingWidgets: trailingWidgets,
-        );
-      case WrapLayoutConfig():
-        return WrapRadioGroup(
+        ),
+      WrapLayoutConfig() => WrapRadioGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as WrapLayoutConfig,
           onSelectionChanged: onSelectionChanged,
@@ -59,7 +56,7 @@ class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
           initialSelectionIndex: initialSelectionIndex,
           leadingWidgets: leadingWidgets,
           trailingWidgets: trailingWidgets,
-        );
-    }
+        )
+    };
   }
 }
