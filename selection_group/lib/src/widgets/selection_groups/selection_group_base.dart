@@ -76,13 +76,6 @@ class _SelectionGroupBaseState<T extends SelectionItemUiModel,
   }
 
   void _initializeInitialSelection() {
-    final maxSelectionCount = widget.maxSelectionCount;
-    assert(
-      maxSelectionCount == null ||
-          widget.initialSelectionIndices.length < maxSelectionCount,
-      'Initial selection indices count must be <= Given max selection count',
-    );
-
     _selectionController.add(
       _getInitialSelection(
         widget.uiModels,
@@ -100,6 +93,10 @@ class _SelectionGroupBaseState<T extends SelectionItemUiModel,
       maxSelectionCount: widget.maxSelectionCount,
     );
     for (final e in initialSelectionIndices) {
+      if (e < 0 || e >= uiModes.length) {
+        continue;
+      }
+
       if (uiModes[e].shouldBeSelected) {
         selectionStructure.select(e);
       }
