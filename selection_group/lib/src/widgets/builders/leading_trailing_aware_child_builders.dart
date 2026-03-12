@@ -1,35 +1,42 @@
 import 'package:flutter/widgets.dart';
 
 class LeadingTrailingAwareChildBuilder extends StatelessWidget {
-  final int _index;
-  final int _itemCount;
-  final Widget Function(int index) _builder;
+  final int index;
+  final int itemCount;
 
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
+  final Widget Function(int index) builder;
 
   const LeadingTrailingAwareChildBuilder({
     super.key,
-    required int index,
-    required int itemCount,
-    required Widget Function(int) builder,
-    required List<Widget> leadingWidgets,
-    required List<Widget> trailingWidgets,
-  })  : _index = index,
-        _itemCount = itemCount,
-        _builder = builder,
-        _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    required this.index,
+    required this.itemCount,
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+    required this.builder,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (_leadingWidgets.isNotEmpty && (_index < _leadingWidgets.length)) {
-      return _leadingWidgets[_index];
-    } else if (_trailingWidgets.isNotEmpty &&
-        _index >= (_leadingWidgets.length + _itemCount)) {
-      return _trailingWidgets[_index - (_leadingWidgets.length + _itemCount)];
-    } else {
-      return _builder(_index - _leadingWidgets.length);
+    final totalWidgets =
+        leadingWidgets.length + itemCount + trailingWidgets.length;
+    if (index < 0 || index >= totalWidgets) {
+      throw RangeError.range(index, 0, totalWidgets, 'index');
     }
+
+    // Leading region
+    if (index < leadingWidgets.length && leadingWidgets.isNotEmpty) {
+      return leadingWidgets[index];
+    }
+
+    // Trailing region
+    final trailingStart = leadingWidgets.length + itemCount;
+    if (index >= trailingStart && trailingWidgets.isNotEmpty) {
+      return trailingWidgets[index - trailingStart];
+    }
+
+    // Content region (builder)
+    return builder(index - leadingWidgets.length);
   }
 }
