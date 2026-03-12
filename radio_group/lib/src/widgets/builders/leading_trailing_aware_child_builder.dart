@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 class LeadingTrailingAwareChildBuilder extends StatelessWidget {
   final int index;
   final int itemCount;
+
   final List<Widget> leadingWidgets;
   final List<Widget> trailingWidgets;
   final Widget Function(int index) builder;
@@ -11,8 +12,8 @@ class LeadingTrailingAwareChildBuilder extends StatelessWidget {
     super.key,
     required this.index,
     required this.itemCount,
-    required this.leadingWidgets,
-    required this.trailingWidgets,
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
     required this.builder,
   });
 

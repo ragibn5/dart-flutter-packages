@@ -13,6 +13,7 @@ class _TestRadioItemUiModel extends RadioItemUiModel {
 class _TestRadioGroup
     extends RadioGroupBase<_TestRadioItemUiModel, WrapLayoutConfig> {
   const _TestRadioGroup({
+    // ignore: unused_element
     super.key,
     required super.uiModels,
     required super.layoutConfig,

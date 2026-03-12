@@ -6,64 +6,59 @@ import 'package:radio_group/src/widgets/radio_groups/list_radio_group.dart';
 import 'package:radio_group/src/widgets/radio_groups/wrap_radio_group.dart';
 
 class RadioGroup<T extends RadioItemUiModel> extends StatelessWidget {
-  final List<T> _uiModels;
-  final RadioGroupLayoutConfig _layoutConfig;
-  final Widget Function(T model, {required bool selected}) _cellBuilder;
-  final void Function(T selectedModel) _onSelectionChanged;
+  final List<T> uiModels;
+  final RadioGroupLayoutConfig layoutConfig;
 
-  final int? _initialSelectionIndex;
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
+  final int? initialSelectionIndex;
+  final void Function(T selectedModel) onSelectionChanged;
+
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
+  final Widget Function(T model, {required bool selected}) cellBuilder;
 
   const RadioGroup({
     super.key,
-    required List<T> uiModels,
-    required RadioGroupLayoutConfig layoutConfig,
-    required Widget Function(T model, {required bool selected}) cellBuilder,
-    required void Function(T selectedModel) onSelectionChanged,
-    int? initialSelectionIndex,
-    List<Widget> leadingWidgets = const [],
-    List<Widget> trailingWidgets = const [],
-  })  : _uiModels = uiModels,
-        _layoutConfig = layoutConfig,
-        _cellBuilder = cellBuilder,
-        _onSelectionChanged = onSelectionChanged,
-        _initialSelectionIndex = initialSelectionIndex,
-        _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    required this.uiModels,
+    required this.layoutConfig,
+    this.initialSelectionIndex,
+    required this.onSelectionChanged,
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+    required this.cellBuilder,
+  });
 
   @override
   Widget build(BuildContext context) {
-    switch (_layoutConfig) {
+    switch (layoutConfig) {
       case ListLayoutConfig():
         return ListRadioGroup(
-          uiModels: _uiModels,
-          layoutConfig: _layoutConfig as ListLayoutConfig,
-          onSelectionChanged: _onSelectionChanged,
-          cellBuilder: _cellBuilder,
-          initialSelectionIndex: _initialSelectionIndex,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
+          uiModels: uiModels,
+          layoutConfig: layoutConfig as ListLayoutConfig,
+          onSelectionChanged: onSelectionChanged,
+          cellBuilder: cellBuilder,
+          initialSelectionIndex: initialSelectionIndex,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
         );
       case GridLayoutConfig():
         return GridRadioGroup(
-          uiModels: _uiModels,
-          layoutConfig: _layoutConfig as GridLayoutConfig,
-          onSelectionChanged: _onSelectionChanged,
-          cellBuilder: _cellBuilder,
-          initialSelectionIndex: _initialSelectionIndex,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
+          uiModels: uiModels,
+          layoutConfig: layoutConfig as GridLayoutConfig,
+          onSelectionChanged: onSelectionChanged,
+          cellBuilder: cellBuilder,
+          initialSelectionIndex: initialSelectionIndex,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
         );
       case WrapLayoutConfig():
         return WrapRadioGroup(
-          uiModels: _uiModels,
-          layoutConfig: _layoutConfig as WrapLayoutConfig,
-          onSelectionChanged: _onSelectionChanged,
-          cellBuilder: _cellBuilder,
-          initialSelectionIndex: _initialSelectionIndex,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
+          uiModels: uiModels,
+          layoutConfig: layoutConfig as WrapLayoutConfig,
+          onSelectionChanged: onSelectionChanged,
+          cellBuilder: cellBuilder,
+          initialSelectionIndex: initialSelectionIndex,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
         );
     }
   }
