@@ -5,7 +5,7 @@ import 'package:selection_group/src/selection_groups/selection_group_base.dart';
 import 'package:selection_group/src/widgets/leading_trailing_aware_child.dart';
 
 class GridSelectionGroup<T extends SelectionItemUiModel>
-    extends SelectionGroupBase<T, GridSelectionGroupLayoutConfig> {
+    extends SelectionGroupBase<T, GridLayoutConfig> {
   final List<Widget> _leadingWidgets;
   final List<Widget> _trailingWidgets;
 
@@ -26,7 +26,7 @@ class GridSelectionGroup<T extends SelectionItemUiModel>
   @override
   Widget buildContentWidget(
     int itemCount,
-    GridSelectionGroupLayoutConfig layoutConfig,
+    GridLayoutConfig layoutConfig,
     Widget Function(int index) cellBuilder,
   ) {
     return GridView.builder(

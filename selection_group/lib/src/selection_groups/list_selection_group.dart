@@ -5,7 +5,7 @@ import 'package:selection_group/src/selection_groups/selection_group_base.dart';
 import 'package:selection_group/src/widgets/leading_trailing_aware_child.dart';
 
 class ListSelectionGroup<T extends SelectionItemUiModel>
-    extends SelectionGroupBase<T, ListSelectionGroupLayoutConfig> {
+    extends SelectionGroupBase<T, ListLayoutConfig> {
   final List<Widget> _leadingWidgets;
   final List<Widget> _trailingWidgets;
 
@@ -26,7 +26,7 @@ class ListSelectionGroup<T extends SelectionItemUiModel>
   @override
   Widget buildContentWidget(
     int itemCount,
-    ListSelectionGroupLayoutConfig layoutConfig,
+    ListLayoutConfig layoutConfig,
     Widget Function(int index) cellBuilder,
   ) {
     return ListView.separated(

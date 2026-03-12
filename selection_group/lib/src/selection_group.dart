@@ -41,10 +41,10 @@ class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (_layoutConfig) {
-      case ListSelectionGroupLayoutConfig():
+      case ListLayoutConfig():
         return ListSelectionGroup(
           uiModels: _uiModels,
-          layoutConfig: _layoutConfig as ListSelectionGroupLayoutConfig,
+          layoutConfig: _layoutConfig as ListLayoutConfig,
           onSelectionChanged: _onSelectionChanged,
           cellBuilder: _cellBuilder,
           leadingWidgets: _leadingWidgets,
@@ -53,10 +53,10 @@ class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
           initialSelectionIndices: _initialSelectionIndices,
           onSelectionOverflow: _onSelectionOverflow,
         );
-      case GridSelectionGroupLayoutConfig():
+      case GridLayoutConfig():
         return GridSelectionGroup(
           uiModels: _uiModels,
-          layoutConfig: _layoutConfig as GridSelectionGroupLayoutConfig,
+          layoutConfig: _layoutConfig as GridLayoutConfig,
           onSelectionChanged: _onSelectionChanged,
           cellBuilder: _cellBuilder,
           leadingWidgets: _leadingWidgets,
@@ -65,10 +65,10 @@ class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
           initialSelectionIndices: _initialSelectionIndices,
           onSelectionOverflow: _onSelectionOverflow,
         );
-      case WrapSelectionGroupLayoutConfig():
+      case WrapLayoutConfig():
         return WrapSelectionGroup(
           uiModels: _uiModels,
-          layoutConfig: _layoutConfig as WrapSelectionGroupLayoutConfig,
+          layoutConfig: _layoutConfig as WrapLayoutConfig,
           onSelectionChanged: _onSelectionChanged,
           cellBuilder: _cellBuilder,
           leadingWidgets: _leadingWidgets,
