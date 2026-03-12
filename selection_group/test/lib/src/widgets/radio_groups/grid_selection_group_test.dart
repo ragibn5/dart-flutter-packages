@@ -15,8 +15,6 @@ void main() {
     registerFallbackValue(_TestSelectionItemUiModel());
   });
 
-  setUp(() {});
-
   List<SelectionItemUiModel> createModels(int count) {
     return List.generate(count, (_) => _TestSelectionItemUiModel());
   }
