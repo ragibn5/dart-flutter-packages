@@ -80,4 +80,115 @@ void main() {
     expect(find.byType(ListRadioGroup<_TestModel>), findsNothing);
     expect(find.byType(GridRadioGroup<_TestModel>), findsNothing);
   });
+
+  testWidgets(
+    'RadioGroup passes leading, trailing, and initial selection correctly to ListRadioGroup',
+    (tester) async {
+      const layoutConfig = ListLayoutConfig();
+      final leading = [const SizedBox(key: Key('leading'))];
+      final trailing = [const SizedBox(key: Key('trailing'))];
+      const initialIndex = 1;
+      void onSelectionChanged(_) {}
+      Widget cellBuilder(model, {required selected}) => const SizedBox();
+
+      await tester.pumpWidget(
+        wrap(
+          RadioGroup<_TestModel>(
+            uiModels: testModels,
+            layoutConfig: layoutConfig,
+            initialSelectionIndex: initialIndex,
+            onSelectionChanged: onSelectionChanged,
+            leadingWidgets: leading,
+            trailingWidgets: trailing,
+            cellBuilder: cellBuilder,
+          ),
+        ),
+      );
+
+      final listGroup = tester.widget<ListRadioGroup<_TestModel>>(
+        find.byType(ListRadioGroup<_TestModel>),
+      );
+      expect(listGroup.uiModels, testModels);
+      expect(listGroup.layoutConfig, layoutConfig);
+      expect(listGroup.initialSelectionIndex, initialIndex);
+      expect(listGroup.onSelectionChanged, onSelectionChanged);
+      expect(listGroup.leadingWidgets, leading);
+      expect(listGroup.trailingWidgets, trailing);
+      expect(listGroup.cellBuilder, cellBuilder);
+    },
+  );
+
+  testWidgets(
+    'RadioGroup passes leading, trailing, and initial selection correctly to GridRadioGroup',
+    (tester) async {
+      const layoutConfig = GridLayoutConfig();
+      final leading = [const SizedBox(key: Key('leading'))];
+      final trailing = [const SizedBox(key: Key('trailing'))];
+      const initialIndex = 1;
+      void onSelectionChanged(_) {}
+      Widget cellBuilder(model, {required selected}) => const SizedBox();
+
+      await tester.pumpWidget(
+        wrap(
+          RadioGroup<_TestModel>(
+            uiModels: testModels,
+            layoutConfig: layoutConfig,
+            initialSelectionIndex: initialIndex,
+            onSelectionChanged: onSelectionChanged,
+            leadingWidgets: leading,
+            trailingWidgets: trailing,
+            cellBuilder: cellBuilder,
+          ),
+        ),
+      );
+
+      final listGroup = tester.widget<GridRadioGroup<_TestModel>>(
+        find.byType(GridRadioGroup<_TestModel>),
+      );
+      expect(listGroup.uiModels, testModels);
+      expect(listGroup.layoutConfig, layoutConfig);
+      expect(listGroup.initialSelectionIndex, initialIndex);
+      expect(listGroup.onSelectionChanged, onSelectionChanged);
+      expect(listGroup.leadingWidgets, leading);
+      expect(listGroup.trailingWidgets, trailing);
+      expect(listGroup.cellBuilder, cellBuilder);
+    },
+  );
+
+  testWidgets(
+    'RadioGroup passes leading, trailing, and initial selection correctly to WrapRadioGroup',
+    (tester) async {
+      const layoutConfig = WrapLayoutConfig();
+      final leading = [const SizedBox(key: Key('leading'))];
+      final trailing = [const SizedBox(key: Key('trailing'))];
+      const initialIndex = 1;
+      void onSelectionChanged(_) {}
+      Widget cellBuilder(model, {required selected}) => const SizedBox();
+
+      await tester.pumpWidget(
+        wrap(
+          RadioGroup<_TestModel>(
+            uiModels: testModels,
+            layoutConfig: layoutConfig,
+            initialSelectionIndex: initialIndex,
+            onSelectionChanged: onSelectionChanged,
+            leadingWidgets: leading,
+            trailingWidgets: trailing,
+            cellBuilder: cellBuilder,
+          ),
+        ),
+      );
+
+      final listGroup = tester.widget<WrapRadioGroup<_TestModel>>(
+        find.byType(WrapRadioGroup<_TestModel>),
+      );
+      expect(listGroup.uiModels, testModels);
+      expect(listGroup.layoutConfig, layoutConfig);
+      expect(listGroup.initialSelectionIndex, initialIndex);
+      expect(listGroup.onSelectionChanged, onSelectionChanged);
+      expect(listGroup.leadingWidgets, leading);
+      expect(listGroup.trailingWidgets, trailing);
+      expect(listGroup.cellBuilder, cellBuilder);
+    },
+  );
 }
