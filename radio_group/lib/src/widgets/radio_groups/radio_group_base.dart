@@ -5,25 +5,20 @@ import 'package:radio_group/src/models/radio_item_ui_model.dart';
 
 abstract class RadioGroupBase<T extends RadioItemUiModel,
     LayoutConfig extends RadioGroupLayoutConfig> extends StatefulWidget {
-  final List<T> _uiModels;
-  final LayoutConfig _layoutConfig;
-  final Widget Function(T model, {required bool selected}) _cellBuilder;
-  final void Function(T selectedModel) _onSelectionChanged;
-
-  final int? _initialSelectionIndex;
+  final List<T> uiModels;
+  final LayoutConfig layoutConfig;
+  final int? initialSelectionIndex;
+  final void Function(T selectedModel) onSelectionChanged;
+  final Widget Function(T model, {required bool selected}) cellBuilder;
 
   const RadioGroupBase({
     super.key,
-    required List<T> uiModels,
-    required LayoutConfig layoutConfig,
-    required Widget Function(T model, {required bool selected}) cellBuilder,
-    required void Function(T selectedModel) onSelectionChanged,
-    int? initialSelectionIndex,
-  })  : _uiModels = uiModels,
-        _layoutConfig = layoutConfig,
-        _cellBuilder = cellBuilder,
-        _onSelectionChanged = onSelectionChanged,
-        _initialSelectionIndex = initialSelectionIndex;
+    required this.uiModels,
+    required this.layoutConfig,
+    this.initialSelectionIndex,
+    required this.onSelectionChanged,
+    required this.cellBuilder,
+  });
 
   @override
   State<RadioGroupBase<T, LayoutConfig>> createState() =>
@@ -60,14 +55,14 @@ class _RadioGroupBaseState<T extends RadioItemUiModel,
     return StreamBuilder<int>(
       stream: _selectionController.stream,
       builder: (context, snapshot) => widget.buildContentWidget(
-        widget._uiModels.length,
-        widget._layoutConfig,
+        widget.uiModels.length,
+        widget.layoutConfig,
         (index) => _TappableItem(
           index: index,
-          uiModel: widget._uiModels[index],
+          uiModel: widget.uiModels[index],
           selectionController: _selectionController,
-          onSelectionChanged: widget._onSelectionChanged,
-          cellBuilder: widget._cellBuilder,
+          onSelectionChanged: widget.onSelectionChanged,
+          cellBuilder: widget.cellBuilder,
         ),
       ),
     );
@@ -75,8 +70,8 @@ class _RadioGroupBaseState<T extends RadioItemUiModel,
 
   void _initializeInitialSelection() {
     final validatedInitialSelectionIndex = _getInitialSelectionIndex(
-      widget._uiModels,
-      widget._initialSelectionIndex,
+      widget.uiModels,
+      widget.initialSelectionIndex,
     );
 
     if (validatedInitialSelectionIndex == null) {
@@ -96,7 +91,7 @@ class _RadioGroupBaseState<T extends RadioItemUiModel,
       return null;
     }
 
-    return widget._uiModels[initialSelectionIndex].shouldBeSelected
+    return widget.uiModels[initialSelectionIndex].shouldBeSelected
         ? initialSelectionIndex
         : null;
   }
