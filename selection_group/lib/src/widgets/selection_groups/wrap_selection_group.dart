@@ -6,22 +6,21 @@ import 'package:selection_group/src/widgets/selection_groups/selection_group_bas
 
 class WrapSelectionGroup<T extends SelectionItemUiModel>
     extends SelectionGroupBase<T, WrapLayoutConfig> {
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
 
   const WrapSelectionGroup({
     super.key,
     required super.uiModels,
     required super.layoutConfig,
-    required super.cellBuilder,
-    required super.onSelectionChanged,
     super.maxSelectionCount,
     super.initialSelectionIndices,
     super.onSelectionOverflow,
-    List<Widget> leadingWidgets = const [],
-    List<Widget> trailingWidgets = const [],
-  })  : _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    required super.onSelectionChanged,
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+    required super.cellBuilder,
+  });
 
   @override
   Widget buildContentWidget(
@@ -31,7 +30,7 @@ class WrapSelectionGroup<T extends SelectionItemUiModel>
   ) {
     final children = <Widget>[];
     final totalChildrenCount =
-        itemCount + _leadingWidgets.length + _trailingWidgets.length;
+        itemCount + leadingWidgets.length + trailingWidgets.length;
 
     for (var i = 0; i < totalChildrenCount; i++) {
       children.add(
@@ -39,8 +38,8 @@ class WrapSelectionGroup<T extends SelectionItemUiModel>
           index: i,
           itemCount: itemCount,
           builder: cellBuilder,
-          leadingWidgets: _leadingWidgets,
-          trailingWidgets: _trailingWidgets,
+          leadingWidgets: leadingWidgets,
+          trailingWidgets: trailingWidgets,
         ),
       );
     }
