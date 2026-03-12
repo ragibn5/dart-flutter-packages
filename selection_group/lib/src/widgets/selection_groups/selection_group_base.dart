@@ -6,31 +6,24 @@ import 'package:selection_group/src/models/selection_item_ui_model.dart';
 
 abstract class SelectionGroupBase<T extends SelectionItemUiModel,
     LayoutConfig extends SelectionGroupLayoutConfig> extends StatefulWidget {
-  final List<T> _uiModels;
-  final LayoutConfig _layoutConfig;
-  final Widget Function(T model, {required bool selected}) _cellBuilder;
-  final void Function(List<int> newSelectionIndices) _onSelectionChanged;
-
-  final int? _maxSelectionCount;
-  final List<int> _initialSelectionIndices;
-  final void Function()? _onSelectionOverflow;
+  final List<T> uiModels;
+  final LayoutConfig layoutConfig;
+  final int? maxSelectionCount;
+  final List<int> initialSelectionIndices;
+  final void Function()? onSelectionOverflow;
+  final void Function(List<int> newSelectionIndices) onSelectionChanged;
+  final Widget Function(T model, {required bool selected}) cellBuilder;
 
   const SelectionGroupBase({
     super.key,
-    required List<T> uiModels,
-    required LayoutConfig layoutConfig,
-    required Widget Function(T model, {required bool selected}) cellBuilder,
-    required void Function(List<int> newSelectionIndices) onSelectionChanged,
-    int? maxSelectionCount,
-    List<int> initialSelectionIndices = const [],
-    required void Function()? onSelectionOverflow,
-  })  : _uiModels = uiModels,
-        _layoutConfig = layoutConfig,
-        _cellBuilder = cellBuilder,
-        _onSelectionOverflow = onSelectionOverflow,
-        _onSelectionChanged = onSelectionChanged,
-        _maxSelectionCount = maxSelectionCount,
-        _initialSelectionIndices = initialSelectionIndices;
+    required this.uiModels,
+    required this.layoutConfig,
+    this.maxSelectionCount,
+    this.initialSelectionIndices = const [],
+    this.onSelectionOverflow,
+    required this.onSelectionChanged,
+    required this.cellBuilder,
+  });
 
   @override
   State<SelectionGroupBase<T, LayoutConfig>> createState() =>
@@ -68,32 +61,32 @@ class _SelectionGroupBaseState<T extends SelectionItemUiModel,
     return StreamBuilder<SelectionData>(
       stream: _selectionController.stream,
       builder: (context, snapshot) => widget.buildContentWidget(
-        widget._uiModels.length,
-        widget._layoutConfig,
+        widget.uiModels.length,
+        widget.layoutConfig,
         (index) => _TappableItem(
           index: index,
-          uiModel: widget._uiModels[index],
+          uiModel: widget.uiModels[index],
           selectionController: _selectionController,
-          onSelectionChanged: widget._onSelectionChanged,
-          cellBuilder: widget._cellBuilder,
-          onSelectionOverflow: widget._onSelectionOverflow,
+          onSelectionChanged: widget.onSelectionChanged,
+          cellBuilder: widget.cellBuilder,
+          onSelectionOverflow: widget.onSelectionOverflow,
         ),
       ),
     );
   }
 
   void _initializeInitialSelection() {
-    final maxSelectionCount = widget._maxSelectionCount;
+    final maxSelectionCount = widget.maxSelectionCount;
     assert(
       maxSelectionCount == null ||
-          widget._initialSelectionIndices.length < maxSelectionCount,
+          widget.initialSelectionIndices.length < maxSelectionCount,
       'Initial selection indices count must be <= Given max selection count',
     );
 
     _selectionController.add(
       _getInitialSelection(
-        widget._uiModels,
-        widget._initialSelectionIndices,
+        widget.uiModels,
+        widget.initialSelectionIndices,
       ),
     );
   }
@@ -104,7 +97,7 @@ class _SelectionGroupBaseState<T extends SelectionItemUiModel,
   ) {
     final selectionStructure = SelectionData(
       size: uiModes.length,
-      maxSelectionCount: widget._maxSelectionCount,
+      maxSelectionCount: widget.maxSelectionCount,
     );
     for (final e in initialSelectionIndices) {
       if (uiModes[e].shouldBeSelected) {
