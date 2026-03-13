@@ -20,19 +20,17 @@ class ClickFeedbackContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final config = _feedbackConfig;
-    switch (config) {
-      case OpacityFeedbackConfig():
-        return OpacityFeedbackContainer(
-          onTap: _onTap,
+    return switch (config) {
+      OpacityFeedbackConfig() => OpacityFeedbackContainer(
           feedbackConfig: config,
-          child: _child,
-        );
-      case OverlayFeedbackConfig():
-        return OverlayFeedbackContainer(
           onTap: _onTap,
-          feedbackConfig: config,
           child: _child,
-        );
-    }
+        ),
+      OverlayFeedbackConfig() => OverlayFeedbackContainer(
+          feedbackConfig: config,
+          onTap: _onTap,
+          child: _child,
+        )
+    };
   }
 }
