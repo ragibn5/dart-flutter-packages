@@ -110,7 +110,7 @@ class Menu<D> extends StatelessWidget {
 
         final itemData = menuData.menuItems[index - 1];
         return ClickFeedbackContainer(
-          feedbackType: menuData.menuLayoutConfig.selectionFeedbackConfig,
+          feedbackConfig: menuData.menuLayoutConfig.selectionFeedbackConfig,
           onTap: () => _handleTap(context, itemData),
           child: menuItemBuilder(
             index - 1,
