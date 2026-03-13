@@ -31,9 +31,8 @@ class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (layoutConfig) {
-      case ListLayoutConfig():
-        return ListSelectionGroup(
+    return switch (layoutConfig) {
+      ListLayoutConfig() => ListSelectionGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as ListLayoutConfig,
           onSelectionChanged: onSelectionChanged,
@@ -43,9 +42,8 @@ class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
           maxSelectionCount: maxSelectionCount,
           initialSelectionIndices: initialSelectionIndices,
           onSelectionOverflow: onSelectionOverflow,
-        );
-      case GridLayoutConfig():
-        return GridSelectionGroup(
+        ),
+      GridLayoutConfig() => GridSelectionGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as GridLayoutConfig,
           onSelectionChanged: onSelectionChanged,
@@ -55,9 +53,8 @@ class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
           maxSelectionCount: maxSelectionCount,
           initialSelectionIndices: initialSelectionIndices,
           onSelectionOverflow: onSelectionOverflow,
-        );
-      case WrapLayoutConfig():
-        return WrapSelectionGroup(
+        ),
+      WrapLayoutConfig() => WrapSelectionGroup(
           uiModels: uiModels,
           layoutConfig: layoutConfig as WrapLayoutConfig,
           onSelectionChanged: onSelectionChanged,
@@ -67,7 +64,7 @@ class SelectionGroup<T extends SelectionItemUiModel> extends StatelessWidget {
           maxSelectionCount: maxSelectionCount,
           initialSelectionIndices: initialSelectionIndices,
           onSelectionOverflow: onSelectionOverflow,
-        );
-    }
+        )
+    };
   }
 }
