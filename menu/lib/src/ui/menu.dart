@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:menu/src/configs/menu_layout_config.dart';
 import 'package:menu/src/models/menu_data.dart';
 import 'package:menu/src/models/menu_item_data.dart';
-import 'package:menu/src/ui/click_feedback_container.dart';
+import 'package:menu/src/ui/feedback/click_feedback_container.dart';
 
 class Menu<D> extends StatelessWidget {
   /// # The data for the menu to be shown.
