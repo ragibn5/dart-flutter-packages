@@ -22,18 +22,25 @@ void main() {
   Widget createTestWidget({
     required List<SelectionItemUiModel> models,
     required GridLayoutConfig layoutConfig,
-    required Widget Function(SelectionItemUiModel model,
-            {required bool selected})
-        cellBuilder,
+    int? maxSelectionCount,
+    List<int> initialSelectionIndices = const [],
+    void Function()? onSelectionOverflow,
     required void Function(List<int> selectedIndices) onSelectionChanged,
     List<Widget> leading = const [],
     List<Widget> trailing = const [],
+    required Widget Function(
+      SelectionItemUiModel model, {
+      required bool selected,
+    }) cellBuilder,
   }) {
     return MaterialApp(
       home: Scaffold(
         body: GridSelectionGroup<SelectionItemUiModel>(
           uiModels: models,
           layoutConfig: layoutConfig,
+          maxSelectionCount: maxSelectionCount,
+          initialSelectionIndices: initialSelectionIndices,
+          onSelectionOverflow: onSelectionOverflow,
           onSelectionChanged: onSelectionChanged,
           leadingWidgets: leading,
           trailingWidgets: trailing,
