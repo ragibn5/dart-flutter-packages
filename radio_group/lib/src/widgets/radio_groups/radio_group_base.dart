@@ -130,6 +130,10 @@ class _TappableItem<T extends RadioItemUiModel> extends StatelessWidget {
       return;
     }
 
+    if (selectionController.lastItem == index) {
+      return;
+    }
+
     selectionController.add(index);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       onSelectionChanged(uiModel);
