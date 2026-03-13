@@ -264,4 +264,82 @@ void main() {
     // Overflow callback should NOT be called during initialization
     expect(overflowTriggered, isFalse);
   });
+
+  testWidgets('Tapping an already selected item deselects it', (tester) async {
+    final models = [
+      const _TestSelectionItemUiModel(shouldBeSelected: true),
+    ];
+
+    var selectedIndices = <int>[];
+
+    await tester.pumpWidget(
+      wrap(
+        _TestRadioGroup(
+          uiModels: models,
+          layoutConfig: const WrapLayoutConfig(),
+          onSelectionChanged: (indices) => selectedIndices = indices,
+          cellBuilder: (model, {required selected}) =>
+              Text(selected ? 'selected' : 'not'),
+        ),
+      ),
+    );
+
+    // Select
+    await tester.tap(find.text('not'));
+    await tester.pump();
+
+    expect(find.text('selected'), findsOneWidget);
+
+    // Tap again → deselect
+    await tester.tap(find.text('selected'));
+    await tester.pump();
+
+    expect(find.text('selected'), findsNothing);
+    expect(selectedIndices, isEmpty);
+  });
+
+  testWidgets(
+      'After deselecting, new selections are allowed within maxSelectionCount',
+      (tester) async {
+    final models = [
+      const _TestSelectionItemUiModel(shouldBeSelected: true),
+      const _TestSelectionItemUiModel(shouldBeSelected: true),
+      const _TestSelectionItemUiModel(shouldBeSelected: true),
+    ];
+
+    var selectedIndices = <int>[];
+
+    await tester.pumpWidget(
+      wrap(
+        _TestRadioGroup(
+          uiModels: models,
+          layoutConfig: const WrapLayoutConfig(),
+          maxSelectionCount: 2,
+          onSelectionChanged: (indices) => selectedIndices = indices,
+          cellBuilder: (model, {required selected}) =>
+              Text(selected ? 'selected' : 'not'),
+        ),
+      ),
+    );
+
+    // Select first two
+    await tester.tap(find.text('not').first);
+    await tester.pump();
+    await tester.tap(find.text('not').first);
+    await tester.pump();
+
+    expect(selectedIndices.length, 2);
+
+    // Deselect first
+    await tester.tap(find.text('selected').first);
+    await tester.pump();
+
+    expect(selectedIndices.length, 1);
+
+    // Now selecting third should succeed
+    await tester.tap(find.text('not').first);
+    await tester.pump();
+
+    expect(selectedIndices.length, 2);
+  });
 }
