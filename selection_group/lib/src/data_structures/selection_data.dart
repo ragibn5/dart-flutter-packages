@@ -1,11 +1,7 @@
-/// A data structure to mimic the select/deselect behaviour.
-///
-/// Note, this data structure is design to hold and manipulate limited
-/// number of selection data, i.e., the `size` constructor param should
-/// be small.
+/// A data structure to manage selection state with optional maximum selection limit.
+/// Does not throw; invalid indices are silently ignored.
 class SelectionData {
   int _selectionCount = 0;
-
   final int? _maxSelectionCount;
   final List<bool> _current;
 
@@ -15,69 +11,69 @@ class SelectionData {
   })  : _current = List.filled(size, false),
         _maxSelectionCount = maxSelectionCount;
 
+  /// Returns true if the index is currently selected, false if out of bounds.
   bool isSelected(int index) {
-    assert(
-      index >= 0 && index < _current.length,
-      'Index is out of promised bound',
-    );
+    if (index < 0 || index >= _current.length) {
+      return false;
+    }
 
     return _current[index];
   }
 
-  /// Adds the given index to the selection if we have not yet reached limit.
-  void select(int newIndex) {
-    assert(
-      newIndex >= 0 && newIndex < _current.length,
-      'Index is out of promised bound',
-    );
-
-    if (_selectionCount == (_maxSelectionCount ?? _current.length)) {
+  /// Selects the index if not already selected and under max limit.
+  void select(int index) {
+    if (index < 0 || index >= _current.length) {
+      return;
+    }
+    if (_maxSelectionCount != null && _selectionCount >= _maxSelectionCount!) {
+      return;
+    }
+    if (_current[index]) {
       return;
     }
 
-    _current[newIndex] = true;
-    ++_selectionCount;
+    _current[index] = true;
+    _selectionCount++;
   }
 
-  /// Unselects the given index (if was selected previously).
-  void unselect(int newIndex) {
-    assert(
-      newIndex >= 0 && newIndex < _current.length,
-      'Index is out of promised bound',
-    );
-
-    if (_selectionCount == 0) {
+  /// Unselects the index if currently selected.
+  void unselect(int index) {
+    if (index < 0 || index >= _current.length) {
+      return;
+    }
+    if (!_current[index]) {
       return;
     }
 
-    _current[newIndex] = false;
-    --_selectionCount;
+    _current[index] = false;
+    _selectionCount--;
   }
 
-  /// Adds or removes the given index from the selection.
-  void flipSelection(int newIndex) {
-    assert(
-      newIndex >= 0 && newIndex < _current.length,
-      'Index is out of promised bound',
-    );
+  /// Toggles selection for the index.
+  void flipSelection(int index) {
+    if (index < 0 || index >= _current.length) {
+      return;
+    }
 
-    if (_current[newIndex]) {
-      unselect(newIndex);
+    if (_current[index]) {
+      unselect(index);
     } else {
-      select(newIndex);
+      select(index);
     }
   }
 
+  /// Returns the list of currently selected indices.
   List<int> getCurrentSelectionIndices() {
     final indices = <int>[];
-    for (var i = 0; i < _current.length; ++i) {
+    for (var i = 0; i < _current.length; i++) {
       if (_current[i]) indices.add(i);
     }
-
     return indices;
   }
 
+  /// Maximum number of selections allowed.
   int? get maxSelectionCount => _maxSelectionCount;
 
+  /// Number of currently selected items.
   int get selectionCount => _selectionCount;
 }

@@ -61,7 +61,7 @@ void main() {
     expect(find.textContaining('not'), findsOneWidget);
   });
 
-  testWidgets('Initial selection ignored if model shouldBeSelected is false',
+  testWidgets('Initial selection ignored if shouldBeSelected is false',
       (tester) async {
     final models = [
       const _TestRadioItemUiModel(shouldBeSelected: false),
@@ -84,7 +84,7 @@ void main() {
   });
 
   testWidgets(
-      'Initial selection ignored if model the provided initial selection index out of bounds',
+      'Initial selection ignored if the provided initial selection index out of bounds',
       (tester) async {
     final models = [
       const _TestRadioItemUiModel(shouldBeSelected: false),
@@ -176,8 +176,96 @@ void main() {
 
     await tester.tap(find.text('not'));
     await tester.pump();
-    await tester.pump();
 
     expect(selected, models.first);
+  });
+
+  testWidgets('Selecting a different item replaces previous selection',
+      (tester) async {
+    final models = [
+      const _TestRadioItemUiModel(shouldBeSelected: true),
+      const _TestRadioItemUiModel(shouldBeSelected: true),
+    ];
+
+    await tester.pumpWidget(
+      wrap(
+        _TestRadioGroup(
+          uiModels: models,
+          layoutConfig: const WrapLayoutConfig(),
+          onSelectionChanged: (_) {},
+          cellBuilder: (model, {required selected}) =>
+              Text(selected ? 'selected' : 'not'),
+        ),
+      ),
+    );
+
+    // Select first
+    await tester.tap(find.text('not').first);
+    await tester.pump();
+    // First one should be selected
+    expect(find.text('selected'), findsOneWidget);
+
+    // Select second
+    await tester.tap(find.text('not').first);
+    await tester.pump();
+    // Still only one selected
+    expect(find.text('selected'), findsOneWidget);
+  });
+
+  testWidgets('Tapping already selected item does not trigger callback again',
+      (tester) async {
+    final models = [
+      const _TestRadioItemUiModel(shouldBeSelected: true),
+    ];
+
+    var callCount = 0;
+
+    await tester.pumpWidget(
+      wrap(
+        _TestRadioGroup(
+          uiModels: models,
+          layoutConfig: const WrapLayoutConfig(),
+          onSelectionChanged: (_) {
+            callCount++;
+          },
+          cellBuilder: (model, {required selected}) =>
+              Text(selected ? 'selected' : 'not'),
+        ),
+      ),
+    );
+
+    // First tap selects
+    await tester.tap(find.text('not'));
+    await tester.pump();
+
+    // Second tap should do nothing
+    await tester.tap(find.text('selected'));
+    await tester.pump();
+
+    // Should only be called once
+    expect(callCount, 1);
+  });
+
+  testWidgets('Initial selection does not trigger callback', (tester) async {
+    final models = [
+      const _TestRadioItemUiModel(shouldBeSelected: true),
+    ];
+
+    var called = false;
+
+    await tester.pumpWidget(
+      wrap(
+        _TestRadioGroup(
+          uiModels: models,
+          layoutConfig: const WrapLayoutConfig(),
+          initialSelectionIndex: 0,
+          onSelectionChanged: (_) => called = true,
+          cellBuilder: (model, {required selected}) =>
+              Text(selected ? 'selected' : 'not'),
+        ),
+      ),
+    );
+
+    expect(called, isFalse);
   });
 }

@@ -1,32 +1,31 @@
 import 'package:flutter/widgets.dart';
 import 'package:selection_group/src/configs/selection_group_layout_config.dart';
 import 'package:selection_group/src/models/selection_item_ui_model.dart';
-import 'package:selection_group/src/selection_groups/selection_group_base.dart';
-import 'package:selection_group/src/widgets/leading_trailing_aware_child.dart';
+import 'package:selection_group/src/widgets/builders/leading_trailing_aware_child_builder.dart';
+import 'package:selection_group/src/widgets/selection_groups/selection_group_base.dart';
 
 class ListSelectionGroup<T extends SelectionItemUiModel>
-    extends SelectionGroupBase<T, ListSelectionGroupLayoutConfig> {
-  final List<Widget> _leadingWidgets;
-  final List<Widget> _trailingWidgets;
+    extends SelectionGroupBase<T, ListLayoutConfig> {
+  final List<Widget> leadingWidgets;
+  final List<Widget> trailingWidgets;
 
   const ListSelectionGroup({
     super.key,
     required super.uiModels,
     required super.layoutConfig,
-    required super.cellBuilder,
-    required super.onSelectionChanged,
     super.maxSelectionCount,
     super.initialSelectionIndices,
     super.onSelectionOverflow,
-    List<Widget> leadingWidgets = const [],
-    List<Widget> trailingWidgets = const [],
-  })  : _leadingWidgets = leadingWidgets,
-        _trailingWidgets = trailingWidgets;
+    required super.onSelectionChanged,
+    this.leadingWidgets = const [],
+    this.trailingWidgets = const [],
+    required super.cellBuilder,
+  });
 
   @override
   Widget buildContentWidget(
     int itemCount,
-    ListSelectionGroupLayoutConfig layoutConfig,
+    ListLayoutConfig layoutConfig,
     Widget Function(int index) cellBuilder,
   ) {
     return ListView.separated(
@@ -34,7 +33,7 @@ class ListSelectionGroup<T extends SelectionItemUiModel>
       padding: layoutConfig.padding,
       physics: layoutConfig.physics,
       scrollDirection: layoutConfig.axis,
-      itemCount: itemCount + _leadingWidgets.length + _trailingWidgets.length,
+      itemCount: itemCount + leadingWidgets.length + trailingWidgets.length,
       separatorBuilder: (context, index) => switch (layoutConfig.axis) {
         Axis.horizontal => SizedBox(width: layoutConfig.spacing),
         Axis.vertical => SizedBox(height: layoutConfig.spacing),
@@ -43,8 +42,8 @@ class ListSelectionGroup<T extends SelectionItemUiModel>
         index: index,
         itemCount: itemCount,
         builder: cellBuilder,
-        leadingWidgets: _leadingWidgets,
-        trailingWidgets: _trailingWidgets,
+        leadingWidgets: leadingWidgets,
+        trailingWidgets: trailingWidgets,
       ),
     );
   }

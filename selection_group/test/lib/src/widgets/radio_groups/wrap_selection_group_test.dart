@@ -3,37 +3,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:radio_group/src/configs/radio_group_layout_config.dart';
-import 'package:radio_group/src/models/radio_item_ui_model.dart';
-import 'package:radio_group/src/widgets/radio_groups/wrap_radio_group.dart';
+import 'package:selection_group/selection_group.dart';
+import 'package:selection_group/src/widgets/selection_groups/wrap_selection_group.dart';
 
-class _TestRadioItemUiModel extends RadioItemUiModel {
-  _TestRadioItemUiModel() : super(shouldBeSelected: true);
+class _TestSelectionItemUiModel extends SelectionItemUiModel {
+  _TestSelectionItemUiModel() : super(shouldBeSelected: true);
 }
 
 void main() {
   setUpAll(() {
-    registerFallbackValue(_TestRadioItemUiModel());
+    registerFallbackValue(_TestSelectionItemUiModel());
   });
 
-  List<RadioItemUiModel> createModels(int count) {
-    return List.generate(count, (_) => _TestRadioItemUiModel());
+  List<SelectionItemUiModel> createModels(int count) {
+    return List.generate(count, (_) => _TestSelectionItemUiModel());
   }
 
   Widget createTestWidget({
-    required List<RadioItemUiModel> models,
+    required List<SelectionItemUiModel> models,
     required WrapLayoutConfig layoutConfig,
-    required Widget Function(RadioItemUiModel model, {required bool selected})
-        cellBuilder,
-    required void Function(RadioItemUiModel model) onSelectionChanged,
+    int? maxSelectionCount,
+    List<int> initialSelectionIndices = const [],
+    void Function()? onSelectionOverflow,
+    required void Function(List<int> selectedIndices) onSelectionChanged,
     List<Widget> leading = const [],
     List<Widget> trailing = const [],
+    required Widget Function(SelectionItemUiModel model,
+            {required bool selected})
+        cellBuilder,
   }) {
     return MaterialApp(
       home: Scaffold(
-        body: WrapRadioGroup<RadioItemUiModel>(
+        body: WrapSelectionGroup<SelectionItemUiModel>(
           uiModels: models,
           layoutConfig: layoutConfig,
+          maxSelectionCount: maxSelectionCount,
+          initialSelectionIndices: initialSelectionIndices,
+          onSelectionOverflow: onSelectionOverflow,
           onSelectionChanged: onSelectionChanged,
           leadingWidgets: leading,
           trailingWidgets: trailing,
@@ -82,7 +88,8 @@ void main() {
     expect(wrapView.children.length, 7);
   });
 
-  testWidgets('The cellBuilder invoked only for radio items', (tester) async {
+  testWidgets('The cellBuilder invoked only for selection items',
+      (tester) async {
     const layoutConfig = WrapLayoutConfig();
     var calls = 0;
 
