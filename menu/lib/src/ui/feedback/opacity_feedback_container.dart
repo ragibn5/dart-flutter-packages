@@ -3,15 +3,15 @@ import 'package:menu/src/configs/selection_feedback_config.dart';
 
 /// Simple opacity-based feedback implementation
 class OpacityFeedbackContainer extends StatefulWidget {
-  final Widget child;
-  final void Function() onTap;
   final OpacityFeedbackConfig feedbackConfig;
+  final void Function() onTap;
+  final Widget child;
 
   const OpacityFeedbackContainer({
     super.key,
-    required this.child,
-    required this.onTap,
     required this.feedbackConfig,
+    required this.onTap,
+    required this.child,
   });
 
   @override
