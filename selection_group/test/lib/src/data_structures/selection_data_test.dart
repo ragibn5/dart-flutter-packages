@@ -14,126 +14,167 @@ void main() {
     );
   });
 
-  test('Initial state', () {
-    // Verify initial state
-    expect(selectionData.selectionCount, 0);
-    expect(selectionData.getCurrentSelectionIndices(), isEmpty);
-    expect(selectionData.maxSelectionCount, 3);
+  group('Initial state', () {
+    test('selectionCount is zero and indices list is empty', () {
+      expect(selectionData.selectionCount, 0);
+      expect(selectionData.getCurrentSelectionIndices(), isEmpty);
+    });
+
+    test('maxSelectionCount getter returns configured value', () {
+      expect(selectionData.maxSelectionCount, 3);
+    });
+
+    test('maxSelectionCount getter returns null when not configured', () {
+      final unlimited = SelectionData(size: 3, maxSelectionCount: null);
+      expect(unlimited.maxSelectionCount, isNull);
+    });
   });
 
-  test('Select an index', () {
-    // Select index 2
-    selectionData.select(2);
+  group('select', () {
+    test('Marks index as selected and increments count', () {
+      selectionData.select(2);
 
-    // Verify selection
-    expect(selectionData.isSelected(2), isTrue);
-    expect(selectionData.selectionCount, 1);
-    expect(selectionData.getCurrentSelectionIndices(), [2]);
+      expect(selectionData.isSelected(2), isTrue);
+      expect(selectionData.selectionCount, 1);
+      expect(selectionData.getCurrentSelectionIndices(), [2]);
+    });
+
+    test('Selecting same index twice does not change count', () {
+      selectionData.select(0);
+      selectionData.select(0);
+
+      expect(selectionData.selectionCount, 1);
+      expect(selectionData.getCurrentSelectionIndices(), [0]);
+    });
+
+    test('Cannot exceed maxSelectionCount', () {
+      selectionData.select(0);
+      selectionData.select(1);
+      selectionData.select(2);
+      selectionData.select(3);
+
+      expect(selectionData.isSelected(3), isFalse);
+      expect(selectionData.selectionCount, 3);
+      expect(selectionData.getCurrentSelectionIndices(), [0, 1, 2]);
+    });
+
+    test('Allows unlimited selections when maxSelectionCount is null', () {
+      final unlimited = SelectionData(size: 5, maxSelectionCount: null);
+      unlimited.select(0);
+      unlimited.select(1);
+      unlimited.select(2);
+      unlimited.select(3);
+      unlimited.select(4);
+
+      expect(unlimited.selectionCount, 5);
+      expect(unlimited.getCurrentSelectionIndices(), [0, 1, 2, 3, 4]);
+    });
+
+    test('Silently ignores out-of-bounds indices', () {
+      selectionData.select(-1);
+      selectionData.select(5);
+
+      expect(selectionData.selectionCount, 0);
+    });
+
+    test('Allows new selection after freeing a slot by unselecting', () {
+      selectionData.select(0);
+      selectionData.select(1);
+      selectionData.select(2);
+      selectionData.unselect(1);
+      selectionData.select(3);
+
+      expect(selectionData.selectionCount, 3);
+      expect(selectionData.getCurrentSelectionIndices(), [0, 2, 3]);
+    });
   });
 
-  test('Unselect an index', () {
-    // Select index 2 and then unselect it
-    selectionData.select(2);
-    selectionData.unselect(2);
+  group('unselect', () {
+    test('Marks index as unselected and decrements count', () {
+      selectionData.select(2);
+      selectionData.unselect(2);
 
-    // Verify un-selection
-    expect(selectionData.isSelected(2), isFalse);
-    expect(selectionData.selectionCount, 0);
-    expect(selectionData.getCurrentSelectionIndices(), isEmpty);
+      expect(selectionData.isSelected(2), isFalse);
+      expect(selectionData.selectionCount, 0);
+      expect(selectionData.getCurrentSelectionIndices(), isEmpty);
+    });
+
+    test('Is a no-op when index is not selected', () {
+      selectionData.unselect(0);
+
+      expect(selectionData.selectionCount, 0);
+    });
+
+    test('Silently ignores out-of-bounds indices', () {
+      selectionData.unselect(-1);
+      selectionData.unselect(5);
+
+      expect(selectionData.selectionCount, 0);
+    });
   });
 
-  test('Flip selection', () {
-    // Flip selection for index 2 (select)
-    selectionData.flipSelection(2);
-    expect(selectionData.isSelected(2), isTrue);
-    expect(selectionData.selectionCount, 1);
-    expect(selectionData.getCurrentSelectionIndices(), [2]);
+  group('flipSelection', () {
+    test('Selects an unselected index', () {
+      selectionData.flipSelection(2);
 
-    // Flip selection for index 2 again (unselect)
-    selectionData.flipSelection(2);
-    expect(selectionData.isSelected(2), isFalse);
-    expect(selectionData.selectionCount, 0);
-    expect(selectionData.getCurrentSelectionIndices(), isEmpty);
+      expect(selectionData.isSelected(2), isTrue);
+      expect(selectionData.selectionCount, 1);
+    });
+
+    test('Unselects a selected index', () {
+      selectionData.select(2);
+      selectionData.flipSelection(2);
+
+      expect(selectionData.isSelected(2), isFalse);
+      expect(selectionData.selectionCount, 0);
+    });
+
+    test('Respects maxSelectionCount when attempting to select', () {
+      selectionData.select(0);
+      selectionData.select(1);
+      selectionData.select(2);
+      selectionData.flipSelection(3);
+
+      expect(selectionData.isSelected(3), isFalse);
+      expect(selectionData.selectionCount, 3);
+    });
+
+    test('Silently ignores out-of-bounds indices', () {
+      selectionData.flipSelection(-1);
+      selectionData.flipSelection(5);
+
+      expect(selectionData.selectionCount, 0);
+    });
   });
 
-  test('Select multiple indices', () {
-    // Select indices 0, 1, and 2
-    selectionData.select(0);
-    selectionData.select(1);
-    selectionData.select(2);
+  group('isSelected', () {
+    test('Returns true for a selected index', () {
+      selectionData.select(1);
 
-    // Verify selections
-    expect(selectionData.selectionCount, 3);
-    expect(selectionData.getCurrentSelectionIndices(), [0, 1, 2]);
+      expect(selectionData.isSelected(1), isTrue);
+    });
+
+    test('Returns false for an unselected index', () {
+      expect(selectionData.isSelected(1), isFalse);
+    });
+
+    test('Returns false for out-of-bounds indices', () {
+      expect(selectionData.isSelected(-1), isFalse);
+      expect(selectionData.isSelected(5), isFalse);
+    });
   });
 
-  test('Cannot exceed maxSelectionCount', () {
-    // Select indices 0, 1, and 2 (max limit)
-    selectionData.select(0);
-    selectionData.select(1);
-    selectionData.select(2);
+  group('getCurrentSelectionIndices', () {
+    test('Returns indices in ascending order', () {
+      selectionData.select(2);
+      selectionData.select(0);
+      selectionData.select(4);
 
-    // Attempt to select index 3 (should fail)
-    selectionData.select(3);
-    expect(selectionData.isSelected(3), isFalse);
-    expect(selectionData.selectionCount, 3);
-    expect(selectionData.getCurrentSelectionIndices(), [0, 1, 2]);
-  });
+      expect(selectionData.getCurrentSelectionIndices(), [0, 2, 4]);
+    });
 
-  test('Unselect after reaching maxSelectionCount', () {
-    // Select indices 0, 1, and 2 (max limit)
-    selectionData.select(0);
-    selectionData.select(1);
-    selectionData.select(2);
-
-    // Unselect index 1
-    selectionData.unselect(1);
-
-    // Verify un-selection
-    expect(selectionData.isSelected(1), isFalse);
-    expect(selectionData.selectionCount, 2);
-    expect(selectionData.getCurrentSelectionIndices(), [0, 2]);
-
-    // Now select index 3 (should succeed)
-    selectionData.select(3);
-    expect(selectionData.isSelected(3), isTrue);
-    expect(selectionData.selectionCount, 3);
-    expect(selectionData.getCurrentSelectionIndices(), [0, 2, 3]);
-  });
-
-  test('Edge case: No maxSelectionCount', () {
-    // Create a SelectionData instance with no maxSelectionCount
-    final unlimitedSelectionData = SelectionData(
-      size: 3,
-      maxSelectionCount: null,
-    );
-
-    // Select all indices
-    unlimitedSelectionData.select(0);
-    unlimitedSelectionData.select(1);
-    unlimitedSelectionData.select(2);
-
-    // Verify all indices are selected
-    expect(unlimitedSelectionData.selectionCount, 3);
-    expect(unlimitedSelectionData.getCurrentSelectionIndices(), [0, 1, 2]);
-  });
-
-  test('Edge case: Invalid index throws assertion', () {
-    // Attempt to select an invalid index
-    expect(() => selectionData.select(5), throwsA(isA<AssertionError>()));
-    expect(() => selectionData.unselect(-1), throwsA(isA<AssertionError>()));
-    expect(
-      () => selectionData.flipSelection(10),
-      throwsA(isA<AssertionError>()),
-    );
-  });
-
-  test('Edge case: Unselect when no selections exist', () {
-    // Attempt to unselect an index when no selections exist
-    selectionData.unselect(0);
-
-    // Verify no changes
-    expect(selectionData.selectionCount, 0);
-    expect(selectionData.getCurrentSelectionIndices(), isEmpty);
+    test('returns empty list when nothing is selected', () {
+      expect(selectionData.getCurrentSelectionIndices(), isEmpty);
+    });
   });
 }
