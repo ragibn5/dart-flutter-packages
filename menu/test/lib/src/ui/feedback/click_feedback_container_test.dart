@@ -48,4 +48,28 @@ void main() {
           .having((w) => w.onTap, 'onTap', onTap),
     );
   });
+
+  testWidgets('Does not render OverlayFeedbackContainer for opacity config',
+      (tester) async {
+    await tester.pumpWidget(wrap(ClickFeedbackContainer(
+      feedbackConfig: const OpacityFeedbackConfig(),
+      onTap: () {},
+      child: const SizedBox.shrink(),
+    )));
+
+    expect(find.byType(OverlayFeedbackContainer), findsNothing);
+    expect(find.byType(OpacityFeedbackContainer), findsOneWidget);
+  });
+
+  testWidgets('Does not render OpacityFeedbackContainer for overlay config',
+      (tester) async {
+    await tester.pumpWidget(wrap(ClickFeedbackContainer(
+      feedbackConfig: const OverlayFeedbackConfig(Colors.white),
+      onTap: () {},
+      child: const SizedBox.shrink(),
+    )));
+
+    expect(find.byType(OpacityFeedbackContainer), findsNothing);
+    expect(find.byType(OverlayFeedbackContainer), findsOneWidget);
+  });
 }
