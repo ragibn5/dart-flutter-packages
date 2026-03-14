@@ -1,5 +1,4 @@
 /// The `menu` package.
-/// Import this file to use the package in your project.
 library menu;
 
 export 'src/configs/menu_layout_config.dart';

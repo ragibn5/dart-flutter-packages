@@ -4,14 +4,14 @@ sealed class RadioGroupLayoutConfig {
   const RadioGroupLayoutConfig();
 }
 
-final class ListRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
+final class ListLayoutConfig extends RadioGroupLayoutConfig {
   final Axis axis;
   final double spacing;
   final EdgeInsets padding;
   final bool shrinkWrap;
   final ScrollPhysics physics;
 
-  ListRadioGroupLayoutConfig({
+  const ListLayoutConfig({
     this.axis = Axis.vertical,
     this.spacing = 0,
     this.padding = EdgeInsets.zero,
@@ -19,12 +19,12 @@ final class ListRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
     this.physics = const NeverScrollableScrollPhysics(),
   });
 
-  factory ListRadioGroupLayoutConfig.scrollable({
+  factory ListLayoutConfig.scrollable({
     Axis axis = Axis.vertical,
     double spacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
-    return ListRadioGroupLayoutConfig(
+    return ListLayoutConfig(
       axis: axis,
       spacing: spacing,
       padding: padding,
@@ -33,12 +33,12 @@ final class ListRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
     );
   }
 
-  factory ListRadioGroupLayoutConfig.shrinkWrap({
+  factory ListLayoutConfig.shrinkWrap({
     Axis axis = Axis.vertical,
     double spacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
-    return ListRadioGroupLayoutConfig(
+    return ListLayoutConfig(
       axis: axis,
       spacing: spacing,
       padding: padding,
@@ -46,7 +46,7 @@ final class ListRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
   }
 }
 
-final class GridRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
+final class GridLayoutConfig extends RadioGroupLayoutConfig {
   final Axis axis;
   final int crossAxisItemCount;
   final double verticalSpacing;
@@ -55,7 +55,7 @@ final class GridRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
   final bool shrinkWrap;
   final ScrollPhysics physics;
 
-  const GridRadioGroupLayoutConfig({
+  const GridLayoutConfig({
     this.axis = Axis.vertical,
     this.crossAxisItemCount = 3,
     this.verticalSpacing = 0,
@@ -65,14 +65,14 @@ final class GridRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
     this.physics = const NeverScrollableScrollPhysics(),
   });
 
-  factory GridRadioGroupLayoutConfig.scrollable({
+  factory GridLayoutConfig.scrollable({
     Axis axis = Axis.vertical,
     int crossAxisItemCount = 3,
     double verticalSpacing = 0,
     double horizontalSpacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
-    return GridRadioGroupLayoutConfig(
+    return GridLayoutConfig(
       axis: axis,
       crossAxisItemCount: crossAxisItemCount,
       verticalSpacing: verticalSpacing,
@@ -83,14 +83,14 @@ final class GridRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
     );
   }
 
-  factory GridRadioGroupLayoutConfig.shrinkWrap({
+  factory GridLayoutConfig.shrinkWrap({
     Axis axis = Axis.vertical,
     int crossAxisItemCount = 3,
     double verticalSpacing = 0,
     double horizontalSpacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
-    return GridRadioGroupLayoutConfig(
+    return GridLayoutConfig(
       axis: axis,
       crossAxisItemCount: crossAxisItemCount,
       verticalSpacing: verticalSpacing,
@@ -100,12 +100,12 @@ final class GridRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
   }
 }
 
-final class WrapRadioGroupLayoutConfig extends RadioGroupLayoutConfig {
+final class WrapLayoutConfig extends RadioGroupLayoutConfig {
   final Axis axis;
   final double spacing;
   final double runSpacing;
 
-  WrapRadioGroupLayoutConfig({
+  const WrapLayoutConfig({
     this.axis = Axis.horizontal,
     this.spacing = 0,
     this.runSpacing = 0,

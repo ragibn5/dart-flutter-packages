@@ -10,11 +10,13 @@ class _MockLogPolicyController extends Mock implements LogPolicyController {}
 
 void main() {
   late _MockLogPolicyController mockController;
-  late PolicyBasedLogFilter filter;
+
+  late PolicyBasedLogFilter sut;
 
   setUp(() {
     mockController = _MockLogPolicyController();
-    filter = PolicyBasedLogFilter(mockController);
+
+    sut = PolicyBasedLogFilter(mockController);
   });
 
   test('blocks log based on tag', () {
@@ -32,7 +34,7 @@ void main() {
       stamp: DateTime.now(),
     );
 
-    expect(filter.shouldBlock(log, loggerId: 'any'), isTrue);
+    expect(sut.shouldBlock(log, loggerId: 'any'), isTrue);
   });
 
   test('blocks log based on level', () {
@@ -50,7 +52,7 @@ void main() {
       stamp: DateTime.now(),
     );
 
-    expect(filter.shouldBlock(log, loggerId: 'any'), isTrue);
+    expect(sut.shouldBlock(log, loggerId: 'any'), isTrue);
   });
 
   test('blocks log based on loggerId', () {
@@ -68,7 +70,7 @@ void main() {
       stamp: DateTime.now(),
     );
 
-    expect(filter.shouldBlock(log, loggerId: 'logger-1'), isTrue);
+    expect(sut.shouldBlock(log, loggerId: 'logger-1'), isTrue);
   });
 
   test('does not block log if nothing matches', () {
@@ -86,6 +88,6 @@ void main() {
       stamp: DateTime.now(),
     );
 
-    expect(filter.shouldBlock(log, loggerId: 'logger-2'), isFalse);
+    expect(sut.shouldBlock(log, loggerId: 'logger-2'), isFalse);
   });
 }

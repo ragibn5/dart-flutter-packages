@@ -11,9 +11,6 @@ class ParseException implements Exception {
 
   @override
   String toString() {
-    // ignore: no_runtimeType_toString
-    return '\n*** $runtimeType ***\n'
-        'Message:\n$message\n'
-        'Source exception: \n$sourceException\n';
+    return '$ParseException: $message';
   }
 }

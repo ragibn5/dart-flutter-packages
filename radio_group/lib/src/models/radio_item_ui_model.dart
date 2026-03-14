@@ -1,7 +1,7 @@
 abstract class RadioItemUiModel {
   final bool shouldBeSelected;
 
-  RadioItemUiModel({
+  const RadioItemUiModel({
     this.shouldBeSelected = true,
   });
 }

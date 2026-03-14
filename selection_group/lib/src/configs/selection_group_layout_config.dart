@@ -4,14 +4,14 @@ sealed class SelectionGroupLayoutConfig {
   const SelectionGroupLayoutConfig();
 }
 
-final class ListSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
+final class ListLayoutConfig extends SelectionGroupLayoutConfig {
   final Axis axis;
   final double spacing;
   final EdgeInsets padding;
   final bool shrinkWrap;
   final ScrollPhysics physics;
 
-  ListSelectionGroupLayoutConfig({
+  const ListLayoutConfig({
     this.axis = Axis.vertical,
     this.spacing = 0,
     this.padding = EdgeInsets.zero,
@@ -19,12 +19,12 @@ final class ListSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
     this.physics = const NeverScrollableScrollPhysics(),
   });
 
-  factory ListSelectionGroupLayoutConfig.scrollable({
+  factory ListLayoutConfig.scrollable({
     Axis axis = Axis.vertical,
     double spacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
-    return ListSelectionGroupLayoutConfig(
+    return ListLayoutConfig(
       axis: axis,
       spacing: spacing,
       padding: padding,
@@ -33,12 +33,12 @@ final class ListSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
     );
   }
 
-  factory ListSelectionGroupLayoutConfig.shrinkWrap({
+  factory ListLayoutConfig.shrinkWrap({
     Axis axis = Axis.vertical,
     double spacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
-    return ListSelectionGroupLayoutConfig(
+    return ListLayoutConfig(
       axis: axis,
       spacing: spacing,
       padding: padding,
@@ -46,7 +46,7 @@ final class ListSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
   }
 }
 
-final class GridSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
+final class GridLayoutConfig extends SelectionGroupLayoutConfig {
   final Axis axis;
   final int crossAxisItemCount;
   final double verticalSpacing;
@@ -55,7 +55,7 @@ final class GridSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
   final bool shrinkWrap;
   final ScrollPhysics physics;
 
-  const GridSelectionGroupLayoutConfig({
+  const GridLayoutConfig({
     this.axis = Axis.vertical,
     this.crossAxisItemCount = 3,
     this.verticalSpacing = 0,
@@ -65,14 +65,14 @@ final class GridSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
     this.physics = const NeverScrollableScrollPhysics(),
   });
 
-  factory GridSelectionGroupLayoutConfig.scrollable({
+  factory GridLayoutConfig.scrollable({
     Axis axis = Axis.vertical,
     int crossAxisItemCount = 3,
     double verticalSpacing = 0,
     double horizontalSpacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
-    return GridSelectionGroupLayoutConfig(
+    return GridLayoutConfig(
       axis: axis,
       crossAxisItemCount: crossAxisItemCount,
       verticalSpacing: verticalSpacing,
@@ -83,14 +83,14 @@ final class GridSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
     );
   }
 
-  factory GridSelectionGroupLayoutConfig.shrinkWrap({
+  factory GridLayoutConfig.shrinkWrap({
     Axis axis = Axis.vertical,
     int crossAxisItemCount = 3,
     double verticalSpacing = 0,
     double horizontalSpacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
-    return GridSelectionGroupLayoutConfig(
+    return GridLayoutConfig(
       axis: axis,
       crossAxisItemCount: crossAxisItemCount,
       verticalSpacing: verticalSpacing,
@@ -100,12 +100,12 @@ final class GridSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
   }
 }
 
-final class WrapSelectionGroupLayoutConfig extends SelectionGroupLayoutConfig {
+final class WrapLayoutConfig extends SelectionGroupLayoutConfig {
   final Axis axis;
   final double spacing;
   final double runSpacing;
 
-  WrapSelectionGroupLayoutConfig({
+  const WrapLayoutConfig({
     this.axis = Axis.horizontal,
     this.spacing = 0,
     this.runSpacing = 0,

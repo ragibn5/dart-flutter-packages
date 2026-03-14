@@ -26,7 +26,7 @@ dependencies:
 
 ## Get Started
 
-Use the [`RadioGroup`](lib/src/radio_group.dart) to construct r radio group widget.
+Use the [`RadioGroup`](lib/src/widgets/radio_group.dart) to construct r radio group widget.
 It expects the following components:
 
 - `uiModels`: List of ui models (Subtype of [

@@ -1,24 +1,26 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 /// A [StreamController] wrapper to hold the last data added to the stream.
-final class CachedStreamController<T> {
+class CachedStreamController<T> {
   T? _lastItem;
   final StreamController<T> _controller;
 
-  /// Create a [CachedStreamController] from an explicit
-  /// [StreamController] instance.
-  CachedStreamController(StreamController<T> controller)
+  @visibleForTesting
+  CachedStreamController.test(StreamController<T> controller)
       : _controller = controller;
 
   /// Create a single subscriber [CachedStreamController]
-  factory CachedStreamController.single() {
-    return CachedStreamController(StreamController<T>());
-  }
+  CachedStreamController.single() : this._(StreamController<T>());
 
   /// Create a broadcast subscriber [CachedStreamController]
-  factory CachedStreamController.broadcast() {
-    return CachedStreamController(StreamController<T>.broadcast());
-  }
+  CachedStreamController.broadcast() : this._(StreamController<T>.broadcast());
+
+  /// Create a [CachedStreamController] from an explicit
+  /// [StreamController] instance.
+  CachedStreamController._(StreamController<T> controller)
+      : _controller = controller;
 
   /// Add an item to the stream
   void add(T item) {

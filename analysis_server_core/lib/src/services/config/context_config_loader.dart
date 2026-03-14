@@ -1,14 +1,24 @@
 // ignore_for_file: avoid_dynamic_calls
 
-import 'dart:io';
-
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_core/src/models/context_config.dart';
+import 'package:analysis_server_core/src/models/package_info.dart';
+import 'package:analysis_server_core/src/services/config/config_source_provider.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:functions/functions.dart';
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
 abstract class ContextConfigLoader<C extends ContextConfig> {
+  final ConfigSourceProvider _configSourceProvider;
+
+  ContextConfigLoader() : this._(ConfigSourceProviderImpl());
+
+  @visibleForTesting
+  ContextConfigLoader.test(ConfigSourceProvider configSourceProvider)
+    : this._(configSourceProvider);
+
+  ContextConfigLoader._(this._configSourceProvider);
+
   /// Load plugin specific config.
   ///
   /// You may use the passed [PackageInfo] instance directly
@@ -33,23 +43,26 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
   /// as the location.
   PackageInfo _extractPackageInfo(RuleContext context) {
     final package = context.package;
-    final unitLocation = context.definingUnit.file.parent.path;
+    final unitParentLocation = context.definingUnit.file.parent.path;
     if (package == null) {
       // Not from a dart package.
       // - Package name is null.
-      // - Package location (Compilation unit location tbh) is the parent dir.
-      return PackageInfo(name: null, location: unitLocation);
+      // - Package location unit's parent dir.
+      return PackageInfo(name: null, location: unitParentLocation);
     }
 
     final packageRootPath = package.root.path;
-    final pubspecFile = File(path.join(packageRootPath, 'pubspec.yaml'));
+    final pubspecFile = _configSourceProvider.getConfigSource(
+      package,
+      'pubspec.yaml',
+    );
     if (!pubspecFile.existsSync()) {
       // If there is no pubspec file and the analysis server still identified
       // it as a dart package (not likely going to happen), considering it as
       // non-package compilation unit. So,
       // - Package name is null.
       // - Package location (Compilation unit location tbh) is the parent dir.
-      return PackageInfo(name: null, location: unitLocation);
+      return PackageInfo(name: null, location: unitParentLocation);
     }
 
     final pubspecContent = pubspecFile.readAsStringSync();
@@ -63,7 +76,7 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
       // compilation unit. So,
       // - Package name is null.
       // - Package location (Compilation unit location tbh) is the parent dir.
-      return PackageInfo(name: null, location: unitLocation);
+      return PackageInfo(name: null, location: unitParentLocation);
     }
 
     final packageName = runCatching(
@@ -76,17 +89,13 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
       // compilation unit. So,
       // - Package name is null.
       // - Package location (Compilation unit location tbh) is the parent dir.
-      return PackageInfo(name: null, location: unitLocation);
+      return PackageInfo(name: null, location: unitParentLocation);
     }
 
     // At this point, we are sure that the compilation unit belongs
     // to a valid dart package. So,
     // - We have a valid package name.
     // - Package location is the root of the package.
-    final packageInfo = PackageInfo(
-      name: packageName,
-      location: packageRootPath,
-    );
-    return packageInfo;
+    return PackageInfo(name: packageName, location: packageRootPath);
   }
 }
