@@ -44,12 +44,11 @@ void main() {
       ),
     );
 
-    await tester.press(find.byType(GestureDetector));
+    await tester.startGesture(tester.getCenter(find.byType(GestureDetector)));
     await tester.pump();
 
     final animatedOpacity =
         tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
-
     expect(animatedOpacity.opacity, 0.4);
   });
 
@@ -91,7 +90,9 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(GestureDetector));
+    final gesture = await tester
+        .startGesture(tester.getCenter(find.byType(GestureDetector)));
+    await gesture.up();
     await tester.pump();
 
     expect(tapped, isTrue);
@@ -130,7 +131,6 @@ void main() {
 
     final gesture = await tester
         .startGesture(tester.getCenter(find.byType(GestureDetector)));
-
     await tester.pump();
 
     await gesture.cancel();
@@ -138,7 +138,6 @@ void main() {
 
     final animatedOpacity =
         tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
-
     expect(animatedOpacity.opacity, 1.0);
   });
 }
