@@ -4,15 +4,25 @@ import 'package:menu/src/configs/selection_feedback_config.dart';
 /// Overlay-based feedback implementation
 class OverlayFeedbackContainer extends StatefulWidget {
   final OverlayFeedbackConfig feedbackConfig;
+  final HitTestBehavior hitTestBehavior;
   final void Function() onTap;
   final Widget child;
 
   const OverlayFeedbackContainer({
     super.key,
     required this.feedbackConfig,
+    this.hitTestBehavior = HitTestBehavior.opaque,
     required this.onTap,
     required this.child,
   });
+
+  @visibleForTesting
+  const OverlayFeedbackContainer.test({
+    super.key,
+    required this.feedbackConfig,
+    required this.onTap,
+    required this.child,
+  }) : hitTestBehavior = HitTestBehavior.opaque;
 
   @override
   State<OverlayFeedbackContainer> createState() =>
@@ -25,6 +35,7 @@ class _OverlayFeedbackContainerState extends State<OverlayFeedbackContainer> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: widget.hitTestBehavior,
       onTapDown: (_) => setState(() => _isTouchActive = true),
       onTapUp: (_) {
         setState(() => _isTouchActive = false);
