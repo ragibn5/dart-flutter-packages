@@ -91,34 +91,42 @@ class Menu<D> extends StatelessWidget {
       physics: menuData.menuLayoutConfig.scrollPhysics,
       padding: menuData.menuLayoutConfig.padding,
       itemCount: menuData.menuItems.length + 1,
-      separatorBuilder: (context, index) {
-        if (index == 0 || separatorBuilder == null) {
-          return const SizedBox.shrink();
-        }
+      separatorBuilder: (_, index) => _buildSeparator(index),
+      itemBuilder: _buildMenuItem,
+    );
+  }
 
-        return separatorBuilder!(
-          index - 1,
-          menuData.menuItems.length,
-          menuData.menuItems[index - 1],
-        );
-      },
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return menuHeaderBuilder?.call(context, null) ??
-              const SizedBox.shrink();
-        }
+  Widget _buildHeader(BuildContext context) {
+    return menuHeaderBuilder?.call(context, null) ?? const SizedBox.shrink();
+  }
 
-        final itemData = menuData.menuItems[index - 1];
-        return ClickFeedbackContainer(
-          feedbackConfig: menuData.menuLayoutConfig.selectionFeedbackConfig,
-          onTap: () => _handleTap(context, itemData),
-          child: menuItemBuilder(
-            index - 1,
-            menuData.menuItems.length,
-            itemData,
-          ),
-        );
-      },
+  Widget _buildSeparator(int index) {
+    if (index == 0 || separatorBuilder == null) {
+      return const SizedBox();
+    }
+
+    return separatorBuilder!(
+      index - 1,
+      menuData.menuItems.length,
+      menuData.menuItems[index - 1],
+    );
+  }
+
+  Widget _buildMenuItem(BuildContext context, int index) {
+    if (index == 0) {
+      return _buildHeader(context);
+    }
+
+    final itemIndex = index - 1;
+    final itemData = menuData.menuItems[itemIndex];
+    return ClickFeedbackContainer(
+      feedbackConfig: menuData.menuLayoutConfig.selectionFeedbackConfig,
+      onTap: () => _handleTap(context, itemData),
+      child: menuItemBuilder(
+        itemIndex,
+        menuData.menuItems.length,
+        itemData,
+      ),
     );
   }
 
