@@ -6,6 +6,9 @@ import 'package:menu/src/ui/feedback/opacity_feedback_container.dart';
 void main() {
   final visibleChild = Container(width: 100, height: 100, color: Colors.amber);
 
+  T findWidget<T extends Widget>(WidgetTester tester) =>
+      tester.widget<T>(find.byType(T));
+
   Widget wrap(Widget child) {
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -26,8 +29,7 @@ void main() {
       ),
     );
 
-    final animatedOpacity =
-        tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+    final animatedOpacity = findWidget<AnimatedOpacity>(tester);
     expect(animatedOpacity.opacity, 1.0);
   });
 
@@ -47,8 +49,7 @@ void main() {
     await tester.startGesture(tester.getCenter(find.byType(GestureDetector)));
     await tester.pump();
 
-    final animatedOpacity =
-        tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+    final animatedOpacity = findWidget<AnimatedOpacity>(tester);
     expect(animatedOpacity.opacity, 0.4);
   });
 
@@ -72,8 +73,7 @@ void main() {
     await gesture.up();
     await tester.pump();
 
-    final animatedOpacity =
-        tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+    final animatedOpacity = findWidget<AnimatedOpacity>(tester);
     expect(animatedOpacity.opacity, 1.0);
   });
 
@@ -111,8 +111,7 @@ void main() {
       ),
     );
 
-    final animatedOpacity =
-        tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+    final animatedOpacity = findWidget<AnimatedOpacity>(tester);
     expect(animatedOpacity.duration, const Duration(milliseconds: 250));
   });
 
@@ -136,8 +135,7 @@ void main() {
     await gesture.cancel();
     await tester.pump();
 
-    final animatedOpacity =
-        tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+    final animatedOpacity = findWidget<AnimatedOpacity>(tester);
     expect(animatedOpacity.opacity, 1.0);
   });
 }
