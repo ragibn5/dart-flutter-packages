@@ -1,0 +1,130 @@
+# parser
+
+A lightweight & flexible JSON parser for encoding and decoding data in Dart & Flutter applications.
+
+## Overview
+
+`json_parser` is a type-safe JSON parser that simplifies the process of serializing and
+deserializing data. It provides a consistent interface for encoding objects to various formats and
+decoding them back to strongly-typed Dart objects.
+
+## Features
+
+- Built-in JSON parsing capability.
+- Type-safe encoding and decoding.
+- Type-safe parser registry for custom & built-in type parsers.
+- Extensible architecture for building parsers for custom & built-in types.
+
+## Installation
+
+#### From pub.dev (Not yet available, use git based dependency management for now)
+
+Add this to your `pubspec.yaml`
+
+```yaml
+dependencies:
+  json_parser: ^0.0.1
+```
+
+#### Or, From Git repo (Internal members only)
+
+```yaml
+dependencies:
+  json_parser:
+    git:
+      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      path: json_parser
+      ref: main
+```
+
+### Usage
+
+Let a custom type be:
+
+```dart
+class User {
+  final int id;
+  final String name;
+
+  User(this.id, this.name);
+
+  @override
+  String toString() {
+    return 'User{id: $id, name: $name}';
+  }
+}
+```
+
+Create a parser implementation using [`Parser`] from [`parser`](../parser/lib/src/parser.dart):
+
+```dart
+// Create a custom parser for the User
+class UserParser implements Parser<User, Json> {
+  const UserParser();
+
+  @override
+  User decode(Json encoded) {
+    final map = encoded! as JsonMap;
+
+    return User(
+      id: map['id']! as int,
+      name: map['name']! as String,
+    );
+  }
+
+  @override
+  Json encode(User value) {
+    return {
+      'id': value.id,
+      'name': value.name,
+    };
+  }
+}
+
+// Usage
+void main() {
+  final user = User(1, 'John');
+  final userParser = UserParser();
+
+  // Use of the parser
+  final encoded = userParser.encode(user);
+  final decoded = userParser.decode(encoded);
+  // Output: {'id': 1, 'name': 'John'}
+  print(encoded);
+  // Output: User{id: 1, name: John}
+  print(decoded);
+}
+```
+
+[`Json`, `JsonMap` & `JsonList`](lib/src/types/json_types.dart) are type-aliases that should be used
+to construct all custom JSON parser implementations.
+
+
+Building a parser registry using [`JsonParserRegistry`](lib/src/registry/json_parser_registry.dart):
+
+```dart
+// Usage
+void main() {
+  final user = User(1, 'John');
+  final userParser = UserParser();
+
+  // Use of the json parser registry
+  // Create a registry with known parsers (or use default constructor for empty registry)
+  final jsonParserRegistry = JsonParserRegistry.withKnownParsers();
+  final userParserFromRegistry = parserRegistry.getParser<User>();
+  final encodedFromRegistry = userParserFromRegistry!.encode(user);
+  final decodedFromRegistry = userParserFromRegistry.decode(encodedFromRegistry);
+  // Output: {'id': 1, 'name': 'John'}
+  print(encodedFromRegistry);
+  // Output: User{id: 1, name: John}
+  print(decodedFromRegistry);
+}
+```
+
+### Example
+
+See the [example](example/example.dart) for a complete demonstration.
+
+## License
+
+Click [here](../LICENSE) to see the license.
