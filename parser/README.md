@@ -1,18 +1,16 @@
 # parser
 
-A lightweight, flexible parser for encoding and decoding data in Dart & Flutter applications.
+A foundational package for creating new parser libraries.
 
 ## Overview
 
-`parser` is a type-safe parser that simplifies the process of serializing and deserializing
-data. It provides a consistent interface for encoding objects to various formats and decoding them
-back to strongly-typed Dart objects.
+`parser` is a foundational library that streamlines the process of creating new parser libraries.
 
 ## Features
 
-- Type-safe encoding and decoding
-- Built-in JSON parsing capability
-- Extensible architecture for custom parsers
+- Type-safe encoding and decoding.
+- Type-safe parser registry for custom & built-in type parsers.
+- Extensible architecture for building parsers for custom & built-in types.
 
 ## Installation
 
@@ -38,12 +36,81 @@ dependencies:
 
 ### Usage
 
-1. Create your parser implementation, or use the built-in parsers.
-    - Currently available built-in parser implementations:
-        - [JsonParser](lib/src/parser_impls/json_parser.dart): Supports primitive and custom types.
-    - Use [Parser](lib/src/parser_base.dart) to create your custom parser implementations.
-2. Register decoders for your custom types
-3. Use the parser to encode and decode data
+Let a custom type be:
+
+```dart
+class User {
+  final int id;
+  final String name;
+
+  User(this.id, this.name);
+
+  @override
+  String toString() {
+    return 'User{id: $id, name: $name}';
+  }
+}
+```
+
+Create a parser implementation using [`Parser`](lib/src/parser.dart):
+
+```dart
+// Create a custom parser for the User
+class UserParser implements Parser<User, Map<String, dynamic>> {
+  @override
+  User decode(Map<String, dynamic> encoded) {
+    return User(encoded['id'] as int, encoded['name'] as String);
+  }
+
+  @override
+  Map<String, dynamic> encode(User value) {
+    return {'id': value.id, 'name': value.name};
+  }
+}
+
+// Usage
+void main() {
+  final user = User(1, 'John');
+  final userParser = UserParser();
+
+  // Use of the parser
+  final encoded = userParser.encode(user);
+  final decoded = userParser.decode(encoded);
+  // Output: {'id': 1, 'name': 'John'}
+  print(encoded);
+  // Output: User{id: 1, name: John}
+  print(decoded);
+}
+```
+
+Creating a parser registry using [`ParserRegistry`](lib/src/parser_registry.dart):
+
+```dart
+// Create a parser registry
+class MyParserRegistry extends ParserRegistry<Map<String, dynamic>> {
+  MyParserRegistry() : super() {
+    addParser(UserParser());
+    // Add parsers for other types
+    // ...
+  }
+}
+
+// Usage
+void main() {
+  final user = User(1, 'John');
+  final userParser = UserParser();
+
+  // Use of the parser registry
+  final parserRegistry = MyParserRegistry();
+  final userParserFromRegistry = parserRegistry.getParser<User>();
+  final encodedFromRegistry = userParserFromRegistry!.encode(user);
+  final decodedFromRegistry = userParserFromRegistry.decode(encodedFromRegistry);
+  // Output: {'id': 1, 'name': 'John'}
+  print(encodedFromRegistry);
+  // Output: User{id: 1, name: John}
+  print(decodedFromRegistry);
+}
+```
 
 ### Example
 

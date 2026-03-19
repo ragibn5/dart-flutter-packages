@@ -1,5 +1,5 @@
 name: parser
-description: A lightweight, flexible parser for encoding and decoding data in Dart & Flutter applications.
+description: A foundational package for creating new parser libraries.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
@@ -16,8 +16,7 @@ environment:
   sdk: ^3.0.6
 
 dependencies:
-  string_extensions:
-    path: ../string_extensions
+  # path: ^1.9.0
 
 dev_dependencies:
   # Test
