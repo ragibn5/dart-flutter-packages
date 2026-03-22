@@ -23,7 +23,6 @@ dependencies:
     path: ../parser
 
 dev_dependencies:
-  build_runner: ^2.13.0
   test: ^1.21.0
   lints: ^2.0.0
   very_good_analysis: ^5.1.0
