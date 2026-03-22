@@ -1,11 +1,25 @@
 /// An annotation that triggers JSON parser generation for the annotated class.
 class GenerateJsonParser {
-  /// Optional set of identifiers of the registries where the generated
-  /// parser should be registered.
+  /// Optional set of registry identifiers where the generated parser should
+  /// be registered.
   ///
-  /// If not provided or empty, the parser class will still be generated
-  /// but will not be registered in any registry.
+  /// Note:
+  /// - If not provided, the generated parser will be registered in the
+  ///   `default` registry. The default registry class is generally named
+  ///   `DefaultJsonParserRegistry`.
+  /// - If provided, the generated parser will be registered in the specified
+  ///   registries. For example, if `registryKeys = {'dev', 'prod'}` the
+  ///   generated parser will be registered in two registries:
+  ///   - `DevJsonParserRegistry`: For `dev` key.
+  ///   - `ProdJsonParserRegistry`: For `prod` key.
+  ///   - Keys can be any valid non-empty strings, but -
+  ///     - Blank strings will be ignored.
+  ///     - `default` key is reserved for the default registry and should not
+  ///       be used. If used, the generated parser will be registered in the
+  ///       default registry.
+  /// - Pass empty set to intensionally disable registration.
+  ///
   final Set<String>? registryKeys;
 
-  const GenerateJsonParser({this.registryKeys = const {}});
+  const GenerateJsonParser({this.registryKeys = const {'default'}});
 }

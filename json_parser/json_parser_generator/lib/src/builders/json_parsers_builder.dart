@@ -175,11 +175,14 @@ class JsonParsersBuilder implements Builder {
           continue;
         }
 
-        // Read registryKeys from the annotation
         final keysReader = annotated.annotation.read('registryKeys');
         final keys = keysReader.isNull
             ? <String>{}
-            : keysReader.setValue.map((e) => e.toStringValue()!).toSet();
+            : keysReader.setValue
+                  .map((e) => e.toStringValue()?.trim())
+                  .where((key) => key?.isNotEmpty ?? false)
+                  .whereType<String>()
+                  .toSet();
 
         classes.add((annotated.element as ClassElement, keys));
       }
