@@ -12,14 +12,18 @@ class GenerateJsonParser {
   ///   generated parser will be registered in two registries:
   ///   - `DevJsonParserRegistry`: For `dev` key.
   ///   - `ProdJsonParserRegistry`: For `prod` key.
-  ///   - Keys can be any valid non-empty strings, but -
+  ///   - Keys can be any valid strings, but -
+  ///     - keys are case in-sensitive, meaning `dev`, `Dev`,
+  ///       and `DEV` all will produce the same registry class,
+  ///       `DevJsonParserRegistry`.
   ///     - Blank strings will be ignored.
   ///     - `default` key is reserved for the default registry and should not
   ///       be used. If used, the generated parser will be registered in the
   ///       default registry.
-  /// - Pass empty set to intensionally disable registration.
+  /// - Pass empty set to intensionally disable registration for a particular
+  ///   class.
   ///
-  final Set<String>? registryKeys;
+  final Set<String> registryKeys;
 
   const GenerateJsonParser({this.registryKeys = const {'default'}});
 }

@@ -179,7 +179,7 @@ class JsonParsersBuilder implements Builder {
         final keys = keysReader.isNull
             ? <String>{}
             : keysReader.setValue
-                  .map((e) => e.toStringValue()?.trim())
+                  .map((e) => e.toStringValue()?.toLowerCase().trim())
                   .where((key) => key?.isNotEmpty ?? false)
                   .whereType<String>()
                   .toSet();
@@ -204,7 +204,9 @@ class JsonParsersBuilder implements Builder {
   }
 
   String _toPascalCase(String key) {
-    if (key.isEmpty) return key;
+    if (key.isEmpty) {
+      return key;
+    }
     return key[0].toUpperCase() + key.substring(1);
   }
 }
