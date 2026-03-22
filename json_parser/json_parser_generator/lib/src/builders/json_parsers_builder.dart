@@ -5,7 +5,7 @@ import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:glob/glob.dart';
-import 'package:json_parser_generator/json_parser_generator.dart';
+import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:source_gen/source_gen.dart';
 
 class JsonParsersBuilderConfig {

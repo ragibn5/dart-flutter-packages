@@ -16,10 +16,9 @@ environment:
   sdk: ^3.0.6
 
 dependencies:
+  mocktail: ^1.0.4
   parser:
     path: ../parser
-  json_parser_generator:
-    path: json_parser_generator
 
 dev_dependencies:
   build_runner: ^2.13.0

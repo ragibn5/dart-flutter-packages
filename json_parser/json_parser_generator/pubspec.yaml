@@ -24,10 +24,8 @@ dependencies:
   code_builder: ^4.11.1
   dart_style: ^3.1.2
   mocktail: ^1.0.4
-  json_parser:
-    path: ..
-  analysis_server_core:
-    path: ../../analysis_server_core
+  json_parser_annotations:
+    path: ../json_parser_annotations
 
 dev_dependencies:
   test: ^1.25.6
