@@ -1,9 +1,38 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
+import 'package:meta/meta.dart';
+
+class RegistryClassGeneratorConfig {
+  final String classSuffix;
+  final String parserSuffix;
+  final String registryUri;
+
+  const RegistryClassGeneratorConfig({
+    required this.classSuffix,
+    required this.parserSuffix,
+    required this.registryUri,
+  });
+}
 
 class RegistryClassGenerator {
-  const RegistryClassGenerator();
+  final RegistryClassGeneratorConfig _config;
+
+  const RegistryClassGenerator()
+    : this._(
+        const RegistryClassGeneratorConfig(
+          classSuffix: 'JsonParserRegistry',
+          parserSuffix: 'JsonParser',
+          registryUri:
+              'package:json_parser/src/registry/json_parser_registry.dart',
+        ),
+      );
+
+  @visibleForTesting
+  const RegistryClassGenerator.test(RegistryClassGeneratorConfig config)
+    : this._(config);
+
+  const RegistryClassGenerator._(this._config);
 
   Map<String, List<ClassElement>> buildRegistryMap(
     List<GJPAnnotatedClass> annotatedClasses,
@@ -21,14 +50,11 @@ class RegistryClassGenerator {
   }
 
   Class generateRegistryClass(String key, List<ClassElement> elements) {
-    final className = '${_toPascalCase(key)}JsonParserRegistry';
+    final className = '${_toPascalCase(key)}${_config.classSuffix}';
     return Class(
       (b) => b
         ..name = className
-        ..extend = refer(
-          'JsonParserRegistry',
-          'package:json_parser/src/registry/json_parser_registry.dart',
-        )
+        ..extend = refer('JsonParserRegistry', _config.registryUri)
         ..constructors.add(
           Constructor(
             (c) => c
@@ -36,7 +62,9 @@ class RegistryClassGenerator {
               ..body = Block.of(
                 elements.map(
                   (e) => refer('addParser').call([
-                    refer('${e.displayName}JsonParser').newInstance([]),
+                    refer(
+                      '${e.displayName}${_config.parserSuffix}',
+                    ).newInstance([]),
                   ]).statement,
                 ),
               ),
