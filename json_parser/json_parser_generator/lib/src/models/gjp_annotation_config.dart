@@ -1,5 +1,5 @@
 class GJPAnnotationConfig {
   final Set<String> registryKeys;
 
-  GJPAnnotationConfig({required this.registryKeys});
+  const GJPAnnotationConfig({required this.registryKeys});
 }
