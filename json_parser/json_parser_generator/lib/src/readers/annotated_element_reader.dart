@@ -9,7 +9,7 @@ import 'package:source_gen/source_gen.dart';
 class AnnotatedElementReader {
   final LibraryReaderBuilder _libraryReaderBuilder;
 
-  AnnotatedElementReader() : this._(LibraryReaderBuilder());
+  const AnnotatedElementReader() : this._(const LibraryReaderBuilder());
 
   @visibleForTesting
   const AnnotatedElementReader.test(LibraryReaderBuilder libraryReaderBuilder)
