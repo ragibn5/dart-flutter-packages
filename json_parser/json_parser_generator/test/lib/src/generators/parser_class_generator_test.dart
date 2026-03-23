@@ -41,29 +41,14 @@ void main() {
   String generate() =>
       generator.generate(mockClassElement).accept(emitter).toString();
 
-  test('Generates class with correct name and super class specifications', () {
+  test('Generates correct parser class', () {
     expect(
       generate(),
       matches(
-        'class\\s*User${config.classSuffix}\\s*implements\\s*Parser<User,\\s*Map<String,\\s*dynamic>>\\s*\\{[\\s\\S]*\\}',
-      ),
-    );
-  });
-
-  test('Generated encode method is correct', () {
-    expect(
-      generate(),
-      matches(
-        '@override\\s*Map<String,\\s*dynamic>\\s*encode\\s*\\(\\s*User\\s*${config.encodeParamName}\\s*\\)\\s*=>\\s*${config.encodeParamName}\\.toJson\\(\\)',
-      ),
-    );
-  });
-
-  test('Generated decode method is correct', () {
-    expect(
-      generate(),
-      matches(
-        '@override\\s*User\\s*decode\\s*\\(\\s*Map<String,\\s*dynamic>\\s*${config.decodeParamName}\\s*\\)\\s*=>\\s*User\\.fromJson\\(${config.decodeParamName}\\)',
+        'class\\s*User${config.classSuffix}\\s*implements\\s*Parser<User,\\s*Map<String,\\s*dynamic>>\\s*\\{'
+        '\\s*@override\\s*Map<String,\\s*dynamic>\\s*encode\\s*\\(\\s*User\\s*${config.encodeParamName}\\s*\\)\\s*=>\\s*${config.encodeParamName}\\.toJson\\(\\);'
+        '\\s*@override\\s*User\\s*decode\\s*\\(\\s*Map<String,\\s*dynamic>\\s*${config.decodeParamName}\\s*\\)\\s*=>\\s*User\\.fromJson\\(${config.decodeParamName}\\);'
+        r'\s*\}',
       ),
     );
   });
