@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:json_parser_generator/src/generators/parser_class_generator.dart';
 import 'package:json_parser_generator/src/generators/registry_class_generator.dart';
+import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
 import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
 import 'package:json_parser_generator/src/readers/gjp_annotation_reader.dart';
 import 'package:source_gen/source_gen.dart';
@@ -61,7 +63,7 @@ class JsonParsersBuilder implements Builder {
       return;
     }
 
-    final registryMap = _registryGenerator.buildRegistryMap(annotatedClasses);
+    final registryMap = _buildRegistryMap(annotatedClasses);
     final outputId = AssetId(
       buildStep.inputId.package,
       _config.outputPathRelativeToPackageRoot,
@@ -87,5 +89,20 @@ class JsonParsersBuilder implements Builder {
       languageVersion: DartFormatter.latestLanguageVersion,
     ).format(library.accept(emitter).toString());
     await buildStep.writeAsString(outputId, output);
+  }
+
+  Map<String, List<ClassElement>> _buildRegistryMap(
+    List<GJPAnnotatedClass> annotatedClasses,
+  ) {
+    final registryMap = <String, List<ClassElement>>{};
+    for (final item in annotatedClasses) {
+      for (final key in item.config.registryKeys) {
+        final list = registryMap.putIfAbsent(key, () => []);
+        if (!list.contains(item.element)) {
+          list.add(item.element);
+        }
+      }
+    }
+    return registryMap;
   }
 }
