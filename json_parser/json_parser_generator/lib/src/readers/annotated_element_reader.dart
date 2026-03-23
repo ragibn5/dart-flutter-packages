@@ -1,9 +1,21 @@
+import 'dart:async';
+
 import 'package:build/build.dart';
 import 'package:glob/glob.dart';
+import 'package:json_parser_generator/src/utils/library_reader_builder.dart';
+import 'package:meta/meta.dart';
 import 'package:source_gen/source_gen.dart';
 
 class AnnotatedElementReader {
-  const AnnotatedElementReader();
+  final LibraryReaderBuilder _libraryReaderBuilder;
+
+  AnnotatedElementReader() : this._(LibraryReaderBuilder());
+
+  @visibleForTesting
+  const AnnotatedElementReader.test(LibraryReaderBuilder libraryReaderBuilder)
+    : this._(libraryReaderBuilder);
+
+  const AnnotatedElementReader._(this._libraryReaderBuilder);
 
   Future<List<AnnotatedElement>> read(
     BuildStep buildStep,
@@ -22,7 +34,7 @@ class AnnotatedElementReader {
       }
 
       final library = await buildStep.resolver.libraryFor(input);
-      final libraryReader = LibraryReader(library);
+      final libraryReader = _libraryReaderBuilder(library);
       elements.addAll(libraryReader.annotatedWith(annotation));
     }
 
