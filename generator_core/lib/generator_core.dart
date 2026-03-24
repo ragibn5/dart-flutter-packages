@@ -3,6 +3,7 @@ library;
 
 export 'package:build/build.dart';
 
+export 'src/builders/session_managed_raw_builder.dart';
 export 'src/models/context_config.dart';
 export 'src/models/log_config.dart';
 export 'src/models/package_info.dart';
