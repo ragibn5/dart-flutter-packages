@@ -14,11 +14,14 @@ abstract class SessionManagedAnalysisRule<T extends ContextConfig>
   SessionManagedAnalysisRule(RuleMetadata metadata, this._sessionDataManager)
     : super(name: metadata.name, description: metadata.description);
 
-  /// Register processors for the node being analyzed.
+  /// A variant of [AnalysisRule.registerNodeProcessors] that provides
+  /// an additional [RuleSessionContext] instance.
   ///
   /// The provided [sessionContext] is guaranteed to contain
   /// a resolved configuration, and a logger to log necessary
   /// events.
+  ///
+  /// See [AnalysisRule.registerNodeProcessors] method for more details.
   ///
   /// **Note,**
   /// This method will not be called if the node is filtered
