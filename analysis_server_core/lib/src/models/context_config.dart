@@ -4,7 +4,7 @@ import 'package:analysis_server_core/src/models/package_info.dart';
 import 'package:analysis_server_core/src/models/scan_config.dart';
 
 abstract class ContextConfig implements Mappable {
-  /// Information about the defining package
+  /// Information about the defining package.
   final PackageInfo packageInfo;
 
   /// The configuration for logging.
