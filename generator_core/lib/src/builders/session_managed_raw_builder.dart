@@ -1,16 +1,19 @@
 import 'dart:async';
 
-import 'package:build/build.dart';
 import 'package:generator_core/generator_core.dart';
 import 'package:generator_core/src/models/build_session_context.dart';
 
 abstract class SessionManagedRawBuilder<T extends ContextConfig>
-    implements Builder {
+    extends Builder {
   final BuilderOptions _builderOptions;
   final SessionDataManager _sessionDataManager;
 
   SessionManagedRawBuilder(this._builderOptions, this._sessionDataManager);
 
+  /// A variant of [Builder.build] that provides an additional
+  /// [BuildSessionContext] instance.
+  ///
+  /// See [Builder.build] method for more details.
   FutureOr<void> buildWithSession(
     BuildStep buildStep,
     BuildSessionContext<T> sessionContext,
