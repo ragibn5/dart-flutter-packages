@@ -18,7 +18,6 @@ export 'src/models/package_info.dart';
 export 'src/models/rule_metadata.dart';
 export 'src/models/rule_session_context.dart';
 export 'src/models/scan_config.dart';
-export 'src/models/session_data_factory_config.dart';
 export 'src/rules/session_managed_analysis_rule.dart';
 export 'src/services/config/context_config_loader.dart';
 export 'src/services/logger/session_logger.dart';
