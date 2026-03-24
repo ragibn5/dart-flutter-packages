@@ -2,6 +2,7 @@
 library;
 
 export 'package:build/build.dart';
+export 'package:source_gen/source_gen.dart';
 
 export 'src/builders/session_managed_raw_builder.dart';
 export 'src/models/context_config.dart';
