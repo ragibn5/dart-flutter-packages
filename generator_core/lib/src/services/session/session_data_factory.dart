@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:build/build.dart';
 import 'package:dlogger/dlogger.dart';
 import 'package:generator_core/src/models/session_data.dart';
 import 'package:generator_core/src/services/config/context_config_loader.dart';
@@ -9,8 +9,8 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 
 abstract interface class SessionDataFactory {
-  /// Create a [SessionData] instance for the given [RuleContext] instance.
-  SessionData createSessionData(RuleContext context);
+  /// Create a [SessionData] instance for the given [BuildStep] instance.
+  Future<SessionData> createSessionData(BuildStep buildStep);
 }
 
 class SessionDataFactoryImpl implements SessionDataFactory {
@@ -19,8 +19,8 @@ class SessionDataFactoryImpl implements SessionDataFactory {
   SessionDataFactoryImpl(this._configLoader);
 
   @override
-  SessionData createSessionData(RuleContext context) {
-    final config = _configLoader.loadConfig(context);
+  Future<SessionData> createSessionData(BuildStep buildStep) async {
+    final config = await _configLoader.loadConfig(buildStep);
     final logFilesRoot =
         config.logConfig.logDirectoryRelativePathFromProjectRoot;
     final logger =

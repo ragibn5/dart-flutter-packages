@@ -1,4 +1,8 @@
-import 'package:analyzer/analysis_rule/rule_context.dart';
+// ignore_for_file: implementation_imports
+
+import 'dart:async';
+
+import 'package:build/src/build_step.dart';
 import 'package:generator_core/src/models/session_data.dart';
 import 'package:generator_core/src/models/session_data_fetch_result.dart';
 import 'package:generator_core/src/services/config/context_config_loader.dart';
@@ -9,8 +13,8 @@ abstract interface class SessionDataManager {
   /// Get a [SessionDataFetchResult] instance having:
   /// - A flag whether it was newly created.
   /// - The managed [SessionData] instance (possibly cached)
-  ///   for the given [RuleContext].
-  SessionDataFetchResult getSessionDataFor(RuleContext context);
+  ///   for the given [BuildStep].
+  Future<SessionDataFetchResult> getSessionDataFor(BuildStep buildStep);
 
   factory SessionDataManager.createNewInstance(
     ContextConfigLoader packageConfigLoader,
@@ -34,11 +38,9 @@ class SessionDataManagerImpl implements SessionDataManager {
   SessionDataManagerImpl._(this._cache, this._factory);
 
   @override
-  SessionDataFetchResult getSessionDataFor(RuleContext context) {
-    final packageRoot =
-        context.package?.root.path ?? context.definingUnit.file.parent.path;
-
-    final current = _cache[packageRoot];
+  Future<SessionDataFetchResult> getSessionDataFor(BuildStep buildStep) async {
+    final package = buildStep.inputId.package;
+    final current = _cache[package];
     if (current != null) {
       return SessionDataFetchResult(
         isNewlyCreated: false,
@@ -46,11 +48,11 @@ class SessionDataManagerImpl implements SessionDataManager {
       );
     }
 
-    _cache[packageRoot] = _factory.createSessionData(context);
+    _cache[package] = await _factory.createSessionData(buildStep);
 
     return SessionDataFetchResult(
       isNewlyCreated: true,
-      sessionData: _cache[packageRoot]!,
+      sessionData: _cache[package]!,
     );
   }
 }

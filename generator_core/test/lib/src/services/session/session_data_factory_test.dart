@@ -1,6 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: avoid_redundant_argument_values
 
+import 'package:build/build.dart';
 import 'package:generator_core/generator_core.dart';
 import 'package:generator_core/src/services/session/session_data_factory.dart';
 import 'package:mocktail/mocktail.dart';
@@ -9,7 +10,7 @@ import 'package:test/scaffolding.dart';
 
 class _MockContextConfigLoader extends Mock implements ContextConfigLoader {}
 
-class _MockRuleContext extends Mock implements RuleContext {}
+class _MockBuildStep extends Mock implements BuildStep {}
 
 class _TestContextConfig extends ContextConfig {
   const _TestContextConfig({
@@ -35,27 +36,25 @@ void main() {
   );
 
   late _MockContextConfigLoader mockContextConfigLoader;
-  late _MockRuleContext mockRuleContext;
+  late _MockBuildStep mockBuildStep;
 
   late SessionDataFactory sut;
 
-  setUpAll(() {});
-
   setUp(() {
     mockContextConfigLoader = _MockContextConfigLoader();
-    mockRuleContext = _MockRuleContext();
+    mockBuildStep = _MockBuildStep();
 
     sut = SessionDataFactoryImpl(mockContextConfigLoader);
 
     when(
-      () => mockContextConfigLoader.loadConfig(mockRuleContext),
-    ).thenReturn(config);
+      () => mockContextConfigLoader.loadConfig(mockBuildStep),
+    ).thenAnswer((_) async => config);
   });
 
   test(
     'Returned SessionData.SessionLogger should map to appropriate config',
-    () {
-      final logger = sut.createSessionData(mockRuleContext).logger;
+    () async {
+      final logger = (await sut.createSessionData(mockBuildStep)).logger;
       expect(
         logger,
         isA<SessionLogger>()
@@ -75,8 +74,8 @@ void main() {
 
   test(
     'Returned SessionData.ContextConfig should be the same returned by ContextConfigLoader',
-    () {
-      final localConfig = sut.createSessionData(mockRuleContext).config;
+    () async {
+      final localConfig = (await sut.createSessionData(mockBuildStep)).config;
       expect(config, localConfig);
     },
   );
