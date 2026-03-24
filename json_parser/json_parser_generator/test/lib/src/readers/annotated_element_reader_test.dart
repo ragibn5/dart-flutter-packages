@@ -1,10 +1,9 @@
 import 'package:analyzer/dart/element/element.dart';
-import 'package:build/build.dart';
+import 'package:generator_core/generator_core.dart';
 import 'package:glob/glob.dart';
 import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
 import 'package:json_parser_generator/src/utils/library_reader_builder.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
 
 class _MockBuildStep extends Mock implements BuildStep {}

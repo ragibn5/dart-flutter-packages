@@ -1,16 +1,15 @@
 import 'dart:async';
 
 import 'package:analyzer/dart/element/element.dart';
-import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:generator_core/generator_core.dart';
 import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:json_parser_generator/src/generators/parser_class_generator.dart';
 import 'package:json_parser_generator/src/generators/registry_class_generator.dart';
 import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
 import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
 import 'package:json_parser_generator/src/readers/gjp_annotation_reader.dart';
-import 'package:source_gen/source_gen.dart';
 
 class JsonParsersBuilderConfig {
   /// Path relative to lib/, e.g. 'generated/json_parser/parsers.dart'.

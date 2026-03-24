@@ -1,12 +1,11 @@
 import 'package:analyzer/dart/element/element.dart';
-import 'package:build/build.dart';
+import 'package:generator_core/generator_core.dart';
 import 'package:json_parser_generator/src/builders/json_parsers_builder.dart';
 import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
 import 'package:json_parser_generator/src/models/gjp_annotation_config.dart';
 import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
 import 'package:json_parser_generator/src/readers/gjp_annotation_reader.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
 
 class _FakeTypeChecker extends Fake implements TypeChecker {}

@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:build/build.dart';
+import 'package:generator_core/generator_core.dart';
 import 'package:glob/glob.dart';
 import 'package:json_parser_generator/src/utils/library_reader_builder.dart';
 import 'package:meta/meta.dart';
-import 'package:source_gen/source_gen.dart';
 
 class AnnotatedElementReader {
   final LibraryReaderBuilder _libraryReaderBuilder;

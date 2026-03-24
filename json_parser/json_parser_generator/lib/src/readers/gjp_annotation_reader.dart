@@ -1,7 +1,7 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:generator_core/generator_core.dart';
 import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
 import 'package:json_parser_generator/src/models/gjp_annotation_config.dart';
-import 'package:source_gen/source_gen.dart';
 
 class GJPAnnotationReader {
   const GJPAnnotationReader();
