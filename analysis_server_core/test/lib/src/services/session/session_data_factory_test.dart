@@ -47,8 +47,6 @@ void main() {
 
   late SessionDataFactory sut;
 
-  setUpAll(() {});
-
   setUp(() {
     mockContextConfigLoader = _MockContextConfigLoader();
     mockRuleContext = _MockRuleContext();
