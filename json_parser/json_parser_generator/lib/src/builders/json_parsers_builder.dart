@@ -7,6 +7,7 @@ import 'package:generator_core/generator_core.dart';
 import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:json_parser_generator/src/generators/parser_class_generator.dart';
 import 'package:json_parser_generator/src/generators/registry_class_generator.dart';
+import 'package:json_parser_generator/src/models/build_context_config.dart';
 import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
 import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
 import 'package:json_parser_generator/src/readers/gjp_annotation_reader.dart';
@@ -23,15 +24,18 @@ class JsonParsersBuilderConfig {
   String get outputPathRelativeToPackageRoot => 'lib/$outputPathRelativeToLib';
 }
 
-class JsonParsersBuilder implements Builder {
-  final JsonParsersBuilderConfig _config;
+class JsonParsersBuilder extends SessionManagedRawBuilder<BuildContextConfig> {
+  final JsonParsersBuilderConfig _parsersBuilderConfig;
+
   final AnnotatedElementReader _annotatedElementReader;
   final GJPAnnotationReader _gjpAnnotationReader;
   final ParserClassGenerator _parserGenerator;
   final RegistryClassGenerator _registryGenerator;
 
   JsonParsersBuilder(
-    this._config, {
+    this._parsersBuilderConfig, {
+    required BuilderOptions builderOptions,
+    required SessionDataManager sessionDataManager,
     AnnotatedElementReader annotatedClassReader =
         const AnnotatedElementReader(),
     GJPAnnotationReader gjpAnnotationReader = const GJPAnnotationReader(),
@@ -41,15 +45,19 @@ class JsonParsersBuilder implements Builder {
   }) : _annotatedElementReader = annotatedClassReader,
        _gjpAnnotationReader = gjpAnnotationReader,
        _parserGenerator = parserClassGenerator,
-       _registryGenerator = registryClassGenerator;
+       _registryGenerator = registryClassGenerator,
+       super(builderOptions, sessionDataManager);
 
   @override
   Map<String, List<String>> get buildExtensions => {
-    r'$lib$': [_config.outputPathRelativeToLib],
+    r'$lib$': [_parsersBuilderConfig.outputPathRelativeToLib],
   };
 
   @override
-  FutureOr<void> build(BuildStep buildStep) async {
+  FutureOr<void> buildWithSession(
+    BuildStep buildStep,
+    BuildSessionContext<BuildContextConfig> sessionContext,
+  ) async {
     const annotation = TypeChecker.typeNamed(GenerateJsonParser);
     final annotatedElements = await _annotatedElementReader.read(
       buildStep,
@@ -65,7 +73,7 @@ class JsonParsersBuilder implements Builder {
     final registryMap = _buildRegistryMap(annotatedClasses);
     final outputId = AssetId(
       buildStep.inputId.package,
-      _config.outputPathRelativeToPackageRoot,
+      _parsersBuilderConfig.outputPathRelativeToPackageRoot,
     );
     final emitter = DartEmitter(
       allocator: Allocator.simplePrefixing(),
