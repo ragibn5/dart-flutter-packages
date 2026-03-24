@@ -2,7 +2,7 @@
 
 import 'dart:async';
 
-import 'package:build/src/build_step.dart';
+import 'package:build/build.dart';
 import 'package:generator_core/src/models/session_data.dart';
 import 'package:generator_core/src/models/session_data_fetch_result.dart';
 import 'package:generator_core/src/services/config/context_config_loader.dart';
@@ -14,7 +14,10 @@ abstract interface class SessionDataManager {
   /// - A flag whether it was newly created.
   /// - The managed [SessionData] instance (possibly cached)
   ///   for the given [BuildStep].
-  Future<SessionDataFetchResult> getSessionDataFor(BuildStep buildStep);
+  Future<SessionDataFetchResult> getSessionDataFor(
+    BuildStep buildStep,
+    BuilderOptions buildOptions,
+  );
 
   factory SessionDataManager.createNewInstance(
     ContextConfigLoader packageConfigLoader,
@@ -38,7 +41,10 @@ class SessionDataManagerImpl implements SessionDataManager {
   SessionDataManagerImpl._(this._cache, this._factory);
 
   @override
-  Future<SessionDataFetchResult> getSessionDataFor(BuildStep buildStep) async {
+  Future<SessionDataFetchResult> getSessionDataFor(
+    BuildStep buildStep,
+    BuilderOptions buildOptions,
+  ) async {
     final package = buildStep.inputId.package;
     final current = _cache[package];
     if (current != null) {
@@ -48,7 +54,7 @@ class SessionDataManagerImpl implements SessionDataManager {
       );
     }
 
-    _cache[package] = await _factory.createSessionData(buildStep);
+    _cache[package] = await _factory.createSessionData(buildStep, buildOptions);
 
     return SessionDataFetchResult(
       isNewlyCreated: true,

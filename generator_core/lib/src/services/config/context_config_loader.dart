@@ -8,13 +8,20 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
   ///
   /// You may use the passed [PackageInfo] instance directly
   /// to construct return value ([ContextConfig] requires a [PackageInfo]).
-  C loadPluginConfig(BuildStep buildStep, PackageInfo packageInfo);
+  C loadPluginConfig(
+    BuildStep buildStep,
+    BuilderOptions buildOptions,
+    PackageInfo packageInfo,
+  );
 
   /// Load the config for the given [BuildStep] instance.
   @mustCallSuper
-  Future<ContextConfig> loadConfig(BuildStep buildStep) async {
+  Future<ContextConfig> loadConfig(
+    BuildStep buildStep,
+    BuilderOptions buildOptions,
+  ) async {
     final packageInfo = await _extractPackageInfo(buildStep);
-    return loadPluginConfig(buildStep, packageInfo);
+    return loadPluginConfig(buildStep, buildOptions, packageInfo);
   }
 
   /// Extracts [PackageInfo] from the given [buildStep].
