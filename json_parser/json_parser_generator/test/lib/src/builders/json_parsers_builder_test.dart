@@ -1,9 +1,9 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:generator_core/generator_core.dart';
 import 'package:json_parser_generator/src/builders/json_parsers_builder.dart';
-import 'package:json_parser_generator/src/models/build_context_config.dart';
 import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
 import 'package:json_parser_generator/src/models/gjp_annotation_config.dart';
+import 'package:json_parser_generator/src/models/json_parser_generator_context_config.dart';
 import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
 import 'package:json_parser_generator/src/readers/gjp_annotation_reader.dart';
 import 'package:mocktail/mocktail.dart';
@@ -35,7 +35,8 @@ class _MockClassElement extends Mock implements ClassElement {}
 
 class _MockLibraryElement extends Mock implements LibraryElement {}
 
-class _MockBuildContextConfig extends Mock implements BuildContextConfig {}
+class _MockParserGeneratorContextConfig extends Mock
+    implements JsonParserGeneratorContextConfig {}
 
 void main() {
   const config = JsonParsersBuilderConfig(
@@ -50,7 +51,7 @@ void main() {
   late _MockAnnotatedElementReader mockAnnotatedElementReader;
   late _MockGJPAnnotationReader mockGJPAnnotationReader;
   late _MockAssetId mockInputId;
-  late _MockBuildContextConfig mockBuildContextConfig;
+  late _MockParserGeneratorContextConfig mockContextConfig;
 
   late JsonParsersBuilder sut;
 
@@ -68,7 +69,7 @@ void main() {
     mockAnnotatedElementReader = _MockAnnotatedElementReader();
     mockGJPAnnotationReader = _MockGJPAnnotationReader();
     mockInputId = _MockAssetId();
-    mockBuildContextConfig = _MockBuildContextConfig();
+    mockContextConfig = _MockParserGeneratorContextConfig();
 
     sut = JsonParsersBuilder(
       config,
@@ -83,7 +84,7 @@ void main() {
     when(() => mockFetchResult.sessionData).thenReturn(mockSessionData);
     when(() => mockFetchResult.isNewlyCreated).thenReturn(false);
     when(() => mockSessionData.logger).thenReturn(mockSessionLogger);
-    when(() => mockSessionData.config).thenReturn(mockBuildContextConfig);
+    when(() => mockSessionData.config).thenReturn(mockContextConfig);
     when(() => mockBuildStep.inputId).thenReturn(mockInputId);
     when(() => mockInputId.package).thenReturn('example');
     when(

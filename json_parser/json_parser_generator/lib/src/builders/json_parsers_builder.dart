@@ -7,8 +7,8 @@ import 'package:generator_core/generator_core.dart';
 import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:json_parser_generator/src/generators/parser_class_generator.dart';
 import 'package:json_parser_generator/src/generators/registry_class_generator.dart';
-import 'package:json_parser_generator/src/models/build_context_config.dart';
 import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
+import 'package:json_parser_generator/src/models/json_parser_generator_context_config.dart';
 import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
 import 'package:json_parser_generator/src/readers/gjp_annotation_reader.dart';
 
@@ -24,7 +24,8 @@ class JsonParsersBuilderConfig {
   String get outputPathRelativeToPackageRoot => 'lib/$outputPathRelativeToLib';
 }
 
-class JsonParsersBuilder extends SessionManagedRawBuilder<BuildContextConfig> {
+class JsonParsersBuilder
+    extends SessionManagedRawBuilder<JsonParserGeneratorContextConfig> {
   final JsonParsersBuilderConfig _parsersBuilderConfig;
 
   final AnnotatedElementReader _annotatedElementReader;
@@ -55,7 +56,7 @@ class JsonParsersBuilder extends SessionManagedRawBuilder<BuildContextConfig> {
   @override
   FutureOr<void> buildWithSession(
     BuildStep buildStep,
-    BuildSessionContext<BuildContextConfig> sessionContext,
+    BuildSessionContext<JsonParserGeneratorContextConfig> sessionContext,
   ) async {
     const annotation = TypeChecker.typeNamed(GenerateJsonParser);
     final annotatedElements = await _annotatedElementReader.read(
