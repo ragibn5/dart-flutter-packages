@@ -10,10 +10,8 @@ class JsonParserGeneratorConfigLoader
   JsonParserGeneratorContextConfig loadPluginConfig(
     BuildStep buildStep,
     BuilderOptions builderOptions,
-    PackageInfo packageInfo,
   ) {
     return JsonParserGeneratorContextConfig(
-      packageInfo: packageInfo,
       logConfig: _extractLogConfig(builderOptions),
     );
   }

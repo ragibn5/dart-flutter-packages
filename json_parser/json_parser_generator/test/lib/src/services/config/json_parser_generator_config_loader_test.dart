@@ -55,9 +55,8 @@ void main() {
       expect(
         result,
         isA<JsonParserGeneratorContextConfig>()
-            .having((c) => c.packageInfo.name, 'packageInfo.name', packageName)
             .having(
-              (c) => c.logConfig.logDirectoryRelativePathFromProjectRoot,
+              (c) => c.logConfig.logDirectoryRelativePathFromCurrentDir,
               'logConfig.logDir',
               defaultLogDir,
             )
@@ -94,7 +93,7 @@ void main() {
         result,
         isA<JsonParserGeneratorContextConfig>()
             .having(
-              (c) => c.logConfig.logDirectoryRelativePathFromProjectRoot,
+              (c) => c.logConfig.logDirectoryRelativePathFromCurrentDir,
               'logConfig.logDir',
               defaultLogDir,
             )
@@ -155,7 +154,7 @@ void main() {
               false,
             )
             .having(
-              (c) => c.logConfig.logDirectoryRelativePathFromProjectRoot,
+              (c) => c.logConfig.logDirectoryRelativePathFromCurrentDir,
               'logConfig.logDir',
               'custom/log/dir',
             ),
@@ -192,7 +191,7 @@ void main() {
               true,
             )
             .having(
-              (c) => c.logConfig.logDirectoryRelativePathFromProjectRoot,
+              (c) => c.logConfig.logDirectoryRelativePathFromCurrentDir,
               'logConfig.logDir',
               defaultLogDir,
             ),
