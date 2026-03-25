@@ -26,7 +26,7 @@ class SessionDataFactoryImpl implements SessionDataFactory {
     BuildStep buildStep,
     BuilderOptions builderOptions,
   ) async {
-    final config = await _configLoader.loadConfig(buildStep, builderOptions);
+    final config = await _configLoader.loadConfig(buildStep);
     final logFilesRoot =
         config.logConfig.logDirectoryRelativePathFromProjectRoot;
     final logger =

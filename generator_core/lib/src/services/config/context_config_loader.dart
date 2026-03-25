@@ -4,10 +4,17 @@ import 'package:generator_core/src/models/package_info.dart';
 import 'package:meta/meta.dart';
 
 abstract class ContextConfigLoader<C extends ContextConfig> {
+  final BuilderOptions _builderOptions;
+
+  ContextConfigLoader(this._builderOptions);
+
   /// Load plugin specific config.
   ///
-  /// You may use the passed [PackageInfo] instance directly
-  /// to construct return value ([ContextConfig] requires a [PackageInfo]).
+  /// Note:
+  /// - The plugin specific custom options (and other builder options)
+  ///   can be found in [builderOptions].
+  /// - You may use the passed [PackageInfo] instance directly to
+  ///   construct return value ([ContextConfig] requires a [PackageInfo]).
   C loadPluginConfig(
     BuildStep buildStep,
     BuilderOptions builderOptions,
@@ -16,12 +23,9 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
 
   /// Load the config for the given [BuildStep] instance.
   @mustCallSuper
-  Future<ContextConfig> loadConfig(
-    BuildStep buildStep,
-    BuilderOptions builderOptions,
-  ) async {
+  Future<ContextConfig> loadConfig(BuildStep buildStep) async {
     final packageInfo = await _extractPackageInfo(buildStep);
-    return loadPluginConfig(buildStep, builderOptions, packageInfo);
+    return loadPluginConfig(buildStep, _builderOptions, packageInfo);
   }
 
   /// Extracts [PackageInfo] from the given [buildStep].

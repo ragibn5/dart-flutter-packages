@@ -7,7 +7,6 @@ import 'package:generator_core/src/models/log_config.dart';
 import 'package:generator_core/src/models/package_info.dart';
 import 'package:generator_core/src/services/config/context_config_loader.dart';
 import 'package:generator_core/src/services/logger/session_logger.dart';
-
 import 'package:generator_core/src/services/session/session_data_factory.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
@@ -54,15 +53,17 @@ void main() {
     sut = SessionDataFactoryImpl(mockContextConfigLoader);
 
     when(
-      () => mockContextConfigLoader.loadConfig(mockBuildStep, builderOptions),
+      () => mockContextConfigLoader.loadConfig(mockBuildStep),
     ).thenAnswer((_) async => config);
   });
 
   test(
     'Returned SessionData.SessionLogger should map to appropriate config',
     () async {
-      final logger =
-          (await sut.createSessionData(mockBuildStep, builderOptions)).logger;
+      final logger = (await sut.createSessionData(
+        mockBuildStep,
+        builderOptions,
+      )).logger;
       expect(
         logger,
         isA<SessionLogger>()
@@ -83,8 +84,10 @@ void main() {
   test(
     'Returned SessionData.ContextConfig should be the same returned by ContextConfigLoader',
     () async {
-      final localConfig =
-          (await sut.createSessionData(mockBuildStep, builderOptions)).config;
+      final localConfig = (await sut.createSessionData(
+        mockBuildStep,
+        builderOptions,
+      )).config;
       expect(config, localConfig);
     },
   );

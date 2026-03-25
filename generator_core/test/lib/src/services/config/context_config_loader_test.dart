@@ -4,7 +4,6 @@ import 'package:build/build.dart';
 import 'package:generator_core/src/models/context_config.dart';
 import 'package:generator_core/src/models/package_info.dart';
 import 'package:generator_core/src/services/config/context_config_loader.dart';
-
 import 'package:mocktail/mocktail.dart';
 import 'package:package_config/package_config.dart';
 import 'package:test/expect.dart';
@@ -22,6 +21,8 @@ class _TestContextConfigLoader extends ContextConfigLoader<_MockContextConfig> {
   BuildStep? buildStep;
   BuilderOptions? builderOptions;
   PackageInfo? packageInfo;
+
+  _TestContextConfigLoader(super.builderOptions);
 
   @override
   _MockContextConfig loadPluginConfig(
@@ -50,7 +51,7 @@ void main() {
     mockBuildStep = _MockBuildStep();
     mockPackageConfig = _MockPackageConfig();
 
-    sut = _TestContextConfigLoader();
+    sut = _TestContextConfigLoader(builderOptions);
 
     when(
       () => mockBuildStep.packageConfig,
@@ -68,7 +69,7 @@ void main() {
       when(() => mockPackage.root).thenReturn(Uri.parse(packageRoot));
       when(() => mockPackageConfig.packages).thenReturn([mockPackage]);
 
-      await sut.loadConfig(mockBuildStep, builderOptions);
+      await sut.loadConfig(mockBuildStep);
 
       expect(sut.buildStep, mockBuildStep);
       expect(sut.builderOptions, builderOptions);
@@ -86,10 +87,7 @@ void main() {
     () async {
       when(() => mockPackageConfig.packages).thenReturn([]);
 
-      expect(
-        () => sut.loadConfig(mockBuildStep, builderOptions),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => sut.loadConfig(mockBuildStep), throwsA(isA<StateError>()));
     },
   );
 }
