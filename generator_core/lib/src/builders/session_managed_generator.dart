@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:build/build.dart';
 import 'package:generator_core/src/builders/session_managed_raw_builder.dart';
 import 'package:generator_core/src/models/build_session_context.dart';
@@ -10,10 +9,9 @@ import 'package:source_gen/source_gen.dart';
 
 abstract class SessionManagedGenerator<T extends ContextConfig>
     extends Generator {
-  final BuilderOptions _builderOptions;
   final SessionDataManager _sessionDataManager;
 
-  SessionManagedGenerator(this._builderOptions, this._sessionDataManager);
+  SessionManagedGenerator(this._sessionDataManager);
 
   /// A variant of [Generator.generate] that provides an additional
   /// [BuildSessionContext] instance.
@@ -29,7 +27,6 @@ abstract class SessionManagedGenerator<T extends ContextConfig>
   FutureOr<String?> generate(LibraryReader library, BuildStep buildStep) async {
     final sessionDataFetchResult = await _sessionDataManager.getSessionDataFor(
       buildStep,
-      _builderOptions,
     );
     final sessionData = sessionDataFetchResult.sessionData;
     final logger = sessionData.logger;

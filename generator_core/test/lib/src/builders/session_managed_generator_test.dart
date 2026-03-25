@@ -47,7 +47,6 @@ class _TestSessionManagedGenerator
   String? generateResult;
 
   _TestSessionManagedGenerator(
-    super.builderOptions,
     super.sessionDataManager, {
     this.generateResult,
   });
@@ -64,7 +63,6 @@ class _TestSessionManagedGenerator
 }
 
 void main() {
-  const builderOptions = BuilderOptions({'key': 'value'});
   const testConfig = _TestContextConfig(
     packageInfo: PackageInfo(name: 'name', location: 'location'),
     logConfig: LogConfig(
@@ -92,11 +90,10 @@ void main() {
     mockSessionLogger = _MockSessionLogger();
     mockLibraryReader = _MockLibraryReader();
 
-    sut = _TestSessionManagedGenerator(builderOptions, mockSessionDataManager);
+    sut = _TestSessionManagedGenerator(mockSessionDataManager);
 
     when(
-      () =>
-          mockSessionDataManager.getSessionDataFor(mockBuildStep, builderOptions),
+      () => mockSessionDataManager.getSessionDataFor(mockBuildStep),
     ).thenAnswer((_) async => mockFetchResult);
     when(() => mockFetchResult.sessionData).thenReturn(mockSessionData);
     when(() => mockSessionData.logger).thenReturn(mockSessionLogger);
@@ -128,8 +125,6 @@ void main() {
   test(
     'Should not log session start info when session is not newly created',
     () async {
-      when(() => mockFetchResult.isNewlyCreated).thenReturn(false);
-
       await sut.generate(mockLibraryReader, mockBuildStep);
 
       verifyNever(
@@ -147,7 +142,6 @@ void main() {
     () async {
       const expectedResult = 'generated_code';
       sut = _TestSessionManagedGenerator(
-        builderOptions,
         mockSessionDataManager,
         generateResult: expectedResult,
       );
@@ -164,8 +158,7 @@ void main() {
   test(
     'Should log warning and return null when config type does not match',
     () async {
-      final mockContextConfig = _MockContextConfig();
-      when(() => mockSessionData.config).thenReturn(mockContextConfig);
+      when(() => mockSessionData.config).thenReturn(_MockContextConfig());
       when(
         () => mockSessionLogger.logWarning(
           tag: any(named: 'tag'),

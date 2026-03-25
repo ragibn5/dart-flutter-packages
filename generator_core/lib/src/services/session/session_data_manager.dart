@@ -14,10 +14,7 @@ abstract interface class SessionDataManager {
   /// - A flag whether it was newly created.
   /// - The managed [SessionData] instance (possibly cached)
   ///   for the given [BuildStep].
-  Future<SessionDataFetchResult> getSessionDataFor(
-    BuildStep buildStep,
-    BuilderOptions builderOptions,
-  );
+  Future<SessionDataFetchResult> getSessionDataFor(BuildStep buildStep);
 
   factory SessionDataManager.createNewInstance(
     ContextConfigLoader packageConfigLoader,
@@ -41,10 +38,7 @@ class SessionDataManagerImpl implements SessionDataManager {
   SessionDataManagerImpl._(this._cache, this._factory);
 
   @override
-  Future<SessionDataFetchResult> getSessionDataFor(
-    BuildStep buildStep,
-    BuilderOptions builderOptions,
-  ) async {
+  Future<SessionDataFetchResult> getSessionDataFor(BuildStep buildStep) async {
     final package = buildStep.inputId.package;
     final current = _cache[package];
     if (current != null) {
@@ -54,7 +48,7 @@ class SessionDataManagerImpl implements SessionDataManager {
       );
     }
 
-    _cache[package] = await _factory.createSessionData(buildStep, builderOptions);
+    _cache[package] = await _factory.createSessionData(buildStep);
 
     return SessionDataFetchResult(
       isNewlyCreated: true,

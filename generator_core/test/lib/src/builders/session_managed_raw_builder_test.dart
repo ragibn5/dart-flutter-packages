@@ -1,7 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: avoid_redundant_argument_values
 
-
 import 'package:build/build.dart';
 import 'package:generator_core/src/builders/session_managed_raw_builder.dart';
 import 'package:generator_core/src/models/build_session_context.dart';
@@ -43,7 +42,7 @@ class _TestSessionManagedRawBuilder
     extends SessionManagedRawBuilder<_TestContextConfig> {
   BuildSessionContext<_TestContextConfig>? capturedSessionContext;
 
-  _TestSessionManagedRawBuilder(super.builderOptions, super.sessionDataManager);
+  _TestSessionManagedRawBuilder(super.sessionDataManager);
 
   @override
   Map<String, List<String>> get buildExtensions => {};
@@ -58,7 +57,6 @@ class _TestSessionManagedRawBuilder
 }
 
 void main() {
-  const builderOptions = BuilderOptions({'key': 'value'});
   const testConfig = _TestContextConfig(
     packageInfo: PackageInfo(name: 'name', location: 'location'),
     logConfig: LogConfig(
@@ -84,11 +82,10 @@ void main() {
     mockFetchResult = _MockSessionDataFetchResult();
     mockSessionLogger = _MockSessionLogger();
 
-    sut = _TestSessionManagedRawBuilder(builderOptions, mockSessionDataManager);
+    sut = _TestSessionManagedRawBuilder(mockSessionDataManager);
 
     when(
-      () =>
-          mockSessionDataManager.getSessionDataFor(mockBuildStep, builderOptions),
+      () => mockSessionDataManager.getSessionDataFor(mockBuildStep),
     ).thenAnswer((_) async => mockFetchResult);
     when(() => mockFetchResult.sessionData).thenReturn(mockSessionData);
     when(() => mockSessionData.logger).thenReturn(mockSessionLogger);
@@ -120,8 +117,6 @@ void main() {
   test(
     'Should not log session start info when session is not newly created',
     () async {
-      when(() => mockFetchResult.isNewlyCreated).thenReturn(false);
-
       await sut.build(mockBuildStep);
 
       verifyNever(
@@ -148,8 +143,7 @@ void main() {
   test(
     'Should log warning and not call buildWithSession when config type does not match',
     () async {
-      final mockContextConfig = _MockContextConfig();
-      when(() => mockSessionData.config).thenReturn(mockContextConfig);
+      when(() => mockSessionData.config).thenReturn(_MockContextConfig());
       when(
         () => mockSessionLogger.logWarning(
           tag: any(named: 'tag'),

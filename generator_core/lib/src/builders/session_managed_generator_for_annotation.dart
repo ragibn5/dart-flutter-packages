@@ -8,16 +8,11 @@ import 'package:generator_core/src/models/context_config.dart';
 import 'package:generator_core/src/services/session/session_data_manager.dart';
 import 'package:source_gen/source_gen.dart';
 
-
 abstract class SessionManagedGeneratorForAnnotation<A, C extends ContextConfig>
     extends GeneratorForAnnotation<A> {
-  final BuilderOptions _builderOptions;
   final SessionDataManager _sessionDataManager;
 
-  SessionManagedGeneratorForAnnotation(
-    this._builderOptions,
-    this._sessionDataManager,
-  );
+  SessionManagedGeneratorForAnnotation(this._sessionDataManager);
 
   /// A variant of [GeneratorForAnnotation.generate] that provides
   /// an additional [BuildSessionContext] instance.
@@ -99,7 +94,6 @@ abstract class SessionManagedGeneratorForAnnotation<A, C extends ContextConfig>
   ) async {
     final sessionDataFetchResult = await _sessionDataManager.getSessionDataFor(
       buildStep,
-      _builderOptions,
     );
     final sessionData = sessionDataFetchResult.sessionData;
     final logger = sessionData.logger;

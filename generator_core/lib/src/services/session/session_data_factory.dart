@@ -10,10 +10,7 @@ import 'package:path/path.dart' as path;
 
 abstract interface class SessionDataFactory {
   /// Create a [SessionData] instance for the given [BuildStep] instance.
-  Future<SessionData> createSessionData(
-    BuildStep buildStep,
-    BuilderOptions builderOptions,
-  );
+  Future<SessionData> createSessionData(BuildStep buildStep);
 }
 
 class SessionDataFactoryImpl implements SessionDataFactory {
@@ -22,10 +19,7 @@ class SessionDataFactoryImpl implements SessionDataFactory {
   SessionDataFactoryImpl(this._configLoader);
 
   @override
-  Future<SessionData> createSessionData(
-    BuildStep buildStep,
-    BuilderOptions builderOptions,
-  ) async {
+  Future<SessionData> createSessionData(BuildStep buildStep) async {
     final config = await _configLoader.loadConfig(buildStep);
     final logFilesRoot =
         config.logConfig.logDirectoryRelativePathFromProjectRoot;
