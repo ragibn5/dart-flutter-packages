@@ -25,7 +25,8 @@ class SessionDataFactoryImpl implements SessionDataFactory {
         config.logConfig.logDirectoryRelativePathFromProjectRoot;
     final logger =
         SessionLoggerImpl({
-            config.packageInfo.location: FileLogger(
+            'console-logger': ConsoleLogger(),
+            'file-logger': FileLogger(
               logDirectory: Directory(
                 path.join(config.packageInfo.location, logFilesRoot),
               ),
