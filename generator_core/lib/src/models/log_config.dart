@@ -18,7 +18,7 @@ class LogConfig implements Mappable {
   const LogConfig({
     this.enabled = false,
     this.allowInfoLog = false,
-    this.allowWarningLog = false,
+    this.allowWarningLog = true,
     this.allowErrorLog = true,
     required this.logDirectoryRelativePathFromCurrentDir,
   });
