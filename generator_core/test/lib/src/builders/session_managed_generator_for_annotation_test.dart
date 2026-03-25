@@ -9,7 +9,6 @@ import 'package:generator_core/src/builders/session_managed_generator_for_annota
 import 'package:generator_core/src/models/build_session_context.dart';
 import 'package:generator_core/src/models/context_config.dart';
 import 'package:generator_core/src/models/log_config.dart';
-import 'package:generator_core/src/models/package_info.dart';
 import 'package:generator_core/src/models/session_data.dart';
 import 'package:generator_core/src/models/session_data_fetch_result.dart';
 import 'package:generator_core/src/services/logger/session_logger.dart';
@@ -41,10 +40,7 @@ class _MockElementDirective extends Mock implements ElementDirective {}
 class _MockConstantReader extends Mock implements ConstantReader {}
 
 class _TestContextConfig extends ContextConfig {
-  const _TestContextConfig({
-    required super.packageInfo,
-    required super.logConfig,
-  });
+  const _TestContextConfig({required super.logConfig});
 
   @override
   Map<String, dynamic> toMap() => {};
@@ -101,7 +97,6 @@ class _TestSessionManagedGeneratorForAnnotation
 
 void main() {
   const testConfig = _TestContextConfig(
-    packageInfo: PackageInfo(name: 'name'),
     logConfig: LogConfig(
       logDirectoryRelativePathFromCurrentDir: 'logs',
       enabled: true,

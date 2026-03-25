@@ -2,7 +2,6 @@
 
 import 'package:build/build.dart';
 import 'package:generator_core/src/models/context_config.dart';
-import 'package:generator_core/src/models/package_info.dart';
 import 'package:generator_core/src/services/config/context_config_loader.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:package_config/package_config.dart';
@@ -20,7 +19,6 @@ class _MockContextConfig extends Mock implements ContextConfig {}
 class _TestContextConfigLoader extends ContextConfigLoader<_MockContextConfig> {
   BuildStep? buildStep;
   BuilderOptions? builderOptions;
-  PackageInfo? packageInfo;
 
   _TestContextConfigLoader(super.builderOptions);
 
@@ -28,11 +26,9 @@ class _TestContextConfigLoader extends ContextConfigLoader<_MockContextConfig> {
   _MockContextConfig loadPluginConfig(
     BuildStep buildStep,
     BuilderOptions builderOptions,
-    PackageInfo packageInfo,
   ) {
     this.buildStep = buildStep;
     this.builderOptions = builderOptions;
-    this.packageInfo = packageInfo;
     return _MockContextConfig();
   }
 }
@@ -62,7 +58,7 @@ void main() {
   });
 
   test(
-    'Should return package-info with real package name and package root location if all went well',
+    'Should forward the buildStep and builderOptions correctly',
     () async {
       final mockPackage = _MockPackage();
       when(() => mockPackage.name).thenReturn(packageName);
@@ -73,19 +69,6 @@ void main() {
 
       expect(sut.buildStep, mockBuildStep);
       expect(sut.builderOptions, builderOptions);
-      expect(
-        sut.packageInfo,
-        isA<PackageInfo>().having((p) => p.name, 'name', packageName),
-      );
-    },
-  );
-
-  test(
-    'Should throw StateError if inputId package does not match any package in packageConfig',
-    () async {
-      when(() => mockPackageConfig.packages).thenReturn([]);
-
-      expect(() => sut.loadConfig(mockBuildStep), throwsA(isA<StateError>()));
     },
   );
 }

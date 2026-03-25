@@ -8,7 +8,6 @@ export 'src/builders/session_managed_raw_builder.dart';
 export 'src/models/build_session_context.dart';
 export 'src/models/context_config.dart';
 export 'src/models/log_config.dart';
-export 'src/models/package_info.dart';
 export 'src/models/session_data.dart';
 export 'src/models/session_data_fetch_result.dart';
 export 'src/services/config/context_config_loader.dart';
