@@ -26,6 +26,8 @@ dependencies:
     path: ../../generator_core
   json_parser_annotations:
     path: ../json_parser_annotations
+  functions:
+    path: ../../functions
 
 dev_dependencies:
   test: ^1.25.6
