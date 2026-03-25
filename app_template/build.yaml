@@ -6,3 +6,17 @@ targets:
           field_rename: snake
           include_if_null: false
           explicit_to_json: true
+      json_parser_generator|json_parsers_builder:
+        options:
+          # Log configuration for this builder
+          log_config:
+            # Enable or disable logging for this builder (default: false)
+            enabled: true
+            # Individual log levels (overrides `enabled`)
+            # (Defaults - info: false, warning: true, error: true)
+            allow_info: true
+            allow_warning: true
+            allow_error: true
+            # Relative(to working dir) path where logs will be saved
+            # (Default: logs/generators/json_parser_generator)
+            log_dir_relative_path: logs/generators/json_parser_generator

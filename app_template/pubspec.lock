@@ -536,6 +536,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  generator_core:
+    dependency: transitive
+    description:
+      path: "../generator_core"
+      relative: true
+    source: path
+    version: "0.0.1"
   get_it:
     dependency: "direct main"
     description:
