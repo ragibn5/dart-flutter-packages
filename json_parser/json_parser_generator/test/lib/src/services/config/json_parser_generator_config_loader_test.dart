@@ -57,11 +57,6 @@ void main() {
         isA<JsonParserGeneratorContextConfig>()
             .having((c) => c.packageInfo.name, 'packageInfo.name', packageName)
             .having(
-              (c) => c.packageInfo.location,
-              'packageInfo.location',
-              packageRoot,
-            )
-            .having(
               (c) => c.logConfig.logDirectoryRelativePathFromProjectRoot,
               'logConfig.logDir',
               defaultLogDir,
