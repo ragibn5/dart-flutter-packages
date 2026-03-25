@@ -26,7 +26,7 @@ void main() {
   const config = _TestContextConfig(
     logConfig: LogConfig(
       logDirectoryRelativePathFromCurrentDir:
-          'logDirectoryRelativePathFromProjectRoot',
+          'logDirectoryRelativePathFromCurrentDir',
       enabled: true,
       allowInfoLog: true,
       allowWarningLog: true,
