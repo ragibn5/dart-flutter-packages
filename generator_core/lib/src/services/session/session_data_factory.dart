@@ -6,6 +6,7 @@ import 'package:generator_core/src/models/session_data.dart';
 import 'package:generator_core/src/services/config/context_config_loader.dart';
 import 'package:generator_core/src/services/logger/session_logger.dart';
 import 'package:intl/intl.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
 abstract interface class SessionDataFactory {
@@ -14,9 +15,16 @@ abstract interface class SessionDataFactory {
 }
 
 class SessionDataFactoryImpl implements SessionDataFactory {
+  final Directory _currentDirectory;
   final ContextConfigLoader _configLoader;
 
-  SessionDataFactoryImpl(this._configLoader);
+  SessionDataFactoryImpl(ContextConfigLoader configLoader)
+    : this._(Directory.current, configLoader);
+
+  @visibleForTesting
+  SessionDataFactoryImpl.test(this._currentDirectory, this._configLoader);
+
+  SessionDataFactoryImpl._(this._currentDirectory, this._configLoader);
 
   @override
   Future<SessionData> createSessionData(BuildStep buildStep) async {
@@ -28,7 +36,7 @@ class SessionDataFactoryImpl implements SessionDataFactory {
             'console-logger': ConsoleLogger(),
             'file-logger': FileLogger(
               logDirectory: Directory(
-                path.join(Directory.current.path, logFilesRoot),
+                path.join(_currentDirectory.absolute.path, logFilesRoot),
               ),
               fileNameBuilder: (data) =>
                   'LOG-${DateFormat('dd-MM-yyyy').format(data.stamp)}.log',

@@ -88,6 +88,10 @@ class SessionLoggerImpl implements SessionLogger {
   @visibleForTesting
   Set<SessionLogLevel> get allowedLevels => Set.unmodifiable(_allowedLevels);
 
+  @visibleForTesting
+  // ignore: invalid_use_of_visible_for_testing_member
+  Logger getLogger(String loggerId) => _compositeLogger.loggers[loggerId]!;
+
   @override
   void setEnabled({required bool enabled}) {
     _enabled = enabled;
