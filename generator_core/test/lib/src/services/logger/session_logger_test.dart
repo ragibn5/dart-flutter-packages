@@ -1,7 +1,8 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:dlogger/dlogger.dart';
-import 'package:generator_core/generator_core.dart';
+import 'package:generator_core/src/services/logger/session_logger.dart';
+
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';

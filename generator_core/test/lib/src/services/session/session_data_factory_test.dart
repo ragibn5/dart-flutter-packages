@@ -2,7 +2,12 @@
 // ignore_for_file: avoid_redundant_argument_values
 
 import 'package:build/build.dart';
-import 'package:generator_core/generator_core.dart';
+import 'package:generator_core/src/models/context_config.dart';
+import 'package:generator_core/src/models/log_config.dart';
+import 'package:generator_core/src/models/package_info.dart';
+import 'package:generator_core/src/services/config/context_config_loader.dart';
+import 'package:generator_core/src/services/logger/session_logger.dart';
+
 import 'package:generator_core/src/services/session/session_data_factory.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';

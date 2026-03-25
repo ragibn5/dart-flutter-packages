@@ -1,7 +1,10 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:build/build.dart';
-import 'package:generator_core/generator_core.dart';
+import 'package:generator_core/src/models/context_config.dart';
+import 'package:generator_core/src/models/package_info.dart';
+import 'package:generator_core/src/services/config/context_config_loader.dart';
+
 import 'package:mocktail/mocktail.dart';
 import 'package:package_config/package_config.dart';
 import 'package:test/expect.dart';

@@ -1,7 +1,10 @@
 import 'dart:async';
 
-import 'package:generator_core/generator_core.dart';
+
+import 'package:build/build.dart';
 import 'package:generator_core/src/models/build_session_context.dart';
+import 'package:generator_core/src/models/context_config.dart';
+import 'package:generator_core/src/services/session/session_data_manager.dart';
 
 abstract class SessionManagedRawBuilder<T extends ContextConfig>
     extends Builder {

@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:analyzer/dart/element/element.dart';
-import 'package:generator_core/generator_core.dart';
+import 'package:build/build.dart';
+import 'package:generator_core/src/builders/session_managed_raw_builder.dart';
 import 'package:generator_core/src/models/build_session_context.dart';
+import 'package:generator_core/src/models/context_config.dart';
+import 'package:generator_core/src/services/session/session_data_manager.dart';
 import 'package:source_gen/source_gen.dart';
+
 
 abstract class SessionManagedGeneratorForAnnotation<A, C extends ContextConfig>
     extends GeneratorForAnnotation<A> {

@@ -1,11 +1,16 @@
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: avoid_redundant_argument_values
 
-import 'package:generator_core/generator_core.dart';
+import 'package:build/build.dart';
 import 'package:generator_core/src/builders/session_managed_generator.dart';
 import 'package:generator_core/src/models/build_session_context.dart';
+import 'package:generator_core/src/models/context_config.dart';
+import 'package:generator_core/src/models/log_config.dart';
+import 'package:generator_core/src/models/package_info.dart';
 import 'package:generator_core/src/models/session_data.dart';
 import 'package:generator_core/src/models/session_data_fetch_result.dart';
+import 'package:generator_core/src/services/logger/session_logger.dart';
+import 'package:generator_core/src/services/session/session_data_manager.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:test/expect.dart';
