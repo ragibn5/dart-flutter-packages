@@ -34,7 +34,6 @@ class JsonParsersBuilder extends SessionManagedRawBuilder<BuildContextConfig> {
 
   JsonParsersBuilder(
     this._parsersBuilderConfig, {
-    required BuilderOptions builderOptions,
     required SessionDataManager sessionDataManager,
     AnnotatedElementReader annotatedClassReader =
         const AnnotatedElementReader(),
@@ -46,7 +45,7 @@ class JsonParsersBuilder extends SessionManagedRawBuilder<BuildContextConfig> {
        _gjpAnnotationReader = gjpAnnotationReader,
        _parserGenerator = parserClassGenerator,
        _registryGenerator = registryClassGenerator,
-       super(builderOptions, sessionDataManager);
+       super(sessionDataManager);
 
   @override
   Map<String, List<String>> get buildExtensions => {

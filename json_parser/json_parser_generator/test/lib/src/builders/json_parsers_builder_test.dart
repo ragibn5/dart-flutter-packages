@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:generator_core/generator_core.dart';
 import 'package:json_parser_generator/src/builders/json_parsers_builder.dart';
+import 'package:json_parser_generator/src/models/build_context_config.dart';
 import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
 import 'package:json_parser_generator/src/models/gjp_annotation_config.dart';
 import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
@@ -11,6 +12,15 @@ import 'package:test/test.dart';
 class _FakeTypeChecker extends Fake implements TypeChecker {}
 
 class _FakeAssetId extends Fake implements AssetId {}
+
+class _MockSessionDataManager extends Mock implements SessionDataManager {}
+
+class _MockSessionData extends Mock implements SessionData {}
+
+class _MockSessionDataFetchResult extends Mock
+    implements SessionDataFetchResult {}
+
+class _MockSessionLogger extends Mock implements SessionLogger {}
 
 class _MockBuildStep extends Mock implements BuildStep {}
 
@@ -25,15 +35,22 @@ class _MockClassElement extends Mock implements ClassElement {}
 
 class _MockLibraryElement extends Mock implements LibraryElement {}
 
+class _MockBuildContextConfig extends Mock implements BuildContextConfig {}
+
 void main() {
   const config = JsonParsersBuilderConfig(
     outputPathRelativeToLib: 'generated/json_parsers.dart',
   );
 
+  late _MockSessionDataManager mockSessionDataManager;
+  late _MockSessionData mockSessionData;
+  late _MockSessionDataFetchResult mockFetchResult;
+  late _MockSessionLogger mockSessionLogger;
   late _MockBuildStep mockBuildStep;
   late _MockAnnotatedElementReader mockAnnotatedElementReader;
   late _MockGJPAnnotationReader mockGJPAnnotationReader;
   late _MockAssetId mockInputId;
+  late _MockBuildContextConfig mockBuildContextConfig;
 
   late JsonParsersBuilder sut;
 
@@ -43,17 +60,30 @@ void main() {
   });
 
   setUp(() {
+    mockSessionDataManager = _MockSessionDataManager();
+    mockSessionData = _MockSessionData();
+    mockFetchResult = _MockSessionDataFetchResult();
+    mockSessionLogger = _MockSessionLogger();
     mockBuildStep = _MockBuildStep();
     mockAnnotatedElementReader = _MockAnnotatedElementReader();
     mockGJPAnnotationReader = _MockGJPAnnotationReader();
     mockInputId = _MockAssetId();
+    mockBuildContextConfig = _MockBuildContextConfig();
 
     sut = JsonParsersBuilder(
       config,
+      sessionDataManager: mockSessionDataManager,
       annotatedClassReader: mockAnnotatedElementReader,
       gjpAnnotationReader: mockGJPAnnotationReader,
     );
 
+    when(
+      () => mockSessionDataManager.getSessionDataFor(mockBuildStep),
+    ).thenAnswer((_) async => mockFetchResult);
+    when(() => mockFetchResult.sessionData).thenReturn(mockSessionData);
+    when(() => mockFetchResult.isNewlyCreated).thenReturn(false);
+    when(() => mockSessionData.logger).thenReturn(mockSessionLogger);
+    when(() => mockSessionData.config).thenReturn(mockBuildContextConfig);
     when(() => mockBuildStep.inputId).thenReturn(mockInputId);
     when(() => mockInputId.package).thenReturn('example');
     when(
