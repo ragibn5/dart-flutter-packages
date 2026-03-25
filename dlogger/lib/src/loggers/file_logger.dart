@@ -96,4 +96,10 @@ class FileLogger implements Logger {
           );
     });
   }
+
+  @visibleForTesting
+  Directory get logDirectory => _logDirectory;
+
+  @visibleForTesting
+  Function get fileNameBuilder => _fileNameBuilder;
 }
