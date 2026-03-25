@@ -16,7 +16,7 @@ abstract interface class SessionDataManager {
   ///   for the given [BuildStep].
   Future<SessionDataFetchResult> getSessionDataFor(
     BuildStep buildStep,
-    BuilderOptions buildOptions,
+    BuilderOptions builderOptions,
   );
 
   factory SessionDataManager.createNewInstance(
@@ -43,7 +43,7 @@ class SessionDataManagerImpl implements SessionDataManager {
   @override
   Future<SessionDataFetchResult> getSessionDataFor(
     BuildStep buildStep,
-    BuilderOptions buildOptions,
+    BuilderOptions builderOptions,
   ) async {
     final package = buildStep.inputId.package;
     final current = _cache[package];
@@ -54,7 +54,7 @@ class SessionDataManagerImpl implements SessionDataManager {
       );
     }
 
-    _cache[package] = await _factory.createSessionData(buildStep, buildOptions);
+    _cache[package] = await _factory.createSessionData(buildStep, builderOptions);
 
     return SessionDataFetchResult(
       isNewlyCreated: true,

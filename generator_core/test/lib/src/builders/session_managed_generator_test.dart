@@ -64,7 +64,7 @@ class _TestSessionManagedGenerator
 }
 
 void main() {
-  const buildOptions = BuilderOptions({'key': 'value'});
+  const builderOptions = BuilderOptions({'key': 'value'});
   const testConfig = _TestContextConfig(
     packageInfo: PackageInfo(name: 'name', location: 'location'),
     logConfig: LogConfig(
@@ -92,11 +92,11 @@ void main() {
     mockSessionLogger = _MockSessionLogger();
     mockLibraryReader = _MockLibraryReader();
 
-    sut = _TestSessionManagedGenerator(buildOptions, mockSessionDataManager);
+    sut = _TestSessionManagedGenerator(builderOptions, mockSessionDataManager);
 
     when(
       () =>
-          mockSessionDataManager.getSessionDataFor(mockBuildStep, buildOptions),
+          mockSessionDataManager.getSessionDataFor(mockBuildStep, builderOptions),
     ).thenAnswer((_) async => mockFetchResult);
     when(() => mockFetchResult.sessionData).thenReturn(mockSessionData);
     when(() => mockSessionData.logger).thenReturn(mockSessionLogger);
@@ -147,7 +147,7 @@ void main() {
     () async {
       const expectedResult = 'generated_code';
       sut = _TestSessionManagedGenerator(
-        buildOptions,
+        builderOptions,
         mockSessionDataManager,
         generateResult: expectedResult,
       );

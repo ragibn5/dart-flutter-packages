@@ -17,7 +17,7 @@ class _MockSessionData extends Mock implements SessionData {}
 
 void main() {
   const packageName = 'my_package';
-  const buildOptions = BuilderOptions({'key': 'value'});
+  const builderOptions = BuilderOptions({'key': 'value'});
 
   late _MockSessionDataFactory mockSessionDataFactory;
   late _MockBuildStep mockBuildStep;
@@ -37,7 +37,7 @@ void main() {
     ).thenReturn(AssetId(packageName, 'lib/something.dart'));
     when(
       () =>
-          mockSessionDataFactory.createSessionData(mockBuildStep, buildOptions),
+          mockSessionDataFactory.createSessionData(mockBuildStep, builderOptions),
     ).thenAnswer((_) async => mockSessionData);
   });
 
@@ -48,23 +48,23 @@ void main() {
 
     final result = await localSUT.getSessionDataFor(
       mockBuildStep,
-      buildOptions,
+      builderOptions,
     );
     expect(result.isNewlyCreated, false);
     expect(result.sessionData, mockSessionData);
     verifyNever(
       () =>
-          mockSessionDataFactory.createSessionData(mockBuildStep, buildOptions),
+          mockSessionDataFactory.createSessionData(mockBuildStep, builderOptions),
     );
   });
 
   test('If not cached, return newly created SessionData', () async {
-    final result = await sut.getSessionDataFor(mockBuildStep, buildOptions);
+    final result = await sut.getSessionDataFor(mockBuildStep, builderOptions);
     expect(result.isNewlyCreated, true);
     expect(result.sessionData, mockSessionData);
     verify(
       () =>
-          mockSessionDataFactory.createSessionData(mockBuildStep, buildOptions),
+          mockSessionDataFactory.createSessionData(mockBuildStep, builderOptions),
     ).called(1);
   });
 }

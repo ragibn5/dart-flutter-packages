@@ -20,17 +20,17 @@ class _MockContextConfig extends Mock implements ContextConfig {}
 
 class _TestContextConfigLoader extends ContextConfigLoader<_MockContextConfig> {
   BuildStep? buildStep;
-  BuilderOptions? buildOptions;
+  BuilderOptions? builderOptions;
   PackageInfo? packageInfo;
 
   @override
   _MockContextConfig loadPluginConfig(
     BuildStep buildStep,
-    BuilderOptions buildOptions,
+    BuilderOptions builderOptions,
     PackageInfo packageInfo,
   ) {
     this.buildStep = buildStep;
-    this.buildOptions = buildOptions;
+    this.builderOptions = builderOptions;
     this.packageInfo = packageInfo;
     return _MockContextConfig();
   }
@@ -39,7 +39,7 @@ class _TestContextConfigLoader extends ContextConfigLoader<_MockContextConfig> {
 void main() {
   const packageName = 'my_package';
   const packageRoot = 'x/y/z';
-  const buildOptions = BuilderOptions({'key': 'value'});
+  const builderOptions = BuilderOptions({'key': 'value'});
 
   late _MockBuildStep mockBuildStep;
   late _MockPackageConfig mockPackageConfig;
@@ -68,10 +68,10 @@ void main() {
       when(() => mockPackage.root).thenReturn(Uri.parse(packageRoot));
       when(() => mockPackageConfig.packages).thenReturn([mockPackage]);
 
-      await sut.loadConfig(mockBuildStep, buildOptions);
+      await sut.loadConfig(mockBuildStep, builderOptions);
 
       expect(sut.buildStep, mockBuildStep);
-      expect(sut.buildOptions, buildOptions);
+      expect(sut.builderOptions, builderOptions);
       expect(
         sut.packageInfo,
         isA<PackageInfo>()
@@ -87,7 +87,7 @@ void main() {
       when(() => mockPackageConfig.packages).thenReturn([]);
 
       expect(
-        () => sut.loadConfig(mockBuildStep, buildOptions),
+        () => sut.loadConfig(mockBuildStep, builderOptions),
         throwsA(isA<StateError>()),
       );
     },

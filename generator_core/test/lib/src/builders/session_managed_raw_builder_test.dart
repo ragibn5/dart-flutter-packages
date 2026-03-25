@@ -58,7 +58,7 @@ class _TestSessionManagedRawBuilder
 }
 
 void main() {
-  const buildOptions = BuilderOptions({'key': 'value'});
+  const builderOptions = BuilderOptions({'key': 'value'});
   const testConfig = _TestContextConfig(
     packageInfo: PackageInfo(name: 'name', location: 'location'),
     logConfig: LogConfig(
@@ -84,11 +84,11 @@ void main() {
     mockFetchResult = _MockSessionDataFetchResult();
     mockSessionLogger = _MockSessionLogger();
 
-    sut = _TestSessionManagedRawBuilder(buildOptions, mockSessionDataManager);
+    sut = _TestSessionManagedRawBuilder(builderOptions, mockSessionDataManager);
 
     when(
       () =>
-          mockSessionDataManager.getSessionDataFor(mockBuildStep, buildOptions),
+          mockSessionDataManager.getSessionDataFor(mockBuildStep, builderOptions),
     ).thenAnswer((_) async => mockFetchResult);
     when(() => mockFetchResult.sessionData).thenReturn(mockSessionData);
     when(() => mockSessionData.logger).thenReturn(mockSessionLogger);

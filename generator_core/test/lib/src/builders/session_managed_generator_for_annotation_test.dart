@@ -101,7 +101,7 @@ class _TestSessionManagedGeneratorForAnnotation
 }
 
 void main() {
-  const buildOptions = BuilderOptions({'key': 'value'});
+  const builderOptions = BuilderOptions({'key': 'value'});
   const testConfig = _TestContextConfig(
     packageInfo: PackageInfo(name: 'name', location: 'location'),
     logConfig: LogConfig(
@@ -137,13 +137,13 @@ void main() {
     mockConstantReader = _MockConstantReader();
 
     sut = _TestSessionManagedGeneratorForAnnotation(
-      buildOptions,
+      builderOptions,
       mockSessionDataManager,
     );
 
     when(
       () =>
-          mockSessionDataManager.getSessionDataFor(mockBuildStep, buildOptions),
+          mockSessionDataManager.getSessionDataFor(mockBuildStep, builderOptions),
     ).thenAnswer((_) async => mockFetchResult);
     when(() => mockFetchResult.sessionData).thenReturn(mockSessionData);
     when(() => mockSessionData.logger).thenReturn(mockSessionLogger);
@@ -197,7 +197,7 @@ void main() {
       'Should call generateWithSession with correct session context and return its result',
       () async {
         sut = _TestSessionManagedGeneratorForAnnotation(
-          buildOptions,
+          builderOptions,
           mockSessionDataManager,
           generateResult: 'generated_code',
         );

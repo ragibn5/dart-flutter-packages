@@ -12,7 +12,7 @@ abstract interface class SessionDataFactory {
   /// Create a [SessionData] instance for the given [BuildStep] instance.
   Future<SessionData> createSessionData(
     BuildStep buildStep,
-    BuilderOptions buildOptions,
+    BuilderOptions builderOptions,
   );
 }
 
@@ -24,9 +24,9 @@ class SessionDataFactoryImpl implements SessionDataFactory {
   @override
   Future<SessionData> createSessionData(
     BuildStep buildStep,
-    BuilderOptions buildOptions,
+    BuilderOptions builderOptions,
   ) async {
-    final config = await _configLoader.loadConfig(buildStep, buildOptions);
+    final config = await _configLoader.loadConfig(buildStep, builderOptions);
     final logFilesRoot =
         config.logConfig.logDirectoryRelativePathFromProjectRoot;
     final logger =

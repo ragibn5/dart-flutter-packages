@@ -28,7 +28,7 @@ class _TestContextConfig extends ContextConfig {
 }
 
 void main() {
-  const buildOptions = BuilderOptions({'key': 'value'});
+  const builderOptions = BuilderOptions({'key': 'value'});
 
   const config = _TestContextConfig(
     packageInfo: PackageInfo(name: 'name', location: 'location'),
@@ -54,7 +54,7 @@ void main() {
     sut = SessionDataFactoryImpl(mockContextConfigLoader);
 
     when(
-      () => mockContextConfigLoader.loadConfig(mockBuildStep, buildOptions),
+      () => mockContextConfigLoader.loadConfig(mockBuildStep, builderOptions),
     ).thenAnswer((_) async => config);
   });
 
@@ -62,7 +62,7 @@ void main() {
     'Returned SessionData.SessionLogger should map to appropriate config',
     () async {
       final logger =
-          (await sut.createSessionData(mockBuildStep, buildOptions)).logger;
+          (await sut.createSessionData(mockBuildStep, builderOptions)).logger;
       expect(
         logger,
         isA<SessionLogger>()
@@ -84,7 +84,7 @@ void main() {
     'Returned SessionData.ContextConfig should be the same returned by ContextConfigLoader',
     () async {
       final localConfig =
-          (await sut.createSessionData(mockBuildStep, buildOptions)).config;
+          (await sut.createSessionData(mockBuildStep, builderOptions)).config;
       expect(config, localConfig);
     },
   );
