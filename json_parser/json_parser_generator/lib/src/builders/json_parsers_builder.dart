@@ -65,10 +65,32 @@ class JsonParsersBuilder
       excludePathPrefix: 'lib/generated/',
     );
 
+    sessionContext.logger.logInfo(
+      tag: '$JsonParsersBuilder',
+      message:
+          'Found ${annotatedElements.length} element(s) annotated with '
+          '$GenerateJsonParser within `${buildStep.inputId.path}`',
+    );
+
     final annotatedClasses = _gjpAnnotationReader.read(annotatedElements);
     if (annotatedClasses.isEmpty) {
+      sessionContext.logger.logInfo(
+        tag: '$JsonParsersBuilder',
+        message:
+            'Did not find any classes annotated with $GenerateJsonParser, '
+            'exiting...',
+      );
       return;
     }
+
+    sessionContext.logger.logInfo(
+      tag: '$JsonParsersBuilder',
+      message:
+          'Found ${annotatedClasses.length} class(s) (and '
+          '${annotatedElements.length - annotatedClasses.length} element(s) '
+          'of other types) annotated with $GenerateJsonParser within '
+          '`${buildStep.inputId.path}`',
+    );
 
     final registryMap = _buildRegistryMap(annotatedClasses);
     final outputId = AssetId(
@@ -96,6 +118,14 @@ class JsonParsersBuilder
       languageVersion: DartFormatter.latestLanguageVersion,
     ).format(library.accept(emitter).toString());
     await buildStep.writeAsString(outputId, output);
+
+    sessionContext.logger.logInfo(
+      tag: '$JsonParsersBuilder',
+      message:
+          'Wrote ${annotatedClasses.length} parser(s) & '
+          '${registryMap.length} registry(s) '
+          'to `${outputId.path}`',
+    );
   }
 
   Map<String, List<ClassElement>> _buildRegistryMap(
