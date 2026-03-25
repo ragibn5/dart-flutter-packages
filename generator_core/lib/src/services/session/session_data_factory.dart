@@ -22,7 +22,7 @@ class SessionDataFactoryImpl implements SessionDataFactory {
   Future<SessionData> createSessionData(BuildStep buildStep) async {
     final config = await _configLoader.loadConfig(buildStep);
     final logFilesRoot =
-        config.logConfig.logDirectoryRelativePathFromProjectRoot;
+        config.logConfig.logDirectoryRelativePathFromCurrentDir;
     final logger =
         SessionLoggerImpl({
             'console-logger': ConsoleLogger(),

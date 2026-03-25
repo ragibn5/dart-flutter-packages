@@ -13,14 +13,14 @@ class LogConfig implements Mappable {
   final bool allowErrorLog;
 
   /// The path of the log directory, relative to the project root.
-  final String logDirectoryRelativePathFromProjectRoot;
+  final String logDirectoryRelativePathFromCurrentDir;
 
   const LogConfig({
     this.enabled = false,
     this.allowInfoLog = false,
     this.allowWarningLog = false,
     this.allowErrorLog = true,
-    required this.logDirectoryRelativePathFromProjectRoot,
+    required this.logDirectoryRelativePathFromCurrentDir,
   });
 
   @override
@@ -29,7 +29,7 @@ class LogConfig implements Mappable {
     'allowInfoLog': allowInfoLog,
     'allowWarningLog': allowWarningLog,
     'allowErrorLog': allowErrorLog,
-    'logDirectoryRelativePathFromProjectRoot':
-        logDirectoryRelativePathFromProjectRoot,
+    'logDirectoryRelativePathFromCurrentDir':
+        logDirectoryRelativePathFromCurrentDir,
   };
 }

@@ -66,7 +66,7 @@ void main() {
   const testConfig = _TestContextConfig(
     packageInfo: PackageInfo(name: 'name'),
     logConfig: LogConfig(
-      logDirectoryRelativePathFromProjectRoot: 'logs',
+      logDirectoryRelativePathFromCurrentDir: 'logs',
       enabled: true,
       allowInfoLog: true,
       allowWarningLog: true,

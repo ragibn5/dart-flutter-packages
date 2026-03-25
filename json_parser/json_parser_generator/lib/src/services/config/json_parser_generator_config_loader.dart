@@ -29,7 +29,7 @@ class JsonParserGeneratorConfigLoader
 
     final logConfigMap = options['log_config'];
     if (logConfigMap is! Map) {
-      return LogConfig(logDirectoryRelativePathFromProjectRoot: defaultLogDir);
+      return LogConfig(logDirectoryRelativePathFromCurrentDir: defaultLogDir);
     }
 
     return LogConfig(
@@ -37,7 +37,7 @@ class JsonParserGeneratorConfigLoader
       allowInfoLog: logConfigMap['allow_info'] as bool? ?? true,
       allowWarningLog: logConfigMap['allow_warning'] as bool? ?? true,
       allowErrorLog: logConfigMap['allow_error'] as bool? ?? true,
-      logDirectoryRelativePathFromProjectRoot:
+      logDirectoryRelativePathFromCurrentDir:
           logConfigMap['log_dir_relative_path'] as String? ?? defaultLogDir,
     );
   }

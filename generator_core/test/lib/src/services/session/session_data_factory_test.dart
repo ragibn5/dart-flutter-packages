@@ -30,7 +30,7 @@ void main() {
   const config = _TestContextConfig(
     packageInfo: PackageInfo(name: 'name'),
     logConfig: LogConfig(
-      logDirectoryRelativePathFromProjectRoot:
+      logDirectoryRelativePathFromCurrentDir:
           'logDirectoryRelativePathFromProjectRoot',
       enabled: true,
       allowInfoLog: true,
