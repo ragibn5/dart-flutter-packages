@@ -28,7 +28,7 @@ class _TestContextConfig extends ContextConfig {
 
 void main() {
   const config = _TestContextConfig(
-    packageInfo: PackageInfo(name: 'name', location: 'location'),
+    packageInfo: PackageInfo(name: 'name'),
     logConfig: LogConfig(
       logDirectoryRelativePathFromProjectRoot:
           'logDirectoryRelativePathFromProjectRoot',

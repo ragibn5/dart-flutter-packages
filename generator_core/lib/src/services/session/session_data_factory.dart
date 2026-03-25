@@ -28,7 +28,7 @@ class SessionDataFactoryImpl implements SessionDataFactory {
             'console-logger': ConsoleLogger(),
             'file-logger': FileLogger(
               logDirectory: Directory(
-                path.join(config.packageInfo.location, logFilesRoot),
+                path.join(Directory.current.path, logFilesRoot),
               ),
               fileNameBuilder: (data) =>
                   'LOG-${DateFormat('dd-MM-yyyy').format(data.stamp)}.log',

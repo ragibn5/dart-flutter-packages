@@ -75,9 +75,7 @@ void main() {
       expect(sut.builderOptions, builderOptions);
       expect(
         sut.packageInfo,
-        isA<PackageInfo>()
-            .having((p) => p.name, 'name', packageName)
-            .having((p) => p.location, 'location', packageRoot),
+        isA<PackageInfo>().having((p) => p.name, 'name', packageName),
       );
     },
   );

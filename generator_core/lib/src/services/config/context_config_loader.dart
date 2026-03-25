@@ -47,6 +47,6 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
       );
     }
 
-    return PackageInfo(name: package.name, location: package.root.path);
+    return PackageInfo(name: package.name);
   }
 }

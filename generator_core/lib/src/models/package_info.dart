@@ -4,11 +4,8 @@ class PackageInfo implements Mappable {
   /// The name of the package being analyzed.
   final String name;
 
-  /// The absolute path of the package being analyzed.
-  final String location;
-
-  const PackageInfo({required this.name, required this.location});
+  const PackageInfo({required this.name});
 
   @override
-  Map<String, dynamic> toMap() => {'name': name, 'location': location};
+  Map<String, dynamic> toMap() => {'name': name};
 }

@@ -101,7 +101,7 @@ class _TestSessionManagedGeneratorForAnnotation
 
 void main() {
   const testConfig = _TestContextConfig(
-    packageInfo: PackageInfo(name: 'name', location: 'location'),
+    packageInfo: PackageInfo(name: 'name'),
     logConfig: LogConfig(
       logDirectoryRelativePathFromProjectRoot: 'logs',
       enabled: true,
