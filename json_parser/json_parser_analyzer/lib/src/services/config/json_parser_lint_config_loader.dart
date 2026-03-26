@@ -2,9 +2,9 @@
 
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:functions/functions.dart';
-import 'package:json_parser_analyzer/models/default_config_options.dart';
-import 'package:json_parser_analyzer/models/json_parser_lint_config.dart';
-import 'package:json_parser_analyzer/services/config/config_source_provider.dart';
+import 'package:json_parser_analyzer/src/models/default_config_options.dart';
+import 'package:json_parser_analyzer/src/models/json_parser_lint_config.dart';
+import 'package:json_parser_analyzer/src/services/config/config_source_provider.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';

@@ -1,6 +1,6 @@
 import 'package:analysis_server_core/analysis_server_core.dart';
-import 'package:json_parser_analyzer/models/json_parser_lint_config.dart';
-import 'package:json_parser_analyzer/rules/json_parser_requirement_rule/json_parser_requirement_visitor.dart';
+import 'package:json_parser_analyzer/src/models/json_parser_lint_config.dart';
+import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/json_parser_requirement_visitor.dart';
 
 class JsonParserRequirementRule
     extends SessionManagedAnalysisRule<JsonParserLintConfig> {
