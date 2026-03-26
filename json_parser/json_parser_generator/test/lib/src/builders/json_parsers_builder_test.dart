@@ -87,6 +87,7 @@ void main() {
     when(() => mockSessionData.config).thenReturn(mockContextConfig);
     when(() => mockBuildStep.inputId).thenReturn(mockInputId);
     when(() => mockInputId.package).thenReturn('example');
+    when(() => mockInputId.path).thenReturn('lib/example.dart');
     when(
       () => mockAnnotatedElementReader.read(
         mockBuildStep,

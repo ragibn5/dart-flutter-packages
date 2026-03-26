@@ -76,7 +76,7 @@ void main() {
             .having(
               (c) => c.logConfig.allowWarningLog,
               'logConfig.allowWarningLog',
-              false,
+              true,
             )
             .having(
               (c) => c.logConfig.allowErrorLog,
@@ -114,7 +114,7 @@ void main() {
             .having(
               (c) => c.logConfig.allowWarningLog,
               'logConfig.allowWarningLog',
-              false,
+              true,
             )
             .having(
               (c) => c.logConfig.allowErrorLog,
@@ -213,7 +213,7 @@ void main() {
             .having(
               (c) => c.logConfig.allowWarningLog,
               'logConfig.allowWarningLog',
-              false,
+              true,
             )
             .having(
               (c) => c.logConfig.allowErrorLog,
@@ -259,7 +259,7 @@ void main() {
             .having(
               (c) => c.logConfig.allowWarningLog,
               'logConfig.allowWarningLog',
-              false,
+              true,
             )
             .having(
               (c) => c.logConfig.allowErrorLog,
