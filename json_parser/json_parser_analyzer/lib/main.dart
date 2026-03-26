@@ -1,6 +1,12 @@
+import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:json_parser_analyzer/services/config/json_parser_lint_config_loader.dart';
+import 'package:json_parser_analyzer/src/plugins/json_parser_lint_plugin.dart';
+
 /// The plugin entry point.
 ///
 /// The Dart Analysis Server looks for a top-level field named `plugin`.
 /// So, DO NOT change the variable name. See this doc for more information:
 /// https://dart.dev/tools/analyzer-plugins.
-final plugin = throw UnimplementedError();
+final plugin = JsonParserLintPlugin(
+  SessionDataManager.createNewInstance(JsonParserLintConfigLoader()),
+);
