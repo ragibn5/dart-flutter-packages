@@ -20,7 +20,7 @@ class JsonParserLintConfigLoader extends ContextConfigLoader {
             logDirectoryRelativePathFromProjectRoot: path.joinAll([
               'logs',
               'analyzer_plugins',
-              'json_parser_lint',
+              'json_parser_analyzer',
             ]),
           ),
           scanConfig: const ScanConfig(),
