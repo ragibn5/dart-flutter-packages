@@ -99,11 +99,22 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   }
 
   void _checkToJsonMethod(MethodDeclaration toJsonMethod) {
-    final params = toJsonMethod.parameters?.parameters;
-    if (params != null && params.isNotEmpty) {
+    if (toJsonMethod.isGetter) {
+      rule.reportAtToken(
+        toJsonMethod.name,
+        arguments: ['toJson method must not be a getter.'],
+      );
+
+      // If it is a getter our param specific checks are not needed.
+      // So, will return.
+      return;
+    }
+
+    final params = toJsonMethod.parameters?.parameters ?? [];
+    if (params.isNotEmpty) {
       rule.reportAtNode(
         toJsonMethod.parameters,
-        arguments: ['toJson method should not have parameters.'],
+        arguments: ['toJson method must not have parameters.'],
       );
     }
 
@@ -111,7 +122,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
     if (!_isMapStringDynamic(returnType)) {
       rule.reportAtNode(
         returnType,
-        arguments: ['toJson method should return Map<String, dynamic>.'],
+        arguments: ['toJson method must return Map<String, dynamic>.'],
       );
     }
   }
@@ -122,7 +133,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
       rule.reportAtNode(
         fromJsonConstructor.parameters,
         arguments: [
-          'fromJson constructor should have only one parameter of type Map<String, dynamic>.',
+          'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
         ],
       );
 
@@ -137,7 +148,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
       rule.reportAtNode(
         paramType,
         arguments: [
-          'fromJson constructor should have only one parameter of type Map<String, dynamic>.',
+          'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
         ],
       );
     }
@@ -147,7 +158,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
     if (fromJsonMethod.isGetter) {
       rule.reportAtToken(
         fromJsonMethod.name,
-        arguments: ['static fromJson should not be a getter.'],
+        arguments: ['static fromJson must not be a getter.'],
       );
 
       // If it is a getter our param specific checks are not needed.
@@ -160,7 +171,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
       rule.reportAtNode(
         fromJsonMethod.parameters,
         arguments: [
-          'fromJson method should have only one parameter of type Map<String, dynamic>.',
+          'fromJson method must have only one parameter of type Map<String, dynamic>.',
         ],
       );
 
@@ -175,7 +186,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
       rule.reportAtNode(
         paramType,
         arguments: [
-          'fromJson method should have only one parameter of type Map<String, dynamic>.',
+          'fromJson method must have only one parameter of type Map<String, dynamic>.',
         ],
       );
     }

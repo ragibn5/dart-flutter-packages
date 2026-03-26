@@ -206,6 +206,26 @@ void main() {
     });
 
     group('toJson method – wrong signature', () {
+      test('Reports when toJson is a getter', () {
+        const content = '''
+        @GenerateJsonParser()
+        class MyModel {
+          factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+          Map<String, dynamic> get toJson => {};
+        }
+        ''';
+        final annotation = parseValidAnnotation(content);
+
+        visitor.visitAnnotation(annotation);
+
+        verify(
+          () => rule.reportAtToken(
+            any(),
+            arguments: ['toJson method must not be a getter.'],
+          ),
+        ).called(1);
+      });
+
       test('Reports when toJson has parameters', () {
         const content = '''
         @GenerateJsonParser()
@@ -221,7 +241,7 @@ void main() {
         verify(
           () => rule.reportAtNode(
             any(),
-            arguments: ['toJson method should not have parameters.'],
+            arguments: ['toJson method must not have parameters.'],
           ),
         ).called(1);
       });
@@ -241,7 +261,7 @@ void main() {
         verify(
           () => rule.reportAtNode(
             any(),
-            arguments: ['toJson method should return Map<String, dynamic>.'],
+            arguments: ['toJson method must return Map<String, dynamic>.'],
           ),
         ).called(1);
       });
@@ -261,7 +281,7 @@ void main() {
         verify(
           () => rule.reportAtNode(
             any(),
-            arguments: ['toJson method should return Map<String, dynamic>.'],
+            arguments: ['toJson method must return Map<String, dynamic>.'],
           ),
         ).called(1);
       });
@@ -281,7 +301,7 @@ void main() {
         verify(
           () => rule.reportAtNode(
             any(),
-            arguments: ['toJson method should return Map<String, dynamic>.'],
+            arguments: ['toJson method must return Map<String, dynamic>.'],
           ),
         ).called(1);
       });
@@ -301,7 +321,7 @@ void main() {
         verify(
           () => rule.reportAtNode(
             any(),
-            arguments: ['toJson method should return Map<String, dynamic>.'],
+            arguments: ['toJson method must return Map<String, dynamic>.'],
           ),
         ).called(1);
       });
@@ -348,7 +368,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson constructor should have only one parameter of type Map<String, dynamic>.',
+              'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
@@ -370,7 +390,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson constructor should have only one parameter of type Map<String, dynamic>.',
+              'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
@@ -392,7 +412,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson constructor should have only one parameter of type Map<String, dynamic>.',
+              'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
@@ -414,7 +434,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson constructor should have only one parameter of type Map<String, dynamic>.',
+              'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
@@ -437,7 +457,7 @@ void main() {
         verify(
           () => rule.reportAtToken(
             any(),
-            arguments: ['static fromJson should not be a getter.'],
+            arguments: ['static fromJson must not be a getter.'],
           ),
         ).called(1);
       });
@@ -458,7 +478,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson method should have only one parameter of type Map<String, dynamic>.',
+              'fromJson method must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
@@ -480,7 +500,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson method should have only one parameter of type Map<String, dynamic>.',
+              'fromJson method must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
@@ -502,7 +522,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson method should have only one parameter of type Map<String, dynamic>.',
+              'fromJson method must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
@@ -524,7 +544,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson method should have only one parameter of type Map<String, dynamic>.',
+              'fromJson method must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
@@ -601,7 +621,7 @@ void main() {
           () => rule.reportAtNode(
             any(),
             arguments: [
-              'fromJson method should have only one parameter of type Map<String, dynamic>.',
+              'fromJson method must have only one parameter of type Map<String, dynamic>.',
             ],
           ),
         ).called(1);
