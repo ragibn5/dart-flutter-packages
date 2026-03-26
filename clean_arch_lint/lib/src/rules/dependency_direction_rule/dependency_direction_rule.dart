@@ -15,7 +15,6 @@ class DependencyDirectionRule
     approved by tech leads), you can allow it through the configuration
     file. Please refer to the documentation for more details.
     ''',
-    hasPublishedDocs: true,
   );
 
   DependencyDirectionRule(SessionDataManager sessionDataManager)
