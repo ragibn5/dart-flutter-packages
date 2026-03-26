@@ -27,11 +27,11 @@ void main() {
     sut = CleanArchLintPlugin(mockSessionDataManager);
   });
 
-  test('Should register DependencyDirectionRule as a warning rule', () {
+  test('Should register DependencyDirectionRule as a lint rule', () {
     sut.register(mockPluginRegistry);
 
     verify(
-      () => mockPluginRegistry.registerWarningRule(
+      () => mockPluginRegistry.registerLintRule(
         any(that: isA<DependencyDirectionRule>()),
       ),
     ).called(1);
