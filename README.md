@@ -18,7 +18,6 @@ the base layer and are intended to be reusable across all projects.
 - [`datetime_utils`](datetime_utils)
 - [`color_utils`](color_utils)
 - [`dlogger`](dlogger)
-- [`analyzer_core`](analyzer_core)
 - [`generator_core`](generator_core)
 - [`analysis_server_core`](analysis_server_core)
 
@@ -31,14 +30,14 @@ generation utilities, and architectural support.
 
 - [`net_kit`](net_kit)
 - [`parser`](parser)
-- [`parser_annotations`](parser_annotations)
-- [`parser_generator`](parser_generator)
-- [`parser_analyzer`](parser_analyzer)
+- [`json_parser`](json_parser)
+- [`json_parser_annotations`](json_parser/json_parser_annotations)
+- [`json_parser_analyzer_`](json_parser/json_parser_analyzer)
+- [`json_parser_generator`](json_parser/json_parser_generator)
 - [`radio_group`](radio_group)
 - [`selection_group`](selection_group)
 - [`menu`](menu)
 - [`clean_arch_lint`](clean_arch_lint)
-- [`app_analyzer`](app_analyzer)
 
 ---
 
