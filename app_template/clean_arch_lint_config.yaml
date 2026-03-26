@@ -1,11 +1,11 @@
-# ==================================================
-# Configuration for `clean_architecture_lint` plugin
-# ==================================================
+# ==========================================
+# Configuration for `clean_arch_lint` plugin
+# ==========================================
 
 # Global Log Configuration: Controls logging for all rules.
 log_config:
   # Enable or disable logging for all rules (default: false)
-  enabled: false
+  enabled: true
   # Individual log levels (overrides `enabled`)
   # (Defaults - info: false, warning: true, error: true)
   allow_info: false
@@ -13,7 +13,7 @@ log_config:
   allow_error: true
   # Relative(to project root) path where logs will be saved
   # (Default: logs/analysis_plugins/clean_arch_lint)
-  log_dir_relative_path: logs/analysis_plugins/clean_arch_lint
+  log_dir_relative_path: logs/analyzer_plugins/clean_arch_lint
 
 # Global Scan Configuration: Controls which project directories are scanned.
 scan_config:
