@@ -15,6 +15,7 @@ class DependencyDirectionRule
     approved by tech leads), you can allow it through the configuration
     file. Please refer to the documentation for more details.
     ''',
+    severity: DiagnosticSeverity.WARNING,
   );
 
   DependencyDirectionRule(SessionDataManager sessionDataManager)

@@ -11,6 +11,6 @@ class CleanArchLintPlugin extends Plugin {
 
   @override
   void register(PluginRegistry registry) {
-    registry.registerWarningRule(DependencyDirectionRule(_sessionDataManager));
+    registry.registerLintRule(DependencyDirectionRule(_sessionDataManager));
   }
 }
