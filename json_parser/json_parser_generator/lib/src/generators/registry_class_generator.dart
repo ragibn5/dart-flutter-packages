@@ -23,8 +23,7 @@ class RegistryClassGenerator {
         const RegistryClassGeneratorConfig(
           classSuffix: 'JsonParserRegistry',
           parserSuffix: 'JsonParser',
-          registryUri:
-              'package:json_parser/src/registry/json_parser_registry.dart',
+          registryUri: 'package:json_parser/json_parser.dart',
         ),
       );
 
