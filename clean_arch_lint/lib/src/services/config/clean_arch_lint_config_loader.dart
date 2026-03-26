@@ -21,7 +21,7 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
           logConfig: LogConfig(
             logDirectoryRelativePathFromProjectRoot: path.joinAll([
               'logs',
-              'analysis_plugins',
+              'analyzer_plugins',
               'clean_arch_lint',
             ]),
           ),
