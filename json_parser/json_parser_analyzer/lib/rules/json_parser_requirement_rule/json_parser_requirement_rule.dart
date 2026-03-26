@@ -6,14 +6,14 @@ class JsonParserRequirementRule
     extends SessionManagedAnalysisRule<JsonParserLintConfig> {
   static const LintCode JPR_LINT_CODE = LintCode(
     'json_parser_requirements',
-    'Missing required components for JSON parser generation.',
+    'Missing or invalid components for JSON parser generation: {0}',
     correctionMessage: '''
-    The class should contain following methods in order for the generator
-    to generate its parsers:
+    The class should contain following component(s) in order for the
+    generator to generate the parser(s) & registry(s):
     - Map<String, dynamic> toJson() { ... }
     - YourClass fromJson(Map<String, dynamic> json) { ... }
     ''',
-    hasPublishedDocs: true,
+    severity: DiagnosticSeverity.ERROR,
   );
 
   JsonParserRequirementRule(SessionDataManager sessionDataManager)
@@ -38,7 +38,7 @@ class JsonParserRequirementRule
       message: 'Registering $JsonParserRequirementRuleVisitor for: $srcPath',
     );
 
-    registry.addClassDeclaration(
+    registry.addAnnotation(
       this,
       JsonParserRequirementRuleVisitor(this, sessionContext),
     );
