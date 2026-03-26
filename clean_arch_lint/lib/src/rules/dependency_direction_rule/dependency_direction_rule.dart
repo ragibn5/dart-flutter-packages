@@ -7,7 +7,7 @@ class DependencyDirectionRule
     extends SessionManagedAnalysisRule<CleanArchLintConfig> {
   static const LintCode DDR_LINT_CODE = LintCode(
     'clean_arch_dependency_direction',
-    'Invalid dependency direction found in domain component: {0}',
+    'Inappropriate dependency in domain component: {0}',
     correctionMessage: '''
     Domain components should be as self-sufficient as possible.
   
