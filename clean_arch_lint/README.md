@@ -1,6 +1,6 @@
 # clean_arch_lint
 
-Useful extensions over dart's built-in `String` data type.
+Analysis server plugin to enforce clean architecture.
 
 ## Installation
 
