@@ -7,6 +7,7 @@ import 'package:clean_arch_lint/src/models/ddr_config.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
 import 'package:clean_arch_lint/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 import '../../../utils/parsers/import_directive_parsers.dart';
@@ -46,20 +47,38 @@ void main() {
     ).thenReturn(realImportUriBuilder.fromImportNode(directive));
   }
 
-  void verifyInfoLoggedOnce() {
+  void verifyWarningLoggedOnce() {
     verify(
-      () => mockRuleSessionContext.logger.logInfo(
+      () => mockRuleSessionContext.logger.logWarning(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
     ).called(1);
   }
 
-  void verifyNodeReportedOnce(ImportDirective directive) =>
-      verify(() => mockAnalysisRule.reportAtNode(directive)).called(1);
+  void verifyNodeReportedOnce(
+    ImportDirective directive, {
+    required String message,
+  }) => verify(
+    () => mockAnalysisRule.reportAtNode(
+      directive,
+      arguments: any(
+        named: 'arguments',
+        that: predicate<List<Object>>((args) {
+          print('Arg: $args');
+          print('Msg: $message');
+          return args.length == 1 && args.first == message;
+        }),
+      ),
+    ),
+  ).called(1);
 
-  void verifyNodeNeverReported() =>
-      verifyNever(() => mockAnalysisRule.reportAtNode(any()));
+  void verifyNodeNeverReported() => verifyNever(
+    () => mockAnalysisRule.reportAtNode(
+      any(),
+      arguments: any(named: 'arguments'),
+    ),
+  );
 
   setUp(() {
     mockAnalysisRule = _MockAnalysisRule();
@@ -82,7 +101,7 @@ void main() {
     when(() => mockRuleSessionContext.logger).thenReturn(mockSessionLogger);
 
     when(
-      () => mockSessionLogger.logInfo(
+      () => mockSessionLogger.logWarning(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
@@ -99,7 +118,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -114,7 +133,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -129,8 +148,10 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
-      verifyNodeReportedOnce(directive);
+      verifyNodeReportedOnce(
+        directive,
+        message: 'core dart import in domain layer.',
+      );
     },
   );
 
@@ -146,7 +167,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -164,7 +185,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -182,8 +203,10 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
-      verifyNodeReportedOnce(directive);
+      verifyNodeReportedOnce(
+        directive,
+        message: 'non-domain import in domain layer.',
+      );
     },
   );
 
@@ -200,7 +223,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -219,7 +242,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -237,7 +260,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -255,8 +278,10 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
-      verifyNodeReportedOnce(directive);
+      verifyNodeReportedOnce(
+        directive,
+        message: 'library package import in domain layer.',
+      );
     },
   );
 }

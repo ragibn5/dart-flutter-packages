@@ -36,7 +36,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
   void visitImportDirective(ImportDirective node) {
     final importUri = _importUriBuilder.fromImportNode(node);
     if (importUri == null) {
-      sessionContext.logger.logInfo(
+      sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
         message:
             'Invalid/Unsupported import uri (ignoring): ${node.uri.stringValue}',
@@ -44,97 +44,77 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
       return;
     }
 
-    if (_shouldReportImport(importUri)) {
-      rule.reportAtNode(node);
-    }
-  }
-
-  bool _shouldReportImport(ImportUri importUri) {
-    // Dart core imports
     if (importUri.scheme == 'dart') {
-      return _shouldReportDartCoreImport(importUri);
+      _checkDartCoreImport(node, importUri);
+      return;
     }
 
-    // If scheme is null, it is a relative import.
-    // And relative imports are always from the main host package.
     if (importUri.scheme == null) {
-      return _shouldReportOwnPackageImport(importUri);
+      _checkOwnPackageImport(node, importUri);
+      return;
     }
 
-    // If scheme is `package` and package name is the
-    // session context's package name, it is the main host package.
     if (importUri.scheme == 'package' &&
         importUri.packageName == sessionContext.config.packageInfo.name) {
-      return _shouldReportOwnPackageImport(importUri);
+      _checkOwnPackageImport(node, importUri);
+      return;
     }
 
-    return _shouldReportLibraryPackageImport(importUri);
+    _checkLibraryPackageImport(node, importUri);
   }
 
-  bool _shouldReportDartCoreImport(ImportUri importUri) {
+  void _checkDartCoreImport(ImportDirective node, ImportUri importUri) {
     if (sessionContext.config.ddrConfig.excludeCoreDartPackages) {
-      sessionContext.logger.logInfo(
+      sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Core dart import (ignoring): $importUri',
       );
-      return false;
+      return;
     }
 
-    sessionContext.logger.logInfo(
-      tag: '$DependencyDirectionRuleVisitor',
-      message: 'Reporting non-domain core dart import: $importUri',
-    );
-
-    return true;
+    rule.reportAtNode(node, arguments: ['core dart import in domain layer.']);
   }
 
-  bool _shouldReportOwnPackageImport(ImportUri importUri) {
+  void _checkOwnPackageImport(ImportDirective node, ImportUri importUri) {
     final domainPathSegment = sessionContext.config.ddrConfig.domainDirName
         .surroundingPathSeparator();
     if (importUri.path.contains(domainPathSegment)) {
-      sessionContext.logger.logInfo(
+      sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Domain import (ignoring): $importUri',
       );
-      return false;
+      return;
     }
 
     if (sessionContext.config.ddrConfig.excludedProjectPaths.any(
       importUri.path.startsWith,
     )) {
-      sessionContext.logger.logInfo(
+      sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Excluded project import (ignoring): $importUri',
       );
-      return false;
+      return;
     }
 
-    sessionContext.logger.logInfo(
-      tag: '$DependencyDirectionRuleVisitor',
-      message: 'Reporting non-domain import: $importUri',
-    );
-
-    return true;
+    rule.reportAtNode(node, arguments: ['non-domain import in domain layer.']);
   }
 
-  bool _shouldReportLibraryPackageImport(ImportUri importUri) {
+  void _checkLibraryPackageImport(ImportDirective node, ImportUri importUri) {
     final importedPackage = importUri.packageName;
     if (importedPackage != null &&
         sessionContext.config.ddrConfig.excludedLibraryPackages.any(
           importedPackage.startsWith,
         )) {
-      sessionContext.logger.logInfo(
+      sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Excluded package import (ignoring): $importUri',
       );
-      return false;
+      return;
     }
 
-    sessionContext.logger.logInfo(
-      tag: '$DependencyDirectionRuleVisitor',
-      message: 'Reporting package import: $importUri',
+    rule.reportAtNode(
+      node,
+      arguments: ['library package import in domain layer.'],
     );
-
-    return true;
   }
 }
