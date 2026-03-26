@@ -8,10 +8,10 @@ class JsonParserRequirementRule
     'json_parser_requirements',
     'Missing or invalid components for JSON parser generation: {0}',
     correctionMessage: '''
-    The class should contain following component(s) in order for the
-    generator to generate the parser(s) & registry(s):
-    - Map<String, dynamic> toJson() { ... }
-    - YourClass fromJson(Map<String, dynamic> json) { ... }
+    Ensure the class defines both of the following:
+      - Instance method:        Map<String, dynamic> toJson() { ... }
+      - A factory constructor:  factory YourClass.fromJson(Map<String, dynamic> json) { ... }
+        Or, a static method:    static YourClass fromJson(Map<String, dynamic> json) { ... }
     ''',
     severity: DiagnosticSeverity.ERROR,
   );
