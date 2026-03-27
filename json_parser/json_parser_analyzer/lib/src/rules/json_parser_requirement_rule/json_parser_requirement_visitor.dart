@@ -12,22 +12,34 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final RuleSessionContext<JsonParserLintConfig> sessionContext;
 
+  final AnnotationTypeResolver _annotationTypeResolver;
+
   JsonParserRequirementRuleVisitor(
     AnalysisRule rule,
     RuleSessionContext<JsonParserLintConfig> sessionContext,
-  ) : this._(rule, sessionContext);
+  ) : this._(
+        rule,
+        sessionContext,
+        TypeResolverFactory.createAnnotationTypeResolver(),
+      );
 
   @visibleForTesting
   JsonParserRequirementRuleVisitor.test(
     AnalysisRule rule,
     RuleSessionContext<JsonParserLintConfig> sessionContext,
-  ) : this._(rule, sessionContext);
+    AnnotationTypeResolver annotationTypeResolver,
+  ) : this._(rule, sessionContext, annotationTypeResolver);
 
-  JsonParserRequirementRuleVisitor._(this.rule, this.sessionContext);
+  JsonParserRequirementRuleVisitor._(
+    this.rule,
+    this.sessionContext,
+    this._annotationTypeResolver,
+  );
 
   @override
   void visitAnnotation(Annotation node) {
-    if (node.name.name != '$GenerateJsonParser') {
+    final annotationName = _annotationTypeResolver.resolveTypeName(node);
+    if (annotationName != '$GenerateJsonParser') {
       sessionContext.logger.logInfo(
         tag: '$JsonParserRequirementRuleVisitor',
         message: 'Ignoring unknown annotation: ${node.name.name}',

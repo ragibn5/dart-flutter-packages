@@ -8,5 +8,5 @@ import 'package:json_parser_analyzer/src/services/config/json_parser_lint_config
 /// So, DO NOT change the variable name. See this doc for more information:
 /// https://dart.dev/tools/analyzer-plugins.
 final plugin = JsonParserLintPlugin(
-  SessionDataManager.createNewInstance(JsonParserLintConfigLoader()),
+  SessionDataManagerFactory.createNewInstance(JsonParserLintConfigLoader()),
 );

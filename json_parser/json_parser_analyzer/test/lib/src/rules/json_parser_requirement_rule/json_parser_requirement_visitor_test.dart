@@ -18,27 +18,38 @@ class _MockRuleSessionContext extends Mock
 
 class _MockLogger extends Mock implements SessionLogger {}
 
+class _MockAnnotationTypeResolver extends Mock
+    implements AnnotationTypeResolver {}
+
 void main() {
   final fakeToken = _FakeToken();
-  final fakeNode = parseString(content: 'var x = 1;').unit;
+  final fakeAnnotation = parseString(
+    content: '@deprecated class Foo {}',
+  ).unit.declarations.first.metadata.first;
 
   late _MockLogger logger;
   late _MockAnalysisRule rule;
   late _MockRuleSessionContext sessionContext;
+  late _MockAnnotationTypeResolver annotationTypeResolver;
 
   late JsonParserRequirementRuleVisitor visitor;
 
   setUpAll(() {
-    registerFallbackValue(fakeNode);
     registerFallbackValue(fakeToken);
+    registerFallbackValue(fakeAnnotation);
   });
 
   setUp(() {
     logger = _MockLogger();
     rule = _MockAnalysisRule();
     sessionContext = _MockRuleSessionContext();
+    annotationTypeResolver = _MockAnnotationTypeResolver();
 
-    visitor = JsonParserRequirementRuleVisitor.test(rule, sessionContext);
+    visitor = JsonParserRequirementRuleVisitor.test(
+      rule,
+      sessionContext,
+      annotationTypeResolver,
+    );
 
     when(() => sessionContext.logger).thenReturn(logger);
     when(
@@ -60,572 +71,300 @@ void main() {
     when(
       () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
     ).thenReturn(null);
+
+    when(
+      () => annotationTypeResolver.resolveTypeName(any()),
+    ).thenReturn('GenerateJsonParser');
   });
 
-  group('JsonParserRequirementRuleVisitor', () {
-    group('visitAnnotation – unknown annotation', () {
-      test('Ignores annotations other than @GenerateJsonParser', () {
-        const content = '''
+  void verifyNoReports(_MockAnalysisRule rule) {
+    verifyNever(
+      () => rule.reportAtToken(any(), arguments: any(named: 'arguments')),
+    );
+    verifyNever(
+      () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
+    );
+  }
+
+  group('visitAnnotation – unknown annotation', () {
+    test('Ignores annotations other than @GenerateJsonParser', () {
+      when(
+        () => annotationTypeResolver.resolveTypeName(any()),
+      ).thenReturn('SomeOtherAnnotation');
+
+      const content = '''
         @SomeOtherAnnotation()
         class Foo {}
         ''';
-        final annotation = parseAnnotation(
-          content,
-          annotationName: 'SomeOtherAnnotation',
-        );
-        expect(annotation, isNotNull);
-
-        visitor.visitAnnotation(annotation!);
-
-        verifyNever(
-          () => rule.reportAtToken(any(), arguments: any(named: 'arguments')),
-        );
-        verifyNever(
-          () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
-        );
-      });
-    });
-
-    group('visitAnnotation – non-class parent', () {
-      test('Ignores @GenerateJsonParser on a top-level function (non-class)', () {
-        // Manually construct a scenario where the annotation parent is not a
-        // ClassDeclaration.  The simplest way is to attach it to a mixin or
-        // extension, which the visitor also doesn't handle.
-        const content = '''
-        @GenerateJsonParser()
-        mixin FooMixin {}
-        ''';
-        final unit = parseString(content: content).unit;
-        Annotation? annotation;
-        for (final decl in unit.declarations) {
-          if (decl is MixinDeclaration) {
-            annotation = decl.metadata.firstOrNull;
-          }
-        }
-
-        if (annotation == null) {
-          // Mixin metadata access differs per analyzer version; skip gracefully.
-          return;
-        }
-
-        visitor.visitAnnotation(annotation);
-
-        verifyNever(
-          () => rule.reportAtToken(any(), arguments: any(named: 'arguments')),
-        );
-        verifyNever(
-          () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
-        );
-      });
-    });
-
-    group('visitAnnotation – abstract class', () {
-      test('Ignores abstract classes annotated with @GenerateJsonParser', () {
-        const content = '''
-        @GenerateJsonParser()
-        abstract class MyModel {}
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verifyNever(
-          () => rule.reportAtToken(any(), arguments: any(named: 'arguments')),
-        );
-        verifyNever(
-          () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
-        );
-      });
-    });
-
-    group('valid class – no violations', () {
-      test(
-        'reports nothing when class has correct toJson and factory fromJson',
-        () {
-          const content = '''
-          @GenerateJsonParser()
-          class MyModel {
-            factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-            Map<String, dynamic> toJson() => {};
-          }
-          ''';
-          final annotation = parseValidAnnotation(content);
-
-          visitor.visitAnnotation(annotation);
-
-          verifyNever(
-            () => rule.reportAtToken(any(), arguments: any(named: 'arguments')),
-          );
-          verifyNever(
-            () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
-          );
-        },
+      final annotation = parseAnnotation(
+        content,
+        annotationName: 'SomeOtherAnnotation',
       );
+      expect(annotation, isNotNull);
 
-      test(
-        'reports nothing when class has correct toJson and static fromJson method',
-        () {
-          const content = '''
-          @GenerateJsonParser()
-          class MyModel {
-            static MyModel fromJson(Map<String, dynamic> json) => MyModel();
-            Map<String, dynamic> toJson() => {};
-          }
-          ''';
-          final annotation = parseValidAnnotation(content);
+      visitor.visitAnnotation(annotation!);
 
-          visitor.visitAnnotation(annotation);
-
-          verifyNever(
-            () => rule.reportAtToken(any(), arguments: any(named: 'arguments')),
-          );
-          verifyNever(
-            () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
-          );
-        },
-      );
+      verify(() => annotationTypeResolver.resolveTypeName(any())).called(1);
+      verifyNoReports(rule);
     });
+  });
 
-    group('missing toJson method', () {
-      test('Reports when toJson is absent', () {
+  group('visitAnnotation – non-class parent', () {
+    test('Ignores @GenerateJsonParser on a top-level function (non-class)', () {
+      const content = '''
+      @GenerateJsonParser()
+      mixin FooMixin {}
+      ''';
+      final unit = parseString(content: content).unit;
+      Annotation? annotation;
+      for (final decl in unit.declarations) {
+        if (decl is MixinDeclaration) {
+          annotation = decl.metadata.firstOrNull;
+        }
+      }
+
+      if (annotation == null) {
+        return;
+      }
+
+      visitor.visitAnnotation(annotation);
+
+      verifyNoReports(rule);
+    });
+  });
+
+  group('visitAnnotation – abstract class', () {
+    test('Ignores abstract classes annotated with @GenerateJsonParser', () {
+      const content = '''
+      @GenerateJsonParser()
+      abstract class MyModel {}
+      ''';
+      final annotation = parseValidAnnotation(content);
+
+      visitor.visitAnnotation(annotation);
+
+      verifyNoReports(rule);
+    });
+  });
+
+  group('valid class – no violations', () {
+    test(
+      'reports nothing when class has correct toJson and factory fromJson',
+      () {
         const content = '''
         @GenerateJsonParser()
         class MyModel {
           factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+          Map<String, dynamic> toJson() => {};
         }
         ''';
         final annotation = parseValidAnnotation(content);
 
         visitor.visitAnnotation(annotation);
 
-        verify(
-          () =>
-              rule.reportAtToken(any(), arguments: ['missing toJson method.']),
-        ).called(1);
-      });
+        verifyNoReports(rule);
+      },
+    );
+
+    test(
+      'reports nothing when class has correct toJson and static fromJson method',
+      () {
+        const content = '''
+        @GenerateJsonParser()
+        class MyModel {
+          static MyModel fromJson(Map<String, dynamic> json) => MyModel();
+          Map<String, dynamic> toJson() => {};
+        }
+        ''';
+        final annotation = parseValidAnnotation(content);
+
+        visitor.visitAnnotation(annotation);
+
+        verifyNoReports(rule);
+      },
+    );
+  });
+
+  group('missing toJson method', () {
+    test('Reports when toJson is absent', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+      }
+      ''';
+      final annotation = parseValidAnnotation(content);
+
+      visitor.visitAnnotation(annotation);
+
+      verify(
+        () => rule.reportAtToken(any(), arguments: ['missing toJson method.']),
+      ).called(1);
+    });
+  });
+
+  group('toJson method – wrong signature', () {
+    test('Reports when toJson is a getter', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+        Map<String, dynamic> get toJson => {};
+      }
+      ''';
+      final annotation = parseValidAnnotation(content);
+
+      visitor.visitAnnotation(annotation);
+
+      verify(
+        () => rule.reportAtToken(
+          any(),
+          arguments: ['toJson method must not be a getter.'],
+        ),
+      ).called(1);
     });
 
-    group('toJson method – wrong signature', () {
-      test('Reports when toJson is a getter', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-          Map<String, dynamic> get toJson => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
+    test('Reports when toJson has parameters', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+        Map<String, dynamic> toJson(String extra) => {};
+      }
+      ''';
+      final annotation = parseValidAnnotation(content);
 
-        visitor.visitAnnotation(annotation);
+      visitor.visitAnnotation(annotation);
 
-        verify(
-          () => rule.reportAtToken(
-            any(),
-            arguments: ['toJson method must not be a getter.'],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when toJson has parameters', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-          Map<String, dynamic> toJson(String extra) => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: ['toJson method must not have parameters.'],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when toJson returns wrong type', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-          String toJson() => '';
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: ['toJson method must return Map<String, dynamic>.'],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when toJson returns Map<String, Object> (not dynamic)', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-          Map<String, Object> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: ['toJson method must return Map<String, dynamic>.'],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when toJson returns Map without type args', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-          Map toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: ['toJson method must return Map<String, dynamic>.'],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when toJson has no return type annotation', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-          toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: ['toJson method must return Map<String, dynamic>.'],
-          ),
-        ).called(1);
-      });
+      verify(
+        () => rule.reportAtNode(
+          any(),
+          arguments: ['toJson method must not have parameters.'],
+        ),
+      ).called(1);
     });
 
-    group('missing fromJson constructor or static method', () {
-      test(
-        'reports when both fromJson factory and static method are absent',
-        () {
-          const content = '''
-          @GenerateJsonParser()
-          class MyModel {
-            Map<String, dynamic> toJson() => {};
-          }
-          ''';
-          final annotation = parseValidAnnotation(content);
+    test('Reports when toJson returns wrong type', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+        String toJson() => '';
+      }
+      ''';
+      final annotation = parseValidAnnotation(content);
 
-          visitor.visitAnnotation(annotation);
+      visitor.visitAnnotation(annotation);
 
-          verify(
-            () => rule.reportAtToken(
-              any(),
-              arguments: ['missing fromJson constructor (or a static method).'],
-            ),
-          ).called(1);
-        },
-      );
+      verify(
+        () => rule.reportAtNode(
+          any(),
+          arguments: ['toJson method must return Map<String, dynamic>.'],
+        ),
+      ).called(1);
     });
 
-    group('fromJson factory constructor – wrong signature', () {
-      test('Reports when factory fromJson has no parameters', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson() => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
+    test('Reports when toJson returns Map<String, Object> (not dynamic)', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+        Map<String, Object> toJson() => {};
+      }
+      ''';
+      final annotation = parseValidAnnotation(content);
 
-        visitor.visitAnnotation(annotation);
+      visitor.visitAnnotation(annotation);
 
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when factory fromJson has more than one parameter', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(Map<String, dynamic> json, String extra) => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when factory fromJson parameter type is wrong', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(String json) => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when factory fromJson parameter is Map<String, Object>', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          factory MyModel.fromJson(Map<String, Object> json) => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
+      verify(
+        () => rule.reportAtNode(
+          any(),
+          arguments: ['toJson method must return Map<String, dynamic>.'],
+        ),
+      ).called(1);
     });
 
-    group('fromJson static method – wrong signature', () {
-      test('Reports when static fromJson is a getter', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          static MyModel get fromJson => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
+    test('Reports when toJson returns Map without type args', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+        Map toJson() => {};
+      }
+      ''';
+      final annotation = parseValidAnnotation(content);
 
-        visitor.visitAnnotation(annotation);
+      visitor.visitAnnotation(annotation);
 
-        verify(
-          () => rule.reportAtToken(
-            any(),
-            arguments: ['static fromJson must not be a getter.'],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when static fromJson has no parameters', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          static MyModel fromJson() => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson method must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when static fromJson has more than one parameter', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          static MyModel fromJson(Map<String, dynamic> json, String extra) => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson method must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when static fromJson parameter type is wrong', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          static MyModel fromJson(String json) => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson method must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
-
-      test('Reports when static fromJson parameter is Map<String, Object>', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          static MyModel fromJson(Map<String, Object> json) => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
-
-        visitor.visitAnnotation(annotation);
-
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson method must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
+      verify(
+        () => rule.reportAtNode(
+          any(),
+          arguments: ['toJson method must return Map<String, dynamic>.'],
+        ),
+      ).called(1);
     });
 
-    group('fromJson – factory constructor preferred over static method', () {
-      test(
-        'uses factory constructor and does not additionally check static method '
-        'when both are present',
-        () {
-          const content = '''
-          @GenerateJsonParser()
-          class MyModel {
-            factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-            static MyModel fromJson(Map<String, dynamic> json) => MyModel();
-            Map<String, dynamic> toJson() => {};
-          }
-          ''';
-          final annotation = parseValidAnnotation(content);
+    test('Reports when toJson has no return type annotation', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+        toJson() => {};
+      }
+      ''';
+      final annotation = parseValidAnnotation(content);
 
-          // Should not throw and should not report anything, because the
-          // factory constructor is valid.
-          visitor.visitAnnotation(annotation);
+      visitor.visitAnnotation(annotation);
 
-          verifyNever(
-            () => rule.reportAtToken(any(), arguments: any(named: 'arguments')),
-          );
-          verifyNever(
-            () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
-          );
-        },
-      );
+      verify(
+        () => rule.reportAtNode(
+          any(),
+          arguments: ['toJson method must return Map<String, dynamic>.'],
+        ),
+      ).called(1);
     });
+  });
 
-    group('multiple violations', () {
-      test('Reports both missing toJson and missing fromJson', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {}
-        ''';
-        final annotation = parseValidAnnotation(content);
+  group('missing fromJson constructor or static method', () {
+    test('reports when both fromJson factory and static method are absent', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {
+        Map<String, dynamic> toJson() => {};
+      }
+      ''';
+      final annotation = parseValidAnnotation(content);
 
-        visitor.visitAnnotation(annotation);
+      visitor.visitAnnotation(annotation);
 
-        verify(
-          () =>
-              rule.reportAtToken(any(), arguments: ['missing toJson method.']),
-        ).called(1);
-        verify(
-          () => rule.reportAtToken(
-            any(),
-            arguments: ['missing fromJson constructor (or a static method).'],
-          ),
-        ).called(1);
-      });
+      verify(
+        () => rule.reportAtToken(
+          any(),
+          arguments: ['missing fromJson constructor (or a static method).'],
+        ),
+      ).called(1);
     });
+  });
 
-    group('fromJson – default/named parameter edge cases', () {
-      test('Reports when static fromJson has a named parameter of wrong type', () {
-        const content = '''
-        @GenerateJsonParser()
-        class MyModel {
-          static MyModel fromJson({String? json}) => MyModel();
-          Map<String, dynamic> toJson() => {};
-        }
-        ''';
-        final annotation = parseValidAnnotation(content);
+  group('multiple violations', () {
+    test('Reports both missing toJson and missing fromJson', () {
+      const content = '''
+      @GenerateJsonParser()
+      class MyModel {}
+      ''';
+      final annotation = parseValidAnnotation(content);
 
-        visitor.visitAnnotation(annotation);
+      visitor.visitAnnotation(annotation);
 
-        // Named parameter count == 1, but the type is String? not Map<String, dynamic>.
-        verify(
-          () => rule.reportAtNode(
-            any(),
-            arguments: [
-              'fromJson method must have only one parameter of type Map<String, dynamic>.',
-            ],
-          ),
-        ).called(1);
-      });
+      verify(
+        () => rule.reportAtToken(any(), arguments: ['missing toJson method.']),
+      ).called(1);
+      verify(
+        () => rule.reportAtToken(
+          any(),
+          arguments: ['missing fromJson constructor (or a static method).'],
+        ),
+      ).called(1);
     });
   });
 }
