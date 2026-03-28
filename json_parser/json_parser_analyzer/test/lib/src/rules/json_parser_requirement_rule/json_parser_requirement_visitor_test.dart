@@ -26,10 +26,10 @@ void main() {
     content: '@deprecated class Foo {}',
   ).unit.declarations.first.metadata.first;
 
-  late _MockLogger logger;
-  late _MockAnalysisRule rule;
-  late _MockRuleSessionContext sessionContext;
-  late _MockAnnotationTypeResolver annotationTypeResolver;
+  late _MockLogger mockLogger;
+  late _MockAnalysisRule mockRule;
+  late _MockRuleSessionContext mockSessionContext;
+  late _MockAnnotationTypeResolver mockAnnotationTypeResolver;
 
   late JsonParserRequirementRuleVisitor visitor;
 
@@ -39,40 +39,40 @@ void main() {
   });
 
   setUp(() {
-    logger = _MockLogger();
-    rule = _MockAnalysisRule();
-    sessionContext = _MockRuleSessionContext();
-    annotationTypeResolver = _MockAnnotationTypeResolver();
+    mockLogger = _MockLogger();
+    mockRule = _MockAnalysisRule();
+    mockSessionContext = _MockRuleSessionContext();
+    mockAnnotationTypeResolver = _MockAnnotationTypeResolver();
 
     visitor = JsonParserRequirementRuleVisitor.test(
-      rule,
-      sessionContext,
-      annotationTypeResolver,
+      mockRule,
+      mockSessionContext,
+      mockAnnotationTypeResolver,
     );
 
-    when(() => sessionContext.logger).thenReturn(logger);
+    when(() => mockSessionContext.logger).thenReturn(mockLogger);
     when(
-      () => logger.logInfo(
+      () => mockLogger.logInfo(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
     ).thenReturn(null);
     when(
-      () => logger.logWarning(
+      () => mockLogger.logWarning(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
     ).thenReturn(null);
 
     when(
-      () => rule.reportAtToken(any(), arguments: any(named: 'arguments')),
+      () => mockRule.reportAtToken(any(), arguments: any(named: 'arguments')),
     ).thenReturn(null);
     when(
-      () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
+      () => mockRule.reportAtNode(any(), arguments: any(named: 'arguments')),
     ).thenReturn(null);
 
     when(
-      () => annotationTypeResolver.resolveTypeName(any()),
+      () => mockAnnotationTypeResolver.resolveTypeName(any()),
     ).thenReturn('GenerateJsonParser');
   });
 
@@ -88,7 +88,7 @@ void main() {
   group('visitAnnotation – unknown annotation', () {
     test('Ignores annotations other than @GenerateJsonParser', () {
       when(
-        () => annotationTypeResolver.resolveTypeName(any()),
+        () => mockAnnotationTypeResolver.resolveTypeName(any()),
       ).thenReturn('SomeOtherAnnotation');
 
       const content = '''
@@ -103,8 +103,8 @@ void main() {
 
       visitor.visitAnnotation(annotation!);
 
-      verify(() => annotationTypeResolver.resolveTypeName(any())).called(1);
-      verifyNoReports(rule);
+      verify(() => mockAnnotationTypeResolver.resolveTypeName(any())).called(1);
+      verifyNoReports(mockRule);
     });
   });
 
@@ -128,7 +128,7 @@ void main() {
 
       visitor.visitAnnotation(annotation);
 
-      verifyNoReports(rule);
+      verifyNoReports(mockRule);
     });
   });
 
@@ -145,7 +145,7 @@ void main() {
 
       visitor.visitAnnotation(annotation);
 
-      verifyNoReports(rule);
+      verifyNoReports(mockRule);
     });
   });
 
@@ -167,7 +167,7 @@ void main() {
 
         visitor.visitAnnotation(annotation);
 
-        verifyNoReports(rule);
+        verifyNoReports(mockRule);
       },
     );
 
@@ -188,7 +188,7 @@ void main() {
 
         visitor.visitAnnotation(annotation);
 
-        verifyNoReports(rule);
+        verifyNoReports(mockRule);
       },
     );
   });
@@ -209,7 +209,7 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtToken(any(), arguments: ['missing toJson method.']),
+        () => mockRule.reportAtToken(any(), arguments: ['missing toJson method.']),
       ).called(1);
     });
   });
@@ -231,7 +231,7 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtToken(
+        () => mockRule.reportAtToken(
           any(),
           arguments: ['toJson method must not be a getter.'],
         ),
@@ -254,7 +254,7 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtNode(
+        () => mockRule.reportAtNode(
           any(),
           arguments: ['toJson method must not have parameters.'],
         ),
@@ -277,7 +277,7 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtNode(
+        () => mockRule.reportAtNode(
           any(),
           arguments: ['toJson method must return Map<String, dynamic>.'],
         ),
@@ -300,7 +300,7 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtNode(
+        () => mockRule.reportAtNode(
           any(),
           arguments: ['toJson method must return Map<String, dynamic>.'],
         ),
@@ -323,7 +323,7 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtNode(
+        () => mockRule.reportAtNode(
           any(),
           arguments: ['toJson method must return Map<String, dynamic>.'],
         ),
@@ -346,7 +346,7 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtNode(
+        () => mockRule.reportAtNode(
           any(),
           arguments: ['toJson method must return Map<String, dynamic>.'],
         ),
@@ -370,7 +370,7 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtToken(
+        () => mockRule.reportAtToken(
           any(),
           arguments: ['missing fromJson constructor (or a static method).'],
         ),
@@ -392,10 +392,10 @@ void main() {
       visitor.visitAnnotation(annotation);
 
       verify(
-        () => rule.reportAtToken(any(), arguments: ['missing toJson method.']),
+        () => mockRule.reportAtToken(any(), arguments: ['missing toJson method.']),
       ).called(1);
       verify(
-        () => rule.reportAtToken(
+        () => mockRule.reportAtToken(
           any(),
           arguments: ['missing fromJson constructor (or a static method).'],
         ),
