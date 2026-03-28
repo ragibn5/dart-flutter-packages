@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_init_to_null
+
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
@@ -14,9 +16,13 @@ abstract class CollectionTypeResolver {
   /// Resolves through typedef aliases — `typedef MyList = List<String>` will
   /// correctly match `isListOf(..., valueType: 'String')`.
   ///
-  /// By default, neither the outer type nor the type argument may be nullable.
-  /// Use [allowNullable] to allow `List<String>?` and
-  /// [allowNullableValueType] to allow `List<String?>`.
+  /// Nullability is matched strictly — append `?` to the type name to match
+  /// a nullable type argument. For example, `valueType: 'String'` matches
+  /// only `List<String>`, and `valueType: 'String?'` matches only
+  /// `List<String?>`.
+  ///
+  /// By default the outer `List` itself must be non-nullable. Pass
+  /// [listNullable] as `true` to also match `List<...>?`.
   ///
   /// **Limitations:**
   /// - Only exact `List` is supported — subtypes such as `UnmodifiableListView`
@@ -27,13 +33,11 @@ abstract class CollectionTypeResolver {
   /// - Type parameters are not supported — `List<T>` where `T` is a generic
   ///   type parameter will not match any concrete type name.
   /// - Only `dynamic` is handled as a special case for element-less types.
-  ///   Other special types such as `void`, `Never`, and `Object?` will not
-  ///   match unless explicitly allowed via [allowNullableValueType].
+  ///   Other special types such as `void` and `Never` are not supported.
   bool isListOf(
     TypeAnnotation? typeAnnotation, {
     required String valueType,
-    bool allowNullable = false,
-    bool allowNullableValueType = false,
+    bool listNullable = false,
   });
 
   /// Returns true if [typeAnnotation] resolves to
@@ -44,10 +48,13 @@ abstract class CollectionTypeResolver {
   /// will correctly match
   /// `isMapOf(..., keyType: 'String', valueType: 'dynamic')`.
   ///
-  /// By default, neither the outer type nor the type arguments may be nullable.
-  /// Use [allowNullable] to allow `Map<String, dynamic>?`,
-  /// [allowNullableKeyType] to allow `Map<String?, dynamic>`, and
-  /// [allowNullableValueType] to allow `Map<String, dynamic?>`.
+  /// Nullability is matched strictly — append `?` to the type name to match
+  /// a nullable type argument. For example, `keyType: 'String'` matches only
+  /// `Map<String, ...>`, and `keyType: 'String?'` matches only
+  /// `Map<String?, ...>`. Same applies to [valueType].
+  ///
+  /// By default the outer `Map` itself must be non-nullable. Pass
+  /// [mapNullable] as `true` to also match `Map<...>?`.
   ///
   /// **Limitations:**
   /// - Only exact `Map` is supported — subtypes such as `LinkedHashMap`,
@@ -59,16 +66,14 @@ abstract class CollectionTypeResolver {
   /// - Type parameters are not supported — `Map<K, V>` where `K` and `V` are
   ///   generic type parameters will not match any concrete type name.
   /// - Only `dynamic` is handled as a special case for element-less types.
-  ///   Other special types such as `void`, `Never`, and `Object?` will not
-  ///   match unless explicitly allowed via [allowNullableKeyType] or
-  ///   [allowNullableValueType].
+  ///   Other special types such as `void` and `Never` are not supported.
+  /// - Nullable map keys (`Map<String?, ...>`) are valid Dart but strongly
+  ///   discouraged in practice.
   bool isMapOf(
     TypeAnnotation? typeAnnotation, {
     required String keyType,
     required String valueType,
-    bool allowNullable = false,
-    bool allowNullableKeyType = false,
-    bool allowNullableValueType = false,
+    bool mapNullable = false,
   });
 }
 
@@ -79,8 +84,7 @@ class DefaultCollectionTypeResolver implements CollectionTypeResolver {
   bool isListOf(
     TypeAnnotation? typeAnnotation, {
     required String valueType,
-    bool allowNullable = false,
-    bool allowNullableValueType = false,
+    bool listNullable = false,
   }) {
     if (typeAnnotation is! NamedType) {
       return false;
@@ -90,7 +94,7 @@ class DefaultCollectionTypeResolver implements CollectionTypeResolver {
     if (type == null || type is! InterfaceType) {
       return false;
     }
-    if (!allowNullable && type.nullabilitySuffix != NullabilitySuffix.none) {
+    if (!listNullable && type.nullabilitySuffix != NullabilitySuffix.none) {
       return false;
     }
     if (type.element.name != 'List') {
@@ -102,11 +106,7 @@ class DefaultCollectionTypeResolver implements CollectionTypeResolver {
       return false;
     }
 
-    return _matchesType(
-      args[0],
-      valueType,
-      allowNullable: allowNullableValueType,
-    );
+    return _matchesType(args[0], valueType);
   }
 
   @override
@@ -114,9 +114,7 @@ class DefaultCollectionTypeResolver implements CollectionTypeResolver {
     TypeAnnotation? typeAnnotation, {
     required String keyType,
     required String valueType,
-    bool allowNullable = false,
-    bool allowNullableKeyType = false,
-    bool allowNullableValueType = false,
+    bool mapNullable = false,
   }) {
     if (typeAnnotation is! NamedType) {
       return false;
@@ -126,7 +124,7 @@ class DefaultCollectionTypeResolver implements CollectionTypeResolver {
     if (type == null || type is! InterfaceType) {
       return false;
     }
-    if (!allowNullable && type.nullabilitySuffix != NullabilitySuffix.none) {
+    if (!mapNullable && type.nullabilitySuffix != NullabilitySuffix.none) {
       return false;
     }
     if (type.element.name != 'Map') {
@@ -138,23 +136,26 @@ class DefaultCollectionTypeResolver implements CollectionTypeResolver {
       return false;
     }
 
-    return _matchesType(
-          args[0],
-          keyType,
-          allowNullable: allowNullableKeyType,
-        ) &&
-        _matchesType(args[1], valueType, allowNullable: allowNullableValueType);
+    return _matchesType(args[0], keyType) && _matchesType(args[1], valueType);
   }
 
-  bool _matchesType(
-    DartType type,
-    String typeName, {
-    required bool allowNullable,
-  }) {
-    if (!allowNullable && type.nullabilitySuffix != NullabilitySuffix.none) {
+  bool _matchesType(DartType type, String typeName) {
+    final expectedNullable = typeName.endsWith('?');
+    final name = expectedNullable
+        ? typeName.substring(0, typeName.length - 1)
+        : typeName;
+
+    // dynamic absorbs nullability in Dart — dynamic? is identical to dynamic.
+    // So we skip the nullability check for dynamic entirely.
+    if (name == 'dynamic') {
+      return type is DynamicType;
+    }
+
+    final actualNullable = type.nullabilitySuffix == NullabilitySuffix.question;
+    if (actualNullable != expectedNullable) {
       return false;
     }
-    if (typeName == 'dynamic') return type is DynamicType;
-    return type.element?.name == typeName;
+
+    return type.element?.name == name;
   }
 }

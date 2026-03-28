@@ -87,53 +87,63 @@ void main() {
             type,
             keyType: 'String',
             valueType: 'dynamic',
-            allowNullable: true,
+            mapNullable: true,
           ),
           isTrue,
         );
       });
 
-      test(
-        'for Map<String?, dynamic> when allowNullableKeyType is true',
-        () async {
-          final type = await resolveReturnType('''
+      test('for Map<String?, dynamic>', () async {
+        final type = await resolveReturnType('''
           class Foo {
             Map<String?, dynamic> method() => {};
           }
         ''', methodName: 'method');
 
-          expect(
-            sut.isMapOf(
-              type,
-              keyType: 'String',
-              valueType: 'dynamic',
-              allowNullableKeyType: true,
-            ),
-            isTrue,
-          );
-        },
-      );
+        expect(
+          sut.isMapOf(type, keyType: 'String?', valueType: 'dynamic'),
+          isTrue,
+        );
+      });
 
-      test(
-        'for Map<String, Object?> when allowNullableValueType is true',
-        () async {
-          final type = await resolveReturnType('''
+      test('for Map<String, Object?>', () async {
+        final type = await resolveReturnType('''
           class Foo {
             Map<String, Object?> method() => {};
           }
         ''', methodName: 'method');
 
-          expect(
-            sut.isMapOf(
-              type,
-              keyType: 'String',
-              valueType: 'Object',
-              allowNullableValueType: true,
-            ),
-            isTrue,
-          );
-        },
-      );
+        expect(
+          sut.isMapOf(type, keyType: 'String', valueType: 'Object?'),
+          isTrue,
+        );
+      });
+
+      test('for Map<String, dynamic> when dynamic? is passed', () async {
+        final type = await resolveReturnType('''
+        class Foo {
+          Map<String, dynamic> method() => {};
+        }
+      ''', methodName: 'method');
+
+        expect(
+          sut.isMapOf(type, keyType: 'String', valueType: 'dynamic?'),
+          isTrue,
+        );
+      });
+
+      test('for Map<String, dynamic?> when dynamic is passed', () async {
+        final type = await resolveReturnType('''
+        class Foo {
+          Map<String, dynamic?> method() => {};
+        }
+        ''', methodName: 'method');
+
+        expect(
+          sut.isMapOf(type, keyType: 'String', valueType: 'dynamic'),
+          isTrue,
+        );
+      });
     });
 
     group('returns false', () {
@@ -216,28 +226,31 @@ void main() {
         );
       });
 
-      test('for Map<String?, dynamic> by default', () async {
-        final type = await resolveReturnType('''
+      test(
+        'for Map<String?, dynamic> when non-nullable key is expected',
+        () async {
+          final type = await resolveReturnType('''
           class Foo {
             Map<String?, dynamic> method() => {};
           }
-        ''', methodName: 'method');
+          ''', methodName: 'method');
 
-        expect(
-          sut.isMapOf(type, keyType: 'String', valueType: 'dynamic'),
-          isFalse,
-        );
-      });
+          expect(
+            sut.isMapOf(type, keyType: 'String', valueType: 'dynamic'),
+            isFalse,
+          );
+        },
+      );
 
-      test('for Map<String, Object?> by default', () async {
+      test('for Map<String, Object> when Object? is expected', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String, Object?> method() => {};
-          }
+        class Foo {
+          Map<String, Object> method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
-          sut.isMapOf(type, keyType: 'String', valueType: 'Object'),
+          sut.isMapOf(type, keyType: 'String', valueType: 'Object?'),
           isFalse,
         );
       });
@@ -286,22 +299,39 @@ void main() {
         ''', methodName: 'method');
 
         expect(
-          sut.isListOf(type, valueType: 'String', allowNullable: true),
+          sut.isListOf(type, valueType: 'String', listNullable: true),
           isTrue,
         );
       });
 
-      test('for List<String?> when allowNullableValueType is true', () async {
+      test('for List<String?>', () async {
         final type = await resolveReturnType('''
           class Foo {
             List<String?> method() => [];
           }
         ''', methodName: 'method');
 
-        expect(
-          sut.isListOf(type, valueType: 'String', allowNullableValueType: true),
-          isTrue,
-        );
+        expect(sut.isListOf(type, valueType: 'String?'), isTrue);
+      });
+
+      test('for List<dynamic> when dynamic? is passed', () async {
+        final type = await resolveReturnType('''
+        class Foo {
+          List<dynamic> method() => [];
+        }
+        ''', methodName: 'method');
+
+        expect(sut.isListOf(type, valueType: 'dynamic?'), isTrue);
+      });
+
+      test('for List<dynamic?> when dynamic is passed', () async {
+        final type = await resolveReturnType('''
+        class Foo {
+          List<dynamic?> method() => [];
+        }
+        ''', methodName: 'method');
+
+        expect(sut.isListOf(type, valueType: 'dynamic'), isTrue);
       });
     });
 
@@ -347,16 +377,6 @@ void main() {
         expect(sut.isListOf(type, valueType: 'String'), isFalse);
       });
 
-      test('for List<String?> by default', () async {
-        final type = await resolveReturnType('''
-          class Foo {
-            List<String?> method() => [];
-          }
-        ''', methodName: 'method');
-
-        expect(sut.isListOf(type, valueType: 'String'), isFalse);
-      });
-
       test('for null (no return type annotation)', () async {
         final type = await resolveReturnType('''
           class Foo {
@@ -365,6 +385,16 @@ void main() {
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String'), isFalse);
+      });
+
+      test('for List<String> when String? is expected', () async {
+        final type = await resolveReturnType('''
+        class Foo {
+          List<String> method() => [];
+        }
+        ''', methodName: 'method');
+
+        expect(sut.isListOf(type, valueType: 'String?'), isFalse);
       });
     });
   });
