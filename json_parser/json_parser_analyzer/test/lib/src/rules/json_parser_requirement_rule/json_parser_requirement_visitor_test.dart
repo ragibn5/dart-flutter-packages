@@ -31,7 +31,7 @@ void main() {
   late _MockRuleSessionContext mockSessionContext;
   late _MockAnnotationTypeResolver mockAnnotationTypeResolver;
 
-  late JsonParserRequirementRuleVisitor visitor;
+  late JsonParserRequirementRuleVisitor sut;
 
   setUpAll(() {
     registerFallbackValue(fakeToken);
@@ -44,7 +44,7 @@ void main() {
     mockSessionContext = _MockRuleSessionContext();
     mockAnnotationTypeResolver = _MockAnnotationTypeResolver();
 
-    visitor = JsonParserRequirementRuleVisitor.test(
+    sut = JsonParserRequirementRuleVisitor.test(
       mockRule,
       mockSessionContext,
       mockAnnotationTypeResolver,
@@ -101,7 +101,7 @@ void main() {
       );
       expect(annotation, isNotNull);
 
-      visitor.visitAnnotation(annotation!);
+      sut.visitAnnotation(annotation!);
 
       verify(() => mockAnnotationTypeResolver.resolveTypeName(any())).called(1);
       verifyNoReports(mockRule);
@@ -126,7 +126,7 @@ void main() {
         return;
       }
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verifyNoReports(mockRule);
     });
@@ -143,7 +143,7 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verifyNoReports(mockRule);
     });
@@ -165,7 +165,7 @@ void main() {
           annotationName: 'GenerateJsonParser',
         );
 
-        visitor.visitAnnotation(annotation);
+        sut.visitAnnotation(annotation);
 
         verifyNoReports(mockRule);
       },
@@ -186,7 +186,7 @@ void main() {
           annotationName: 'GenerateJsonParser',
         );
 
-        visitor.visitAnnotation(annotation);
+        sut.visitAnnotation(annotation);
 
         verifyNoReports(mockRule);
       },
@@ -206,10 +206,13 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
-        () => mockRule.reportAtToken(any(), arguments: ['missing toJson method.']),
+        () => mockRule.reportAtToken(
+          any(),
+          arguments: ['missing toJson method.'],
+        ),
       ).called(1);
     });
   });
@@ -228,7 +231,7 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
         () => mockRule.reportAtToken(
@@ -251,7 +254,7 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
         () => mockRule.reportAtNode(
@@ -274,7 +277,7 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
         () => mockRule.reportAtNode(
@@ -297,7 +300,7 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
         () => mockRule.reportAtNode(
@@ -320,7 +323,7 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
         () => mockRule.reportAtNode(
@@ -343,7 +346,7 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
         () => mockRule.reportAtNode(
@@ -367,7 +370,7 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
         () => mockRule.reportAtToken(
@@ -389,10 +392,13 @@ void main() {
         annotationName: 'GenerateJsonParser',
       );
 
-      visitor.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
       verify(
-        () => mockRule.reportAtToken(any(), arguments: ['missing toJson method.']),
+        () => mockRule.reportAtToken(
+          any(),
+          arguments: ['missing toJson method.'],
+        ),
       ).called(1);
       verify(
         () => mockRule.reportAtToken(
