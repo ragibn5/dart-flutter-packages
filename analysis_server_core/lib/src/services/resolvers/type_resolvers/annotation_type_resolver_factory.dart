@@ -3,6 +3,6 @@ import 'package:analysis_server_core/src/services/resolvers/type_resolvers/annot
 final class AnnotationTypeResolverFactory {
   const AnnotationTypeResolverFactory._();
 
-  static AnnotationTypeResolver createAnnotationTypeResolver() =>
+  static AnnotationTypeResolver create() =>
       const ConstantValueAnnotationTypeResolver();
 }

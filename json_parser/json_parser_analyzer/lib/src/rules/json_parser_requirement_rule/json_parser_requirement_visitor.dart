@@ -18,11 +18,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   JsonParserRequirementRuleVisitor(
     AnalysisRule rule,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
-  ) : this._(
-        rule,
-        sessionContext,
-        AnnotationTypeResolverFactory.createAnnotationTypeResolver(),
-      );
+  ) : this._(rule, sessionContext, AnnotationTypeResolverFactory.create());
 
   @visibleForTesting
   JsonParserRequirementRuleVisitor.test(

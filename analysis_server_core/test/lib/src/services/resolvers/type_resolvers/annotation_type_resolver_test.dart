@@ -5,23 +5,23 @@ import 'package:analysis_server_core/src/services/resolvers/type_resolvers/annot
 import 'package:test/test.dart';
 
 void main() {
-  final unitResolver = DartUnitResolver();
+  final dartResolver = DartUnitResolver();
 
   late ConstantValueAnnotationTypeResolver sut;
 
-  setUp(() {
-    unitResolver.setUp();
+  setUp(() async {
+    await dartResolver.setUp();
     sut = const ConstantValueAnnotationTypeResolver();
   });
 
-  tearDown(() {
-    unitResolver.tearDown();
+  tearDown(() async {
+    await dartResolver.tearDown();
   });
 
   test(
     'Returns class name for direct annotation form @GenerateJsonParser()',
     () async {
-      final resolved = await unitResolver.resolveSource('''
+      final resolved = await dartResolver.resolveSource('''
       class GenerateJsonParser {
         const GenerateJsonParser();
       }
@@ -41,7 +41,7 @@ void main() {
   );
 
   test('Returns class name for const variable form @ann', () async {
-    final resolved = await unitResolver.resolveSource('''
+    final resolved = await dartResolver.resolveSource('''
     class GenerateJsonParser {
       const GenerateJsonParser();
     }
@@ -60,7 +60,7 @@ void main() {
   });
 
   test('Returns class name for typedef alias form', () async {
-    final resolved = await unitResolver.resolveSource('''
+    final resolved = await dartResolver.resolveSource('''
     class GenerateJsonParser {
       const GenerateJsonParser();
     }

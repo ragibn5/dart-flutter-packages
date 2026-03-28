@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('creates ConstantValueAnnotationTypeResolver instance', () {
-    final sut = AnnotationTypeResolverFactory.createAnnotationTypeResolver();
+    final sut = AnnotationTypeResolverFactory.create();
 
     expect(sut, isA<ConstantValueAnnotationTypeResolver>());
   });
