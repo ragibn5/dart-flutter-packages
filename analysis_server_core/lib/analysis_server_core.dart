@@ -24,6 +24,8 @@ export 'src/services/config/context_config_loader.dart';
 export 'src/services/logger/session_logger.dart';
 export 'src/services/resolvers/type_resolvers/annotation_type_resolver.dart';
 export 'src/services/resolvers/type_resolvers/annotation_type_resolver_factory.dart';
+export 'src/services/resolvers/type_resolvers/collection_type_resolver.dart';
+export 'src/services/resolvers/type_resolvers/collection_type_resolver_factory.dart';
 export 'src/services/session/session_data_manager.dart';
 export 'src/services/session/session_data_manager_factory.dart';
 export 'src/typedefs/typedefs.dart';
