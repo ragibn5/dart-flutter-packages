@@ -1,5 +1,5 @@
 import 'package:analysis_server_core/analysis_server_core.dart';
-import 'package:json_parser_analyzer/src/models/json_parser_lint_config.dart';
+import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/json_parser_requirement_rule.dart';
 import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/json_parser_requirement_visitor.dart';
 import 'package:mocktail/mocktail.dart';
@@ -19,9 +19,10 @@ class _MockAnalyzerFile extends Mock implements AnalyzerFile {}
 class _MockRuleVisitorRegistry extends Mock implements RuleVisitorRegistry {}
 
 class _MockRuleSessionContext extends Mock
-    implements RuleSessionContext<JsonParserLintConfig> {}
+    implements RuleSessionContext<JsonParserAnalyzerConfig> {}
 
-class _MockJsonParserLintConfig extends Mock implements JsonParserLintConfig {}
+class _MockJsonParserAnalyzerConfig extends Mock
+    implements JsonParserAnalyzerConfig {}
 
 class _MockSessionLogger extends Mock implements SessionLogger {}
 
@@ -34,7 +35,7 @@ void main() {
   late _MockAnalyzerFile mockContextUnitFile;
   late _MockRuleVisitorRegistry mockRuleVisitorRegistry;
   late _MockRuleSessionContext mockRuleSessionContext;
-  late _MockJsonParserLintConfig mockConfig;
+  late _MockJsonParserAnalyzerConfig mockConfig;
   late _MockSessionLogger mockSessionLogger;
 
   late JsonParserRequirementRule sut;
@@ -50,7 +51,7 @@ void main() {
     mockContextUnitFile = _MockAnalyzerFile();
     mockRuleVisitorRegistry = _MockRuleVisitorRegistry();
     mockRuleSessionContext = _MockRuleSessionContext();
-    mockConfig = _MockJsonParserLintConfig();
+    mockConfig = _MockJsonParserAnalyzerConfig();
     mockSessionLogger = _MockSessionLogger();
 
     sut = JsonParserRequirementRule(mockSessionDataManager);

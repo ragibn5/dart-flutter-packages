@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:json_parser_analyzer/src/models/default_config_options.dart';
-import 'package:json_parser_analyzer/src/models/json_parser_lint_config.dart';
+import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:json_parser_analyzer/src/services/config/config_source_provider.dart';
-import 'package:json_parser_analyzer/src/services/config/json_parser_lint_config_loader.dart';
+import 'package:json_parser_analyzer/src/services/config/json_parser_analyzer_config_loader.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
@@ -48,7 +48,7 @@ void main() {
   late _MockDefaultConfigOptions mockDefaultConfigOptions;
   late _MockConfigSourceProvider mockConfigSourceProvider;
 
-  late JsonParserLintConfigLoader sut;
+  late JsonParserAnalyzerConfigLoader sut;
 
   setUp(() {
     mockRuleContext = _MockRuleContext();
@@ -59,7 +59,7 @@ void main() {
     mockDefaultConfigOptions = _MockDefaultConfigOptions();
     mockConfigSourceProvider = _MockConfigSourceProvider();
 
-    sut = JsonParserLintConfigLoader.test(
+    sut = JsonParserAnalyzerConfigLoader.test(
       mockDefaultConfigOptions,
       mockConfigSourceProvider,
     );
@@ -97,7 +97,7 @@ void main() {
   void expectDefaultConfig(ContextConfig config) {
     expect(
       config,
-      isA<JsonParserLintConfig>()
+      isA<JsonParserAnalyzerConfig>()
           .having((p) => p.packageInfo, 'packageInfo', mockPackageInfo)
           .having((p) => p.logConfig, 'logConfig', mockDefaultLogConfig)
           .having((p) => p.scanConfig, 'scanConfig', mockDefaultScanConfig),
@@ -184,7 +184,7 @@ void main() {
 
       expect(
         config,
-        isA<JsonParserLintConfig>()
+        isA<JsonParserAnalyzerConfig>()
             .having((p) => p.packageInfo, 'packageInfo', mockPackageInfo)
             .having((p) => p.logConfig.enabled, 'logConfig.enabled', true)
             .having(
@@ -233,7 +233,7 @@ void main() {
 
       expect(
         config,
-        isA<JsonParserLintConfig>()
+        isA<JsonParserAnalyzerConfig>()
             .having((p) => p.packageInfo, 'packageInfo', mockPackageInfo)
             .having(
               (p) => p.logConfig.logDirectoryRelativePathFromProjectRoot,
@@ -268,7 +268,7 @@ void main() {
 
       expect(
         config,
-        isA<JsonParserLintConfig>()
+        isA<JsonParserAnalyzerConfig>()
             .having((p) => p.packageInfo, 'packageInfo', mockPackageInfo)
             .having(
               (p) => p.logConfig.enabled,

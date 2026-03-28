@@ -3,7 +3,7 @@
 import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:analyzer/dart/ast/token.dart';
-import 'package:json_parser_analyzer/src/models/json_parser_lint_config.dart';
+import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/json_parser_requirement_visitor.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -13,7 +13,7 @@ class _FakeToken extends Fake implements Token {}
 class _MockAnalysisRule extends Mock implements AnalysisRule {}
 
 class _MockRuleSessionContext extends Mock
-    implements RuleSessionContext<JsonParserLintConfig> {}
+    implements RuleSessionContext<JsonParserAnalyzerConfig> {}
 
 class _MockLogger extends Mock implements SessionLogger {}
 

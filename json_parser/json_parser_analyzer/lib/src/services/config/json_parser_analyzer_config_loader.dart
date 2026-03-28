@@ -3,17 +3,17 @@
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:functions/functions.dart';
 import 'package:json_parser_analyzer/src/models/default_config_options.dart';
-import 'package:json_parser_analyzer/src/models/json_parser_lint_config.dart';
+import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:json_parser_analyzer/src/services/config/config_source_provider.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
-class JsonParserLintConfigLoader extends ContextConfigLoader {
+class JsonParserAnalyzerConfigLoader extends ContextConfigLoader {
   final DefaultConfigOptions _defaultConfigOptions;
   final ConfigSourceProvider _configSourceProvider;
 
-  JsonParserLintConfigLoader()
+  JsonParserAnalyzerConfigLoader()
     : this._(
         DefaultConfigOptions(
           logConfig: LogConfig(
@@ -29,19 +29,19 @@ class JsonParserLintConfigLoader extends ContextConfigLoader {
       );
 
   @visibleForTesting
-  JsonParserLintConfigLoader.test(
+  JsonParserAnalyzerConfigLoader.test(
     DefaultConfigOptions defaultConfigOptions,
     ConfigSourceProvider configSourceProvider,
   ) : this._(defaultConfigOptions, configSourceProvider);
 
-  JsonParserLintConfigLoader._(
+  JsonParserAnalyzerConfigLoader._(
     this._defaultConfigOptions,
     this._configSourceProvider,
   );
 
   @override
   ContextConfig loadPluginConfig(RuleContext context, PackageInfo packageInfo) {
-    final fallbackConfig = JsonParserLintConfig(
+    final fallbackConfig = JsonParserAnalyzerConfig(
       packageInfo: packageInfo,
       logConfig: _defaultConfigOptions.logConfig,
       scanConfig: _defaultConfigOptions.scanConfig,
@@ -57,7 +57,7 @@ class JsonParserLintConfigLoader extends ContextConfigLoader {
 
     final pluginConfigFile = _configSourceProvider.getConfigSource(
       packageInfo,
-      'json_parser_lint_config.yaml',
+      'json_parser_analyzer_config.yaml',
     );
     if (!pluginConfigFile.existsSync()) {
       // If the plugin config file doesn't exist, then will use fallback config.
@@ -73,7 +73,7 @@ class JsonParserLintConfigLoader extends ContextConfigLoader {
       return fallbackConfig;
     }
 
-    return JsonParserLintConfig(
+    return JsonParserAnalyzerConfig(
       packageInfo: packageInfo,
       logConfig: _extractLogConfig(parsedConfig),
       scanConfig: _extractScanConfig(parsedConfig),

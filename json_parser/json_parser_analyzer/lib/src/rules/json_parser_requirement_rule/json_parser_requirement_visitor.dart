@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:analysis_server_core/analysis_server_core.dart';
-import 'package:json_parser_analyzer/src/models/json_parser_lint_config.dart';
+import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:meta/meta.dart';
 
@@ -10,13 +10,13 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   final AnalysisRule rule;
 
   @visibleForTesting
-  final RuleSessionContext<JsonParserLintConfig> sessionContext;
+  final RuleSessionContext<JsonParserAnalyzerConfig> sessionContext;
 
   final AnnotationTypeResolver _annotationTypeResolver;
 
   JsonParserRequirementRuleVisitor(
     AnalysisRule rule,
-    RuleSessionContext<JsonParserLintConfig> sessionContext,
+    RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
   ) : this._(
         rule,
         sessionContext,
@@ -26,7 +26,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   JsonParserRequirementRuleVisitor.test(
     AnalysisRule rule,
-    RuleSessionContext<JsonParserLintConfig> sessionContext,
+    RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
     AnnotationTypeResolver annotationTypeResolver,
   ) : this._(rule, sessionContext, annotationTypeResolver);
 

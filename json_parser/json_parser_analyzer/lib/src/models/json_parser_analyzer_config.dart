@@ -1,7 +1,7 @@
 import 'package:analysis_server_core/analysis_server_core.dart';
 
-class JsonParserLintConfig extends ContextConfig {
-  JsonParserLintConfig({
+class JsonParserAnalyzerConfig extends ContextConfig {
+  JsonParserAnalyzerConfig({
     required super.packageInfo,
     required super.logConfig,
     super.scanConfig,
