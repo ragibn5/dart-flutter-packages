@@ -1,13 +1,12 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:analyzer/dart/ast/token.dart';
 import 'package:json_parser_analyzer/src/models/json_parser_lint_config.dart';
 import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/json_parser_requirement_visitor.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
-
-import '../../../utils/parsers/annotation_parsers.dart';
 
 class _FakeToken extends Fake implements Token {}
 
@@ -139,7 +138,10 @@ void main() {
       @GenerateJsonParser()
       abstract class MyModel {}
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -158,7 +160,10 @@ void main() {
           Map<String, dynamic> toJson() => {};
         }
         ''';
-        final annotation = parseValidAnnotation(content);
+        final annotation = parseValidAnnotation(
+          content,
+          annotationName: 'GenerateJsonParser',
+        );
 
         visitor.visitAnnotation(annotation);
 
@@ -176,7 +181,10 @@ void main() {
           Map<String, dynamic> toJson() => {};
         }
         ''';
-        final annotation = parseValidAnnotation(content);
+        final annotation = parseValidAnnotation(
+          content,
+          annotationName: 'GenerateJsonParser',
+        );
 
         visitor.visitAnnotation(annotation);
 
@@ -193,7 +201,10 @@ void main() {
         factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
       }
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -212,7 +223,10 @@ void main() {
         Map<String, dynamic> get toJson => {};
       }
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -232,7 +246,10 @@ void main() {
         Map<String, dynamic> toJson(String extra) => {};
       }
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -252,7 +269,10 @@ void main() {
         String toJson() => '';
       }
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -272,7 +292,10 @@ void main() {
         Map<String, Object> toJson() => {};
       }
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -292,7 +315,10 @@ void main() {
         Map toJson() => {};
       }
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -312,7 +338,10 @@ void main() {
         toJson() => {};
       }
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -333,7 +362,10 @@ void main() {
         Map<String, dynamic> toJson() => {};
       }
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
@@ -352,7 +384,10 @@ void main() {
       @GenerateJsonParser()
       class MyModel {}
       ''';
-      final annotation = parseValidAnnotation(content);
+      final annotation = parseValidAnnotation(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
 
       visitor.visitAnnotation(annotation);
 
