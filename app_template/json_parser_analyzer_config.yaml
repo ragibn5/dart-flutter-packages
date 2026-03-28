@@ -1,6 +1,6 @@
-# ==========================================
+# ================================================
 # Configuration for `json_parser_arch_lint` plugin
-# ==========================================
+# ================================================
 
 # Global Log Configuration: Controls logging for all rules.
 log_config:
