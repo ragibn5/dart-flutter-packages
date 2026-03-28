@@ -8,5 +8,5 @@ import 'package:clean_arch_lint/src/services/config/clean_arch_lint_config_loade
 /// So, DO NOT change the variable name. See this doc for more information:
 /// https://dart.dev/tools/analyzer-plugins.
 final plugin = CleanArchLintPlugin(
-  SessionDataManager.createNewInstance(CleanArchLintConfigLoader()),
+  SessionDataManagerFactory.createNewInstance(CleanArchLintConfigLoader()),
 );
