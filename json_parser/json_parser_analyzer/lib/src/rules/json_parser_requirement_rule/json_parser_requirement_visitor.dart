@@ -1,6 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:meta/meta.dart';
@@ -20,7 +21,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   ) : this._(
         rule,
         sessionContext,
-        TypeResolverFactory.createAnnotationTypeResolver(),
+        AnnotationTypeResolverFactory.createAnnotationTypeResolver(),
       );
 
   @visibleForTesting
@@ -100,7 +101,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
         .where((m) => m.isStatic && m.name.lexeme == 'fromJson')
         .firstOrNull;
     if (fromJsonMethod != null) {
-      _checkFromJsonMethod(fromJsonMethod);
+      _checkFromJsonMethod(fromJsonMethod, node);
       return;
     }
 
@@ -166,7 +167,10 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
     }
   }
 
-  void _checkFromJsonMethod(MethodDeclaration fromJsonMethod) {
+  void _checkFromJsonMethod(
+    MethodDeclaration fromJsonMethod,
+    ClassDeclaration enclosingClass,
+  ) {
     if (fromJsonMethod.isGetter) {
       rule.reportAtToken(
         fromJsonMethod.name,
@@ -202,19 +206,36 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
         ],
       );
     }
+
+    final returnType = fromJsonMethod.returnType;
+    if (!_isEnclosingClassType(returnType, enclosingClass)) {
+      rule.reportAtNode(
+        returnType,
+        arguments: ['fromJson method must return the enclosing class type.'],
+      );
+    }
   }
 
   bool _isMapStringDynamic(TypeAnnotation? typeAnnotation) {
-    if (typeAnnotation is! NamedType) return false;
-    if (typeAnnotation.name.lexeme != 'Map') return false;
+    if (typeAnnotation is! NamedType) {
+      return false;
+    }
 
-    final args = typeAnnotation.typeArguments?.arguments;
-    if (args == null || args.length != 2) return false;
+    final type = typeAnnotation.type;
+    if (type is! InterfaceType) {
+      return false;
+    }
+    if (type.element.name != 'Map') {
+      return false;
+    }
 
-    final keyOk =
-        args[0] is NamedType && (args[0] as NamedType).name.lexeme == 'String';
-    final valueOk =
-        args[1] is NamedType && (args[1] as NamedType).name.lexeme == 'dynamic';
+    final args = type.typeArguments;
+    if (args.length != 2) {
+      return false;
+    }
+
+    final keyOk = args[0].element?.name == 'String';
+    final valueOk = args[1] is DynamicType;
 
     return keyOk && valueOk;
   }
@@ -226,5 +247,21 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
       final FieldFormalParameter p => p.type,
       _ => null,
     };
+  }
+
+  bool _isEnclosingClassType(
+    TypeAnnotation? typeAnnotation,
+    ClassDeclaration enclosingClass,
+  ) {
+    if (typeAnnotation is! NamedType) {
+      return false;
+    }
+
+    final type = typeAnnotation.type;
+    if (type == null || type is! InterfaceType) {
+      return false;
+    }
+
+    return type.element.name == enclosingClass.name.lexeme;
   }
 }

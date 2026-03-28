@@ -1,10 +1,10 @@
 import 'package:analysis_server_core/src/services/resolvers/type_resolvers/annotation_type_resolver.dart';
-import 'package:analysis_server_core/src/services/resolvers/type_resolvers/type_resolver_factory.dart';
+import 'package:analysis_server_core/src/services/resolvers/type_resolvers/annotation_type_resolver_factory.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('creates ConstantValueAnnotationTypeResolver instance', () {
-    final sut = TypeResolverFactory.createAnnotationTypeResolver();
+    final sut = AnnotationTypeResolverFactory.createAnnotationTypeResolver();
 
     expect(sut, isA<ConstantValueAnnotationTypeResolver>());
   });
