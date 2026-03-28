@@ -20,6 +20,9 @@ class _MockLogger extends Mock implements SessionLogger {}
 class _MockAnnotationTypeResolver extends Mock
     implements AnnotationTypeResolver {}
 
+class _MockCollectionTypeResolver extends Mock
+    implements CollectionTypeResolver {}
+
 void main() {
   final fakeToken = _FakeToken();
   final fakeAnnotation = parseString(
@@ -32,6 +35,7 @@ void main() {
   late _MockAnalysisRule mockRule;
   late _MockRuleSessionContext mockSessionContext;
   late _MockAnnotationTypeResolver mockAnnotationTypeResolver;
+  late _MockCollectionTypeResolver mockCollectionTypeResolver;
 
   late JsonParserRequirementRuleVisitor sut;
 
@@ -45,6 +49,7 @@ void main() {
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
     mockAnnotationTypeResolver = _MockAnnotationTypeResolver();
+    mockCollectionTypeResolver = _MockCollectionTypeResolver();
 
     dartResolver.setUp();
 
@@ -52,6 +57,7 @@ void main() {
       mockRule,
       mockSessionContext,
       mockAnnotationTypeResolver,
+      mockCollectionTypeResolver,
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);
@@ -78,6 +84,16 @@ void main() {
     when(
       () => mockAnnotationTypeResolver.resolveTypeName(any()),
     ).thenReturn('GenerateJsonParser');
+    when(
+      () => mockCollectionTypeResolver.isMapOf(
+        any(),
+        keyType: any(named: 'keyType'),
+        valueType: any(named: 'valueType'),
+        allowNullable: any(named: 'allowNullable'),
+        allowNullableKeyType: any(named: 'allowNullableKeyType'),
+        allowNullableValueType: any(named: 'allowNullableValueType'),
+      ),
+    ).thenReturn(true);
   });
 
   tearDown(() {
@@ -293,6 +309,14 @@ void main() {
     });
 
     test('Reports when toJson returns wrong type', () {
+      when(
+        () => mockCollectionTypeResolver.isMapOf(
+          any(),
+          keyType: any(named: 'keyType'),
+          valueType: any(named: 'valueType'),
+        ),
+      ).thenReturn(false);
+
       const content = '''
       @GenerateJsonParser()
       class MyModel {
@@ -316,6 +340,14 @@ void main() {
     });
 
     test('Reports when toJson returns Map without type args', () {
+      when(
+        () => mockCollectionTypeResolver.isMapOf(
+          any(),
+          keyType: any(named: 'keyType'),
+          valueType: any(named: 'valueType'),
+        ),
+      ).thenReturn(false);
+
       const content = '''
       @GenerateJsonParser()
       class MyModel {
@@ -339,6 +371,14 @@ void main() {
     });
 
     test('Reports when toJson has no return type annotation', () {
+      when(
+        () => mockCollectionTypeResolver.isMapOf(
+          any(),
+          keyType: any(named: 'keyType'),
+          valueType: any(named: 'valueType'),
+        ),
+      ).thenReturn(false);
+
       const content = '''
       @GenerateJsonParser()
       class MyModel {

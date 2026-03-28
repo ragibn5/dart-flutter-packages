@@ -14,29 +14,41 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   final RuleSessionContext<JsonParserAnalyzerConfig> sessionContext;
 
   final AnnotationTypeResolver _annotationTypeResolver;
+  final CollectionTypeResolver _collectionTypeResolver;
 
   JsonParserRequirementRuleVisitor(
     AnalysisRule rule,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
-  ) : this._(rule, sessionContext, AnnotationTypeResolverFactory.create());
+  ) : this._(
+        rule,
+        sessionContext,
+        AnnotationTypeResolverFactory.create(),
+        CollectionTypeResolverFactory.create(),
+      );
 
   @visibleForTesting
   JsonParserRequirementRuleVisitor.test(
     AnalysisRule rule,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
     AnnotationTypeResolver annotationTypeResolver,
-  ) : this._(rule, sessionContext, annotationTypeResolver);
+    CollectionTypeResolver collectionTypeResolver,
+  ) : this._(
+        rule,
+        sessionContext,
+        annotationTypeResolver,
+        collectionTypeResolver,
+      );
 
   JsonParserRequirementRuleVisitor._(
     this.rule,
     this.sessionContext,
     this._annotationTypeResolver,
+    this._collectionTypeResolver,
   );
 
   @override
   void visitAnnotation(Annotation node) {
-    final annotationName = _annotationTypeResolver.resolveTypeName(node);
-    if (annotationName != '$GenerateJsonParser') {
+    if (!_isGenerateJsonParserAnnotation(node)) {
       sessionContext.logger.logInfo(
         tag: '$JsonParserRequirementRuleVisitor',
         message: 'Ignoring unknown annotation: ${node.name.name}',
@@ -212,28 +224,17 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
     }
   }
 
+  bool _isGenerateJsonParserAnnotation(Annotation node) {
+    return _annotationTypeResolver.resolveTypeName(node) ==
+        '$GenerateJsonParser';
+  }
+
   bool _isMapStringDynamic(TypeAnnotation? typeAnnotation) {
-    if (typeAnnotation is! NamedType) {
-      return false;
-    }
-
-    final type = typeAnnotation.type;
-    if (type is! InterfaceType) {
-      return false;
-    }
-    if (type.element.name != 'Map') {
-      return false;
-    }
-
-    final args = type.typeArguments;
-    if (args.length != 2) {
-      return false;
-    }
-
-    final keyOk = args[0].element?.name == 'String';
-    final valueOk = args[1] is DynamicType;
-
-    return keyOk && valueOk;
+    return _collectionTypeResolver.isMapOf(
+      typeAnnotation,
+      keyType: 'String',
+      valueType: 'dynamic',
+    );
   }
 
   TypeAnnotation? _parameterType(FormalParameter param) {
