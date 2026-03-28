@@ -7,11 +7,11 @@ import 'package:test/test.dart';
 void main() {
   final unitResolver = DartUnitResolver();
 
-  late ConstantValueAnnotationTypeResolver annotationResolver;
+  late ConstantValueAnnotationTypeResolver sut;
 
   setUp(() {
     unitResolver.setUp();
-    annotationResolver = const ConstantValueAnnotationTypeResolver();
+    sut = const ConstantValueAnnotationTypeResolver();
   });
 
   tearDown(() {
@@ -34,7 +34,7 @@ void main() {
       );
       expect(annotation, isNotNull);
 
-      final result = annotationResolver.resolveTypeName(annotation!);
+      final result = sut.resolveTypeName(annotation!);
 
       expect(result, 'GenerateJsonParser');
     },
@@ -54,7 +54,7 @@ void main() {
     final annotation = resolved.findAnnotation(annotationName: 'ann');
     expect(annotation, isNotNull);
 
-    final result = annotationResolver.resolveTypeName(annotation!);
+    final result = sut.resolveTypeName(annotation!);
 
     expect(result, 'GenerateJsonParser');
   });
@@ -75,7 +75,7 @@ void main() {
     final annotation = resolved.findAnnotation(annotationName: 'ann');
     expect(annotation, isNotNull);
 
-    final result = annotationResolver.resolveTypeName(annotation!);
+    final result = sut.resolveTypeName(annotation!);
 
     expect(result, 'GenerateJsonParser');
   });
