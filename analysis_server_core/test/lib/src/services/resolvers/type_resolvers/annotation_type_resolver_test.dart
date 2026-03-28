@@ -58,4 +58,25 @@ void main() {
 
     expect(result, 'GenerateJsonParser');
   });
+
+  test('Returns class name for typedef alias form', () async {
+    final resolved = await unitResolver.resolveSource('''
+    class GenerateJsonParser {
+      const GenerateJsonParser();
+    }
+
+    typedef GJP = GenerateJsonParser;
+
+    const ann = GJP();
+
+    @ann
+    class Foo {}
+    ''');
+    final annotation = resolved.findAnnotation(annotationName: 'ann');
+    expect(annotation, isNotNull);
+
+    final result = annotationResolver.resolveTypeName(annotation!);
+
+    expect(result, 'GenerateJsonParser');
+  });
 }
