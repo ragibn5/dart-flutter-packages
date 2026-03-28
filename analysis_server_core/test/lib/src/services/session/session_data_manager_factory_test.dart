@@ -5,14 +5,16 @@ import 'package:test/test.dart';
 class _MockContextConfigLoader extends Mock implements ContextConfigLoader {}
 
 void main() {
-  late _MockContextConfigLoader configLoader;
+  late _MockContextConfigLoader mockConfigLoader;
 
   setUp(() {
-    configLoader = _MockContextConfigLoader();
+    mockConfigLoader = _MockContextConfigLoader();
   });
 
   test('creates SessionDataManager instance', () {
-    final manager = SessionDataManagerFactory.createNewInstance(configLoader);
+    final manager = SessionDataManagerFactory.createNewInstance(
+      mockConfigLoader,
+    );
 
     expect(manager, isA<SessionDataManager>());
   });
