@@ -1,0 +1,38 @@
+name: analysis_plugin_test_helper
+description: Dump of reusable utilities to help test analyzer plugins.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analysis_plugin_test_helper
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.10.9
+
+# Regular dependencies
+# (Bundled in executable artifact)
+dependencies:
+  path: ^1.9.0
+  analysis_server_plugin: ^0.3.0
+  analyzer_plugin: ^0.13.0
+  analyzer: ^8.0.0
+  analyzer_testing: ^0.1.5
+  # As we are trying to provide support for testing
+  # in other packages using this package, we need to
+  # include the following dependencies as regular dependencies.
+  # (They are usually dev_dependencies in normal scenarios)
+  test: ^1.25.6
+  mocktail: ^1.0.4
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  lints: ^6.0.0
+  very_good_analysis: ^7.0.0
+
