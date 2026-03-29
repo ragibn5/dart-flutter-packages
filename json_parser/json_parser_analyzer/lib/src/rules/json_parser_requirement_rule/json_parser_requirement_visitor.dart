@@ -1,8 +1,10 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:analysis_server_core/analysis_server_core.dart';
-import 'package:analyzer/dart/element/type.dart';
 import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
+import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/from_json_constructor_visitor.dart';
+import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/from_json_static_method_visitor.dart';
+import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/to_json_method_visitor.dart';
 import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:meta/meta.dart';
 
@@ -14,7 +16,10 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   final RuleSessionContext<JsonParserAnalyzerConfig> sessionContext;
 
   final AnnotationTypeResolver _annotationTypeResolver;
-  final CollectionTypeResolver _collectionTypeResolver;
+
+  final ToJsonMethodVisitor _toJsonMethodVisitor;
+  final FromJsonConstructorVisitor _fromJsonConstructorVisitor;
+  final FromJsonStaticMethodVisitor _fromJsonStaticMethodVisitor;
 
   JsonParserRequirementRuleVisitor(
     AnalysisRule rule,
@@ -23,7 +28,9 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
         rule,
         sessionContext,
         AnnotationTypeResolverFactory.create(),
-        CollectionTypeResolverFactory.create(),
+        ToJsonMethodVisitor(rule, sessionContext),
+        FromJsonConstructorVisitor(rule, sessionContext),
+        FromJsonStaticMethodVisitor(rule, sessionContext),
       );
 
   @visibleForTesting
@@ -31,19 +38,25 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
     AnalysisRule rule,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
     AnnotationTypeResolver annotationTypeResolver,
-    CollectionTypeResolver collectionTypeResolver,
+    ToJsonMethodVisitor toJsonMethodVisitor,
+    FromJsonConstructorVisitor fromJsonConstructorVisitor,
+    FromJsonStaticMethodVisitor fromJsonStaticMethodVisitor,
   ) : this._(
         rule,
         sessionContext,
         annotationTypeResolver,
-        collectionTypeResolver,
+        toJsonMethodVisitor,
+        fromJsonConstructorVisitor,
+        fromJsonStaticMethodVisitor,
       );
 
   JsonParserRequirementRuleVisitor._(
     this.rule,
     this.sessionContext,
     this._annotationTypeResolver,
-    this._collectionTypeResolver,
+    this._toJsonMethodVisitor,
+    this._fromJsonConstructorVisitor,
+    this._fromJsonStaticMethodVisitor,
   );
 
   @override
@@ -83,9 +96,12 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
         .firstOrNull;
     if (toJsonMethod == null) {
       rule.reportAtToken(node.name, arguments: ['missing toJson method.']);
-    } else {
-      _checkToJsonMethod(toJsonMethod);
+
+      // ...
+      return;
     }
+
+    _toJsonMethodVisitor.visit(toJsonMethod);
   }
 
   void _findAndCheckFromJsonConstructorOrStaticMethod(ClassDeclaration node) {
@@ -97,7 +113,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
         )
         .firstOrNull;
     if (fromJsonConstructor != null) {
-      _checkFromJsonConstructor(fromJsonConstructor);
+      _fromJsonConstructorVisitor.visit(fromJsonConstructor);
 
       // If we have found a constructor, no need to check for static method.
       // So, returning.
@@ -109,7 +125,9 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
         .where((m) => m.isStatic && m.name.lexeme == 'fromJson')
         .firstOrNull;
     if (fromJsonMethod != null) {
-      _checkFromJsonMethod(fromJsonMethod, node);
+      _fromJsonStaticMethodVisitor.visit(fromJsonMethod, node);
+
+      // So, we return.
       return;
     }
 
@@ -119,146 +137,8 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
     );
   }
 
-  void _checkToJsonMethod(MethodDeclaration toJsonMethod) {
-    if (toJsonMethod.isGetter) {
-      rule.reportAtToken(
-        toJsonMethod.name,
-        arguments: ['toJson method must not be a getter.'],
-      );
-
-      // If it is a getter our param specific checks are not needed.
-      // So, will return.
-      return;
-    }
-
-    final params = toJsonMethod.parameters?.parameters ?? [];
-    if (params.isNotEmpty) {
-      rule.reportAtNode(
-        toJsonMethod.parameters,
-        arguments: ['toJson method must not have parameters.'],
-      );
-    }
-
-    final returnType = toJsonMethod.returnType;
-    if (!_isMapStringDynamic(returnType)) {
-      rule.reportAtNode(
-        returnType,
-        arguments: ['toJson method must return Map<String, dynamic>.'],
-      );
-    }
-  }
-
-  void _checkFromJsonConstructor(ConstructorDeclaration fromJsonConstructor) {
-    final params = fromJsonConstructor.parameters.parameters;
-    if (params.length != 1) {
-      rule.reportAtNode(
-        fromJsonConstructor.parameters,
-        arguments: [
-          'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
-        ],
-      );
-
-      // This check should hide other param specific checks,
-      // because we need to have right number of constructors
-      // to begin with. So, will return.
-      return;
-    }
-
-    final paramType = _parameterType(params.first);
-    if (!_isMapStringDynamic(paramType)) {
-      rule.reportAtNode(
-        paramType,
-        arguments: [
-          'fromJson constructor must have only one parameter of type Map<String, dynamic>.',
-        ],
-      );
-    }
-  }
-
-  void _checkFromJsonMethod(
-    MethodDeclaration fromJsonMethod,
-    ClassDeclaration enclosingClass,
-  ) {
-    if (fromJsonMethod.isGetter) {
-      rule.reportAtToken(
-        fromJsonMethod.name,
-        arguments: ['static fromJson must not be a getter.'],
-      );
-
-      // If it is a getter our param specific checks are not needed.
-      // So, will return.
-      return;
-    }
-
-    final params = fromJsonMethod.parameters?.parameters;
-    if (params == null || params.length != 1) {
-      rule.reportAtNode(
-        fromJsonMethod.parameters,
-        arguments: [
-          'fromJson method must have only one parameter of type Map<String, dynamic>.',
-        ],
-      );
-
-      // This check should hide other param specific checks,
-      // because we need to have right number of constructors
-      // to begin with. So, will return.
-      return;
-    }
-
-    final paramType = _parameterType(params.first);
-    if (!_isMapStringDynamic(paramType)) {
-      rule.reportAtNode(
-        paramType,
-        arguments: [
-          'fromJson method must have only one parameter of type Map<String, dynamic>.',
-        ],
-      );
-    }
-
-    final returnType = fromJsonMethod.returnType;
-    if (!_isEnclosingClassType(returnType, enclosingClass)) {
-      rule.reportAtNode(
-        returnType,
-        arguments: ['fromJson method must return the enclosing class type.'],
-      );
-    }
-  }
-
   bool _isGenerateJsonParserAnnotation(Annotation node) {
     return _annotationTypeResolver.resolveTypeName(node) ==
         '$GenerateJsonParser';
-  }
-
-  bool _isMapStringDynamic(TypeAnnotation? typeAnnotation) {
-    return _collectionTypeResolver.isMapOf(
-      typeAnnotation,
-      keyType: 'String',
-      valueType: 'dynamic',
-    );
-  }
-
-  TypeAnnotation? _parameterType(FormalParameter param) {
-    final actual = param is DefaultFormalParameter ? param.parameter : param;
-    return switch (actual) {
-      final SimpleFormalParameter p => p.type,
-      final FieldFormalParameter p => p.type,
-      _ => null,
-    };
-  }
-
-  bool _isEnclosingClassType(
-    TypeAnnotation? typeAnnotation,
-    ClassDeclaration enclosingClass,
-  ) {
-    if (typeAnnotation is! NamedType) {
-      return false;
-    }
-
-    final type = typeAnnotation.type;
-    if (type == null || type is! InterfaceType) {
-      return false;
-    }
-
-    return type.element.name == enclosingClass.name.lexeme;
   }
 }
