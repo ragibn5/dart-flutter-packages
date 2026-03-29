@@ -5,34 +5,32 @@ import 'package:test/test.dart';
 /// Returns the first [MethodDeclaration] whose name matches [name],
 /// or `null` if none is found.
 ///
-/// Searches the members of the first declaration node found in [unit].
-/// Supported declaration kinds are:
+/// Searches the members of all supported declaration kinds in [unit]:
 /// - [ClassDeclaration]
 /// - [MixinDeclaration]
 /// - [ExtensionDeclaration]
 /// - [ExtensionTypeDeclaration]
 /// - [EnumDeclaration]
 ///
-/// Throws an [UnsupportedError] if the first declaration is of an
-/// unsupported kind (e.g. [FunctionDeclaration],
-/// [TopLevelVariableDeclaration], [TypeAlias]).
+/// Unsupported kinds (e.g. [FunctionDeclaration],
+/// [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
 MethodDeclaration? findMethodDeclaration(CompilationUnit unit, String name) {
-  final declaration = unit.declarations.firstOrNull;
-  if (declaration == null) return null;
-  final members = switch (declaration) {
-    ClassDeclaration d => d.members,
-    MixinDeclaration d => d.members,
-    ExtensionDeclaration d => d.members,
-    ExtensionTypeDeclaration d => d.members,
-    EnumDeclaration d => d.members,
-    _ => throw UnsupportedError(
-      'findMethodDeclaration does not support ${declaration.runtimeType}',
-    ),
-  };
-  return members
-      .whereType<MethodDeclaration>()
-      .where((m) => m.name.lexeme == name)
-      .firstOrNull;
+  for (final declaration in unit.declarations) {
+    final members = switch (declaration) {
+      ClassDeclaration d => d.members,
+      MixinDeclaration d => d.members,
+      ExtensionDeclaration d => d.members,
+      ExtensionTypeDeclaration d => d.members,
+      EnumDeclaration d => d.members,
+      _ => null,
+    };
+    final method = members
+        ?.whereType<MethodDeclaration>()
+        .where((m) => m.name.lexeme == name)
+        .firstOrNull;
+    if (method != null) return method;
+  }
+  return null;
 }
 
 /// Parses [content] and returns the first [MethodDeclaration] whose name
