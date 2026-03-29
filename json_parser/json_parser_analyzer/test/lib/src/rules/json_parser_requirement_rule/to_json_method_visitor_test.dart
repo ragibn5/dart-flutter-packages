@@ -217,15 +217,15 @@ void main() {
     },
   );
 
-  test('Reports nothing when toJson uses typedefs for return type', () async {
+  test('Reports nothing when toJson uses typedef for return type', () async {
     final resolved = await dartResolver.resolveSource('''
-      typedef JsonMap = Map<String, dynamic>;
-      
-      class MyModel {
-        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-        JsonMap toJson() => {};
-      }
-      ''');
+    typedef JsonMap = Map<String, dynamic>;
+    
+    class MyModel {
+      factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+      JsonMap toJson() => {};
+    }
+    ''');
 
     final methodDecl = findMethodDeclaration(resolved.unit, 'toJson');
 
