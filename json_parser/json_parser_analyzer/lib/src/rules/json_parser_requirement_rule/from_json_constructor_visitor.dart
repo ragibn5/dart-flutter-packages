@@ -4,9 +4,27 @@ import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:meta/meta.dart';
 
+class FromJsonConstructorVisitorConfig {
+  final String wrongParamCountContextMessage;
+  final String wrongParamTypeContextMessage;
+  final String invalidParamTypeContextMessage;
+
+  FromJsonConstructorVisitorConfig({
+    this.wrongParamCountContextMessage =
+        'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+    this.wrongParamTypeContextMessage =
+        'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+    this.invalidParamTypeContextMessage =
+        'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+  });
+}
+
 class FromJsonConstructorVisitor {
   @visibleForTesting
   final AnalysisRule rule;
+
+  @visibleForTesting
+  final FromJsonConstructorVisitorConfig visitorConfig;
 
   @visibleForTesting
   final RuleSessionContext<JsonParserAnalyzerConfig> sessionContext;
@@ -16,17 +34,24 @@ class FromJsonConstructorVisitor {
   FromJsonConstructorVisitor(
     AnalysisRule rule,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
-  ) : this._(rule, sessionContext, CollectionTypeResolverFactory.create());
+  ) : this._(
+        rule,
+        FromJsonConstructorVisitorConfig(),
+        sessionContext,
+        CollectionTypeResolverFactory.create(),
+      );
 
   @visibleForTesting
   FromJsonConstructorVisitor.test(
     AnalysisRule rule,
+    FromJsonConstructorVisitorConfig visitorConfig,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
     CollectionTypeResolver collectionTypeResolver,
-  ) : this._(rule, sessionContext, collectionTypeResolver);
+  ) : this._(rule, visitorConfig, sessionContext, collectionTypeResolver);
 
   FromJsonConstructorVisitor._(
     this.rule,
+    this.visitorConfig,
     this.sessionContext,
     this._collectionTypeResolver,
   );
@@ -36,9 +61,19 @@ class FromJsonConstructorVisitor {
     if (params.length != 1) {
       rule.reportAtNode(
         fromJsonConstructor.parameters,
-        arguments: [
-          'fromJson constructor must have only one parameter of type Map<String, dynamic> or Map<String, Object?>.',
-        ],
+        arguments: [visitorConfig.wrongParamCountContextMessage],
+      );
+
+      // This check should hide other param specific checks,
+      // because we need to have right number of constructors
+      // to begin with. So, will return.
+      return;
+    }
+
+    if (!_isValidParam(params.first)) {
+      rule.reportAtNode(
+        params.owner,
+        arguments: [visitorConfig.wrongParamTypeContextMessage],
       );
 
       // This check should hide other param specific checks,
@@ -48,21 +83,10 @@ class FromJsonConstructorVisitor {
     }
 
     final paramType = _parameterType(params.first);
-    if (paramType == null) {
-      rule.reportAtNode(
-        params.owner,
-        arguments: [
-          'fromJson constructor must have only one parameter of type Map<String, dynamic> or Map<String, Object?>.',
-        ],
-      );
-    }
-
     if (!_isJsonMap(paramType)) {
       rule.reportAtNode(
         paramType,
-        arguments: [
-          'fromJson constructor must have only one parameter of type Map<String, dynamic> or Map<String, Object?>.',
-        ],
+        arguments: [visitorConfig.invalidParamTypeContextMessage],
       );
     }
   }
@@ -87,11 +111,18 @@ class FromJsonConstructorVisitor {
     return isObjectValueTypedJsonMap || isDynamicValueTypedJsonMap;
   }
 
+  bool _isValidParam(FormalParameter param) {
+    return param.isPositional &&
+        param is! FieldFormalParameter &&
+        param is! SuperFormalParameter;
+  }
+
   TypeAnnotation? _parameterType(FormalParameter param) {
     final actual = param is DefaultFormalParameter ? param.parameter : param;
     return switch (actual) {
       final SimpleFormalParameter p => p.type,
       final FieldFormalParameter p => p.type,
+      final SuperFormalParameter p => p.type,
       _ => null,
     };
   }
