@@ -119,13 +119,12 @@ void main() {
     @SomeOtherAnnotation()
     class Foo {}
     ''';
-    final annotation = parseAnnotation(
+    final annotation = getParsedAnnotation<ClassDeclaration>(
       content,
       annotationName: 'SomeOtherAnnotation',
     );
-    expect(annotation, isNotNull);
 
-    sut.visitAnnotation(annotation!);
+    sut.visitAnnotation(annotation);
 
     verify(() => mockAnnotationTypeResolver.resolveTypeName(any())).called(1);
     verifyNoReports(mockRule);
@@ -158,7 +157,7 @@ void main() {
     @GenerateJsonParser()
     abstract class MyModel {}
     ''';
-    final annotation = parseValidAnnotation(
+    final annotation = getParsedAnnotation<ClassDeclaration>(
       content,
       annotationName: 'GenerateJsonParser',
     );
@@ -175,7 +174,7 @@ void main() {
       factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
     }
     ''';
-    final annotation = parseValidAnnotation(
+    final annotation = getParsedAnnotation<ClassDeclaration>(
       content,
       annotationName: 'GenerateJsonParser',
     );
@@ -197,7 +196,7 @@ void main() {
       Map<String, dynamic> toJson() => {};
     }
     ''';
-    final annotation = parseValidAnnotation(
+    final annotation = getParsedAnnotation<ClassDeclaration>(
       content,
       annotationName: 'GenerateJsonParser',
     );
@@ -217,7 +216,7 @@ void main() {
       @GenerateJsonParser()
       class MyModel {}
       ''';
-    final annotation = parseValidAnnotation(
+    final annotation = getParsedAnnotation<ClassDeclaration>(
       content,
       annotationName: 'GenerateJsonParser',
     );

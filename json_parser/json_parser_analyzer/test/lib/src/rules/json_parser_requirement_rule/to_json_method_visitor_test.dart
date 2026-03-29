@@ -51,23 +51,6 @@ void main() {
     );
   }
 
-  MethodDeclaration findMethodDeclarationFromNode(
-    CompilationUnit unit,
-    String name,
-  ) => unit.declarations
-      .whereType<ClassDeclaration>()
-      .first
-      .members
-      .whereType<MethodDeclaration>()
-      .firstWhere((m) => m.name.lexeme == name);
-
-  MethodDeclaration findMethodDeclaration(String content, String name) {
-    return findMethodDeclarationFromNode(
-      parseString(content: content).unit,
-      name,
-    );
-  }
-
   void stubCollectionTypeResolverIsMapOf({required bool returnValue}) {
     when(
       () => mockCollectionTypeResolver.isMapOf(
@@ -134,7 +117,7 @@ void main() {
       Map<String, dynamic> get toJson => {};
     }
     ''';
-    final methodDecl = findMethodDeclaration(content, 'toJson');
+    final methodDecl = getParsedMethodDeclaration(content, 'toJson');
 
     sut.visit(methodDecl);
 
@@ -153,7 +136,7 @@ void main() {
       Map<String, dynamic> toJson(String extra) => {};
     }
     ''';
-    final methodDecl = findMethodDeclaration(content, 'toJson');
+    final methodDecl = getParsedMethodDeclaration(content, 'toJson');
 
     sut.visit(methodDecl);
 
@@ -181,7 +164,7 @@ void main() {
       toJson() => '';
     }
     ''';
-    final methodDecl = findMethodDeclaration(content, 'toJson');
+    final methodDecl = getParsedMethodDeclaration(content, 'toJson');
 
     sut.visit(methodDecl);
 
@@ -202,7 +185,7 @@ void main() {
       String toJson() => '';
     }
     ''';
-    final methodDecl = findMethodDeclaration(content, 'toJson');
+    final methodDecl = getParsedMethodDeclaration(content, 'toJson');
 
     sut.visit(methodDecl);
 
@@ -224,9 +207,11 @@ void main() {
       }
       ''');
 
-      final methodDecl = findMethodDeclarationFromNode(resolved.unit, 'toJson');
+      final methodDecl = findMethodDeclaration(resolved.unit, 'toJson');
 
-      sut.visit(methodDecl);
+      expect(methodDecl, isNotNull);
+
+      sut.visit(methodDecl!);
 
       verifyNoReports(mockRule);
     },
