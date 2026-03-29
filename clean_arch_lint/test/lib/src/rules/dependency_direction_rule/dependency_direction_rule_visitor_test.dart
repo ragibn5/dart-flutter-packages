@@ -1,6 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: avoid_redundant_argument_values
 
+import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
@@ -9,8 +10,6 @@ import 'package:clean_arch_lint/src/services/import_uri_builder/import_uri_build
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
-
-import '../../../utils/parsers/import_directive_parsers.dart';
 
 class _MockAnalysisRule extends Mock implements AnalysisRule {}
 
@@ -111,7 +110,7 @@ void main() {
   test(
     'When the import URI cannot be parsed, the directive is ignored and nothing is reported',
     () {
-      final directive = parseValidImportDirective("import '';");
+      final directive = getParsedImportDirective("import '';");
       when(
         () => mockImportUriBuilder.fromImportNode(directive),
       ).thenReturn(null);
@@ -126,7 +125,7 @@ void main() {
   test(
     'When the import is from the Dart SDK and core packages are excluded by configuration, the directive is ignored',
     () {
-      final directive = parseValidImportDirective("import 'dart:core';");
+      final directive = getParsedImportDirective("import 'dart:core';");
       givenImportUri(directive);
 
       when(() => mockDDRConfig.excludeCoreDartPackages).thenReturn(true);
@@ -141,7 +140,7 @@ void main() {
   test(
     'When the import is from the Dart SDK and core packages are not excluded, the directive is reported',
     () {
-      final directive = parseValidImportDirective("import 'dart:core';");
+      final directive = getParsedImportDirective("import 'dart:core';");
       givenImportUri(directive);
 
       when(() => mockDDRConfig.excludeCoreDartPackages).thenReturn(false);
@@ -158,7 +157,7 @@ void main() {
   test(
     'When a relative import points to a domain layer path inside the host package, the directive is allowed and not reported',
     () {
-      final directive = parseValidImportDirective(
+      final directive = getParsedImportDirective(
         "import 'feature/auth/domain/services/auth_data_service.dart';",
       );
       givenImportUri(directive);
@@ -175,7 +174,7 @@ void main() {
   test(
     'When a relative import does not target the domain layer but its path is explicitly excluded in the configuration, the directive is ignored',
     () {
-      final directive = parseValidImportDirective(
+      final directive = getParsedImportDirective(
         "import 'core/models/auth_data.dart';",
       );
       givenImportUri(directive);
@@ -193,7 +192,7 @@ void main() {
   test(
     'When a relative import does not target the domain layer and is not in an excluded project path, the directive is reported',
     () {
-      final directive = parseValidImportDirective(
+      final directive = getParsedImportDirective(
         "import 'feature/auth/data/sources/local_auth_data_source.dart';",
       );
       givenImportUri(directive);
@@ -213,7 +212,7 @@ void main() {
   test(
     'When a package import targets the host package and points to a domain layer path, the directive is allowed',
     () {
-      final directive = parseValidImportDirective(
+      final directive = getParsedImportDirective(
         "import 'package:xyz/feature/auth/domain/services/auth_data_service.dart';",
       );
       givenImportUri(directive);
@@ -231,7 +230,7 @@ void main() {
   test(
     'When a package import targets the host package and its path is excluded by configuration, the directive is ignored',
     () {
-      final directive = parseValidImportDirective(
+      final directive = getParsedImportDirective(
         "import 'package:xyz/core/models/auth_data.dart';",
       );
       givenImportUri(directive);
@@ -250,7 +249,7 @@ void main() {
   test(
     'When a third party package import matches an excluded library prefix, the directive is ignored',
     () {
-      final directive = parseValidImportDirective(
+      final directive = getParsedImportDirective(
         "import 'package:dartz/functional/fold.dart';",
       );
       givenImportUri(directive);
@@ -268,7 +267,7 @@ void main() {
   test(
     'When a third party package import is not excluded by configuration, the directive is reported',
     () {
-      final directive = parseValidImportDirective(
+      final directive = getParsedImportDirective(
         "import 'package:dartz/functional/fold.dart';",
       );
       givenImportUri(directive);
