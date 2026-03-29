@@ -4,9 +4,29 @@ import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:meta/meta.dart';
 
+class ToJsonMethodVisitorConfig {
+  final String getterNotAllowedContextMessage;
+  final String paramsNotAllowedContextMessage;
+  final String missingReturnTypeContextMessage;
+  final String invalidReturnTypeContextMessage;
+
+  ToJsonMethodVisitorConfig({
+    this.getterNotAllowedContextMessage = 'toJson method must not be a getter.',
+    this.paramsNotAllowedContextMessage =
+        'toJson method must not have parameters.',
+    this.missingReturnTypeContextMessage =
+        'toJson method must have an explicit return type.',
+    this.invalidReturnTypeContextMessage =
+        'toJson method must return Map<String, dynamic> or Map<String, Object?>.',
+  });
+}
+
 class ToJsonMethodVisitor {
   @visibleForTesting
   final AnalysisRule rule;
+
+  @visibleForTesting
+  final ToJsonMethodVisitorConfig visitorConfig;
 
   @visibleForTesting
   final RuleSessionContext<JsonParserAnalyzerConfig> sessionContext;
@@ -16,17 +36,24 @@ class ToJsonMethodVisitor {
   ToJsonMethodVisitor(
     AnalysisRule rule,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
-  ) : this._(rule, sessionContext, CollectionTypeResolverFactory.create());
+  ) : this._(
+        rule,
+        ToJsonMethodVisitorConfig(),
+        sessionContext,
+        CollectionTypeResolverFactory.create(),
+      );
 
   @visibleForTesting
   ToJsonMethodVisitor.test(
     AnalysisRule rule,
+    ToJsonMethodVisitorConfig visitorConfig,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
     CollectionTypeResolver collectionTypeResolver,
-  ) : this._(rule, sessionContext, collectionTypeResolver);
+  ) : this._(rule, visitorConfig, sessionContext, collectionTypeResolver);
 
   ToJsonMethodVisitor._(
     this.rule,
+    this.visitorConfig,
     this.sessionContext,
     this._collectionTypeResolver,
   );
@@ -35,10 +62,10 @@ class ToJsonMethodVisitor {
     if (toJsonMethod.isGetter) {
       rule.reportAtToken(
         toJsonMethod.name,
-        arguments: ['toJson method must not be a getter.'],
+        arguments: [visitorConfig.getterNotAllowedContextMessage],
       );
 
-      // If it is a getter our param specific checks are not needed.
+      // If it is a getter, no other checks needed.
       // So, will return.
       return;
     }
@@ -47,7 +74,7 @@ class ToJsonMethodVisitor {
     if (params.isNotEmpty) {
       rule.reportAtNode(
         toJsonMethod.parameters,
-        arguments: ['toJson method must not have parameters.'],
+        arguments: [visitorConfig.paramsNotAllowedContextMessage],
       );
     }
 
@@ -55,7 +82,7 @@ class ToJsonMethodVisitor {
     if (returnType == null) {
       rule.reportAtToken(
         toJsonMethod.name,
-        arguments: ['toJson method must have an explicit return type.'],
+        arguments: [visitorConfig.missingReturnTypeContextMessage],
       );
 
       // If the return type was not declared, checks related
@@ -66,9 +93,7 @@ class ToJsonMethodVisitor {
     if (!_isJsonMap(returnType)) {
       rule.reportAtNode(
         returnType,
-        arguments: [
-          'toJson method must return Map<String, dynamic> or Map<String, Object?>.',
-        ],
+        arguments: [visitorConfig.invalidReturnTypeContextMessage],
       );
     }
   }
