@@ -37,12 +37,8 @@ void main() {
     content: '@deprecated class Foo {}',
   ).unit.declarations.first.metadata.first;
   final visitorConfig = JsonParserRequirementRuleVisitorConfig(
-    toJsonMethodName: 'toJson',
-    fromJsonConstructorName: 'fromJson',
-    fromJsonStaticMethodName: 'fromJson',
-    missingToJsonContextMessage: 'rcm1-missing toJson method.',
-    missingFromJsonContextMessage:
-        'rcm2-missing fromJson constructor (or a static method).',
+    missingToJsonContextMessage: 'rcm-1',
+    missingFromJsonContextMessage: 'rcm-2',
   );
 
   late _MockLogger mockLogger;
