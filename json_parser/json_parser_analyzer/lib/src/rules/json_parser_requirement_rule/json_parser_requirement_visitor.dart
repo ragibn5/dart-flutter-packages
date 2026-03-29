@@ -8,15 +8,35 @@ import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/to_j
 import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:meta/meta.dart';
 
+class JsonParserRequirementRuleVisitorConfig {
+  final String toJsonMethodName;
+  final String fromJsonConstructorName;
+  final String fromJsonStaticMethodName;
+
+  final String missingToJsonContextMessage;
+  final String missingFromJsonContextMessage;
+
+  JsonParserRequirementRuleVisitorConfig({
+    this.toJsonMethodName = 'toJson',
+    this.fromJsonConstructorName = 'fromJson',
+    this.fromJsonStaticMethodName = 'fromJson',
+    this.missingToJsonContextMessage = 'missing toJson method.',
+    this.missingFromJsonContextMessage =
+        'missing fromJson constructor (or a static method).',
+  });
+}
+
 class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final AnalysisRule rule;
 
   @visibleForTesting
+  final JsonParserRequirementRuleVisitorConfig visitorConfig;
+
+  @visibleForTesting
   final RuleSessionContext<JsonParserAnalyzerConfig> sessionContext;
 
   final AnnotationTypeResolver _annotationTypeResolver;
-
   final ToJsonMethodVisitor _toJsonMethodVisitor;
   final FromJsonConstructorVisitor _fromJsonConstructorVisitor;
   final FromJsonStaticMethodVisitor _fromJsonStaticMethodVisitor;
@@ -26,6 +46,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
   ) : this._(
         rule,
+        JsonParserRequirementRuleVisitorConfig(),
         sessionContext,
         AnnotationTypeResolverFactory.create(),
         ToJsonMethodVisitor(rule, sessionContext),
@@ -36,6 +57,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   JsonParserRequirementRuleVisitor.test(
     AnalysisRule rule,
+    JsonParserRequirementRuleVisitorConfig visitorConfig,
     RuleSessionContext<JsonParserAnalyzerConfig> sessionContext,
     AnnotationTypeResolver annotationTypeResolver,
     ToJsonMethodVisitor toJsonMethodVisitor,
@@ -43,6 +65,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
     FromJsonStaticMethodVisitor fromJsonStaticMethodVisitor,
   ) : this._(
         rule,
+        visitorConfig,
         sessionContext,
         annotationTypeResolver,
         toJsonMethodVisitor,
@@ -52,6 +75,7 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
 
   JsonParserRequirementRuleVisitor._(
     this.rule,
+    this.visitorConfig,
     this.sessionContext,
     this._annotationTypeResolver,
     this._toJsonMethodVisitor,
@@ -92,12 +116,20 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   void _findAndCheckToJsonMethod(ClassDeclaration node) {
     final toJsonMethod = node.members
         .whereType<MethodDeclaration>()
-        .where((method) => !method.isStatic && method.name.lexeme == 'toJson')
+        .where(
+          (method) =>
+              !method.isStatic &&
+              method.name.lexeme == visitorConfig.toJsonMethodName,
+        )
         .firstOrNull;
     if (toJsonMethod == null) {
-      rule.reportAtToken(node.name, arguments: ['missing toJson method.']);
+      rule.reportAtToken(
+        node.name,
+        arguments: [visitorConfig.missingToJsonContextMessage],
+      );
 
-      // ...
+      // If there is no toJson method, we have nothing to process further.
+      // So, returning.
       return;
     }
 
@@ -109,7 +141,8 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
         .whereType<ConstructorDeclaration>()
         .where(
           (ctor) =>
-              ctor.factoryKeyword != null && ctor.name?.lexeme == 'fromJson',
+              ctor.factoryKeyword != null &&
+              ctor.name?.lexeme == visitorConfig.fromJsonConstructorName,
         )
         .firstOrNull;
     if (fromJsonConstructor != null) {
@@ -122,18 +155,24 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
 
     final fromJsonMethod = node.members
         .whereType<MethodDeclaration>()
-        .where((m) => m.isStatic && m.name.lexeme == 'fromJson')
+        .where(
+          (m) =>
+              m.isStatic &&
+              m.name.lexeme == visitorConfig.fromJsonStaticMethodName,
+        )
         .firstOrNull;
     if (fromJsonMethod != null) {
       _fromJsonStaticMethodVisitor.visit(fromJsonMethod, node);
 
-      // So, we return.
+      // We have found the static fromJson method, nothing to do now.
+      // So, returning.
       return;
     }
 
+    // Found none - report.
     rule.reportAtToken(
       node.name,
-      arguments: ['missing fromJson constructor (or a static method).'],
+      arguments: [visitorConfig.missingFromJsonContextMessage],
     );
   }
 

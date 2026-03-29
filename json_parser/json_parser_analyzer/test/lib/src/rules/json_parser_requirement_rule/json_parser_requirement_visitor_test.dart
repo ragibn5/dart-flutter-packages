@@ -1,4 +1,4 @@
-// ignore_for_file: lines_longer_than_80_chars, unnecessary_lambdas, avoid_positional_boolean_parameters
+// ignore_for_file: lines_longer_than_80_chars, unnecessary_lambdas, avoid_positional_boolean_parameters, avoid_redundant_argument_values
 
 import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
 import 'package:analysis_server_core/analysis_server_core.dart';
@@ -36,8 +36,14 @@ void main() {
   final fakeAnnotation = parseString(
     content: '@deprecated class Foo {}',
   ).unit.declarations.first.metadata.first;
-
-  final dartResolver = DartUnitResolver();
+  final visitorConfig = JsonParserRequirementRuleVisitorConfig(
+    toJsonMethodName: 'toJson',
+    fromJsonConstructorName: 'fromJson',
+    fromJsonStaticMethodName: 'fromJson',
+    missingToJsonContextMessage: 'rcm1-missing toJson method.',
+    missingFromJsonContextMessage:
+        'rcm2-missing fromJson constructor (or a static method).',
+  );
 
   late _MockLogger mockLogger;
   late _MockAnalysisRule mockRule;
@@ -72,10 +78,9 @@ void main() {
     mockFromJsonConstructorVisitor = _MockFromJsonConstructorVisitor();
     mockFromJsonStaticMethodVisitor = _MockFromJsonStaticMethodVisitor();
 
-    dartResolver.setUp();
-
     sut = JsonParserRequirementRuleVisitor.test(
       mockRule,
+      visitorConfig,
       mockSessionContext,
       mockAnnotationTypeResolver,
       mockToJsonMethodVisitor,
@@ -107,10 +112,6 @@ void main() {
     when(
       () => mockAnnotationTypeResolver.resolveTypeName(any()),
     ).thenReturn('GenerateJsonParser');
-  });
-
-  tearDown(() {
-    dartResolver.tearDown();
   });
 
   test('Ignores annotations other than @GenerateJsonParser', () {
@@ -186,8 +187,10 @@ void main() {
     sut.visitAnnotation(annotation);
 
     verify(
-      () =>
-          mockRule.reportAtToken(any(), arguments: ['missing toJson method.']),
+      () => mockRule.reportAtToken(
+        any(),
+        arguments: [visitorConfig.missingToJsonContextMessage],
+      ),
     ).called(1);
   });
 
@@ -208,7 +211,7 @@ void main() {
     verify(
       () => mockRule.reportAtToken(
         any(),
-        arguments: ['missing fromJson constructor (or a static method).'],
+        arguments: [visitorConfig.missingFromJsonContextMessage],
       ),
     ).called(1);
   });
@@ -226,13 +229,15 @@ void main() {
     sut.visitAnnotation(annotation);
 
     verify(
-      () =>
-          mockRule.reportAtToken(any(), arguments: ['missing toJson method.']),
+      () => mockRule.reportAtToken(
+        any(),
+        arguments: [visitorConfig.missingToJsonContextMessage],
+      ),
     ).called(1);
     verify(
       () => mockRule.reportAtToken(
         any(),
-        arguments: ['missing fromJson constructor (or a static method).'],
+        arguments: [visitorConfig.missingFromJsonContextMessage],
       ),
     ).called(1);
   });
