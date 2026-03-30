@@ -182,4 +182,27 @@ void main() {
       ).called(1);
     },
   );
+
+  test(
+    'Reports nothing when fromJson factory correct parameter type (Map<String, dynamic/Object?>)',
+    () async {
+      stubCollectionTypeResolverIsMapOf(returnValue: true);
+
+      const content = '''
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> map) => MyModel();
+        Map<String, dynamic> toJson() => {};
+      }
+      ''';
+
+      final constructorDeclaration = getParsedFactoryConstructorDeclaration(
+        content,
+        'fromJson',
+      );
+
+      sut.visit(constructorDeclaration);
+
+      verifyNoReports(mockRule);
+    },
+  );
 }
