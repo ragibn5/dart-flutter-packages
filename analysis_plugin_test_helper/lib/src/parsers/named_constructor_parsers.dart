@@ -33,7 +33,32 @@ ConstructorDeclaration? findConstructorDeclaration(
         .firstOrNull;
     if (constructor != null) return constructor;
   }
+
   return null;
+}
+
+/// Returns the first [ConstructorDeclaration] whose name matches [name],
+/// failing the test if absent.
+///
+/// Searches the members of all supported declaration kinds in [unit]:
+/// - [ClassDeclaration]
+/// - [MixinDeclaration]
+/// - [ExtensionDeclaration]
+/// - [ExtensionTypeDeclaration]
+/// - [EnumDeclaration]
+///
+/// Unsupported kinds (e.g. [FunctionDeclaration],
+/// [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
+ConstructorDeclaration getConstructorDeclaration(
+  CompilationUnit unit,
+  String? name,
+) {
+  final constructor = findConstructorDeclaration(unit, name);
+  if (constructor == null) {
+    fail('Could not find constructor "${name ?? 'default'}"');
+  }
+
+  return constructor;
 }
 
 /// Returns the first factory [ConstructorDeclaration] whose name matches
@@ -67,7 +92,32 @@ ConstructorDeclaration? findFactoryConstructorDeclaration(
         .firstOrNull;
     if (constructor != null) return constructor;
   }
+
   return null;
+}
+
+/// Returns the first factory [ConstructorDeclaration] whose name matches
+/// [name], failing the test if absent.
+///
+/// Searches the members of all supported declaration kinds in [unit]:
+/// - [ClassDeclaration]
+/// - [MixinDeclaration]
+/// - [ExtensionDeclaration]
+/// - [ExtensionTypeDeclaration]
+/// - [EnumDeclaration]
+///
+/// Unsupported kinds (e.g. [FunctionDeclaration],
+/// [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
+ConstructorDeclaration getFactoryConstructorDeclaration(
+  CompilationUnit unit,
+  String? name,
+) {
+  final constructor = findFactoryConstructorDeclaration(unit, name);
+  if (constructor == null) {
+    fail('Could not find factory constructor "${name ?? 'default'}"');
+  }
+
+  return constructor;
 }
 
 /// Parses [content] and returns the first [ConstructorDeclaration] whose
@@ -113,6 +163,7 @@ ConstructorDeclaration getParsedConstructorDeclaration(
   if (constructor == null) {
     fail('Could not find constructor "${name ?? 'default'}"');
   }
+
   return constructor;
 }
 
@@ -129,5 +180,6 @@ ConstructorDeclaration getParsedFactoryConstructorDeclaration(
   if (constructor == null) {
     fail('Could not find factory constructor "${name ?? 'default'}"');
   }
+
   return constructor;
 }

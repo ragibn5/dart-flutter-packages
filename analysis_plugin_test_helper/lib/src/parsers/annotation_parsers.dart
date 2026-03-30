@@ -19,7 +19,25 @@ Annotation? findAnnotation<D extends CompilationUnitMember>(
       }
     }
   }
+
   return null;
+}
+
+/// Returns the first [Annotation] whose name matches [annotationName]
+/// on any [D] declaration in [unit], failing the test if absent.
+///
+/// [D] controls which declaration kind is searched
+/// (e.g. [ClassDeclaration], [MixinDeclaration], [FunctionDeclaration]).
+Annotation getAnnotation<D extends CompilationUnitMember>(
+  CompilationUnit unit, {
+  required String annotationName,
+}) {
+  final annotation = findAnnotation<D>(unit, annotationName: annotationName);
+  if (annotation == null) {
+    fail('Could not find @$annotationName');
+  }
+
+  return annotation;
 }
 
 /// Parses [content] and returns the first [Annotation] whose name matches
@@ -60,5 +78,6 @@ Annotation getParsedAnnotation<D extends CompilationUnitMember>(
   if (annotation == null) {
     fail('Could not find @$annotationName');
   }
+
   return annotation;
 }

@@ -30,7 +30,29 @@ MethodDeclaration? findMethodDeclaration(CompilationUnit unit, String name) {
         .firstOrNull;
     if (method != null) return method;
   }
+
   return null;
+}
+
+/// Returns the first [MethodDeclaration] whose name matches [name],
+/// failing the test if absent.
+///
+/// Searches the members of all supported declaration kinds in [unit]:
+/// - [ClassDeclaration]
+/// - [MixinDeclaration]
+/// - [ExtensionDeclaration]
+/// - [ExtensionTypeDeclaration]
+/// - [EnumDeclaration]
+///
+/// Unsupported kinds (e.g. [FunctionDeclaration],
+/// [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
+MethodDeclaration getMethodDeclaration(CompilationUnit unit, String name) {
+  final method = findMethodDeclaration(unit, name);
+  if (method == null) {
+    fail('Could not find method "$name"');
+  }
+
+  return method;
 }
 
 /// Parses [content] and returns the first [MethodDeclaration] whose name
@@ -61,5 +83,6 @@ MethodDeclaration getParsedMethodDeclaration(String content, String name) {
   if (method == null) {
     fail('Could not find method "$name"');
   }
+
   return method;
 }
