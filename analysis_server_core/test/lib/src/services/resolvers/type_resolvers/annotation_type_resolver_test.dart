@@ -29,12 +29,12 @@ void main() {
       @GenerateJsonParser()
       class Foo {}
       ''');
-      final annotation = resolved.findAnnotation(
+      final annotation = getAnnotation(
+        resolved.unit,
         annotationName: 'GenerateJsonParser',
       );
-      expect(annotation, isNotNull);
 
-      final result = sut.resolveTypeName(annotation!);
+      final result = sut.resolveTypeName(annotation);
 
       expect(result, 'GenerateJsonParser');
     },
@@ -51,10 +51,10 @@ void main() {
     @ann
     class Foo {}
     ''');
-    final annotation = resolved.findAnnotation(annotationName: 'ann');
+    final annotation = getAnnotation(resolved.unit, annotationName: 'ann');
     expect(annotation, isNotNull);
 
-    final result = sut.resolveTypeName(annotation!);
+    final result = sut.resolveTypeName(annotation);
 
     expect(result, 'GenerateJsonParser');
   });
@@ -72,10 +72,10 @@ void main() {
     @ann
     class Foo {}
     ''');
-    final annotation = resolved.findAnnotation(annotationName: 'ann');
+    final annotation = getAnnotation(resolved.unit, annotationName: 'ann');
     expect(annotation, isNotNull);
 
-    final result = sut.resolveTypeName(annotation!);
+    final result = sut.resolveTypeName(annotation);
 
     expect(result, 'GenerateJsonParser');
   });
