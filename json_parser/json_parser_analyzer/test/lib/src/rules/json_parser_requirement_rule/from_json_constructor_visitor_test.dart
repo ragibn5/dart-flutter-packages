@@ -132,6 +132,29 @@ void main() {
     ).called(1);
   });
 
+  test('Reports when fromJson factory takes in more than one params', () async {
+    const content = '''
+    class MyModel {
+      factory MyModel.fromJson(Map<String, dynamic> map1, Map<String, dynamic> map2) => MyModel();
+      Map<String, dynamic> toJson() => {};
+    }
+    ''';
+
+    final constructorDeclaration = getParsedFactoryConstructorDeclaration(
+      content,
+      'fromJson',
+    );
+
+    sut.visit(constructorDeclaration);
+
+    verify(
+          () => mockRule.reportAtNode(
+        any(),
+        arguments: [visitorConfig.wrongParamCountContextMessage],
+      ),
+    ).called(1);
+  });
+
   test('Reports when fromJson factory takes in named param', () async {
     const content = '''
     class MyModel {
