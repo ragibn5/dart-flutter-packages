@@ -11,6 +11,8 @@ class FromJsonStaticMethodVisitorConfig {
   final String wrongParamCountContextMessage;
   final String wrongParamDeclarationTypeContextMessage;
   final String invalidParamTypeContextMessage;
+  final String nonExplicitReturnTypeContextMessage;
+  final String nonEnclosingClassTypeReturnContextMessage;
 
   FromJsonStaticMethodVisitorConfig({
     this.getterNotAllowedContextMessage =
@@ -23,6 +25,10 @@ class FromJsonStaticMethodVisitorConfig {
         'fromJson method must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
     this.invalidParamTypeContextMessage =
         'fromJson method must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+    this.nonExplicitReturnTypeContextMessage =
+        'fromJson method must have an explicit return type.',
+    this.nonEnclosingClassTypeReturnContextMessage =
+        'fromJson method must return the enclosing class type.',
   });
 }
 
@@ -80,25 +86,7 @@ class FromJsonStaticMethodVisitor {
     }
 
     _checkParamType(fromJsonMethod);
-
-    final returnType = fromJsonMethod.returnType;
-    if (returnType == null) {
-      rule.reportAtToken(
-        fromJsonMethod.name,
-        arguments: ['fromJson method must have an explicit return type.'],
-      );
-
-      // If the return type was not declared, further checks
-      // related to return type's type is irrelevant. So, will return.
-      return;
-    }
-
-    if (!_isEnclosingClassType(returnType, enclosingClass)) {
-      rule.reportAtNode(
-        returnType,
-        arguments: ['fromJson method must return the enclosing class type.'],
-      );
-    }
+    _checkReturnType(fromJsonMethod, enclosingClass);
   }
 
   void _checkParamType(MethodDeclaration fromJsonMethod) {
@@ -146,6 +134,30 @@ class FromJsonStaticMethodVisitor {
       rule.reportAtNode(
         paramType,
         arguments: [visitorConfig.invalidParamTypeContextMessage],
+      );
+    }
+  }
+
+  void _checkReturnType(
+    MethodDeclaration fromJsonMethod,
+    ClassDeclaration enclosingClass,
+  ) {
+    final returnType = fromJsonMethod.returnType;
+    if (returnType == null) {
+      rule.reportAtToken(
+        fromJsonMethod.name,
+        arguments: [visitorConfig.nonExplicitReturnTypeContextMessage],
+      );
+
+      // If the return type was not declared, further checks
+      // related to return type's type is irrelevant. So, will return.
+      return;
+    }
+
+    if (!_isEnclosingClassType(returnType, enclosingClass)) {
+      rule.reportAtNode(
+        returnType,
+        arguments: [visitorConfig.nonEnclosingClassTypeReturnContextMessage],
       );
     }
   }
