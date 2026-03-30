@@ -270,4 +270,99 @@ void main() {
       verifyNoReports(mockRule);
     },
   );
+
+  test('Reports when fromJson method is missing return type', () async {
+    stubCollectionTypeResolverIsMapOf(returnValue: true);
+
+    const content = '''
+    class MyModel {
+      static fromJson(Map<String, dynamic> map) => MyModel();
+      Map<String, dynamic> toJson() => {};
+    }
+    ''';
+
+    final classDeclaration = getParsedClassDeclaration(content);
+    final methodDeclaration = getParsedMethodDeclaration(content, 'fromJson');
+
+    sut.visit(methodDeclaration, classDeclaration);
+
+    verify(
+      () => mockRule.reportAtToken(
+        any(),
+        arguments: [visitorConfig.nonExplicitReturnTypeContextMessage],
+      ),
+    ).called(1);
+  });
+
+  test(
+    'Reports when fromJson method is returning non-enclosing class type',
+    () async {
+      stubCollectionTypeResolverIsMapOf(returnValue: true);
+
+      final resolved = await dartResolver.resolveSource('''
+      class MyModel {
+        static Foo fromJson(Map<String, dynamic> map) => MyModel();
+        Map<String, dynamic> toJson() => {};
+      }
+      
+      class Foo {}
+      ''');
+
+      final classDeclaration = getClassDeclaration(resolved.unit);
+      final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
+
+      sut.visit(methodDeclaration, classDeclaration);
+
+      verify(
+        () => mockRule.reportAtNode(
+          any(),
+          arguments: [visitorConfig.nonEnclosingClassTypeReturnContextMessage],
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
+    'Reports nothing when fromJson method is returning enclosing class',
+    () async {
+      stubCollectionTypeResolverIsMapOf(returnValue: true);
+
+      final resolved = await dartResolver.resolveSource('''
+      class MyModel {
+        static MyModel fromJson(Map<String, dynamic> map) => MyModel();
+        Map<String, dynamic> toJson() => {};
+      }
+      ''');
+
+      final classDeclaration = getClassDeclaration(resolved.unit);
+      final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
+
+      sut.visit(methodDeclaration, classDeclaration);
+
+      verifyNoReports(mockRule);
+    },
+  );
+
+  test(
+    'Reports nothing when fromJson method is returning enclosing class as typedef',
+    () async {
+      stubCollectionTypeResolverIsMapOf(returnValue: true);
+
+      final resolved = await dartResolver.resolveSource('''
+      typedef MM = MyModel;
+      
+      class MyModel {
+        static MM fromJson(Map<String, dynamic> map) => MyModel();
+        Map<String, dynamic> toJson() => {};
+      }
+      ''');
+
+      final classDeclaration = getClassDeclaration(resolved.unit);
+      final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
+
+      sut.visit(methodDeclaration, classDeclaration);
+
+      verifyNoReports(mockRule);
+    },
+  );
 }

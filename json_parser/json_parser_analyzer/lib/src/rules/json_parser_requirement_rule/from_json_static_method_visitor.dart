@@ -207,10 +207,12 @@ class FromJsonStaticMethodVisitor {
     }
 
     final type = typeAnnotation.type;
+
     if (type == null || type is! InterfaceType) {
       return false;
     }
 
-    return type.element.name == enclosingClass.name.lexeme;
+    final enclosingElement = enclosingClass.declaredFragment?.element;
+    return enclosingElement != null && type.element == enclosingElement;
   }
 }
