@@ -234,8 +234,6 @@ void main() {
   test(
     'Reports nothing when fromJson method takes correct parameter type (Map<String, dynamic/Object?>)',
     () async {
-      stubCollectionTypeResolverIsMapOf(returnValue: true);
-
       final resolved = await dartResolver.resolveSource('''
       class MyModel {
         static MyModel fromJson(Map<String, dynamic> map) => MyModel();
@@ -258,13 +256,6 @@ void main() {
   test(
     'Reports nothing when fromJson method uses typedef for parameter type (not mocking CollectionTypeResolver)',
     () async {
-      final localSUT = FromJsonStaticMethodVisitor.test(
-        mockRule,
-        visitorConfig,
-        mockSessionContext,
-        CollectionTypeResolverFactory.create(),
-      );
-
       final resolved = await dartResolver.resolveSource('''
       typedef JsonMap = Map<String, dynamic>;
       
@@ -280,7 +271,7 @@ void main() {
         'fromJson',
       );
 
-      localSUT.visit(methodDeclaration!, classDeclaration);
+      sut.visit(methodDeclaration!, classDeclaration);
 
       verifyNoReports(mockRule);
     },

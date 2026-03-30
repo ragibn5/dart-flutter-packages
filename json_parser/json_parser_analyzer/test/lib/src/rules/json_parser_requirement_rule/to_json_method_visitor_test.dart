@@ -200,8 +200,6 @@ void main() {
   test(
     'Reports nothing when toJson returns correct type (Map<String, dynamic> or Map<String, Object?>)',
     () async {
-      stubCollectionTypeResolverIsMapOf(returnValue: true);
-
       const content = '''
       class MyModel {
         factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();

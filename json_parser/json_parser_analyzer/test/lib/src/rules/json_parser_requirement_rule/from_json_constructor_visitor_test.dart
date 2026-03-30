@@ -148,7 +148,7 @@ void main() {
     sut.visit(constructorDeclaration);
 
     verify(
-          () => mockRule.reportAtNode(
+      () => mockRule.reportAtNode(
         any(),
         arguments: [visitorConfig.wrongParamCountContextMessage],
       ),
@@ -209,8 +209,6 @@ void main() {
   test(
     'Reports nothing when fromJson factory takes correct parameter type (Map<String, dynamic/Object?>)',
     () async {
-      stubCollectionTypeResolverIsMapOf(returnValue: true);
-
       const content = '''
       class MyModel {
         factory MyModel.fromJson(Map<String, dynamic> map) => MyModel();
