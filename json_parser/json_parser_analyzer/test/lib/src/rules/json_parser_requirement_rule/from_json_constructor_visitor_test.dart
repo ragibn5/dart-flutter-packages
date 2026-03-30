@@ -184,7 +184,7 @@ void main() {
   );
 
   test(
-    'Reports nothing when fromJson factory correct parameter type (Map<String, dynamic/Object?>)',
+    'Reports nothing when fromJson factory takes correct parameter type (Map<String, dynamic/Object?>)',
     () async {
       stubCollectionTypeResolverIsMapOf(returnValue: true);
 
@@ -201,6 +201,38 @@ void main() {
       );
 
       sut.visit(constructorDeclaration);
+
+      verifyNoReports(mockRule);
+    },
+  );
+
+  test(
+    'Reports nothing when fromJson factory uses typedef for parameter type (not mocking CollectionTypeResolver)',
+    () async {
+      final localSUT = FromJsonConstructorVisitor.test(
+        mockRule,
+        visitorConfig,
+        mockSessionContext,
+        CollectionTypeResolverFactory.create(),
+      );
+
+      final resolved = await dartResolver.resolveSource('''
+      typedef JsonMap = Map<String, dynamic>;
+      
+      class MyModel {
+        factory MyModel.fromJson(JsonMap json) => MyModel();
+        Map<String, dynamic> toJson() => {};
+      }
+      ''');
+
+      final constructorDeclaration = findConstructorDeclaration(
+        resolved.unit,
+        'fromJson',
+      );
+
+      expect(constructorDeclaration, isNotNull);
+
+      localSUT.visit(constructorDeclaration!);
 
       verifyNoReports(mockRule);
     },
