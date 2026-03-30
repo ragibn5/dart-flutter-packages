@@ -28,7 +28,7 @@ void main() {
 
   final visitorConfig = FromJsonConstructorVisitorConfig(
     wrongParamCountContextMessage: 'rcm-1',
-    wrongParamTypeContextMessage: 'rcm-2',
+    wrongParamDeclarationTypeContextMessage: 'rcm-2',
     invalidParamTypeContextMessage: 'rcm-3',
   );
 
@@ -150,7 +150,7 @@ void main() {
     verify(
       () => mockRule.reportAtNode(
         any(),
-        arguments: [visitorConfig.wrongParamTypeContextMessage],
+        arguments: [visitorConfig.wrongParamDeclarationTypeContextMessage],
       ),
     ).called(1);
   });

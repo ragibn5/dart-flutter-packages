@@ -6,13 +6,13 @@ import 'package:meta/meta.dart';
 
 class FromJsonConstructorVisitorConfig {
   final String wrongParamCountContextMessage;
-  final String wrongParamTypeContextMessage;
+  final String wrongParamDeclarationTypeContextMessage;
   final String invalidParamTypeContextMessage;
 
   FromJsonConstructorVisitorConfig({
     this.wrongParamCountContextMessage =
         'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
-    this.wrongParamTypeContextMessage =
+    this.wrongParamDeclarationTypeContextMessage =
         'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
     this.invalidParamTypeContextMessage =
         'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
@@ -65,7 +65,7 @@ class FromJsonConstructorVisitor {
       );
 
       // This check should hide other param specific checks,
-      // because we need to have right number of constructors
+      // because we need to have right number of parameters
       // to begin with. So, will return.
       return;
     }
@@ -73,12 +73,12 @@ class FromJsonConstructorVisitor {
     if (!_isValidParam(params.first)) {
       rule.reportAtNode(
         params.owner,
-        arguments: [visitorConfig.wrongParamTypeContextMessage],
+        arguments: [visitorConfig.wrongParamDeclarationTypeContextMessage],
       );
 
       // This check should hide other param specific checks,
-      // because we need to have right number of constructors
-      // to begin with. So, will return.
+      // because we need to have right parameter declaration
+      // type to begin with. So, will return.
       return;
     }
 
