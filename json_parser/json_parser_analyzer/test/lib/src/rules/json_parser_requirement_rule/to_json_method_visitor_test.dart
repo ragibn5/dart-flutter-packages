@@ -215,4 +215,33 @@ void main() {
       verifyNoReports(mockRule);
     },
   );
+
+  test(
+    'Reports nothing when toJson uses typedef for return type (not mocking CollectionTypeResolver)',
+    () async {
+      final localSUT = ToJsonMethodVisitor.test(
+        mockRule,
+        visitorConfig,
+        mockSessionContext,
+        CollectionTypeResolverFactory.create(),
+      );
+
+      final resolved = await dartResolver.resolveSource('''
+      typedef JsonMap = Map<String, dynamic>;
+      
+      class MyModel {
+        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+        JsonMap toJson() => {};
+      }
+      ''');
+
+      final methodDecl = findMethodDeclaration(resolved.unit, 'toJson');
+
+      expect(methodDecl, isNotNull);
+
+      localSUT.visit(methodDecl!);
+
+      verifyNoReports(mockRule);
+    },
+  );
 }
