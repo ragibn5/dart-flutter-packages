@@ -242,12 +242,9 @@ void main() {
       ''');
 
       final classDeclaration = getClassDeclaration(resolved.unit);
-      final methodDeclaration = findMethodDeclaration(
-        resolved.unit,
-        'fromJson',
-      );
+      final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
 
-      sut.visit(methodDeclaration!, classDeclaration);
+      sut.visit(methodDeclaration, classDeclaration);
 
       verifyNoReports(mockRule);
     },
@@ -266,12 +263,9 @@ void main() {
       ''');
 
       final classDeclaration = getClassDeclaration(resolved.unit);
-      final methodDeclaration = findMethodDeclaration(
-        resolved.unit,
-        'fromJson',
-      );
+      final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
 
-      sut.visit(methodDeclaration!, classDeclaration);
+      sut.visit(methodDeclaration, classDeclaration);
 
       verifyNoReports(mockRule);
     },

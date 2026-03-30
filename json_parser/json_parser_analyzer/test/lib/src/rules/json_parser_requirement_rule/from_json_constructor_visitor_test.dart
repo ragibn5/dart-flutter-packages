@@ -246,14 +246,12 @@ void main() {
       }
       ''');
 
-      final constructorDeclaration = findConstructorDeclaration(
+      final constructorDeclaration = getConstructorDeclaration(
         resolved.unit,
         'fromJson',
       );
 
-      expect(constructorDeclaration, isNotNull);
-
-      localSUT.visit(constructorDeclaration!);
+      localSUT.visit(constructorDeclaration);
 
       verifyNoReports(mockRule);
     },

@@ -233,11 +233,9 @@ void main() {
       }
       ''');
 
-      final methodDecl = findMethodDeclaration(resolved.unit, 'toJson');
+      final methodDecl = getMethodDeclaration(resolved.unit, 'toJson');
 
-      expect(methodDecl, isNotNull);
-
-      localSUT.visit(methodDecl!);
+      localSUT.visit(methodDecl);
 
       verifyNoReports(mockRule);
     },
