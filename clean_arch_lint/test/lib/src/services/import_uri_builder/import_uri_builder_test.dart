@@ -7,19 +7,33 @@ import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 void main() {
+  final dartResolver = DartUnitResolver();
+
   late ImportUriBuilder sut;
+
+  setUpAll(() async {
+    await dartResolver.setUp();
+  });
 
   setUp(() {
     sut = ImportUriBuilder();
   });
 
-  test('If uri string is empty or blank, or null, returns null', () {
-    final importDirective = getParsedImportDirective("import '';");
+  tearDownAll(() async {
+    await dartResolver.tearDown();
+  });
+
+  test('If uri string is empty or blank, or null, returns null', () async {
+    final importDirective = getImportDirective(
+      (await dartResolver.resolveSource("import '';")).unit,
+    );
     expect(sut.fromImportNode(importDirective), isNull);
   });
 
-  test('If there is no `:`, the entire uri is just path', () {
-    final importDirective = getParsedImportDirective("import 'a/b/c';");
+  test('If there is no `:`, the entire uri is just path', () async {
+    final importDirective = getImportDirective(
+      (await dartResolver.resolveSource("import 'a/b/c';")).unit,
+    );
     expect(
       sut.fromImportNode(importDirective),
       isA<ImportUri>()
@@ -30,24 +44,31 @@ void main() {
     );
   });
 
-  test('If uri string has colon but missing mandatory parts, returns null', () {
-    final invalidUris = [
-      ':', // only colon
-      'package:', // scheme only, no package/path
-      ': ', // empty package/path
-    ];
+  test(
+    'If uri string has colon but missing mandatory parts, returns null',
+    () async {
+      final invalidUris = [
+        ':', // only colon
+        'package:', // scheme only, no package/path
+        ': ', // empty package/path
+      ];
 
-    for (final uri in invalidUris) {
-      final importDirective = getParsedImportDirective("import '$uri';");
-      expect(sut.fromImportNode(importDirective), isNull);
-    }
-  });
+      for (final uri in invalidUris) {
+        final importDirective = getImportDirective(
+          (await dartResolver.resolveSource("import '$uri';")).unit,
+        );
+        expect(sut.fromImportNode(importDirective), isNull);
+      }
+    },
+  );
 
   test(
     'If uri string is of form `scheme:package/path`, returns correct ImportUri',
-    () {
-      final importDirective = getParsedImportDirective(
-        "import 'package:foo/bar.dart';",
+    () async {
+      final importDirective = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'package:foo/bar.dart';",
+        )).unit,
       );
       final result = sut.fromImportNode(importDirective);
       expect(
@@ -60,23 +81,28 @@ void main() {
     },
   );
 
-  test('If uri string is of form `scheme:package` (no /), path = package', () {
-    final importDirective = getParsedImportDirective("import 'package:foo';");
-    final result = sut.fromImportNode(importDirective);
-    expect(
-      result,
-      isA<ImportUri>()
-          .having((p) => p.scheme, 'scheme', 'package')
-          .having((p) => p.packageName, 'packageName', isNull)
-          .having((p) => p.path, 'path', 'foo'),
-    );
-  });
+  test(
+    'If uri string is of form `scheme:package` (no /), path = package',
+    () async {
+      final importDirective = getImportDirective(
+        (await dartResolver.resolveSource("import 'package:foo';")).unit,
+      );
+      final result = sut.fromImportNode(importDirective);
+      expect(
+        result,
+        isA<ImportUri>()
+            .having((p) => p.scheme, 'scheme', 'package')
+            .having((p) => p.packageName, 'packageName', isNull)
+            .having((p) => p.path, 'path', 'foo'),
+      );
+    },
+  );
 
   test(
     'If uri string is of form `:package/path` (no scheme), returns correct ImportUri',
-    () {
-      final importDirective = getParsedImportDirective(
-        "import ':foo/bar.dart';",
+    () async {
+      final importDirective = getImportDirective(
+        (await dartResolver.resolveSource("import ':foo/bar.dart';")).unit,
       );
       final result = sut.fromImportNode(importDirective);
       expect(
@@ -91,8 +117,10 @@ void main() {
 
   test(
     'If uri string is of form `:package` (no scheme, no /), path = package',
-    () {
-      final importDirective = getParsedImportDirective("import ':foo';");
+    () async {
+      final importDirective = getImportDirective(
+        (await dartResolver.resolveSource("import ':foo';")).unit,
+      );
       final result = sut.fromImportNode(importDirective);
       expect(
         result,
@@ -106,16 +134,20 @@ void main() {
 
   test(
     'If uri string is of form `scheme:` (scheme only, no package or path), returns null',
-    () {
-      final importDirective = getParsedImportDirective("import 'package:';");
+    () async {
+      final importDirective = getImportDirective(
+        (await dartResolver.resolveSource("import 'package:';")).unit,
+      );
       expect(sut.fromImportNode(importDirective), isNull);
     },
   );
 
   test(
     'If uri string contains multiple colons, first colon is scheme separator',
-    () {
-      final importDirective = getParsedImportDirective("import 'x:y:z';");
+    () async {
+      final importDirective = getImportDirective(
+        (await dartResolver.resolveSource("import 'x:y:z';")).unit,
+      );
       final result = sut.fromImportNode(importDirective);
 
       expect(
