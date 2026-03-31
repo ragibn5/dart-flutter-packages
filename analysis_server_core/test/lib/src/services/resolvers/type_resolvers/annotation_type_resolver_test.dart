@@ -51,7 +51,10 @@ void main() {
     @ann
     class Foo {}
     ''');
-    final annotation = getAnnotation(resolved.unit, annotationName: 'ann');
+    final annotation = getAnnotation(
+      resolved.unit,
+      annotationName: 'GenerateJsonParser',
+    );
     expect(annotation, isNotNull);
 
     final result = sut.resolveTypeName(annotation);
@@ -67,12 +70,13 @@ void main() {
 
     typedef GJP = GenerateJsonParser;
 
-    const ann = GJP();
-
-    @ann
+    @GJP()
     class Foo {}
     ''');
-    final annotation = getAnnotation(resolved.unit, annotationName: 'ann');
+    final annotation = getAnnotation(
+      resolved.unit,
+      annotationName: 'GenerateJsonParser',
+    );
     expect(annotation, isNotNull);
 
     final result = sut.resolveTypeName(annotation);

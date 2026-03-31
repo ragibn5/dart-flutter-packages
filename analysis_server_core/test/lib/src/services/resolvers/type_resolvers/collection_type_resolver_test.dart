@@ -36,9 +36,9 @@ void main() {
     group('returns true', () {
       test('for Map<String, dynamic>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String, dynamic> method() => {};
-          }
+        class Foo {
+          Map<String, dynamic> method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
@@ -49,11 +49,11 @@ void main() {
 
       test('for typedef of Map<String, dynamic>', () async {
         final type = await resolveReturnType('''
-          typedef JsonMap = Map<String, dynamic>;
+        typedef JsonMap = Map<String, dynamic>;
 
-          class Foo {
-            JsonMap method() => {};
-          }
+        class Foo {
+          JsonMap method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
@@ -64,9 +64,9 @@ void main() {
 
       test('for Map<String, Object>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String, Object> method() => {};
-          }
+        class Foo {
+          Map<String, Object> method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
@@ -77,9 +77,9 @@ void main() {
 
       test('for Map<String, dynamic>? when allowNullable is true', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String, dynamic>? method() => null;
-          }
+        class Foo {
+          Map<String, dynamic>? method() => null;
+        }
         ''', methodName: 'method');
 
         expect(
@@ -95,9 +95,9 @@ void main() {
 
       test('for Map<String?, dynamic>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String?, dynamic> method() => {};
-          }
+        class Foo {
+          Map<String?, dynamic> method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
@@ -108,9 +108,9 @@ void main() {
 
       test('for Map<String, Object?>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String, Object?> method() => {};
-          }
+        class Foo {
+          Map<String, Object?> method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
@@ -124,7 +124,7 @@ void main() {
         class Foo {
           Map<String, dynamic> method() => {};
         }
-      ''', methodName: 'method');
+        ''', methodName: 'method');
 
         expect(
           sut.isMapOf(type, keyType: 'String', valueType: 'dynamic?'),
@@ -149,9 +149,9 @@ void main() {
     group('returns false', () {
       test('for Map<String, Object> when dynamic is expected', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String, Object> method() => {};
-          }
+        class Foo {
+          Map<String, Object> method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
@@ -162,10 +162,10 @@ void main() {
 
       test('for Map without type arguments', () async {
         final type = await resolveReturnType('''
-          // ignore: strict_raw_type
-          class Foo {
-            Map method() => {};
-          }
+        // ignore: strict_raw_type
+        class Foo {
+          Map method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
@@ -176,9 +176,9 @@ void main() {
 
       test('for List<String>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            List<String> method() => [];
-          }
+        class Foo {
+          List<String> method() => [];
+        }
         ''', methodName: 'method');
 
         expect(
@@ -189,9 +189,9 @@ void main() {
 
       test('for String', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            String method() => '';
-          }
+        class Foo {
+          String method() => '';
+        }
         ''', methodName: 'method');
 
         expect(
@@ -202,9 +202,9 @@ void main() {
 
       test('for null (no return type annotation)', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            method() => {};
-          }
+        class Foo {
+          method() => {};
+        }
         ''', methodName: 'method');
 
         expect(
@@ -215,9 +215,9 @@ void main() {
 
       test('for Map<String, dynamic>? by default', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String, dynamic>? method() => null;
-          }
+        class Foo {
+          Map<String, dynamic>? method() => null;
+        }
         ''', methodName: 'method');
 
         expect(
@@ -261,9 +261,9 @@ void main() {
     group('returns true', () {
       test('for List<String>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            List<String> method() => [];
-          }
+        class Foo {
+          List<String> method() => [];
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String'), isTrue);
@@ -271,11 +271,11 @@ void main() {
 
       test('for typedef of List<String>', () async {
         final type = await resolveReturnType('''
-          typedef StringList = List<String>;
+        typedef StringList = List<String>;
 
-          class Foo {
-            StringList method() => [];
-          }
+        class Foo {
+          StringList method() => [];
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String'), isTrue);
@@ -283,9 +283,9 @@ void main() {
 
       test('for List<dynamic>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            List<dynamic> method() => [];
-          }
+        class Foo {
+          List<dynamic> method() => [];
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'dynamic'), isTrue);
@@ -293,9 +293,9 @@ void main() {
 
       test('for List<String>? when allowNullable is true', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            List<String>? method() => null;
-          }
+        class Foo {
+          List<String>? method() => null;
+        }
         ''', methodName: 'method');
 
         expect(
@@ -306,9 +306,9 @@ void main() {
 
       test('for List<String?>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            List<String?> method() => [];
-          }
+        class Foo {
+          List<String?> method() => [];
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String?'), isTrue);
@@ -338,9 +338,9 @@ void main() {
     group('returns false', () {
       test('for List<Object> when String is expected', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            List<Object> method() => [];
-          }
+        class Foo {
+          List<Object> method() => [];
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String'), isFalse);
@@ -348,10 +348,10 @@ void main() {
 
       test('for List without type arguments', () async {
         final type = await resolveReturnType('''
-          // ignore: strict_raw_type
-          class Foo {
-            List method() => [];
-          }
+        // ignore: strict_raw_type
+        class Foo {
+          List method() => [];
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String'), isFalse);
@@ -359,9 +359,9 @@ void main() {
 
       test('for Map<String, dynamic>', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            Map<String, dynamic> method() => {};
-          }
+        class Foo {
+          Map<String, dynamic> method() => {};
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String'), isFalse);
@@ -369,9 +369,9 @@ void main() {
 
       test('for List<String>? by default', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            List<String>? method() => null;
-          }
+        class Foo {
+          List<String>? method() => null;
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String'), isFalse);
@@ -379,9 +379,9 @@ void main() {
 
       test('for null (no return type annotation)', () async {
         final type = await resolveReturnType('''
-          class Foo {
-            method() => [];
-          }
+        class Foo {
+          method() => [];
+        }
         ''', methodName: 'method');
 
         expect(sut.isListOf(type, valueType: 'String'), isFalse);
