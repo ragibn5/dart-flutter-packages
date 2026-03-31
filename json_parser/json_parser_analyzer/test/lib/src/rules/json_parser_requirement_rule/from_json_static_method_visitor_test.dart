@@ -15,9 +15,6 @@ class _MockAnalysisRule extends Mock implements AnalysisRule {}
 class _MockRuleSessionContext extends Mock
     implements RuleSessionContext<JsonParserAnalyzerConfig> {}
 
-class _MockCollectionTypeResolver extends Mock
-    implements CollectionTypeResolver {}
-
 class _MockLogger extends Mock implements SessionLogger {}
 
 void main() {
@@ -41,7 +38,6 @@ void main() {
   late _MockLogger mockLogger;
   late _MockAnalysisRule mockRule;
   late _MockRuleSessionContext mockSessionContext;
-  late _MockCollectionTypeResolver mockCollectionTypeResolver;
 
   late FromJsonStaticMethodVisitor sut;
 
@@ -54,23 +50,8 @@ void main() {
     );
   }
 
-  void stubCollectionTypeResolverIsMapOf({required bool returnValue}) {
-    when(
-      () => mockCollectionTypeResolver.isMapOf(
-        any(),
-        keyType: any(named: 'keyType'),
-        valueType: any(named: 'valueType'),
-        mapNullable: any(named: 'mapNullable'),
-      ),
-    ).thenReturn(returnValue);
-  }
-
   ClassDeclaration getClassDeclaration(CompilationUnit unit) {
     return unit.declarations.whereType<ClassDeclaration>().first;
-  }
-
-  ClassDeclaration getParsedClassDeclaration(String content) {
-    return getClassDeclaration(parseString(content: content).unit);
   }
 
   setUpAll(() {
@@ -84,13 +65,12 @@ void main() {
     mockLogger = _MockLogger();
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
-    mockCollectionTypeResolver = _MockCollectionTypeResolver();
 
     sut = FromJsonStaticMethodVisitor.test(
       mockRule,
       visitorConfig,
       mockSessionContext,
-      mockCollectionTypeResolver,
+      CollectionTypeResolverFactory.create(),
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);
@@ -113,8 +93,6 @@ void main() {
     when(
       () => mockRule.reportAtNode(any(), arguments: any(named: 'arguments')),
     ).thenReturn(null);
-
-    stubCollectionTypeResolverIsMapOf(returnValue: true);
   });
 
   tearDown(() async {
@@ -122,15 +100,15 @@ void main() {
   });
 
   test('Reports when fromJson method is a getter', () async {
-    const content = '''
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       static MyModel get fromJson => MyModel();
       Map<String, dynamic> toJson() => {};
     }
-    ''';
+    ''');
 
-    final classDeclaration = getParsedClassDeclaration(content);
-    final methodDeclaration = getParsedMethodDeclaration(content, 'fromJson');
+    final classDeclaration = getClassDeclaration(resolved.unit);
+    final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
 
     sut.visit(methodDeclaration, classDeclaration);
 
@@ -143,15 +121,15 @@ void main() {
   });
 
   test('Reports when fromJson method takes in no params', () async {
-    const content = '''
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       static MyModel fromJson() => MyModel();
       Map<String, dynamic> toJson() => {};
     }
-    ''';
+    ''');
 
-    final classDeclaration = getParsedClassDeclaration(content);
-    final methodDeclaration = getParsedMethodDeclaration(content, 'fromJson');
+    final classDeclaration = getClassDeclaration(resolved.unit);
+    final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
 
     sut.visit(methodDeclaration, classDeclaration);
 
@@ -164,15 +142,15 @@ void main() {
   });
 
   test('Reports when fromJson method takes in more than one params', () async {
-    const content = '''
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       static MyModel fromJson(Map<String, dynamic> map1, Map<String, dynamic> map2) => MyModel();
       Map<String, dynamic> toJson() => {};
     }
-    ''';
+    ''');
 
-    final classDeclaration = getParsedClassDeclaration(content);
-    final methodDeclaration = getParsedMethodDeclaration(content, 'fromJson');
+    final classDeclaration = getClassDeclaration(resolved.unit);
+    final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
 
     sut.visit(methodDeclaration, classDeclaration);
 
@@ -185,15 +163,15 @@ void main() {
   });
 
   test('Reports when fromJson method takes in named param', () async {
-    const content = '''
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       static MyModel fromJson({Map<String, dynamic> map}) => MyModel();
       Map<String, dynamic> toJson() => {};
     }
-    ''';
+    ''');
 
-    final classDeclaration = getParsedClassDeclaration(content);
-    final methodDeclaration = getParsedMethodDeclaration(content, 'fromJson');
+    final classDeclaration = getClassDeclaration(resolved.unit);
+    final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
 
     sut.visit(methodDeclaration, classDeclaration);
 
@@ -208,17 +186,15 @@ void main() {
   test(
     'Reports when fromJson method takes parameter type other that Map<String, dynamic/Object?>',
     () async {
-      stubCollectionTypeResolverIsMapOf(returnValue: false);
-
-      const content = '''
+      final resolved = await dartResolver.resolveSource('''
       class MyModel {
         static MyModel fromJson(Map<String, String> map) => MyModel();
         Map<String, dynamic> toJson() => {};
       }
-      ''';
+      ''');
 
-      final classDeclaration = getParsedClassDeclaration(content);
-      final methodDeclaration = getParsedMethodDeclaration(content, 'fromJson');
+      final classDeclaration = getClassDeclaration(resolved.unit);
+      final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
 
       sut.visit(methodDeclaration, classDeclaration);
 
@@ -251,7 +227,7 @@ void main() {
   );
 
   test(
-    'Reports nothing when fromJson method uses typedef for parameter type (not mocking CollectionTypeResolver)',
+    'Reports nothing when fromJson method uses typedef for parameter type',
     () async {
       final resolved = await dartResolver.resolveSource('''
       typedef JsonMap = Map<String, dynamic>;
@@ -272,17 +248,15 @@ void main() {
   );
 
   test('Reports when fromJson method is missing return type', () async {
-    stubCollectionTypeResolverIsMapOf(returnValue: true);
-
-    const content = '''
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       static fromJson(Map<String, dynamic> map) => MyModel();
       Map<String, dynamic> toJson() => {};
     }
-    ''';
+    ''');
 
-    final classDeclaration = getParsedClassDeclaration(content);
-    final methodDeclaration = getParsedMethodDeclaration(content, 'fromJson');
+    final classDeclaration = getClassDeclaration(resolved.unit);
+    final methodDeclaration = getMethodDeclaration(resolved.unit, 'fromJson');
 
     sut.visit(methodDeclaration, classDeclaration);
 
@@ -297,8 +271,6 @@ void main() {
   test(
     'Reports when fromJson method is returning non-enclosing class type',
     () async {
-      stubCollectionTypeResolverIsMapOf(returnValue: true);
-
       final resolved = await dartResolver.resolveSource('''
       class MyModel {
         static Foo fromJson(Map<String, dynamic> map) => MyModel();
@@ -325,8 +297,6 @@ void main() {
   test(
     'Reports nothing when fromJson method is returning enclosing class',
     () async {
-      stubCollectionTypeResolverIsMapOf(returnValue: true);
-
       final resolved = await dartResolver.resolveSource('''
       class MyModel {
         static MyModel fromJson(Map<String, dynamic> map) => MyModel();
@@ -346,8 +316,6 @@ void main() {
   test(
     'Reports nothing when fromJson method is returning enclosing class as typedef',
     () async {
-      stubCollectionTypeResolverIsMapOf(returnValue: true);
-
       final resolved = await dartResolver.resolveSource('''
       typedef MM = MyModel;
       

@@ -15,9 +15,6 @@ class _MockAnalysisRule extends Mock implements AnalysisRule {}
 class _MockRuleSessionContext extends Mock
     implements RuleSessionContext<JsonParserAnalyzerConfig> {}
 
-class _MockCollectionTypeResolver extends Mock
-    implements CollectionTypeResolver {}
-
 class _MockLogger extends Mock implements SessionLogger {}
 
 void main() {
@@ -38,7 +35,6 @@ void main() {
   late _MockLogger mockLogger;
   late _MockAnalysisRule mockRule;
   late _MockRuleSessionContext mockSessionContext;
-  late _MockCollectionTypeResolver mockCollectionTypeResolver;
 
   late ToJsonMethodVisitor sut;
 
@@ -49,17 +45,6 @@ void main() {
     verifyNever(
       () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
     );
-  }
-
-  void stubCollectionTypeResolverIsMapOf({required bool returnValue}) {
-    when(
-      () => mockCollectionTypeResolver.isMapOf(
-        any(),
-        keyType: any(named: 'keyType'),
-        valueType: any(named: 'valueType'),
-        mapNullable: any(named: 'mapNullable'),
-      ),
-    ).thenReturn(returnValue);
   }
 
   setUpAll(() {
@@ -73,13 +58,12 @@ void main() {
     mockLogger = _MockLogger();
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
-    mockCollectionTypeResolver = _MockCollectionTypeResolver();
 
     sut = ToJsonMethodVisitor.test(
       mockRule,
       visitorConfig,
       mockSessionContext,
-      mockCollectionTypeResolver,
+      CollectionTypeResolverFactory.create(),
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);
@@ -102,22 +86,20 @@ void main() {
     when(
       () => mockRule.reportAtNode(any(), arguments: any(named: 'arguments')),
     ).thenReturn(null);
-
-    stubCollectionTypeResolverIsMapOf(returnValue: true);
   });
 
   tearDown(() async {
     await dartResolver.tearDown();
   });
 
-  test('Reports when toJson is a getter', () {
-    const content = '''
+  test('Reports when toJson is a getter', () async {
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
       Map<String, dynamic> get toJson => {};
     }
-    ''';
-    final methodDecl = getParsedMethodDeclaration(content, 'toJson');
+    ''');
+    final methodDecl = getMethodDeclaration(resolved.unit, 'toJson');
 
     sut.visit(methodDecl);
 
@@ -129,14 +111,14 @@ void main() {
     ).called(1);
   });
 
-  test('Reports when toJson has parameters', () {
-    const content = '''
+  test('Reports when toJson has parameters', () async {
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
       Map<String, dynamic> toJson(String extra) => {};
     }
-    ''';
-    final methodDecl = getParsedMethodDeclaration(content, 'toJson');
+    ''');
+    final methodDecl = getMethodDeclaration(resolved.unit, 'toJson');
 
     sut.visit(methodDecl);
 
@@ -148,23 +130,14 @@ void main() {
     ).called(1);
   });
 
-  test('Reports when toJson return type is missing', () {
-    when(
-      () => mockCollectionTypeResolver.isMapOf(
-        any(),
-        keyType: any(named: 'keyType'),
-        valueType: any(named: 'valueType'),
-        mapNullable: any(named: 'mapNullable'),
-      ),
-    ).thenReturn(false);
-
-    const content = '''
+  test('Reports when toJson return type is missing', () async {
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
       toJson() => '';
     }
-    ''';
-    final methodDecl = getParsedMethodDeclaration(content, 'toJson');
+    ''');
+    final methodDecl = getMethodDeclaration(resolved.unit, 'toJson');
 
     sut.visit(methodDecl);
 
@@ -176,16 +149,14 @@ void main() {
     ).called(1);
   });
 
-  test('Reports when toJson returns wrong type', () {
-    stubCollectionTypeResolverIsMapOf(returnValue: false);
-
-    const content = '''
+  test('Reports when toJson returns wrong type', () async {
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
       String toJson() => '';
     }
-    ''';
-    final methodDecl = getParsedMethodDeclaration(content, 'toJson');
+    ''');
+    final methodDecl = getMethodDeclaration(resolved.unit, 'toJson');
 
     sut.visit(methodDecl);
 
@@ -200,13 +171,13 @@ void main() {
   test(
     'Reports nothing when toJson returns correct type (Map<String, dynamic> or Map<String, Object?>)',
     () async {
-      const content = '''
+      final resolved = await dartResolver.resolveSource('''
       class MyModel {
         factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-        String toJson() => '';
+        Map<String, dynamic> toJson() => '';
       }
-      ''';
-      final methodDecl = getParsedMethodDeclaration(content, 'toJson');
+      ''');
+      final methodDecl = getMethodDeclaration(resolved.unit, 'toJson');
 
       sut.visit(methodDecl);
 
@@ -214,30 +185,27 @@ void main() {
     },
   );
 
-  test(
-    'Reports nothing when toJson uses typedef for return type (not mocking CollectionTypeResolver)',
-    () async {
-      final localSUT = ToJsonMethodVisitor.test(
-        mockRule,
-        visitorConfig,
-        mockSessionContext,
-        CollectionTypeResolverFactory.create(),
-      );
+  test('Reports nothing when toJson uses typedef for return type', () async {
+    final localSUT = ToJsonMethodVisitor.test(
+      mockRule,
+      visitorConfig,
+      mockSessionContext,
+      CollectionTypeResolverFactory.create(),
+    );
 
-      final resolved = await dartResolver.resolveSource('''
-      typedef JsonMap = Map<String, dynamic>;
-      
-      class MyModel {
-        factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
-        JsonMap toJson() => {};
-      }
-      ''');
+    final resolved = await dartResolver.resolveSource('''
+    typedef JsonMap = Map<String, dynamic>;
+    
+    class MyModel {
+      factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
+      JsonMap toJson() => {};
+    }
+    ''');
 
-      final methodDecl = getMethodDeclaration(resolved.unit, 'toJson');
+    final methodDecl = getMethodDeclaration(resolved.unit, 'toJson');
 
-      localSUT.visit(methodDecl);
+    localSUT.visit(methodDecl);
 
-      verifyNoReports(mockRule);
-    },
-  );
+    verifyNoReports(mockRule);
+  });
 }

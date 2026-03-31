@@ -15,9 +15,6 @@ class _MockAnalysisRule extends Mock implements AnalysisRule {}
 class _MockRuleSessionContext extends Mock
     implements RuleSessionContext<JsonParserAnalyzerConfig> {}
 
-class _MockCollectionTypeResolver extends Mock
-    implements CollectionTypeResolver {}
-
 class _MockLogger extends Mock implements SessionLogger {}
 
 void main() {
@@ -37,7 +34,6 @@ void main() {
   late _MockLogger mockLogger;
   late _MockAnalysisRule mockRule;
   late _MockRuleSessionContext mockSessionContext;
-  late _MockCollectionTypeResolver mockCollectionTypeResolver;
 
   late FromJsonConstructorVisitor sut;
 
@@ -48,17 +44,6 @@ void main() {
     verifyNever(
       () => rule.reportAtNode(any(), arguments: any(named: 'arguments')),
     );
-  }
-
-  void stubCollectionTypeResolverIsMapOf({required bool returnValue}) {
-    when(
-      () => mockCollectionTypeResolver.isMapOf(
-        any(),
-        keyType: any(named: 'keyType'),
-        valueType: any(named: 'valueType'),
-        mapNullable: any(named: 'mapNullable'),
-      ),
-    ).thenReturn(returnValue);
   }
 
   setUpAll(() {
@@ -72,13 +57,12 @@ void main() {
     mockLogger = _MockLogger();
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
-    mockCollectionTypeResolver = _MockCollectionTypeResolver();
 
     sut = FromJsonConstructorVisitor.test(
       mockRule,
       visitorConfig,
       mockSessionContext,
-      mockCollectionTypeResolver,
+      CollectionTypeResolverFactory.create(),
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);
@@ -101,8 +85,6 @@ void main() {
     when(
       () => mockRule.reportAtNode(any(), arguments: any(named: 'arguments')),
     ).thenReturn(null);
-
-    stubCollectionTypeResolverIsMapOf(returnValue: true);
   });
 
   tearDown(() async {
@@ -110,15 +92,15 @@ void main() {
   });
 
   test('Reports when fromJson factory takes in no params', () async {
-    const content = '''
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       factory MyModel.fromJson() => MyModel();
       Map<String, dynamic> toJson() => {};
     }
-    ''';
+    ''');
 
-    final constructorDeclaration = getParsedFactoryConstructorDeclaration(
-      content,
+    final constructorDeclaration = getFactoryConstructorDeclaration(
+      resolved.unit,
       'fromJson',
     );
 
@@ -133,15 +115,15 @@ void main() {
   });
 
   test('Reports when fromJson factory takes in more than one params', () async {
-    const content = '''
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       factory MyModel.fromJson(Map<String, dynamic> map1, Map<String, dynamic> map2) => MyModel();
       Map<String, dynamic> toJson() => {};
     }
-    ''';
+    ''');
 
-    final constructorDeclaration = getParsedFactoryConstructorDeclaration(
-      content,
+    final constructorDeclaration = getFactoryConstructorDeclaration(
+      resolved.unit,
       'fromJson',
     );
 
@@ -156,15 +138,15 @@ void main() {
   });
 
   test('Reports when fromJson factory takes in named param', () async {
-    const content = '''
+    final resolved = await dartResolver.resolveSource('''
     class MyModel {
       factory MyModel.fromJson({Map<String, dynamic> map}) => MyModel();
       Map<String, dynamic> toJson() => {};
     }
-    ''';
+    ''');
 
-    final constructorDeclaration = getParsedFactoryConstructorDeclaration(
-      content,
+    final constructorDeclaration = getFactoryConstructorDeclaration(
+      resolved.unit,
       'fromJson',
     );
 
@@ -181,17 +163,15 @@ void main() {
   test(
     'Reports when fromJson factory takes parameter type other that Map<String, dynamic/Object?>',
     () async {
-      stubCollectionTypeResolverIsMapOf(returnValue: false);
-
-      const content = '''
+      final resolved = await dartResolver.resolveSource('''
       class MyModel {
         factory MyModel.fromJson(Map<String, String> map) => MyModel();
         Map<String, dynamic> toJson() => {};
       }
-      ''';
+      ''');
 
-      final constructorDeclaration = getParsedFactoryConstructorDeclaration(
-        content,
+      final constructorDeclaration = getFactoryConstructorDeclaration(
+        resolved.unit,
         'fromJson',
       );
 
@@ -209,15 +189,15 @@ void main() {
   test(
     'Reports nothing when fromJson factory takes correct parameter type (Map<String, dynamic/Object?>)',
     () async {
-      const content = '''
+      final resolved = await dartResolver.resolveSource('''
       class MyModel {
         factory MyModel.fromJson(Map<String, dynamic> map) => MyModel();
         Map<String, dynamic> toJson() => {};
       }
-      ''';
+      ''');
 
-      final constructorDeclaration = getParsedFactoryConstructorDeclaration(
-        content,
+      final constructorDeclaration = getFactoryConstructorDeclaration(
+        resolved.unit,
         'fromJson',
       );
 
@@ -228,7 +208,7 @@ void main() {
   );
 
   test(
-    'Reports nothing when fromJson factory uses typedef for parameter type (not mocking CollectionTypeResolver)',
+    'Reports nothing when fromJson factory uses typedef for parameter type',
     () async {
       final localSUT = FromJsonConstructorVisitor.test(
         mockRule,

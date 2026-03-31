@@ -18,9 +18,6 @@ class _MockAnalysisRule extends Mock implements AnalysisRule {}
 class _MockRuleSessionContext extends Mock
     implements RuleSessionContext<JsonParserAnalyzerConfig> {}
 
-class _MockAnnotationTypeResolver extends Mock
-    implements AnnotationTypeResolver {}
-
 class _MockLogger extends Mock implements SessionLogger {}
 
 class _MockToJsonMethodVisitor extends Mock implements ToJsonMethodVisitor {}
@@ -41,10 +38,11 @@ void main() {
     missingFromJsonContextMessage: 'rcm-2',
   );
 
+  final dartResolver = DartUnitResolver();
+
   late _MockLogger mockLogger;
   late _MockAnalysisRule mockRule;
   late _MockRuleSessionContext mockSessionContext;
-  late _MockAnnotationTypeResolver mockAnnotationTypeResolver;
   late _MockToJsonMethodVisitor mockToJsonMethodVisitor;
   late _MockFromJsonConstructorVisitor mockFromJsonConstructorVisitor;
   late _MockFromJsonStaticMethodVisitor mockFromJsonStaticMethodVisitor;
@@ -65,11 +63,12 @@ void main() {
     registerFallbackValue(fakeAnnotation);
   });
 
-  setUp(() {
+  setUp(() async {
+    await dartResolver.setUp();
+
     mockLogger = _MockLogger();
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
-    mockAnnotationTypeResolver = _MockAnnotationTypeResolver();
     mockToJsonMethodVisitor = _MockToJsonMethodVisitor();
     mockFromJsonConstructorVisitor = _MockFromJsonConstructorVisitor();
     mockFromJsonStaticMethodVisitor = _MockFromJsonStaticMethodVisitor();
@@ -78,7 +77,7 @@ void main() {
       mockRule,
       visitorConfig,
       mockSessionContext,
-      mockAnnotationTypeResolver,
+      AnnotationTypeResolverFactory.create(),
       mockToJsonMethodVisitor,
       mockFromJsonConstructorVisitor,
       mockFromJsonStaticMethodVisitor,
@@ -104,61 +103,64 @@ void main() {
     when(
       () => mockRule.reportAtNode(any(), arguments: any(named: 'arguments')),
     ).thenReturn(null);
-
-    when(
-      () => mockAnnotationTypeResolver.resolveTypeName(any()),
-    ).thenReturn('GenerateJsonParser');
   });
 
-  test('Ignores annotations other than @GenerateJsonParser', () {
-    when(
-      () => mockAnnotationTypeResolver.resolveTypeName(any()),
-    ).thenReturn('SomeOtherAnnotation');
+  tearDown(() async {
+    await dartResolver.tearDown();
+  });
 
-    const content = '''
+  test('Ignores annotations other than @GenerateJsonParser', () async {
+    final resolved = await dartResolver.resolveSource('''
     @SomeOtherAnnotation()
     class Foo {}
-    ''';
-    final annotation = getParsedAnnotation<ClassDeclaration>(
-      content,
+    
+    class SomeOtherAnnotation {
+      const SomeOtherAnnotation();
+    }
+    ''');
+    final annotation = getAnnotation<ClassDeclaration>(
+      resolved.unit,
       annotationName: 'SomeOtherAnnotation',
     );
 
     sut.visitAnnotation(annotation);
 
-    verify(() => mockAnnotationTypeResolver.resolveTypeName(any())).called(1);
     verifyNoReports(mockRule);
   });
 
-  test('Ignores @GenerateJsonParser on a top-level function (non-class)', () {
-    const content = '''
-    @GenerateJsonParser()
-    mixin FooMixin {}
-    ''';
-    final unit = parseString(content: content).unit;
-    Annotation? annotation;
-    for (final decl in unit.declarations) {
-      if (decl is MixinDeclaration) {
-        annotation = decl.metadata.firstOrNull;
+  test(
+    'Ignores @GenerateJsonParser on a top-level function (non-class)',
+    () async {
+      final resolved = await dartResolver.resolveSource('''
+      @GenerateJsonParser()
+      mixin FooMixin {}
+      
+      class GenerateJsonParser {
+        const GenerateJsonParser();
       }
-    }
+      ''');
+      final annotation = getAnnotation<MixinDeclaration>(
+        resolved.unit,
+        annotationName: 'GenerateJsonParser',
+      );
 
-    if (annotation == null) {
-      return;
-    }
+      sut.visitAnnotation(annotation);
 
-    sut.visitAnnotation(annotation);
+      verifyNoReports(mockRule);
+    },
+  );
 
-    verifyNoReports(mockRule);
-  });
-
-  test('Ignores abstract classes annotated with @GenerateJsonParser', () {
-    const content = '''
+  test('Ignores abstract classes annotated with @GenerateJsonParser', () async {
+    final resolved = await dartResolver.resolveSource('''
     @GenerateJsonParser()
     abstract class MyModel {}
-    ''';
-    final annotation = getParsedAnnotation<ClassDeclaration>(
-      content,
+    
+    class GenerateJsonParser {
+      const GenerateJsonParser();
+    }
+    ''');
+    final annotation = getAnnotation<ClassDeclaration>(
+      resolved.unit,
       annotationName: 'GenerateJsonParser',
     );
 
@@ -167,15 +169,19 @@ void main() {
     verifyNoReports(mockRule);
   });
 
-  test('Reports when toJson is absent', () {
-    const content = '''
+  test('Reports when toJson is absent', () async {
+    final resolved = await dartResolver.resolveSource('''
     @GenerateJsonParser()
     class MyModel {
       factory MyModel.fromJson(Map<String, dynamic> json) => MyModel();
     }
-    ''';
-    final annotation = getParsedAnnotation<ClassDeclaration>(
-      content,
+    
+    class GenerateJsonParser {
+      const GenerateJsonParser();
+    }
+    ''');
+    final annotation = getAnnotation<ClassDeclaration>(
+      resolved.unit,
       annotationName: 'GenerateJsonParser',
     );
 
@@ -189,35 +195,46 @@ void main() {
     ).called(1);
   });
 
-  test('Reports when both fromJson factory and static method are absent', () {
-    const content = '''
-    @GenerateJsonParser()
-    class MyModel {
-      Map<String, dynamic> toJson() => {};
-    }
-    ''';
-    final annotation = getParsedAnnotation<ClassDeclaration>(
-      content,
-      annotationName: 'GenerateJsonParser',
-    );
+  test(
+    'Reports when both fromJson factory and static method are absent',
+    () async {
+      final resolved = await dartResolver.resolveSource('''
+      @GenerateJsonParser()
+      class MyModel {
+        Map<String, dynamic> toJson() => {};
+      }
+      
+      class GenerateJsonParser {
+        const GenerateJsonParser();
+      }
+      ''');
+      final annotation = getAnnotation<ClassDeclaration>(
+        resolved.unit,
+        annotationName: 'GenerateJsonParser',
+      );
 
-    sut.visitAnnotation(annotation);
+      sut.visitAnnotation(annotation);
 
-    verify(
-      () => mockRule.reportAtToken(
-        any(),
-        arguments: [visitorConfig.missingFromJsonContextMessage],
-      ),
-    ).called(1);
-  });
+      verify(
+        () => mockRule.reportAtToken(
+          any(),
+          arguments: [visitorConfig.missingFromJsonContextMessage],
+        ),
+      ).called(1);
+    },
+  );
 
-  test('Reports both missing toJson and missing fromJson', () {
-    const content = '''
+  test('Reports both missing toJson and missing fromJson', () async {
+    final resolved = await dartResolver.resolveSource('''
     @GenerateJsonParser()
     class MyModel {}
-    ''';
-    final annotation = getParsedAnnotation<ClassDeclaration>(
-      content,
+    
+    class GenerateJsonParser {
+      const GenerateJsonParser();
+    }
+    ''');
+    final annotation = getAnnotation<ClassDeclaration>(
+      resolved.unit,
       annotationName: 'GenerateJsonParser',
     );
 
@@ -239,15 +256,19 @@ void main() {
 
   test(
     'Reports both missing toJson and missing fromJson and annotation is a typedef',
-    () {
-      const content = '''
-    typedef GJP = GenerateJsonParser;
-    
-    @GJP()
-    class MyModel {}
-    ''';
-      final annotation = getParsedAnnotation<ClassDeclaration>(
-        content,
+    () async {
+      final resolved = await dartResolver.resolveSource('''
+      typedef GJP = GenerateJsonParser;
+      
+      @GJP()
+      class MyModel {}
+      
+      class GenerateJsonParser {
+        const GenerateJsonParser();
+      }
+      ''');
+      final annotation = getAnnotation<ClassDeclaration>(
+        resolved.unit,
         annotationName: 'GenerateJsonParser',
       );
 
