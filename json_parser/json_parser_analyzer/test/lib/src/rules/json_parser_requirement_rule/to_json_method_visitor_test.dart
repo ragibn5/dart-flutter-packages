@@ -47,14 +47,14 @@ void main() {
     );
   }
 
-  setUpAll(() {
+  setUpAll(() async {
     registerFallbackValue(fakeToken);
     registerFallbackValue(fakeTypeAnnotation);
+
+    await dartResolver.setUp();
   });
 
-  setUp(() async {
-    await dartResolver.setUp();
-
+  setUp(() {
     mockLogger = _MockLogger();
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
@@ -88,7 +88,7 @@ void main() {
     ).thenReturn(null);
   });
 
-  tearDown(() async {
+  tearDownAll(() async {
     await dartResolver.tearDown();
   });
 
