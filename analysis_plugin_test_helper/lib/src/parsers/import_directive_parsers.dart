@@ -19,19 +19,12 @@ ImportDirective getImportDirective(CompilationUnit unit) {
 
 /// Parses [content] and returns the first [ImportDirective], or `null`
 /// if none is found.
-///
-/// The returned [ImportDirective] is **unresolved** — the AST is parsed
-/// syntactically only. Properties that require resolution, will be `null`.
-/// Use [DartUnitResolver] if resolved information is needed.
 ImportDirective? findParsedImportDirective(String content) {
   return findImportDirective(parseString(content: content).unit);
 }
 
 /// Parses [content] and returns the import directive, failing the test if
 /// absent.
-///
-/// The returned [ImportDirective] is **unresolved** — see
-/// [findParsedImportDirective] for details.
 ImportDirective getParsedImportDirective(String content) {
   final importDirective = findParsedImportDirective(content);
   if (importDirective == null) {

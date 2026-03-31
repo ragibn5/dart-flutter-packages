@@ -1,19 +1,19 @@
-import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:test/test.dart';
 
-/// Returns the first [ConstructorDeclaration] whose name matches [name],
-/// or `null` if none is found.
+/// Returns the first [ConstructorDeclaration] whose name matches [name]
+/// in [unit], or `null` if none is found. Pass `null` for [name] to find
+/// the default constructor.
 ///
-/// Searches the members of all supported declaration kinds in [unit]:
-/// - [ClassDeclaration]
-/// - [MixinDeclaration]
-/// - [ExtensionDeclaration]
-/// - [ExtensionTypeDeclaration]
-/// - [EnumDeclaration]
-///
-/// Unsupported kinds (e.g. [FunctionDeclaration],
-/// [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
+/// Note:
+/// - Searches the members of all supported declaration kinds:
+///   - [ClassDeclaration]
+///   - [MixinDeclaration]
+///   - [ExtensionDeclaration]
+///   - [ExtensionTypeDeclaration]
+///   - [EnumDeclaration]
+/// - Unsupported kinds (e.g. [FunctionDeclaration],
+///   [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
 ConstructorDeclaration? findConstructorDeclaration(
   CompilationUnit unit,
   String? name,
@@ -37,18 +37,12 @@ ConstructorDeclaration? findConstructorDeclaration(
   return null;
 }
 
-/// Returns the first [ConstructorDeclaration] whose name matches [name],
-/// failing the test if absent.
+/// Returns the first [ConstructorDeclaration] whose name matches [name]
+/// in [unit], failing the test if absent. Pass `null` for [name] to find
+/// the default constructor.
 ///
-/// Searches the members of all supported declaration kinds in [unit]:
-/// - [ClassDeclaration]
-/// - [MixinDeclaration]
-/// - [ExtensionDeclaration]
-/// - [ExtensionTypeDeclaration]
-/// - [EnumDeclaration]
-///
-/// Unsupported kinds (e.g. [FunctionDeclaration],
-/// [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
+/// Searches the members of all supported declaration kinds —
+/// see [findConstructorDeclaration] for details.
 ConstructorDeclaration getConstructorDeclaration(
   CompilationUnit unit,
   String? name,
@@ -62,17 +56,11 @@ ConstructorDeclaration getConstructorDeclaration(
 }
 
 /// Returns the first factory [ConstructorDeclaration] whose name matches
-/// [name], or `null` if none is found.
+/// [name] in [unit], or `null` if none is found. Pass `null` for [name]
+/// to find the default factory constructor.
 ///
-/// Searches the members of all supported declaration kinds in [unit]:
-/// - [ClassDeclaration]
-/// - [MixinDeclaration]
-/// - [ExtensionDeclaration]
-/// - [ExtensionTypeDeclaration]
-/// - [EnumDeclaration]
-///
-/// Unsupported kinds (e.g. [FunctionDeclaration],
-/// [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
+/// Searches the members of all supported declaration kinds —
+/// see [findConstructorDeclaration] for details.
 ConstructorDeclaration? findFactoryConstructorDeclaration(
   CompilationUnit unit,
   String? name,
@@ -97,86 +85,16 @@ ConstructorDeclaration? findFactoryConstructorDeclaration(
 }
 
 /// Returns the first factory [ConstructorDeclaration] whose name matches
-/// [name], failing the test if absent.
+/// [name] in [unit], failing the test if absent. Pass `null` for [name]
+/// to find the default factory constructor.
 ///
-/// Searches the members of all supported declaration kinds in [unit]:
-/// - [ClassDeclaration]
-/// - [MixinDeclaration]
-/// - [ExtensionDeclaration]
-/// - [ExtensionTypeDeclaration]
-/// - [EnumDeclaration]
-///
-/// Unsupported kinds (e.g. [FunctionDeclaration],
-/// [TopLevelVariableDeclaration], [TypeAlias]) are skipped.
+/// Searches the members of all supported declaration kinds —
+/// see [findConstructorDeclaration] for details.
 ConstructorDeclaration getFactoryConstructorDeclaration(
   CompilationUnit unit,
   String? name,
 ) {
   final constructor = findFactoryConstructorDeclaration(unit, name);
-  if (constructor == null) {
-    fail('Could not find factory constructor "${name ?? 'default'}"');
-  }
-
-  return constructor;
-}
-
-/// Parses [content] and returns the first [ConstructorDeclaration] whose
-/// name matches [name], or `null` if none is found.
-///
-/// The returned [ConstructorDeclaration] is **unresolved** — the AST is
-/// parsed syntactically only. Properties that require resolution, such as
-/// [Element] references and constant values, will be `null`. Use
-/// [DartUnitResolver] if resolved information is needed.
-ConstructorDeclaration? findParsedConstructorDeclaration(
-  String content,
-  String? name,
-) {
-  final unit = parseString(content: content).unit;
-  return findConstructorDeclaration(unit, name);
-}
-
-/// Parses [content] and returns the first factory [ConstructorDeclaration]
-/// whose name matches [name], or `null` if none is found.
-///
-/// The returned [ConstructorDeclaration] is **unresolved** — the AST is
-/// parsed syntactically only. Properties that require resolution, such as
-/// [Element] references and constant values, will be `null`. Use
-/// [DartUnitResolver] if resolved information is needed.
-ConstructorDeclaration? findParsedFactoryConstructorDeclaration(
-  String content,
-  String? name,
-) {
-  final unit = parseString(content: content).unit;
-  return findFactoryConstructorDeclaration(unit, name);
-}
-
-/// Parses [content] and returns the first [ConstructorDeclaration] whose
-/// name matches [name], failing the test if absent.
-///
-/// The returned [ConstructorDeclaration] is **unresolved** —
-/// see [findParsedConstructorDeclaration] for details.
-ConstructorDeclaration getParsedConstructorDeclaration(
-  String content,
-  String? name,
-) {
-  final constructor = findParsedConstructorDeclaration(content, name);
-  if (constructor == null) {
-    fail('Could not find constructor "${name ?? 'default'}"');
-  }
-
-  return constructor;
-}
-
-/// Parses [content] and returns the first factory [ConstructorDeclaration]
-/// whose name matches [name], failing the test if absent.
-///
-/// The returned [ConstructorDeclaration] is **unresolved** —
-/// see [findParsedFactoryConstructorDeclaration] for details.
-ConstructorDeclaration getParsedFactoryConstructorDeclaration(
-  String content,
-  String? name,
-) {
-  final constructor = findParsedFactoryConstructorDeclaration(content, name);
   if (constructor == null) {
     fail('Could not find factory constructor "${name ?? 'default'}"');
   }

@@ -213,9 +213,9 @@ void main() {
 
   test('Reports both missing toJson and missing fromJson', () {
     const content = '''
-      @GenerateJsonParser()
-      class MyModel {}
-      ''';
+    @GenerateJsonParser()
+    class MyModel {}
+    ''';
     final annotation = getParsedAnnotation<ClassDeclaration>(
       content,
       annotationName: 'GenerateJsonParser',
@@ -236,4 +236,35 @@ void main() {
       ),
     ).called(1);
   });
+
+  test(
+    'Reports both missing toJson and missing fromJson and annotation is a typedef',
+    () {
+      const content = '''
+    typedef GJP = GenerateJsonParser;
+    
+    @GJP()
+    class MyModel {}
+    ''';
+      final annotation = getParsedAnnotation<ClassDeclaration>(
+        content,
+        annotationName: 'GenerateJsonParser',
+      );
+
+      sut.visitAnnotation(annotation);
+
+      verify(
+        () => mockRule.reportAtToken(
+          any(),
+          arguments: [visitorConfig.missingToJsonContextMessage],
+        ),
+      ).called(1);
+      verify(
+        () => mockRule.reportAtToken(
+          any(),
+          arguments: [visitorConfig.missingFromJsonContextMessage],
+        ),
+      ).called(1);
+    },
+  );
 }
