@@ -7,12 +7,15 @@ void main() {
   final dartResolver = DartUnitResolver();
   late DefaultCollectionTypeResolver sut;
 
-  setUp(() async {
+  setUpAll(() async {
     await dartResolver.setUp();
+  });
+
+  setUp(() {
     sut = const DefaultCollectionTypeResolver();
   });
 
-  tearDown(() async {
+  tearDownAll(() async {
     await dartResolver.tearDown();
   });
 

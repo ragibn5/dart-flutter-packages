@@ -9,12 +9,15 @@ void main() {
 
   late ConstantValueAnnotationTypeResolver sut;
 
-  setUp(() async {
+  setUpAll(() async {
     await dartResolver.setUp();
+  });
+
+  setUp(() {
     sut = const ConstantValueAnnotationTypeResolver();
   });
 
-  tearDown(() async {
+  tearDownAll(() async {
     await dartResolver.tearDown();
   });
 
