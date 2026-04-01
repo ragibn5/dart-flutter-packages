@@ -1,15 +1,15 @@
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: avoid_redundant_argument_values
 
+import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
 import 'package:analysis_server_core/analysis_server_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
 import 'package:clean_arch_lint/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
-
-import '../../../utils/parsers/import_directive_parsers.dart';
 
 class _MockAnalysisRule extends Mock implements AnalysisRule {}
 
@@ -28,6 +28,7 @@ class _MockSessionLogger extends Mock implements SessionLogger {}
 class _MockImportUriBuilder extends Mock implements ImportUriBuilder {}
 
 void main() {
+  final dartResolver = DartUnitResolver();
   final realImportUriBuilder = ImportUriBuilder();
 
   late _MockAnalysisRule mockAnalysisRule;
@@ -46,20 +47,42 @@ void main() {
     ).thenReturn(realImportUriBuilder.fromImportNode(directive));
   }
 
-  void verifyInfoLoggedOnce() {
+  void verifyWarningLoggedOnce() {
     verify(
-      () => mockRuleSessionContext.logger.logInfo(
+      () => mockRuleSessionContext.logger.logWarning(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
     ).called(1);
   }
 
-  void verifyNodeReportedOnce(ImportDirective directive) =>
-      verify(() => mockAnalysisRule.reportAtNode(directive)).called(1);
+  void verifyNodeReportedOnce(
+    ImportDirective directive, {
+    required String message,
+  }) => verify(
+    () => mockAnalysisRule.reportAtNode(
+      directive,
+      arguments: any(
+        named: 'arguments',
+        that: predicate<List<Object>>((args) {
+          print('Arg: $args');
+          print('Msg: $message');
+          return args.length == 1 && args.first == message;
+        }),
+      ),
+    ),
+  ).called(1);
 
-  void verifyNodeNeverReported() =>
-      verifyNever(() => mockAnalysisRule.reportAtNode(any()));
+  void verifyNodeNeverReported() => verifyNever(
+    () => mockAnalysisRule.reportAtNode(
+      any(),
+      arguments: any(named: 'arguments'),
+    ),
+  );
+
+  setUpAll(() async {
+    await dartResolver.setUp();
+  });
 
   setUp(() {
     mockAnalysisRule = _MockAnalysisRule();
@@ -82,63 +105,77 @@ void main() {
     when(() => mockRuleSessionContext.logger).thenReturn(mockSessionLogger);
 
     when(
-      () => mockSessionLogger.logInfo(
+      () => mockSessionLogger.logWarning(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
     ).thenAnswer((_) {});
   });
 
+  tearDownAll(() async {
+    await dartResolver.tearDown();
+  });
+
   test(
     'When the import URI cannot be parsed, the directive is ignored and nothing is reported',
-    () {
-      final directive = parseValidImportDirective("import '';");
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource("import '';")).unit,
+      );
       when(
         () => mockImportUriBuilder.fromImportNode(directive),
       ).thenReturn(null);
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
 
   test(
     'When the import is from the Dart SDK and core packages are excluded by configuration, the directive is ignored',
-    () {
-      final directive = parseValidImportDirective("import 'dart:core';");
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource("import 'dart:core';")).unit,
+      );
       givenImportUri(directive);
 
       when(() => mockDDRConfig.excludeCoreDartPackages).thenReturn(true);
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
 
   test(
     'When the import is from the Dart SDK and core packages are not excluded, the directive is reported',
-    () {
-      final directive = parseValidImportDirective("import 'dart:core';");
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource("import 'dart:core';")).unit,
+      );
       givenImportUri(directive);
 
       when(() => mockDDRConfig.excludeCoreDartPackages).thenReturn(false);
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
-      verifyNodeReportedOnce(directive);
+      verifyNodeReportedOnce(
+        directive,
+        message: 'core dart import in domain layer.',
+      );
     },
   );
 
   test(
     'When a relative import points to a domain layer path inside the host package, the directive is allowed and not reported',
-    () {
-      final directive = parseValidImportDirective(
-        "import 'feature/auth/domain/services/auth_data_service.dart';",
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'feature/auth/domain/services/auth_data_service.dart';",
+        )).unit,
       );
       givenImportUri(directive);
 
@@ -146,16 +183,18 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
 
   test(
     'When a relative import does not target the domain layer but its path is explicitly excluded in the configuration, the directive is ignored',
-    () {
-      final directive = parseValidImportDirective(
-        "import 'core/models/auth_data.dart';",
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'core/models/auth_data.dart';",
+        )).unit,
       );
       givenImportUri(directive);
 
@@ -164,16 +203,18 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
 
   test(
     'When a relative import does not target the domain layer and is not in an excluded project path, the directive is reported',
-    () {
-      final directive = parseValidImportDirective(
-        "import 'feature/auth/data/sources/local_auth_data_source.dart';",
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'feature/auth/data/sources/local_auth_data_source.dart';",
+        )).unit,
       );
       givenImportUri(directive);
 
@@ -182,16 +223,20 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
-      verifyNodeReportedOnce(directive);
+      verifyNodeReportedOnce(
+        directive,
+        message: 'non-domain import in domain layer.',
+      );
     },
   );
 
   test(
     'When a package import targets the host package and points to a domain layer path, the directive is allowed',
-    () {
-      final directive = parseValidImportDirective(
-        "import 'package:xyz/feature/auth/domain/services/auth_data_service.dart';",
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'package:xyz/feature/auth/domain/services/auth_data_service.dart';",
+        )).unit,
       );
       givenImportUri(directive);
 
@@ -200,16 +245,18 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
 
   test(
     'When a package import targets the host package and its path is excluded by configuration, the directive is ignored',
-    () {
-      final directive = parseValidImportDirective(
-        "import 'package:xyz/core/models/auth_data.dart';",
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'package:xyz/core/models/auth_data.dart';",
+        )).unit,
       );
       givenImportUri(directive);
 
@@ -219,16 +266,18 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
 
   test(
     'When a third party package import matches an excluded library prefix, the directive is ignored',
-    () {
-      final directive = parseValidImportDirective(
-        "import 'package:dartz/functional/fold.dart';",
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'package:dartz/functional/fold.dart';",
+        )).unit,
       );
       givenImportUri(directive);
 
@@ -237,16 +286,18 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
+      verifyWarningLoggedOnce();
       verifyNodeNeverReported();
     },
   );
 
   test(
     'When a third party package import is not excluded by configuration, the directive is reported',
-    () {
-      final directive = parseValidImportDirective(
-        "import 'package:dartz/functional/fold.dart';",
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'package:dartz/functional/fold.dart';",
+        )).unit,
       );
       givenImportUri(directive);
 
@@ -255,8 +306,10 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyInfoLoggedOnce();
-      verifyNodeReportedOnce(directive);
+      verifyNodeReportedOnce(
+        directive,
+        message: 'library package import in domain layer.',
+      );
     },
   );
 }

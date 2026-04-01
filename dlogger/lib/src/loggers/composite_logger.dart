@@ -1,6 +1,7 @@
 import 'package:dlogger/src/loggers/logger.dart';
 import 'package:dlogger/src/models/log_data.dart';
 import 'package:dlogger/src/services/log_filter.dart';
+import 'package:meta/meta.dart';
 
 /// A [Logger] that logs to multiple other loggers (of same base type).
 class CompositeLogger implements Logger {
@@ -41,4 +42,10 @@ class CompositeLogger implements Logger {
       loggerEntry.value.log(logData);
     }
   }
+
+  @visibleForTesting
+  Map<String, Logger> get loggers => Map.unmodifiable(_loggers);
+
+  @visibleForTesting
+  List<LogFilter> get filters => List.unmodifiable(_filters);
 }

@@ -1,0 +1,13 @@
+builders:
+  # name of the JSON parsers builder
+  json_parsers_builder:
+    # library URI containing the top level builder function
+    import: "package:json_parser_generator/builder.dart"
+    # Name of the top level function in the above library to call
+    builder_factories: [ "jsonParsersBuilder" ]
+    # The mapping from the source extension to the generated file extension
+    build_extensions: { r"$lib$": [ "generated/json_parser/parsers.dart" ] }
+    # Will automatically run on any package that depends on it
+    auto_apply: dependents
+    # Generate the output directly into the package, not to a hidden cache dir
+    build_to: source

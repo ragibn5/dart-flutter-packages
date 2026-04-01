@@ -60,6 +60,8 @@ dependencies:
     path: ../datetime_utils
   dlogger:
     path: ../dlogger
+  json_parser:
+    path: ../json_parser
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
@@ -79,6 +81,8 @@ dev_dependencies:
   very_good_analysis: ^7.0.0
   clean_arch_lint:
     path: ../clean_arch_lint
+  json_parser_generator:
+    path: ../json_parser/json_parser_generator
 
   # Generators
   build_runner: ^2.4.15

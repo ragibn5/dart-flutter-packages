@@ -1,0 +1,145 @@
+import 'dart:async';
+
+import 'package:analyzer/dart/element/element.dart';
+import 'package:code_builder/code_builder.dart';
+import 'package:dart_style/dart_style.dart';
+import 'package:generator_core/generator_core.dart';
+import 'package:json_parser_annotations/json_parser_annotations.dart';
+import 'package:json_parser_generator/src/generators/parser_class_generator.dart';
+import 'package:json_parser_generator/src/generators/registry_class_generator.dart';
+import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
+import 'package:json_parser_generator/src/models/json_parser_generator_context_config.dart';
+import 'package:json_parser_generator/src/readers/annotated_element_reader.dart';
+import 'package:json_parser_generator/src/readers/gjp_annotation_reader.dart';
+
+class JsonParsersBuilderConfig {
+  /// Path relative to lib/, e.g. 'generated/json_parser/parsers.dart'.
+  ///
+  /// Note: This must match with one of the extension values under
+  /// `builders.json_parsers_builder.build_extensions` found within build.yaml.
+  final String outputPathRelativeToLib;
+
+  const JsonParsersBuilderConfig({required this.outputPathRelativeToLib});
+
+  String get outputPathRelativeToPackageRoot => 'lib/$outputPathRelativeToLib';
+}
+
+class JsonParsersBuilder
+    extends SessionManagedRawBuilder<JsonParserGeneratorContextConfig> {
+  final JsonParsersBuilderConfig _parsersBuilderConfig;
+
+  final AnnotatedElementReader _annotatedElementReader;
+  final GJPAnnotationReader _gjpAnnotationReader;
+  final ParserClassGenerator _parserGenerator;
+  final RegistryClassGenerator _registryGenerator;
+
+  JsonParsersBuilder(
+    this._parsersBuilderConfig, {
+    required SessionDataManager sessionDataManager,
+    AnnotatedElementReader annotatedClassReader =
+        const AnnotatedElementReader(),
+    GJPAnnotationReader gjpAnnotationReader = const GJPAnnotationReader(),
+    ParserClassGenerator parserClassGenerator = const ParserClassGenerator(),
+    RegistryClassGenerator registryClassGenerator =
+        const RegistryClassGenerator(),
+  }) : _annotatedElementReader = annotatedClassReader,
+       _gjpAnnotationReader = gjpAnnotationReader,
+       _parserGenerator = parserClassGenerator,
+       _registryGenerator = registryClassGenerator,
+       super(sessionDataManager);
+
+  @override
+  Map<String, List<String>> get buildExtensions => {
+    r'$lib$': [_parsersBuilderConfig.outputPathRelativeToLib],
+  };
+
+  @override
+  FutureOr<void> buildWithSession(
+    BuildStep buildStep,
+    BuildSessionContext<JsonParserGeneratorContextConfig> sessionContext,
+  ) async {
+    const annotation = TypeChecker.typeNamed(GenerateJsonParser);
+    final annotatedElements = await _annotatedElementReader.read(
+      buildStep,
+      annotation,
+      excludePathPrefix: 'lib/generated/',
+    );
+
+    sessionContext.logger.logInfo(
+      tag: '$JsonParsersBuilder',
+      message:
+          'Found ${annotatedElements.length} element(s) annotated with '
+          '$GenerateJsonParser within `${buildStep.inputId.path}`',
+    );
+
+    final annotatedClasses = _gjpAnnotationReader.read(annotatedElements);
+    if (annotatedClasses.isEmpty) {
+      sessionContext.logger.logInfo(
+        tag: '$JsonParsersBuilder',
+        message:
+            'Did not find any classes annotated with $GenerateJsonParser, '
+            'exiting...',
+      );
+      return;
+    }
+
+    sessionContext.logger.logInfo(
+      tag: '$JsonParsersBuilder',
+      message:
+          'Found ${annotatedClasses.length} class(s) (and '
+          '${annotatedElements.length - annotatedClasses.length} element(s) '
+          'of other types) annotated with $GenerateJsonParser within '
+          '`${buildStep.inputId.path}`',
+    );
+
+    final registryMap = _buildRegistryMap(annotatedClasses);
+    final outputId = AssetId(
+      buildStep.inputId.package,
+      _parsersBuilderConfig.outputPathRelativeToPackageRoot,
+    );
+    final emitter = DartEmitter(
+      allocator: Allocator.simplePrefixing(),
+      orderDirectives: true,
+      useNullSafetySyntax: true,
+    );
+    final library = Library(
+      (b) => b
+        ..body.addAll(
+          annotatedClasses.map((e) => _parserGenerator.generate(e.element)),
+        )
+        ..body.addAll(
+          registryMap.entries.map(
+            (e) => _registryGenerator.generateRegistryClass(e.key, e.value),
+          ),
+        ),
+    );
+
+    final output = DartFormatter(
+      languageVersion: DartFormatter.latestLanguageVersion,
+    ).format(library.accept(emitter).toString());
+    await buildStep.writeAsString(outputId, output);
+
+    sessionContext.logger.logInfo(
+      tag: '$JsonParsersBuilder',
+      message:
+          'Wrote ${annotatedClasses.length} parser(s) & '
+          '${registryMap.length} registry(s) '
+          'to `${outputId.path}`',
+    );
+  }
+
+  Map<String, List<ClassElement>> _buildRegistryMap(
+    List<GJPAnnotatedClass> annotatedClasses,
+  ) {
+    final registryMap = <String, List<ClassElement>>{};
+    for (final item in annotatedClasses) {
+      for (final key in item.config.registryKeys) {
+        final list = registryMap.putIfAbsent(key, () => []);
+        if (!list.contains(item.element)) {
+          list.add(item.element);
+        }
+      }
+    }
+    return registryMap;
+  }
+}

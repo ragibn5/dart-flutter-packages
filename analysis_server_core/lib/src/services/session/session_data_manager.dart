@@ -1,6 +1,5 @@
 import 'package:analysis_server_core/src/models/session_data.dart';
 import 'package:analysis_server_core/src/models/session_data_fetch_result.dart';
-import 'package:analysis_server_core/src/services/config/context_config_loader.dart';
 import 'package:analysis_server_core/src/services/session/session_data_factory.dart';
 import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:meta/meta.dart';
@@ -11,10 +10,6 @@ abstract interface class SessionDataManager {
   /// - The managed [SessionData] instance (possibly cached)
   ///   for the given [RuleContext].
   SessionDataFetchResult getSessionDataFor(RuleContext context);
-
-  factory SessionDataManager.createNewInstance(
-    ContextConfigLoader packageConfigLoader,
-  ) => SessionDataManagerImpl(SessionDataFactoryImpl(packageConfigLoader));
 }
 
 class SessionDataManagerImpl implements SessionDataManager {

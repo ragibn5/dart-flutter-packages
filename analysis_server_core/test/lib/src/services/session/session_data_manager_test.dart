@@ -40,8 +40,6 @@ void main() {
 
   late SessionDataManager sut;
 
-  setUpAll(() {});
-
   setUp(() {
     mockSessionDataFactory = _MockSessionDataFactory();
     mockRuleContext = _MockRuleContext();

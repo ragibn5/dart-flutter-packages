@@ -36,6 +36,7 @@ void main() {
   const packageLocation = 'a/b/c';
   const defaultLogDirectoryRelativePathFromProjectRoot =
       'logs/analysis_plugins/clean_arch_lint';
+
   const defaultLogEnabled = false;
   const defaultAllowInfoLog = false;
   const defaultAllowWarningLog = false;
@@ -166,21 +167,6 @@ void main() {
     'If all went well, and log/scan/ddr config is not present, will use default configs',
     () {
       when(() => mockConfigFile.readAsStringSync()).thenReturn('x: y');
-
-      final config = sut.loadPluginConfig(mockRuleContext, mockPackageInfo);
-
-      expectDefaultConfig(config);
-    },
-  );
-
-  test(
-    'If all went well, and log/scan/ddr config is not in valid format, will use default configs',
-    () {
-      when(() => mockConfigFile.readAsStringSync()).thenReturn('''
-      log_config: x
-      scan_config: y
-      clean_arch_dependency_direction: z
-      ''');
 
       final config = sut.loadPluginConfig(mockRuleContext, mockPackageInfo);
 

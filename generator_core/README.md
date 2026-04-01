@@ -1,11 +1,6 @@
 # generator_core
 
-Core code generation components used to create code generator packages.
-
-## Overview
-
-`generator_core` contains the core generator components that can be used to create code generator
-packages.
+Core components to build a custom dart generator package.
 
 ## Installation
 
@@ -22,7 +17,7 @@ dependencies:
 
 ```yaml
 dependencies:
-  generator_core:
+  string_extensions:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: generator_core

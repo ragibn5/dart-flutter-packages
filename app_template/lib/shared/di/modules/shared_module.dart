@@ -83,10 +83,10 @@ abstract class SharedModule {
             targetVersion: appDbVersion,
             scriptText:
                 '''
-                CREATE TABLE "${escape(UserDataTableConstants.NAME)}" (
-                  "${escape(UserDataTableConstants.COLUMN_ID)}" TEXT NOT NULL UNIQUE,
-                  "${escape(UserDataTableConstants.COLUMN_NAME)}" TEXT NOT NULL,
-                  PRIMARY KEY("${escape(UserDataTableConstants.COLUMN_ID)}")
+                CREATE TABLE ${escape(UserDataTableConstants.NAME)} (
+                  ${escape(UserDataTableConstants.COLUMN_ID)} TEXT NOT NULL UNIQUE,
+                  ${escape(UserDataTableConstants.COLUMN_NAME)} TEXT NOT NULL,
+                  PRIMARY KEY(${escape(UserDataTableConstants.COLUMN_ID)})
                 );
                 ''',
           ),

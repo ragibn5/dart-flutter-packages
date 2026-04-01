@@ -1,52 +1,60 @@
-// ignore_for_file: cascade_invocations
-
 import 'package:parser/parser.dart';
 
+// A basic custom type
 class User {
-  final int age;
+  final int id;
   final String name;
 
-  User({
-    required this.age,
-    required this.name,
-  });
+  User(this.id, this.name);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'age': age,
-      'name': name,
-    };
+  @override
+  String toString() {
+    return 'User{id: $id, name: $name}';
+  }
+}
+
+// Create a custom parser for the User
+class UserParser implements Parser<User, Map<String, dynamic>> {
+  @override
+  User decode(Map<String, dynamic> encoded) {
+    return User(encoded['id'] as int, encoded['name'] as String);
   }
 
-  factory User.fromJson(Map<String, dynamic> map) {
-    return User(
-      age: map['age'] as int,
-      name: map['name'] as String,
-    );
+  @override
+  Map<String, dynamic> encode(User value) {
+    return {'id': value.id, 'name': value.name};
+  }
+}
+
+// Create a parser registry
+class MyParserRegistry extends ParserRegistry<Map<String, dynamic>> {
+  MyParserRegistry() : super() {
+    addParser(UserParser());
+    // Add parsers for other types
+    // ...
   }
 }
 
 void main() {
-  final user = User(age: 30, name: 'Ragib');
+  final user = User(1, 'John');
+  final userParser = UserParser();
 
-  jsonParserUsage(user);
-}
+  // Use of the parser
+  final encoded = userParser.encode(user);
+  final decoded = userParser.decode(encoded);
+  // Output: {'id': 1, 'name': 'John'}
+  print(encoded);
+  // Output: User{id: 1, name: John}
+  print(decoded);
 
-// JSON parser example
-void jsonParserUsage(User user) {
-  final jsonParser = JsonParser();
-
-  // Add decoders.
-  // This is required to decode an encoded instance.
-  // This must be done prior to decoding this type (User).
-  jsonParser.addDecoder(User.fromJson);
-
-  // The encoded form of user
-  final encodedUser = jsonParser.encode(user);
-  print(encodedUser);
-
-  // The decoded form of the encoded user.
-  // Will contain same values as the original `User` instance.
-  final decodedUser = jsonParser.decode<User>(encodedUser);
-  print(jsonParser.encode(decodedUser));
+  // Use of the parser registry
+  final parserRegistry = MyParserRegistry();
+  final userParserFromRegistry = parserRegistry.getParser<User>();
+  final encodedFromRegistry = userParserFromRegistry!.encode(user);
+  final decodedFromRegistry =
+      userParserFromRegistry.decode(encodedFromRegistry);
+  // Output: {'id': 1, 'name': 'John'}
+  print(encodedFromRegistry);
+  // Output: User{id: 1, name: John}
+  print(decodedFromRegistry);
 }

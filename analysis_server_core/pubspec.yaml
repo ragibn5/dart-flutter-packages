@@ -3,7 +3,7 @@ description: Core components to build a custom dart analysis server plugin.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/clean_arch_lint
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analysis_server_core
 
 # This prevents you from accidentally publish to pub.dev
 publish_to: 'none'
@@ -25,6 +25,7 @@ dependencies:
   analyzer_plugin: ^0.13.0
   analyzer: ^8.0.0
   mocktail: ^1.0.4
+  analyzer_testing: ^0.1.5
   functions:
     path: ../functions
   dlogger:
@@ -36,3 +37,5 @@ dev_dependencies:
   lints: ^6.0.0
   very_good_analysis: ^7.0.0
   test: ^1.25.6
+  analysis_plugin_test_helper:
+    path: ../analysis_plugin_test_helper
