@@ -321,6 +321,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i511.AppBloc>(
       () => _i511.AppBloc(
+        gh<_i1054.AppLogger>(),
         gh<_i374.AuthDataService>(),
         gh<_i178.SettingsService>(),
         gh<_i707.AppInitializerService>(),
