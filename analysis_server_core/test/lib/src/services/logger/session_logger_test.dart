@@ -99,6 +99,7 @@ void main() {
 
   setUp(() {
     mockCompositeLogger = _MockCompositeLogger();
+
     sut = SessionLoggerImpl.test(
       mockCompositeLogger,
       enabled: true,

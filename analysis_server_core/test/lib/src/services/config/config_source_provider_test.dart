@@ -21,6 +21,7 @@ void main() {
   setUp(() {
     mockWorkspacePackage = _MockWorkspacePackage();
     mockAnalyzerFolder = _MockAnalyzerFolder();
+
     sut = ConfigSourceProviderImpl();
 
     when(() => mockWorkspacePackage.root).thenReturn(mockAnalyzerFolder);
