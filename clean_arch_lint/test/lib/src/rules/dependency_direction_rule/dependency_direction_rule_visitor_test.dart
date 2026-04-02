@@ -64,11 +64,9 @@ void main() {
       directive,
       arguments: any(
         named: 'arguments',
-        that: predicate<List<Object>>((args) {
-          print('Arg: $args');
-          print('Msg: $message');
-          return args.length == 1 && args.first == message;
-        }),
+        that: predicate<List<Object>>(
+          (args) => args.length == 1 && args.first == message,
+        ),
       ),
     ),
   ).called(1);
