@@ -9,15 +9,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final requestOptions = RequestOptions();
-  final stackTrace = StackTrace.current;
   const sampleServerMessage = ServerMessage(code: 'test', message: 'test');
 
-  late AppServerTokenRefreshApiErrorMapper errorMapper;
+  final requestOptions = RequestOptions();
+  final stackTrace = StackTrace.current;
 
-  setUp(() {
-    errorMapper = AppServerTokenRefreshApiErrorMapper();
-  });
+  late AppServerTokenRefreshApiErrorMapper sut;
 
   void expectDioTypeMapsToAppError({
     required AppServerTokenRefreshApiErrorMapper mapper,
@@ -67,13 +64,17 @@ void main() {
     );
   }
 
+  setUp(() {
+    sut = AppServerTokenRefreshApiErrorMapper();
+  });
+
   test(
     'If exception IS NOT of type `DioException` then should map to application error',
     () {
       final stackTrace = StackTrace.current;
       final exception = Exception('Test exception');
 
-      final result = errorMapper.mapError(exception, stackTrace);
+      final result = sut.mapError(exception, stackTrace);
       result.fold(
         (appError) {
           expect(appError, isNotNull);
@@ -100,7 +101,7 @@ void main() {
         ),
       );
 
-      final result = errorMapper.mapError(exception, stackTrace);
+      final result = sut.mapError(exception, stackTrace);
       result.fold(
         (appError) => expect(appError, isNull),
         (networkError) => expect(networkError, isNull),
@@ -120,7 +121,7 @@ void main() {
 
       for (final type in appErrorTypes) {
         expectDioTypeMapsToAppError(
-          mapper: errorMapper,
+          mapper: sut,
           requestOptions: requestOptions,
           stackTrace: stackTrace,
           type: type,
@@ -143,7 +144,7 @@ void main() {
 
       for (final type in networkErrorTypes) {
         expectDioTypeMapsToNetworkError(
-          mapper: errorMapper,
+          mapper: sut,
           requestOptions: requestOptions,
           stackTrace: stackTrace,
           type: type,

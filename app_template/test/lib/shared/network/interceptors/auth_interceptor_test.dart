@@ -38,6 +38,7 @@ void main() {
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTYxNjIzOTAyMn0.BtpKXeC14PNaSjwp-ZvgcNZYoM9cd5UZp9C_86q-MCk';
   const refreshToken =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MjAxNjIzOTAyMn0.BcjQmLA8URPyxBh8LR0wt45-bWd9Fy1bfpWyn2ctix8';
+
   final accessTokenExpiry = DateTime.now().add(const Duration(days: 1));
   final refreshTokenExpiry = accessTokenExpiry.add(const Duration(days: 1));
   final authData = AuthData(
@@ -64,11 +65,11 @@ void main() {
   late RequestOptions authedRequestOptions;
 
   late _MockDio originalClient;
-  late _MockAuthDataService authDataService;
+  late _MockAuthDataService mockAuthDataService;
   late _MockRequestInterceptorHandler requestHandler;
   late _MockErrorInterceptorHandler errorHandler;
 
-  late AuthInterceptor authInterceptor;
+  late AuthInterceptor sut;
 
   setUpAll(() {
     registerFallbackValue(tokenRefreshRequest);

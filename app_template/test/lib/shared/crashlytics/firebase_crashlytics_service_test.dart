@@ -13,16 +13,17 @@ void main() {
   const userId = 'userId123';
   const connectionEnabled = true;
   const logMessage = 'Sample log message';
-  final exp = Exception('flutter error');
-  final st = StackTrace.current;
   const reason = 'Testing reason';
   const printDetails = true;
   const fatal = false;
+
+  final exp = Exception('flutter error');
+  final st = StackTrace.current;
   final flutterError = FlutterErrorDetails(exception: exp, stack: st);
 
   late _MockFirebaseCrashlytics mockFirebaseCrashlytics;
 
-  late FirebaseCrashlyticsService firebaseCrashlyticsService;
+  late FirebaseCrashlyticsService sut;
 
   setUpAll(() {
     registerFallbackValue(flutterError);
@@ -30,9 +31,8 @@ void main() {
 
   setUp(() {
     mockFirebaseCrashlytics = _MockFirebaseCrashlytics();
-    firebaseCrashlyticsService = FirebaseCrashlyticsService.test(
-      mockFirebaseCrashlytics,
-    );
+
+    sut = FirebaseCrashlyticsService.test(mockFirebaseCrashlytics);
 
     when(
       () => mockFirebaseCrashlytics.recordFlutterFatalError(any()),
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('`initialize` should set delegates to record errors', () async {
-    await firebaseCrashlyticsService.initialize();
+    await sut.initialize();
 
     FlutterError.onError!(flutterError);
     PlatformDispatcher.instance.onError!(exp, st);
@@ -85,10 +85,7 @@ void main() {
   test(
     '`setSessionData` should set user Id and analytics collection enabled status',
     () async {
-      await firebaseCrashlyticsService.setSessionData(
-        userId,
-        enabled: connectionEnabled,
-      );
+      await sut.setSessionData(userId, enabled: connectionEnabled);
 
       verify(() => mockFirebaseCrashlytics.setUserIdentifier(userId)).called(1);
       verify(
@@ -100,7 +97,7 @@ void main() {
   );
 
   test('`log` should call FirebaseCrashlytics.log with same data', () async {
-    await firebaseCrashlyticsService.log(logMessage);
+    await sut.log(logMessage);
 
     verify(() => mockFirebaseCrashlytics.log(logMessage)).called(1);
   });
@@ -108,7 +105,7 @@ void main() {
   test(
     '`recordError` should call FirebaseCrashlytics.recordError with appropriate data',
     () async {
-      await firebaseCrashlyticsService.recordError(
+      await sut.recordError(
         exp,
         st,
         reason: reason,
@@ -131,10 +128,7 @@ void main() {
   test(
     '`recordFlutterError` should call FirebaseCrashlytics.recordFlutterError with appropriate data',
     () async {
-      await firebaseCrashlyticsService.recordFlutterError(
-        flutterError,
-        fatal: fatal,
-      );
+      await sut.recordFlutterError(flutterError, fatal: fatal);
 
       verify(
         () => mockFirebaseCrashlytics.recordFlutterError(

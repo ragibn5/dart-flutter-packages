@@ -22,14 +22,14 @@ void main() {
     refreshTokenExpiry: now.add(const Duration(days: 4)),
   );
 
-  late AuthDataMapper mapper;
+  late AuthDataMapper sut;
 
   setUp(() {
-    mapper = AuthDataMapper();
+    sut = AuthDataMapper();
   });
 
   test('Map Data to Domain model', () {
-    final result = mapper.convertDataToDomain(authDataDTO);
+    final result = sut.convertDataToDomain(authDataDTO);
     expect(result.accessToken, authDataDTO.accessToken);
     expect(result.refreshToken, authDataDTO.refreshToken);
     expect(result.accessTokenExpiry, authDataDTO.accessTokenExpiry);
@@ -37,7 +37,7 @@ void main() {
   });
 
   test('Map Domain to Data model', () {
-    final result = mapper.convertDomainToData(authData);
+    final result = sut.convertDomainToData(authData);
     expect(result.accessToken, authData.accessToken);
     expect(result.refreshToken, authData.refreshToken);
     expect(result.accessTokenExpiry, authData.accessTokenExpiry);

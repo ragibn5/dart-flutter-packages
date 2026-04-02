@@ -26,7 +26,7 @@ void main() {
   late _MockDatabaseFactory mockDatabaseFactory;
   late _MockDatabase mockDatabase;
 
-  late AppDatabase database;
+  late AppDatabase sut;
 
   setUpAll(() {
     registerFallbackValue(connectionData);
@@ -37,7 +37,7 @@ void main() {
     mockDatabaseFactory = _MockDatabaseFactory();
     mockDatabase = _MockDatabase();
 
-    database = AppDatabase.test(
+    sut = AppDatabase.test(
       connectionData,
       mockDbInitializationScripts,
       mockDatabaseFactory,
@@ -58,7 +58,7 @@ void main() {
   test(
     'AppDatabase is initialized with correct path, name and version',
     () async {
-      await database.initialize();
+      await sut.initialize();
 
       verify(
         () => mockDatabaseFactory.openDatabase(

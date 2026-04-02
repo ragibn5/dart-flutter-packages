@@ -48,6 +48,7 @@ extension _AuthDataDTOToEntity on AuthDataDTO {
 
 void main() {
   const tokenRefreshRequest = TokenRefreshRequest(refreshToken: 'refreshToken');
+
   final authDataDTO = AuthDataDTO(
     userId: 'userId',
     accessToken: 'accessToken',
@@ -89,7 +90,7 @@ void main() {
   late _MockRemoteAuthDataDataSource mockRemoteAuthDataSource;
   late _MockAuthDataStream mockAuthDataStream;
 
-  late AuthDataRepositoryImpl authDataRepositoryImpl;
+  late AuthDataRepositoryImpl sut;
 
   setUpAll(() {
     registerFallbackValue(authData);
@@ -106,7 +107,7 @@ void main() {
     mockRemoteAuthDataSource = _MockRemoteAuthDataDataSource();
     mockAuthDataStream = _MockAuthDataStream();
 
-    authDataRepositoryImpl = AuthDataRepositoryImpl.test(
+    sut = AuthDataRepositoryImpl.test(
       mockAuthDataMapper,
       mockAuthDataRefreshErrorMapper,
       mockAuthDataStreamController,
@@ -149,7 +150,7 @@ void main() {
   });
 
   tearDown(() {
-    authDataRepositoryImpl.dispose();
+    sut.dispose();
   });
 
   test(
@@ -159,7 +160,7 @@ void main() {
         () => mockLocalAuthDataSource.getCurrentAuthData(),
       ).thenAnswer((_) async => null);
 
-      final result = await authDataRepositoryImpl.getCurrentAuthData();
+      final result = await sut.getCurrentAuthData();
 
       expect(result, null);
       verify(() => mockLocalAuthDataSource.getCurrentAuthData()).called(1);
@@ -174,7 +175,7 @@ void main() {
         () => mockLocalAuthDataSource.getCurrentAuthData(),
       ).thenAnswer((_) async => authDataDTO);
 
-      final result = await authDataRepositoryImpl.getCurrentAuthData();
+      final result = await sut.getCurrentAuthData();
 
       expect(result, authData);
       verify(() => mockLocalAuthDataSource.getCurrentAuthData()).called(1);
@@ -188,7 +189,7 @@ void main() {
     'setCurrentAuthData(null) should add to the auth data stream and call AuthDataSource.setCurrentAuthData with null',
     () async {
       // When NULL
-      await authDataRepositoryImpl.setCurrentAuthData(null);
+      await sut.setCurrentAuthData(null);
 
       verify(() => mockAuthDataStreamController.add(null)).called(1);
       verifyNever(() => mockAuthDataMapper.convertDomainToData(authData));
@@ -199,7 +200,7 @@ void main() {
   test(
     'setCurrentAuthData(authData) should add to the auth data stream and call AuthDataSource.setCurrentAuthData with proper data',
     () async {
-      await authDataRepositoryImpl.setCurrentAuthData(authData);
+      await sut.setCurrentAuthData(authData);
 
       verify(() => mockAuthDataStreamController.add(authData)).called(1);
       verify(() => mockAuthDataMapper.convertDomainToData(authData)).called(1);
@@ -216,9 +217,7 @@ void main() {
         () => mockRemoteAuthDataSource.getRefreshedAuthData(any()),
       ).thenAnswer((_) async => succeededAuthRefreshResult);
 
-      final result = await authDataRepositoryImpl.refreshCurrentAuthData(
-        authData,
-      );
+      final result = await sut.refreshCurrentAuthData(authData);
 
       // Correct request
       verify(
@@ -253,9 +252,7 @@ void main() {
         () => mockRemoteAuthDataSource.getRefreshedAuthData(any()),
       ).thenAnswer((_) async => failedAuthRefreshResult);
 
-      final result = await authDataRepositoryImpl.refreshCurrentAuthData(
-        authData,
-      );
+      final result = await sut.refreshCurrentAuthData(authData);
 
       // Correct request
       verify(
@@ -276,13 +273,13 @@ void main() {
   );
 
   test('getAuthDataStream should return the auth data stream', () async {
-    final result = authDataRepositoryImpl.getAuthDataStream();
+    final result = sut.getAuthDataStream();
 
     expect(result, mockAuthDataStream);
   });
 
   test('Dispose should close the auth data stream', () async {
-    authDataRepositoryImpl.dispose();
+    sut.dispose();
 
     verify(() => mockAuthDataStreamController.close()).called(1);
   });

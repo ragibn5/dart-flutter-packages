@@ -12,11 +12,12 @@ class _MockUserDataRepository extends Mock implements UserDataRepository {}
 void main() {
   const uid = 'ragib';
   const dto = UserDataDTO(id: uid, name: 'Ragib');
+
   final entity = UserData(id: dto.id, name: dto.name);
 
   late _MockUserDataRepository mockUserDataRepository;
 
-  late UserDataServiceImpl userDataServiceImpl;
+  late UserDataServiceImpl sut;
 
   setUpAll(() {
     registerFallbackValue(dto);
@@ -25,7 +26,8 @@ void main() {
 
   setUp(() {
     mockUserDataRepository = _MockUserDataRepository();
-    userDataServiceImpl = UserDataServiceImpl(mockUserDataRepository);
+
+    sut = UserDataServiceImpl(mockUserDataRepository);
   });
 
   test(
@@ -35,7 +37,7 @@ void main() {
         () => mockUserDataRepository.getUserData(uid),
       ).thenAnswer((_) async => entity);
 
-      final result = await userDataServiceImpl.getUserData(uid);
+      final result = await sut.getUserData(uid);
 
       expect(result, entity);
       verify(() => mockUserDataRepository.getUserData(uid)).called(1);
@@ -49,7 +51,7 @@ void main() {
         () => mockUserDataRepository.setUserData(entity),
       ).thenAnswer((_) async {});
 
-      await userDataServiceImpl.setUserData(entity);
+      await sut.setUserData(entity);
 
       verify(() => mockUserDataRepository.setUserData(entity)).called(1);
     },
@@ -62,7 +64,7 @@ void main() {
         () => mockUserDataRepository.removeUserData(uid),
       ).thenAnswer((_) async {});
 
-      await userDataServiceImpl.removeUserData(uid);
+      await sut.removeUserData(uid);
 
       verify(() => mockUserDataRepository.removeUserData(uid)).called(1);
     },

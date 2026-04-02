@@ -19,13 +19,14 @@ class _FakeAuthData extends Fake implements AuthData {}
 void main() {
   const homeRoute = HomeRoute();
   const loginRoute = LoginRoute();
+
   final fakeAuthData = _FakeAuthData();
 
-  late _MockStackRouter router;
-  late _MockNavigationResolver resolver;
-  late _MockAuthDataService authDataService;
+  late _MockStackRouter mockRouter;
+  late _MockNavigationResolver mockResolver;
+  late _MockAuthDataService mockAuthDataService;
 
-  late RootRedirectionRouteGuard rootRedirectionRouteGuard;
+  late RootRedirectionRouteGuard sut;
 
   setUpAll(() {
     registerFallbackValue(homeRoute);
@@ -34,27 +35,27 @@ void main() {
   });
 
   setUp(() {
-    router = _MockStackRouter();
-    resolver = _MockNavigationResolver();
-    authDataService = _MockAuthDataService();
+    mockRouter = _MockStackRouter();
+    mockResolver = _MockNavigationResolver();
+    mockAuthDataService = _MockAuthDataService();
 
-    rootRedirectionRouteGuard = RootRedirectionRouteGuard(authDataService);
+    sut = RootRedirectionRouteGuard(mockAuthDataService);
 
-    when(() => resolver.next(any())).thenAnswer((_) {});
-    when(() => resolver.redirectUntil(any())).thenAnswer((_) async => null);
+    when(() => mockResolver.next(any())).thenAnswer((_) {});
+    when(() => mockResolver.redirectUntil(any())).thenAnswer((_) async => null);
   });
 
   test(
     'If not authenticated should redirect to login and abort navigation',
     () async {
       when(
-        () => authDataService.getCurrentAuthData(),
+        () => mockAuthDataService.getCurrentAuthData(),
       ).thenAnswer((_) async => null);
 
-      await rootRedirectionRouteGuard.onNavigation(resolver, router);
+      await sut.onNavigation(mockResolver, mockRouter);
 
-      verify(() => resolver.redirectUntil(loginRoute)).called(1);
-      verify(() => resolver.next(false)).called(1);
+      verify(() => mockResolver.redirectUntil(loginRoute)).called(1);
+      verify(() => mockResolver.next(false)).called(1);
     },
   );
 
@@ -62,13 +63,13 @@ void main() {
     'If authenticated should redirect to home and abort navigation',
     () async {
       when(
-        () => authDataService.getCurrentAuthData(),
+        () => mockAuthDataService.getCurrentAuthData(),
       ).thenAnswer((_) async => fakeAuthData);
 
-      await rootRedirectionRouteGuard.onNavigation(resolver, router);
+      await sut.onNavigation(mockResolver, mockRouter);
 
-      verify(() => resolver.redirectUntil(homeRoute)).called(1);
-      verify(() => resolver.next(false)).called(1);
+      verify(() => mockResolver.redirectUntil(homeRoute)).called(1);
+      verify(() => mockResolver.next(false)).called(1);
     },
   );
 }

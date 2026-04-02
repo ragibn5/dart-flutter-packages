@@ -5,26 +5,26 @@ import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late AppLocaleMapper appLocaleMapper;
+  late AppLocaleMapper sut;
 
   setUp(() {
-    appLocaleMapper = const AppLocaleMapper();
+    sut = const AppLocaleMapper();
   });
 
   test('`fromJson` Should return null if given json is null', () {
-    final result = appLocaleMapper.fromJson(null);
+    final result = sut.fromJson(null);
     expect(result, null);
   });
 
   test('`fromJson` Should map correct `AppLocale`', () {
     for (final appLocale in AppLocale.values) {
-      final result = appLocaleMapper.fromJson(appLocale.name);
+      final result = sut.fromJson(appLocale.name);
       expect(result, appLocale);
     }
   });
 
   test('`toJson` Should return null if given locale is null', () {
-    final result = appLocaleMapper.toJson(null);
+    final result = sut.toJson(null);
     expect(result, null);
   });
 
@@ -32,7 +32,7 @@ void main() {
     '`toJson` Should map return correct serialized value for `AppLocale`',
     () {
       for (final appLocale in AppLocale.values) {
-        final result = appLocaleMapper.toJson(appLocale);
+        final result = sut.toJson(appLocale);
         expect(result, appLocale.name);
       }
     },

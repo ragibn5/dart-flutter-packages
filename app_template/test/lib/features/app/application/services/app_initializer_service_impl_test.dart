@@ -9,18 +9,21 @@ class _MockInitializable extends Mock implements Initializable {}
 
 void main() {
   const size = 100;
-  late List<_MockInitializable> initializables;
-  late AppInitializerServiceImpl appInitializerServiceImpl;
+
+  late List<_MockInitializable> mockInitializables;
+
+  late AppInitializerServiceImpl sut;
 
   setUp(() {
     // Create 'size' number of mocks dynamically
-    initializables = List.generate(size, (_) => _MockInitializable());
-    appInitializerServiceImpl = AppInitializerServiceImpl(initializables);
+    mockInitializables = List.generate(size, (_) => _MockInitializable());
+
+    sut = AppInitializerServiceImpl(mockInitializables);
   });
 
   test('Should initialize all initializables', () async {
-    await appInitializerServiceImpl.initialize();
-    for (final mock in initializables) {
+    await sut.initialize();
+    for (final mock in mockInitializables) {
       verify(mock.initialize).called(1);
     }
   });

@@ -34,7 +34,8 @@ void main() {
   late _MockSettingsConverter mockSettingsConverter;
   late _MockSettingsStreamController mockSettingsStreamController;
   late _MockSettingsDataSource mockSettingsDataSource;
-  late SettingsRepositoryImpl repositoryImpl;
+
+  late SettingsRepositoryImpl sut;
 
   setUpAll(() {
     registerFallbackValue(settings);
@@ -46,7 +47,7 @@ void main() {
     mockSettingsStreamController = _MockSettingsStreamController();
     mockSettingsDataSource = _MockSettingsDataSource();
 
-    repositoryImpl = SettingsRepositoryImpl.test(
+    sut = SettingsRepositoryImpl.test(
       mockSettingsConverter,
       mockSettingsStreamController,
       mockSettingsDataSource,
@@ -71,7 +72,7 @@ void main() {
   });
 
   test('`getCurrentSettings` should return correct domain model', () async {
-    final result = await repositoryImpl.getCurrentSettings();
+    final result = await sut.getCurrentSettings();
     expect(result.locale, settingsDto.locale);
     expect(result.themeMode, settingsDto.themeMode);
     verify(() => mockSettingsDataSource.getCurrentSettings()).called(1);
@@ -83,7 +84,7 @@ void main() {
   test(
     '`setCurrentSettings` should add to stream, and call data source',
     () async {
-      await repositoryImpl.setCurrentSettings(settings);
+      await sut.setCurrentSettings(settings);
 
       verify(() => mockSettingsStreamController.add(settings)).called(1);
       verify(
@@ -93,7 +94,7 @@ void main() {
   );
 
   test('`dispose` should close the stream', () async {
-    await repositoryImpl.dispose();
+    await sut.dispose();
     verify(() => mockSettingsStreamController.close()).called(1);
   });
 }

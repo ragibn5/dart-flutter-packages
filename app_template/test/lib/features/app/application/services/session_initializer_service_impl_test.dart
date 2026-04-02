@@ -18,6 +18,7 @@ class _FakeAuthDataService extends Fake implements AuthDataService {}
 
 void main() {
   const anonymousUserId = 'anonymous';
+
   final authData = AuthData(
     userId: 'userId',
     accessToken: 'accessToken',
@@ -26,62 +27,65 @@ void main() {
     refreshTokenExpiry: DateTime.now(),
   );
 
-  late _MockAuthDataService authDataService;
-  late _MockAnalyticsService analyticsService;
-  late _MockCrashlyticsService crashlyticsService;
+  late _MockAuthDataService mockAuthDataService;
+  late _MockAnalyticsService mockAnalyticsService;
+  late _MockCrashlyticsService mockCrashlyticsService;
 
-  late SessionInitializerServiceImpl sessionInitializerServiceImpl;
+  late SessionInitializerServiceImpl sut;
 
   setUpAll(() {
     registerFallbackValue(_FakeAuthDataService());
   });
 
   setUp(() {
-    authDataService = _MockAuthDataService();
-    analyticsService = _MockAnalyticsService();
-    crashlyticsService = _MockCrashlyticsService();
-    sessionInitializerServiceImpl = SessionInitializerServiceImpl.test(
-      authDataService,
-      analyticsService,
-      crashlyticsService,
+    mockAuthDataService = _MockAuthDataService();
+    mockAnalyticsService = _MockAnalyticsService();
+    mockCrashlyticsService = _MockCrashlyticsService();
+
+    sut = SessionInitializerServiceImpl.test(
+      mockAuthDataService,
+      mockAnalyticsService,
+      mockCrashlyticsService,
       anonymousUserId: anonymousUserId,
     );
 
     when(
-      () => analyticsService.setSessionData(any(), enabled: true),
+      () => mockAnalyticsService.setSessionData(any(), enabled: true),
     ).thenAnswer((_) async {});
     when(
-      () => crashlyticsService.setSessionData(any(), enabled: true),
+      () => mockCrashlyticsService.setSessionData(any(), enabled: true),
     ).thenAnswer((_) async => authData);
   });
 
   test('Should set correct user id if auth data is not null', () async {
     when(
-      () => authDataService.getCurrentAuthData(),
+      () => mockAuthDataService.getCurrentAuthData(),
     ).thenAnswer((_) async => authData);
 
-    await sessionInitializerServiceImpl.initialize();
+    await sut.initialize();
 
     verify(
-      () => analyticsService.setSessionData(authData.userId, enabled: true),
+      () => mockAnalyticsService.setSessionData(authData.userId, enabled: true),
     );
     verify(
-      () => crashlyticsService.setSessionData(authData.userId, enabled: true),
+      () =>
+          mockCrashlyticsService.setSessionData(authData.userId, enabled: true),
     );
   });
 
   test('Should set anonymous user if auth data is null', () async {
     when(
-      () => authDataService.getCurrentAuthData(),
+      () => mockAuthDataService.getCurrentAuthData(),
     ).thenAnswer((_) async => null);
 
-    await sessionInitializerServiceImpl.initialize();
+    await sut.initialize();
 
     verify(
-      () => analyticsService.setSessionData(anonymousUserId, enabled: true),
+      () => mockAnalyticsService.setSessionData(anonymousUserId, enabled: true),
     );
     verify(
-      () => crashlyticsService.setSessionData(anonymousUserId, enabled: true),
+      () =>
+          mockCrashlyticsService.setSessionData(anonymousUserId, enabled: true),
     );
   });
 }
