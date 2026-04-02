@@ -25,6 +25,7 @@ void main() {
   const tag = 'TAG';
   const modeParamKey = 'mode';
   const formattedMessage = 'formatted-message';
+
   final tempDir =
       Directory('${Directory.systemTemp.path}${path.separator}logs');
 
