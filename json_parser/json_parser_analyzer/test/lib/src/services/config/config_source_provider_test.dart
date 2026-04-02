@@ -16,6 +16,7 @@ void main() {
 
   setUp(() {
     mockPackageInfo = _MockPackageInfo();
+
     sut = ConfigSourceProviderImpl();
 
     when(() => mockPackageInfo.location).thenReturn(packageRootPath);

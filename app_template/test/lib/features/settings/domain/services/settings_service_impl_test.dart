@@ -23,28 +23,7 @@ void main() {
   late _MockPlatformSettingsProvider mockPlatformSettingsProvider;
   late _MockSettingsRepository mockSettingsRepository;
 
-  late SettingsServiceImpl settingsServiceImpl;
-
-  setUpAll(() {
-    registerFallbackValue(const AppSettings());
-    registerFallbackValue(const LocaleComponents(languageCode: 'en'));
-  });
-
-  setUp(() {
-    mockAppLocaleResolver = _MockAppLocaleResolver();
-    mockPlatformSettingsProvider = _MockPlatformSettingsProvider();
-    mockSettingsRepository = _MockSettingsRepository();
-
-    settingsServiceImpl = SettingsServiceImpl(
-      mockAppLocaleResolver,
-      mockPlatformSettingsProvider,
-      mockSettingsRepository,
-    );
-
-    when(
-      () => mockSettingsRepository.setCurrentSettings(any()),
-    ).thenAnswer((_) async {});
-  });
+  late SettingsServiceImpl sut;
 
   Future<void> testThemeModeStream(
     AppSettings appSettings,
@@ -54,7 +33,7 @@ void main() {
       () => mockSettingsRepository.getSettingsStream(),
     ).thenAnswer((_) => Stream.fromIterable([appSettings]));
 
-    final result = settingsServiceImpl.watchThemeMode();
+    final result = sut.watchThemeMode();
     expect(await result.first, expected);
   }
 
@@ -73,9 +52,30 @@ void main() {
       () => mockAppLocaleResolver.resolveLocale(systemLocale),
     ).thenAnswer((_) => expected);
 
-    final result = settingsServiceImpl.watchLocale();
+    final result = sut.watchLocale();
     expect(await result.first, expected);
   }
+
+  setUpAll(() {
+    registerFallbackValue(const AppSettings());
+    registerFallbackValue(const LocaleComponents(languageCode: 'en'));
+  });
+
+  setUp(() {
+    mockAppLocaleResolver = _MockAppLocaleResolver();
+    mockPlatformSettingsProvider = _MockPlatformSettingsProvider();
+    mockSettingsRepository = _MockSettingsRepository();
+
+    sut = SettingsServiceImpl(
+      mockAppLocaleResolver,
+      mockPlatformSettingsProvider,
+      mockSettingsRepository,
+    );
+
+    when(
+      () => mockSettingsRepository.setCurrentSettings(any()),
+    ).thenAnswer((_) async {});
+  });
 
   test(
     'If a locale setting is persisted, `getEffectiveLocale` returns that.',
@@ -84,7 +84,7 @@ void main() {
         () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => const AppSettings(locale: AppLocale.EN));
 
-      final result = await settingsServiceImpl.getEffectiveLocale();
+      final result = await sut.getEffectiveLocale();
       expect(result, AppLocale.EN);
     },
   );
@@ -108,7 +108,7 @@ void main() {
         () => mockAppLocaleResolver.resolveLocale(localeComponents),
       ).thenAnswer((_) => AppLocale.AR);
 
-      final result = await settingsServiceImpl.getEffectiveLocale();
+      final result = await sut.getEffectiveLocale();
       expect(result, AppLocale.AR);
     },
   );
@@ -128,7 +128,7 @@ void main() {
         () => mockAppLocaleResolver.resolveLocale(localeComponents),
       ).thenAnswer((_) => AppLocale.EN);
 
-      final result = await settingsServiceImpl.getEffectiveLocale();
+      final result = await sut.getEffectiveLocale();
       expect(result, AppLocale.EN);
     },
   );
@@ -140,7 +140,7 @@ void main() {
         (_) async => const AppSettings(themeMode: AppThemeMode.DARK),
       );
 
-      final result = await settingsServiceImpl.getEffectiveThemeMode();
+      final result = await sut.getEffectiveThemeMode();
       expect(result, AppThemeMode.DARK);
     },
   );
@@ -152,7 +152,7 @@ void main() {
         () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => const AppSettings());
 
-      final result = await settingsServiceImpl.getEffectiveThemeMode();
+      final result = await sut.getEffectiveThemeMode();
       expect(result, AppThemeMode.SYSTEM);
     },
   );
@@ -169,7 +169,7 @@ void main() {
         () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => appSettings);
 
-      await settingsServiceImpl.setLocale(AppLocale.AR);
+      await sut.setLocale(AppLocale.AR);
       verify(
         () => mockSettingsRepository.setCurrentSettings(
           appSettings.copyWith(
@@ -193,7 +193,7 @@ void main() {
         () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => appSettings);
 
-      await settingsServiceImpl.setThemeMode(AppThemeMode.DARK);
+      await sut.setThemeMode(AppThemeMode.DARK);
       verify(
         () => mockSettingsRepository.setCurrentSettings(
           appSettings.copyWith(

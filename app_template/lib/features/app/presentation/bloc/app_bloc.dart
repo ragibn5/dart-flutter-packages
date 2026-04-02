@@ -6,6 +6,7 @@ import 'package:app_template/features/auth/domain/services/auth_data_service.dar
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:app_template/features/settings/domain/services/settings_service.dart';
+import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +17,14 @@ part 'app_state.dart';
 
 @singleton
 class AppBloc extends Bloc<AppEvent, AppState> {
+  final AppLogger _logger;
   final AuthDataService _authDataService;
   final SettingsService _settingsService;
   final AppInitializerService _appInitializerService;
   final SessionInitializerService _sessionInitializerService;
 
   AppBloc(
+    this._logger,
     this._authDataService,
     this._settingsService,
     this._appInitializerService,
@@ -52,7 +55,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       add(_ListenThemeModeChangeRequested());
       add(_ListenSessionChangeRequested());
     } catch (e, st) {
-      debugPrintStack(label: e.toString(), stackTrace: st);
+      _logger.logError(
+        tag: '$AppBloc',
+        message: 'Error while initializing the app',
+        error: e,
+        stackTrace: st,
+      );
+
       emit(AppInitializationError());
     }
   }

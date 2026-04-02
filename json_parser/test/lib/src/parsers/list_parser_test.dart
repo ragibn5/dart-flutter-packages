@@ -6,10 +6,12 @@ class _MockItemParser extends Mock implements IntParser {}
 
 void main() {
   late _MockItemParser mockItemParser;
+
   late ListParser<int> sut;
 
   setUp(() {
     mockItemParser = _MockItemParser();
+
     sut = ListParser(mockItemParser);
   });
 
@@ -24,7 +26,7 @@ void main() {
     final items = [1, 2, 3];
 
     when(() => mockItemParser.decode(any())).thenAnswer(
-          (invocation) => (invocation.positionalArguments.first as int) * 10,
+      (invocation) => (invocation.positionalArguments.first as int) * 10,
     );
 
     final result = sut.decode(items);
@@ -55,7 +57,7 @@ void main() {
     final items = [1, 2, 3];
 
     when(() => mockItemParser.encode(any())).thenAnswer(
-          (invocation) => (invocation.positionalArguments.first as int) * 10,
+      (invocation) => (invocation.positionalArguments.first as int) * 10,
     );
 
     final result = sut.encode(items);
@@ -86,10 +88,10 @@ void main() {
     final items = [1, 2, 3];
 
     when(() => mockItemParser.encode(any())).thenAnswer(
-          (invocation) => invocation.positionalArguments.first as int,
+      (invocation) => invocation.positionalArguments.first as int,
     );
     when(() => mockItemParser.decode(any())).thenAnswer(
-          (invocation) => invocation.positionalArguments.first as int,
+      (invocation) => invocation.positionalArguments.first as int,
     );
 
     final encoded = sut.encode(items);

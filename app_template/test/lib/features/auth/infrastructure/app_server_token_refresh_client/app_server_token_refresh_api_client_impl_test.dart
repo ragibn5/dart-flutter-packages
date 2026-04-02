@@ -17,9 +17,10 @@ class _MockDioFeatureApiErrorMapper extends Mock
     implements AppServerTokenRefreshApiErrorMapper {}
 
 void main() {
-  final now = DateTime.now().toUtc();
   const path = AppServerTokenRefreshApiClientImpl.path;
   const tokenRefreshRequest = TokenRefreshRequest(refreshToken: 'refreshToken');
+
+  final now = DateTime.now().toUtc();
   final options = Options(method: 'GET');
   final sampleAuthData = AuthDataDTO(
     userId: 'userId',
@@ -29,10 +30,10 @@ void main() {
     refreshTokenExpiry: now.add(const Duration(days: 2)),
   );
 
-  late Dio mockDio;
-  late AppServerTokenRefreshApiErrorMapper mockErrorMapper;
+  late _MockDio mockDio;
+  late _MockDioFeatureApiErrorMapper mockErrorMapper;
 
-  late AppServerTokenRefreshApiClientImpl client;
+  late AppServerTokenRefreshApiClientImpl sut;
 
   setUpAll(() {
     registerFallbackValue(options);
@@ -44,11 +45,11 @@ void main() {
     mockDio = _MockDio();
     mockErrorMapper = _MockDioFeatureApiErrorMapper();
 
-    client = AppServerTokenRefreshApiClientImpl(mockDio, mockErrorMapper);
+    sut = AppServerTokenRefreshApiClientImpl(mockDio, mockErrorMapper);
   });
 
   test('createRequest returns request model with proper values', () {
-    final result = client.createRequest(tokenRefreshRequest);
+    final result = sut.createRequest(tokenRefreshRequest);
 
     expect(result.pathOrUrl, path);
     expect(result.data, tokenRefreshRequest.toJson());
@@ -56,7 +57,7 @@ void main() {
   });
 
   test('decodeResponse returns AuthDataDTO from response data', () {
-    final result = client.decodeResponse(sampleAuthData.toJson());
+    final result = sut.decodeResponse(sampleAuthData.toJson());
 
     expect(result, isA<AuthDataDTO>());
     expect(result, sampleAuthData);
@@ -80,7 +81,7 @@ void main() {
       ),
     );
 
-    final result = await client.request(tokenRefreshRequest);
+    final result = await sut.request(tokenRefreshRequest);
 
     expect(result.isSuccess, true);
     result.fold(
@@ -125,7 +126,7 @@ void main() {
 
     when(() => mockErrorMapper.mapError(any(), any())).thenReturn(mappedError);
 
-    final result = await client.request(tokenRefreshRequest);
+    final result = await sut.request(tokenRefreshRequest);
 
     expect(result.isError, true);
     result.fold(

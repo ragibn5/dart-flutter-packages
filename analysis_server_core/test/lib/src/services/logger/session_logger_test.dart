@@ -18,21 +18,6 @@ void main() {
 
   late SessionLogger sut;
 
-  setUpAll(() {
-    registerFallbackValue(_FakeLogData());
-  });
-
-  setUp(() {
-    mockCompositeLogger = _MockCompositeLogger();
-    sut = SessionLoggerImpl.test(
-      mockCompositeLogger,
-      enabled: true,
-      allowedLevels: SessionLogLevel.values.toSet(),
-    );
-
-    when(() => mockCompositeLogger.log(any())).thenAnswer((_) {});
-  });
-
   void verifyLoggedLevel(
     _MockCompositeLogger logger, {
     required LogLevel level,
@@ -107,6 +92,22 @@ void main() {
       called: error ? 1 : 0,
     );
   }
+
+  setUpAll(() {
+    registerFallbackValue(_FakeLogData());
+  });
+
+  setUp(() {
+    mockCompositeLogger = _MockCompositeLogger();
+
+    sut = SessionLoggerImpl.test(
+      mockCompositeLogger,
+      enabled: true,
+      allowedLevels: SessionLogLevel.values.toSet(),
+    );
+
+    when(() => mockCompositeLogger.log(any())).thenAnswer((_) {});
+  });
 
   test('Default constructor should: enable logger + enable all levels', () {
     final SessionLogger localSUT = SessionLoggerImpl({

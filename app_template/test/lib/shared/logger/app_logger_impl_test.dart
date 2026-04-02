@@ -18,21 +18,13 @@ void main() {
   const infoMessage = 'info message';
   const warnMessage = 'warn message';
   const errorMessage = 'error message';
+
   final errorObject = StateError('something went wrong');
   final extrasObject = {'key': 'value'};
 
   late _MockCompositeLogger mockCompositeLogger;
 
-  late AppLoggerImpl appLogger;
-
-  setUpAll(() {
-    registerFallbackValue(_FakeLogData());
-  });
-
-  setUp(() {
-    mockCompositeLogger = _MockCompositeLogger();
-    appLogger = AppLoggerImpl.test(mockCompositeLogger);
-  });
+  late AppLoggerImpl sut;
 
   /// Generic helper to verify a log call
   void verifyLog({
@@ -58,9 +50,19 @@ void main() {
     expect(logData.extras, expectedExtras);
   }
 
+  setUpAll(() {
+    registerFallbackValue(_FakeLogData());
+  });
+
+  setUp(() {
+    mockCompositeLogger = _MockCompositeLogger();
+
+    sut = AppLoggerImpl.test(mockCompositeLogger);
+  });
+
   test('logDebug forwards correct LogData', () {
     verifyLog(
-      logMethod: () => appLogger.logDebug(tag: debugTag, message: debugMessage),
+      logMethod: () => sut.logDebug(tag: debugTag, message: debugMessage),
       expectedLevel: LogLevel.DEBUG,
       expectedTag: debugTag,
       expectedMessage: debugMessage,
@@ -69,7 +71,7 @@ void main() {
 
   test('logInfo forwards correct LogData', () {
     verifyLog(
-      logMethod: () => appLogger.logInfo(tag: infoTag, message: infoMessage),
+      logMethod: () => sut.logInfo(tag: infoTag, message: infoMessage),
       expectedLevel: LogLevel.INFO,
       expectedTag: infoTag,
       expectedMessage: infoMessage,
@@ -78,7 +80,7 @@ void main() {
 
   test('logWarning forwards correct LogData', () {
     verifyLog(
-      logMethod: () => appLogger.logWarning(tag: warnTag, message: warnMessage),
+      logMethod: () => sut.logWarning(tag: warnTag, message: warnMessage),
       expectedLevel: LogLevel.WARNING,
       expectedTag: warnTag,
       expectedMessage: warnMessage,
@@ -87,7 +89,7 @@ void main() {
 
   test('logError forwards correct LogData', () {
     verifyLog(
-      logMethod: () => appLogger.logError(
+      logMethod: () => sut.logError(
         tag: errorTag,
         message: errorMessage,
         error: errorObject,

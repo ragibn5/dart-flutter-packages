@@ -16,12 +16,13 @@ class _MockUserDataDataSource extends Mock implements UserDataDataSource {}
 void main() {
   const uid = 'ragib';
   const dto = UserDataDTO(id: uid, name: 'Ragib');
+
   final entity = UserData(id: dto.id, name: dto.name);
 
   late _MockUserDateConverter mockUserDateConverter;
   late _MockUserDataDataSource mockUserDataDataSource;
 
-  late UserDataRepositoryImpl repositoryImpl;
+  late UserDataRepositoryImpl sut;
 
   setUpAll(() {
     registerFallbackValue(dto);
@@ -32,10 +33,7 @@ void main() {
     mockUserDateConverter = _MockUserDateConverter();
     mockUserDataDataSource = _MockUserDataDataSource();
 
-    repositoryImpl = UserDataRepositoryImpl(
-      mockUserDateConverter,
-      mockUserDataDataSource,
-    );
+    sut = UserDataRepositoryImpl(mockUserDateConverter, mockUserDataDataSource);
   });
 
   test('`getUserData` should return null if no record was found', () async {
@@ -43,7 +41,7 @@ void main() {
       () => mockUserDataDataSource.getUserData(uid),
     ).thenAnswer((_) async => null);
 
-    final result = await repositoryImpl.getUserData(uid);
+    final result = await sut.getUserData(uid);
 
     expect(result, isNull);
   });
@@ -58,7 +56,7 @@ void main() {
         () => mockUserDateConverter.convertDataToDomain(dto),
       ).thenReturn(entity);
 
-      final result = await repositoryImpl.getUserData(uid);
+      final result = await sut.getUserData(uid);
 
       expect(result, entity);
     },
@@ -72,7 +70,7 @@ void main() {
       () => mockUserDataDataSource.setUserData(dto),
     ).thenAnswer((_) async {});
 
-    await repositoryImpl.setUserData(entity);
+    await sut.setUserData(entity);
 
     verify(() => mockUserDateConverter.convertDomainToData(entity)).called(1);
     verify(() => mockUserDataDataSource.setUserData(dto)).called(1);
@@ -85,7 +83,7 @@ void main() {
         () => mockUserDataDataSource.removeUserData(uid),
       ).thenAnswer((_) async {});
 
-      await repositoryImpl.removeUserData(uid);
+      await sut.removeUserData(uid);
 
       verify(() => mockUserDataDataSource.removeUserData(uid)).called(1);
     },

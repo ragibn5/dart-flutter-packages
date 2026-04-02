@@ -29,8 +29,8 @@ void main() {
     List<Widget> leading = const [],
     List<Widget> trailing = const [],
     required Widget Function(SelectionItemUiModel model,
-        {required bool selected})
-    cellBuilder,
+            {required bool selected})
+        cellBuilder,
   }) {
     return MaterialApp(
       home: Scaffold(

@@ -15,6 +15,7 @@ class _MockAppServerTokenRefreshApiClient extends Mock
 
 void main() {
   const tokenRefreshRequest = TokenRefreshRequest(refreshToken: 'refreshToken');
+
   final authDataDTO = AuthDataDTO(
     userId: 'userId',
     accessToken: 'accessToken',
@@ -29,7 +30,7 @@ void main() {
 
   late _MockAppServerTokenRefreshApiClient mockApiClient;
 
-  late RemoteAuthDataSourceImpl remoteAuthDataSource;
+  late RemoteAuthDataSourceImpl sut;
 
   setUpAll(() {
     registerFallbackValue(authDataDTO);
@@ -38,7 +39,8 @@ void main() {
 
   setUp(() {
     mockApiClient = _MockAppServerTokenRefreshApiClient();
-    remoteAuthDataSource = RemoteAuthDataSourceImpl(mockApiClient);
+
+    sut = RemoteAuthDataSourceImpl(mockApiClient);
   });
 
   test(
@@ -48,9 +50,7 @@ void main() {
         () => mockApiClient.request(tokenRefreshRequest),
       ).thenAnswer((_) async => clientResponse);
 
-      final result = await remoteAuthDataSource.getRefreshedAuthData(
-        tokenRefreshRequest,
-      );
+      final result = await sut.getRefreshedAuthData(tokenRefreshRequest);
 
       verify(() => mockApiClient.request(tokenRefreshRequest)).called(1);
       expect(result.isSuccess, true);

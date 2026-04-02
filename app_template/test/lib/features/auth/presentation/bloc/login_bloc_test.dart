@@ -18,8 +18,9 @@ void main() {
     refreshTokenExpiry: DateTime.now().add(const Duration(days: 3)),
   );
 
-  late AuthDataService mockAuthDataService;
-  late LoginBloc loginBloc;
+  late _MockAuthDataService mockAuthDataService;
+
+  late LoginBloc sut;
 
   setUpAll(() {
     registerFallbackValue(authData);
@@ -28,7 +29,7 @@ void main() {
   setUp(() {
     mockAuthDataService = _MockAuthDataService();
 
-    loginBloc = LoginBloc(mockAuthDataService);
+    sut = LoginBloc(mockAuthDataService);
 
     when(
       () => mockAuthDataService.setCurrentAuthData(any()),
@@ -36,11 +37,11 @@ void main() {
   });
 
   tearDown(() {
-    loginBloc.close();
+    sut.close();
   });
 
   test('Initial state is LoginInitial', () {
-    expect(loginBloc.state, isA<LoginInitial>());
+    expect(sut.state, isA<LoginInitial>());
   });
 
   blocTest<LoginBloc, LoginState>(
@@ -49,7 +50,7 @@ void main() {
       when(
         () => mockAuthDataService.setCurrentAuthData(any()),
       ).thenThrow(Exception('test_error'));
-      return loginBloc;
+      return sut;
     },
     act: (bloc) => bloc.add(LoginRequested(username: 'test_user')),
     expect: () => [isA<LoginInProgress>(), isA<LoginError>()],
@@ -61,7 +62,7 @@ void main() {
       when(
         () => mockAuthDataService.setCurrentAuthData(any()),
       ).thenAnswer((_) async => authData);
-      return loginBloc;
+      return sut;
     },
     act: (bloc) => bloc.add(LoginRequested(username: 'test_user')),
     expect: () => [isA<LoginInProgress>(), isA<LoginComplete>()],

@@ -2,7 +2,6 @@
 
 import 'package:dlogger/dlogger.dart';
 import 'package:generator_core/src/services/logger/session_logger.dart';
-
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
@@ -18,21 +17,6 @@ void main() {
   late _MockCompositeLogger mockCompositeLogger;
 
   late SessionLogger sut;
-
-  setUpAll(() {
-    registerFallbackValue(_FakeLogData());
-  });
-
-  setUp(() {
-    mockCompositeLogger = _MockCompositeLogger();
-    sut = SessionLoggerImpl.test(
-      mockCompositeLogger,
-      enabled: true,
-      allowedLevels: SessionLogLevel.values.toSet(),
-    );
-
-    when(() => mockCompositeLogger.log(any())).thenAnswer((_) {});
-  });
 
   void verifyLoggedLevel(
     _MockCompositeLogger logger, {
@@ -108,6 +92,22 @@ void main() {
       called: error ? 1 : 0,
     );
   }
+
+  setUpAll(() {
+    registerFallbackValue(_FakeLogData());
+  });
+
+  setUp(() {
+    mockCompositeLogger = _MockCompositeLogger();
+
+    sut = SessionLoggerImpl.test(
+      mockCompositeLogger,
+      enabled: true,
+      allowedLevels: SessionLogLevel.values.toSet(),
+    );
+
+    when(() => mockCompositeLogger.log(any())).thenAnswer((_) {});
+  });
 
   test('Default constructor should: enable logger + enable all levels', () {
     final SessionLogger localSUT = SessionLoggerImpl({

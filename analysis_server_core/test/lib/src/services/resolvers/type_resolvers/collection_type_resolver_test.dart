@@ -5,6 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   final dartResolver = DartUnitResolver();
+
   late DefaultCollectionTypeResolver sut;
 
   setUpAll(() async {

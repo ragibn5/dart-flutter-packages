@@ -21,7 +21,7 @@ void main() {
 
   late _MockAuthDataRepository mockAuthDataRepository;
 
-  late AuthDataServiceImpl authDataServiceImpl;
+  late AuthDataServiceImpl sut;
 
   setUpAll(() {
     registerFallbackValue(authData);
@@ -29,7 +29,8 @@ void main() {
 
   setUp(() {
     mockAuthDataRepository = _MockAuthDataRepository();
-    authDataServiceImpl = AuthDataServiceImpl(mockAuthDataRepository);
+
+    sut = AuthDataServiceImpl(mockAuthDataRepository);
 
     when(
       () => mockAuthDataRepository.getCurrentAuthData(),
@@ -42,7 +43,7 @@ void main() {
   test(
     'getCurrentAuthData should call AuthDataRepository.getCurrentAuthData',
     () async {
-      await authDataServiceImpl.getCurrentAuthData();
+      await sut.getCurrentAuthData();
 
       verify(() => mockAuthDataRepository.getCurrentAuthData()).called(1);
     },
@@ -51,7 +52,7 @@ void main() {
   test(
     'setCurrentAuthData should call AuthDataSource.setCurrentAuthData',
     () async {
-      await authDataServiceImpl.setCurrentAuthData(authData);
+      await sut.setCurrentAuthData(authData);
 
       verify(
         () => mockAuthDataRepository.setCurrentAuthData(authData),
@@ -60,7 +61,7 @@ void main() {
   );
 
   test('getAuthDataStream should return the auth data stream', () async {
-    await authDataServiceImpl.setCurrentAuthData(authData);
+    await sut.setCurrentAuthData(authData);
 
     verify(() => mockAuthDataRepository.setCurrentAuthData(authData)).called(1);
   });
@@ -72,7 +73,7 @@ void main() {
         () => mockAuthDataRepository.getCurrentAuthData(),
       ).thenAnswer((_) async => null);
 
-      final result = await authDataServiceImpl.refreshCurrentAuthData();
+      final result = await sut.refreshCurrentAuthData();
       result.fold(
         onSuccess: (d) {
           fail('Should not success');

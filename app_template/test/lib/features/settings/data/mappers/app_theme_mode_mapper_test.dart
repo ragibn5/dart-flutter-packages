@@ -5,26 +5,26 @@ import 'package:app_template/features/settings/domain/models/app_theme_mode.dart
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late AppThemeModeMapper appThemeModeMapper;
+  late AppThemeModeMapper sut;
 
   setUp(() {
-    appThemeModeMapper = const AppThemeModeMapper();
+    sut = const AppThemeModeMapper();
   });
 
   test('`fromJson` Should return null if given json is null', () {
-    final result = appThemeModeMapper.fromJson(null);
+    final result = sut.fromJson(null);
     expect(result, null);
   });
 
   test('`fromJson` Should map correct `AppThemeMode`', () {
     for (final appThemeMode in AppThemeMode.values) {
-      final result = appThemeModeMapper.fromJson(appThemeMode.name);
+      final result = sut.fromJson(appThemeMode.name);
       expect(result, appThemeMode);
     }
   });
 
   test('`toJson` Should return null if given locale is null', () {
-    final result = appThemeModeMapper.toJson(null);
+    final result = sut.toJson(null);
     expect(result, null);
   });
 
@@ -32,7 +32,7 @@ void main() {
     '`toJson` Should map return correct serialized value for `AppThemeMode`',
     () {
       for (final appThemeMode in AppThemeMode.values) {
-        final result = appThemeModeMapper.toJson(appThemeMode);
+        final result = sut.toJson(appThemeMode);
         expect(result, appThemeMode.name);
       }
     },

@@ -17,29 +17,30 @@ class _MockRouteData extends Mock implements RouteData<dynamic> {}
 void main() {
   const nextRouteName = 'route2';
   const currentRouteName = 'route1';
+
   final currentRouteData = _MockRouteData();
 
-  late _MockAppLogger logger;
-  late _MockStackRouter router;
-  late _MockNavigationResolver resolver;
+  late _MockAppLogger mockLogger;
+  late _MockStackRouter mockRouter;
+  late _MockNavigationResolver mockResolver;
 
-  late RouterLogger routerLogger;
+  late RouterLogger sut;
 
   setUpAll(() {});
 
   setUp(() {
-    logger = _MockAppLogger();
-    router = _MockStackRouter();
-    resolver = _MockNavigationResolver();
+    mockLogger = _MockAppLogger();
+    mockRouter = _MockStackRouter();
+    mockResolver = _MockNavigationResolver();
 
-    routerLogger = RouterLogger(logger);
+    sut = RouterLogger(mockLogger);
 
-    when(() => router.current).thenAnswer((_) => currentRouteData);
+    when(() => mockRouter.current).thenAnswer((_) => currentRouteData);
     when(() => currentRouteData.name).thenAnswer((_) => currentRouteName);
-    when(() => resolver.routeName).thenAnswer((_) => nextRouteName);
-    when(() => resolver.next(any())).thenAnswer((_) {});
+    when(() => mockResolver.routeName).thenAnswer((_) => nextRouteName);
+    when(() => mockResolver.next(any())).thenAnswer((_) {});
     when(
-      () => logger.logDebug(
+      () => mockLogger.logDebug(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
@@ -47,14 +48,14 @@ void main() {
   });
 
   test('Should log when any navigation event occurs and calls next', () async {
-    routerLogger.onNavigation(resolver, router);
+    sut.onNavigation(mockResolver, mockRouter);
 
     verify(
-      () => logger.logDebug(
+      () => mockLogger.logDebug(
         tag: RouterLogger.TAG,
-        message: routerLogger.buildLogMessage(currentRouteName, nextRouteName),
+        message: sut.buildLogMessage(currentRouteName, nextRouteName),
       ),
     );
-    verify(() => resolver.next()).called(1);
+    verify(() => mockResolver.next()).called(1);
   });
 }

@@ -10,10 +10,13 @@ import 'package:app_template/features/auth/domain/services/auth_data_service.dar
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:app_template/features/settings/domain/services/settings_service.dart';
+import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
+class _MockLogger extends Mock implements AppLogger {}
 
 class _MockAuthDataService extends Mock implements AuthDataService {}
 
@@ -26,6 +29,7 @@ class _MockSessionInitializerService extends Mock
     implements SessionInitializerService {}
 
 void main() {
+  late _MockLogger logger;
   late _MockAuthDataService authDataService;
   late _MockAppPreferenceService appPreferenceService;
   late _MockAppInitializerService appInitializerService;
@@ -43,6 +47,7 @@ void main() {
   });
 
   setUp(() {
+    logger = _MockLogger();
     authDataService = _MockAuthDataService();
     appPreferenceService = _MockAppPreferenceService();
     appInitializerService = _MockAppInitializerService();
@@ -53,6 +58,7 @@ void main() {
     authController = StreamController.broadcast();
 
     bloc = AppBloc(
+      logger,
       authDataService,
       appPreferenceService,
       appInitializerService,
@@ -60,9 +66,17 @@ void main() {
     );
 
     when(
+      () => logger.logError(
+        tag: any(named: 'tag'),
+        message: any(named: 'message'),
+        error: any(named: 'error'),
+        stackTrace: any(named: 'stackTrace'),
+      ),
+    ).thenAnswer((_) {});
+
+    when(
       () => appPreferenceService.getEffectiveLocale(),
     ).thenAnswer((_) async => AppLocale.EN);
-
     when(
       () => appPreferenceService.getEffectiveThemeMode(),
     ).thenAnswer((_) async => AppThemeMode.LIGHT);
@@ -70,17 +84,14 @@ void main() {
     when(
       () => appPreferenceService.watchLocale(),
     ).thenAnswer((_) => localeController.stream);
-
     when(
       () => appPreferenceService.watchThemeMode(),
     ).thenAnswer((_) => themeController.stream);
-
     when(
       () => authDataService.watchAuthData(),
     ).thenAnswer((_) => authController.stream);
 
     when(() => appInitializerService.initialize()).thenAnswer((_) async {});
-
     when(() => sessionInitializerService.initialize()).thenAnswer((_) async {});
   });
 

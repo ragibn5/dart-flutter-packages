@@ -21,6 +21,7 @@ class _TestService {}
 
 void main() {
   const flavor = AppFlavor.DEV;
+
   final testService = _TestService();
   final environment = Environment(flavor.name);
 
@@ -73,25 +74,25 @@ void main() {
   });
 
   test('Should call configurator if NOT already initialized', () async {
-    final local = DependencyProviderImpl.test(
+    final sut = DependencyProviderImpl.test(
       mockGetIt,
       mockConfigurator.call,
       isInitialized: false,
     );
 
-    await local.initialize(flavor);
+    await sut.initialize(flavor);
 
     verify(() => mockConfigurator(mockGetIt, any())).called(1);
   });
 
   test('Should skip initialization if already initialized', () async {
-    final provider = DependencyProviderImpl.test(
+    final sut = DependencyProviderImpl.test(
       mockGetIt,
       mockConfigurator.call,
       isInitialized: true,
     );
 
-    await provider.initialize(null);
+    await sut.initialize(null);
 
     verifyNever(() => mockConfigurator(any(), any()));
   });
@@ -99,35 +100,29 @@ void main() {
   test(
     'Multiple initialization call should result in only one actual configure call',
     () async {
-      final provider = DependencyProviderImpl.test(
+      final sut = DependencyProviderImpl.test(
         mockGetIt,
         mockConfigurator.call,
         isInitialized: false,
       );
 
-      await provider.initialize(null);
-      await provider.initialize(null);
+      await sut.initialize(null);
+      await sut.initialize(null);
 
       verify(() => mockConfigurator(any(), any())).called(1);
     },
   );
 
   test('dispose should call dispose on registrar (mockGetIt)', () async {
-    final provider = DependencyProviderImpl.test(
-      mockGetIt,
-      mockConfigurator.call,
-    );
+    final sut = DependencyProviderImpl.test(mockGetIt, mockConfigurator.call);
 
-    await provider.dispose();
+    await sut.dispose();
 
     verify(() => mockGetIt.reset(dispose: true)).called(1);
   });
 
   test('getOrNull returns null if type T is not registered', () {
-    final provider = DependencyProviderImpl.test(
-      mockGetIt,
-      mockConfigurator.call,
-    );
+    final sut = DependencyProviderImpl.test(mockGetIt, mockConfigurator.call);
 
     when(
       () => mockGetIt.isRegistered<_TestService>(
@@ -135,7 +130,7 @@ void main() {
       ),
     ).thenReturn(false);
 
-    final result = provider.getOrNull<_TestService>();
+    final result = sut.getOrNull<_TestService>();
 
     expect(result, isNull);
   });
@@ -143,10 +138,7 @@ void main() {
   test(
     'getOrNull returns null if type T is registered under a different instanceName',
     () {
-      final provider = DependencyProviderImpl.test(
-        mockGetIt,
-        mockConfigurator.call,
-      );
+      final sut = DependencyProviderImpl.test(mockGetIt, mockConfigurator.call);
 
       when(
         () => mockGetIt.isRegistered<_TestService>(instanceName: 'x'),
@@ -158,9 +150,9 @@ void main() {
         () => mockGetIt.get<_TestService>(instanceName: 'y'),
       ).thenReturn(testService);
 
-      final resultX = provider.getOrNull<_TestService>(name: 'x');
+      final resultX = sut.getOrNull<_TestService>(name: 'x');
       expect(resultX, isNull);
-      final resultY = provider.getOrNull<_TestService>(name: 'y');
+      final resultY = sut.getOrNull<_TestService>(name: 'y');
       expect(resultY, isNotNull);
     },
   );
@@ -168,10 +160,7 @@ void main() {
   test(
     'getOrNull returns instance if type T is registered with correct name',
     () {
-      final provider = DependencyProviderImpl.test(
-        mockGetIt,
-        mockConfigurator.call,
-      );
+      final sut = DependencyProviderImpl.test(mockGetIt, mockConfigurator.call);
 
       final mockedValue = testService;
 
@@ -186,21 +175,21 @@ void main() {
         ),
       ).thenReturn(mockedValue);
 
-      final result = provider.getOrNull<_TestService>();
+      final result = sut.getOrNull<_TestService>();
 
       expect(result, equals(mockedValue));
     },
   );
 
   test('registerFactory throws if provider is not initialized', () {
-    final provider = DependencyProviderImpl.test(
+    final sut = DependencyProviderImpl.test(
       mockGetIt,
       mockConfigurator.call,
       isInitialized: false,
     );
 
     expect(
-      () => provider.registerFactory<_TestService>(_TestService.new),
+      () => sut.registerFactory<_TestService>(_TestService.new),
       throwsA(isA<StateError>()),
     );
 
@@ -213,7 +202,7 @@ void main() {
   });
 
   test('registerFactory delegates to GetIt when initialized', () {
-    final provider = DependencyProviderImpl.test(
+    final sut = DependencyProviderImpl.test(
       mockGetIt,
       mockConfigurator.call,
       isInitialized: true,
@@ -221,7 +210,7 @@ void main() {
 
     _TestService factory() => testService;
 
-    provider.registerFactory<_TestService>(factory, instanceName: 'test');
+    sut.registerFactory<_TestService>(factory, instanceName: 'test');
 
     verify(
       () => mockGetIt.registerFactory<_TestService>(
@@ -232,14 +221,14 @@ void main() {
   });
 
   test('registerSingleton throws if provider is not initialized', () {
-    final provider = DependencyProviderImpl.test(
+    final sut = DependencyProviderImpl.test(
       mockGetIt,
       mockConfigurator.call,
       isInitialized: false,
     );
 
     expect(
-      () => provider.registerSingleton<_TestService>(testService),
+      () => sut.registerSingleton<_TestService>(testService),
       throwsA(isA<StateError>()),
     );
 
@@ -253,13 +242,13 @@ void main() {
   });
 
   test('registerSingleton delegates to GetIt when initialized', () {
-    final provider = DependencyProviderImpl.test(
+    final sut = DependencyProviderImpl.test(
       mockGetIt,
       mockConfigurator.call,
       isInitialized: true,
     );
 
-    provider.registerSingleton<_TestService>(testService, instanceName: 'test');
+    sut.registerSingleton<_TestService>(testService, instanceName: 'test');
 
     verify(
       () => mockGetIt.registerSingleton<_TestService>(
@@ -271,14 +260,14 @@ void main() {
   });
 
   test('registerLazySingleton throws if provider is not initialized', () {
-    final provider = DependencyProviderImpl.test(
+    final sut = DependencyProviderImpl.test(
       mockGetIt,
       mockConfigurator.call,
       isInitialized: false,
     );
 
     expect(
-      () => provider.registerLazySingleton<_TestService>(_TestService.new),
+      () => sut.registerLazySingleton<_TestService>(_TestService.new),
       throwsA(isA<StateError>()),
     );
 
@@ -292,7 +281,7 @@ void main() {
   });
 
   test('registerLazySingleton delegates to GetIt when initialized', () {
-    final provider = DependencyProviderImpl.test(
+    final sut = DependencyProviderImpl.test(
       mockGetIt,
       mockConfigurator.call,
       isInitialized: true,
@@ -300,7 +289,7 @@ void main() {
 
     _TestService factory() => testService;
 
-    provider.registerLazySingleton<_TestService>(factory, instanceName: 'test');
+    sut.registerLazySingleton<_TestService>(factory, instanceName: 'test');
 
     verify(
       () => mockGetIt.registerLazySingleton<_TestService>(

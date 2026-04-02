@@ -11,11 +11,13 @@ class _MockValueParser extends Mock implements Parser<int, Json> {}
 void main() {
   late _MockKeyParser mockKeyParser;
   late _MockValueParser mockValueParser;
+
   late NullableMapParser<String, int> sut;
 
   setUp(() {
     mockKeyParser = _MockKeyParser();
     mockValueParser = _MockValueParser();
+
     sut = NullableMapParser(
       keyParser: mockKeyParser,
       valueParser: mockValueParser,

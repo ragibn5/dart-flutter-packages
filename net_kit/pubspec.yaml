@@ -15,16 +15,16 @@ version: 0.0.1
 environment:
   sdk: ^3.0.6
 
+# Regular dependencies
+# (Bundled in executable artifact)
 dependencies:
   dio: ^5.8.0+1
-
   parser:
     path: ../parser
 
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
-  # Test
   test: ^1.25.5
-
-  # Lints
   lints: ^3.0.0
   very_good_analysis: ^5.1.0

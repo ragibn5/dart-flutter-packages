@@ -8,10 +8,12 @@ class _MockItemParser extends Mock implements Parser<int, Json> {}
 
 void main() {
   late _MockItemParser mockItemParser;
+
   late NullableListParser<int> sut;
 
   setUp(() {
     mockItemParser = _MockItemParser();
+
     sut = NullableListParser(mockItemParser);
   });
 

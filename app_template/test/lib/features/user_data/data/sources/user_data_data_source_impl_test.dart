@@ -16,12 +16,13 @@ class _MockSQLiteDbDao extends Mock implements SQLiteDbDao {}
 void main() {
   const uid = 'ragib';
   const dto = UserDataDTO(id: uid, name: 'Ragib');
+
   final entity = UserData(id: dto.id, name: dto.name);
 
   late _MockSQLiteDb mockSQLiteDb;
   late _MockSQLiteDbDao mockSQLiteDbDao;
 
-  late UserDataDataSourceImpl userDataDataSourceImpl;
+  late UserDataDataSourceImpl sut;
 
   setUpAll(() {
     registerFallbackValue(dto);
@@ -31,7 +32,8 @@ void main() {
   setUp(() {
     mockSQLiteDb = _MockSQLiteDb();
     mockSQLiteDbDao = _MockSQLiteDbDao();
-    userDataDataSourceImpl = UserDataDataSourceImpl(mockSQLiteDb);
+
+    sut = UserDataDataSourceImpl(mockSQLiteDb);
 
     when(() => mockSQLiteDb.dao).thenReturn(mockSQLiteDbDao);
   });
@@ -43,7 +45,7 @@ void main() {
         () => mockSQLiteDbDao.get(any(), any(), [uid]),
       ).thenAnswer((_) async => [dto.toJson()]);
 
-      final result = await userDataDataSourceImpl.getUserData(uid);
+      final result = await sut.getUserData(uid);
 
       expect(result, dto);
       verify(
@@ -63,7 +65,7 @@ void main() {
         () => mockSQLiteDbDao.insert(any(), any()),
       ).thenAnswer((_) async => 1);
 
-      await userDataDataSourceImpl.setUserData(dto);
+      await sut.setUserData(dto);
 
       verify(
         () =>
@@ -79,7 +81,7 @@ void main() {
         () => mockSQLiteDbDao.delete(any(), any(), [uid]),
       ).thenAnswer((_) async => 1);
 
-      await userDataDataSourceImpl.removeUserData(uid);
+      await sut.removeUserData(uid);
 
       verify(
         () => mockSQLiteDbDao.delete(
