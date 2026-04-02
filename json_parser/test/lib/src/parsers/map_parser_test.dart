@@ -1,7 +1,6 @@
 import 'package:json_parser/json_parser.dart';
 import 'package:json_parser/src/types/json_types.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:parser/parser.dart';
 import 'package:test/test.dart';
 
 class _MockKeyParser extends Mock implements Parser<String, Json> {}
@@ -11,11 +10,13 @@ class _MockValueParser extends Mock implements Parser<int, Json> {}
 void main() {
   late _MockKeyParser mockKeyParser;
   late _MockValueParser mockValueParser;
+
   late MapParser<String, int> sut;
 
   setUp(() {
     mockKeyParser = _MockKeyParser();
     mockValueParser = _MockValueParser();
+
     sut = MapParser(
       keyParser: mockKeyParser,
       valueParser: mockValueParser,
