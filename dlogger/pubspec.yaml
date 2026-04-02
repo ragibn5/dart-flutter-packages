@@ -25,6 +25,5 @@ dependencies:
 # (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
   test: ^1.24.9
-  mockito: ^5.4.2
   lints: ^3.0.0
   very_good_analysis: ^5.1.0
