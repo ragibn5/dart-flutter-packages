@@ -16,16 +16,17 @@ environment:
   sdk: '>=3.0.6 <4.0.0'
   flutter: ">=1.17.0"
 
+# Regular dependencies
+# (Bundled in executable artifact)
 dependencies:
-  # SDK
   flutter:
     sdk: flutter
   mocktail: ^1.0.4
 
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
-  # Test
   flutter_test:
     sdk: flutter
-  # Lints
   flutter_lints: ^3.0.1
   very_good_analysis: ^5.1.0

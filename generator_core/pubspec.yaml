@@ -15,7 +15,8 @@ version: 0.0.1
 environment:
   sdk: ^3.10.9
 
-# Add regular dependencies here.
+# Regular dependencies
+# (Bundled in executable artifact)
 dependencies:
   intl: any
   build: ^4.0.4

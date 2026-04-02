@@ -23,12 +23,12 @@ dependencies:
   analyzer_plugin: ^0.13.0
   analyzer: ^8.0.0
   analyzer_testing: ^0.1.5
+  mocktail: ^1.0.4
   # As we are trying to provide support for testing
   # in other packages using this package, we need to
   # include the following dependencies as regular dependencies.
   # (They are usually dev_dependencies in normal scenarios)
   test: ^1.25.6
-  mocktail: ^1.0.4
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

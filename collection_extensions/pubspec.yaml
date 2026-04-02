@@ -15,10 +15,9 @@ version: 0.0.1
 environment:
   sdk: ^3.0.6
 
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
-  # Test
   test: ^1.25.5
-
-  # Lints
   lints: ^3.0.0
   very_good_analysis: ^5.1.0

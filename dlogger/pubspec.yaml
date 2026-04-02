@@ -15,16 +15,16 @@ version: 0.0.1
 environment:
   sdk: ^3.0.6
 
-# Add regular dependencies here.
+# Regular dependencies
+# (Bundled in executable artifact)
 dependencies:
-   path: ^1.8.0
-   mocktail: any
+  path: ^1.8.0
+  mocktail: any
 
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
-  # Test
   test: ^1.24.9
   mockito: ^5.4.2
-
-  # Lints
   lints: ^3.0.0
   very_good_analysis: ^5.1.0
