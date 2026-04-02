@@ -68,6 +68,7 @@ void main() {
   late _MockSessionData mockSessionData;
   late _MockSessionDataFetchResult mockFetchResult;
   late _MockSessionLogger mockSessionLogger;
+
   late _TestSessionManagedRawBuilder sut;
 
   setUp(() {

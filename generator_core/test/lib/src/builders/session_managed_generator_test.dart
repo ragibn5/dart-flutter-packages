@@ -31,9 +31,7 @@ class _MockContextConfig extends Mock implements ContextConfig {}
 class _MockLibraryReader extends Mock implements LibraryReader {}
 
 class _TestContextConfig extends ContextConfig {
-  const _TestContextConfig({
-    required super.logConfig,
-  });
+  const _TestContextConfig({required super.logConfig});
 
   @override
   Map<String, dynamic> toMap() => {};
@@ -44,10 +42,7 @@ class _TestSessionManagedGenerator
   BuildSessionContext<_TestContextConfig>? capturedSessionContext;
   String? generateResult;
 
-  _TestSessionManagedGenerator(
-    super.sessionDataManager, {
-    this.generateResult,
-  });
+  _TestSessionManagedGenerator(super.sessionDataManager, {this.generateResult});
 
   @override
   Future<String?> generateWithSession(
@@ -77,6 +72,7 @@ void main() {
   late _MockSessionDataFetchResult mockFetchResult;
   late _MockSessionLogger mockSessionLogger;
   late _MockLibraryReader mockLibraryReader;
+
   late _TestSessionManagedGenerator sut;
 
   setUp(() {
