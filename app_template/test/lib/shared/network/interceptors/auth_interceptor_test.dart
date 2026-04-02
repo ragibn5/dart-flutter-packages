@@ -38,7 +38,6 @@ void main() {
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTYxNjIzOTAyMn0.BtpKXeC14PNaSjwp-ZvgcNZYoM9cd5UZp9C_86q-MCk';
   const refreshToken =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MjAxNjIzOTAyMn0.BcjQmLA8URPyxBh8LR0wt45-bWd9Fy1bfpWyn2ctix8';
-
   final accessTokenExpiry = DateTime.now().add(const Duration(days: 1));
   final refreshTokenExpiry = accessTokenExpiry.add(const Duration(days: 1));
   final authData = AuthData(
@@ -64,10 +63,10 @@ void main() {
   late Map<String, String> authedHeaders;
   late RequestOptions authedRequestOptions;
 
-  late _MockDio originalClient;
+  late _MockDio mockClient;
   late _MockAuthDataService mockAuthDataService;
-  late _MockRequestInterceptorHandler requestHandler;
-  late _MockErrorInterceptorHandler errorHandler;
+  late _MockRequestInterceptorHandler mockRequestHandler;
+  late _MockErrorInterceptorHandler mockErrorHandler;
 
   late AuthInterceptor sut;
 
@@ -79,10 +78,10 @@ void main() {
   });
 
   setUp(() {
-    originalClient = _MockDio();
-    authDataService = _MockAuthDataService();
-    requestHandler = _MockRequestInterceptorHandler();
-    errorHandler = _MockErrorInterceptorHandler();
+    mockClient = _MockDio();
+    mockAuthDataService = _MockAuthDataService();
+    mockRequestHandler = _MockRequestInterceptorHandler();
+    mockErrorHandler = _MockErrorInterceptorHandler();
 
     emptyHeaders = {};
     emptyRequestOptions = RequestOptions(path: '/test', headers: emptyHeaders);
@@ -92,30 +91,30 @@ void main() {
       headers: authedHeaders,
     );
 
-    authInterceptor = AuthInterceptor(originalClient, authDataService);
+    sut = AuthInterceptor(mockClient, mockAuthDataService);
 
     when(
-      () => authDataService.getCurrentAuthData(),
+      () => mockAuthDataService.getCurrentAuthData(),
     ).thenAnswer((_) async => authData);
     when(
-      () => authDataService.refreshCurrentAuthData(),
+      () => mockAuthDataService.refreshCurrentAuthData(),
     ).thenAnswer((_) async => ApiResult.success(authData));
     when(
-      () => originalClient.fetch<dynamic>(any()),
+      () => mockClient.fetch<dynamic>(any()),
     ).thenAnswer((_) async => Response(requestOptions: authedRequestOptions));
   });
 
   test(
     'If authenticated, `onRequest` should inject authorization headers and proceed with the request',
     () async {
-      await authInterceptor.onRequest(emptyRequestOptions, requestHandler);
+      await sut.onRequest(emptyRequestOptions, mockRequestHandler);
 
       expect(emptyRequestOptions.headers, isNotEmpty);
       expect(
         emptyRequestOptions.headers,
         containsPair(HttpHeaders.authorizationHeader, 'Bearer $accessToken'),
       );
-      verify(() => requestHandler.next(emptyRequestOptions)).called(1);
+      verify(() => mockRequestHandler.next(emptyRequestOptions)).called(1);
     },
   );
 
@@ -123,14 +122,16 @@ void main() {
     'If not authenticated, `onRequest` should not inject authorization headers and should reject the request with a `DioException` of type `DioExceptionType.cancel`',
     () async {
       when(
-        () => authDataService.getCurrentAuthData(),
+        () => mockAuthDataService.getCurrentAuthData(),
       ).thenAnswer((_) async => null);
 
-      await authInterceptor.onRequest(emptyRequestOptions, requestHandler);
+      await sut.onRequest(emptyRequestOptions, mockRequestHandler);
 
       expect(emptyRequestOptions.headers, isEmpty);
 
-      final verification = verify(() => requestHandler.reject(captureAny()));
+      final verification = verify(
+        () => mockRequestHandler.reject(captureAny()),
+      );
       final exception = verification.captured.single as DioException;
 
       verification.called(1);
@@ -151,9 +152,9 @@ void main() {
         ),
       );
 
-      await authInterceptor.onError(exception, errorHandler);
+      await sut.onError(exception, mockErrorHandler);
 
-      verify(() => errorHandler.next(exception)).called(1);
+      verify(() => mockErrorHandler.next(exception)).called(1);
     },
   );
 
@@ -170,12 +171,12 @@ void main() {
       );
 
       when(
-        () => authDataService.getCurrentAuthData(),
+        () => mockAuthDataService.getCurrentAuthData(),
       ).thenAnswer((_) async => null);
 
-      await authInterceptor.onError(dioException, errorHandler);
+      await sut.onError(dioException, mockErrorHandler);
 
-      final verification = verify(() => errorHandler.reject(captureAny()));
+      final verification = verify(() => mockErrorHandler.reject(captureAny()));
       final customException = verification.captured.single as DioException;
 
       verification.called(1);
@@ -201,13 +202,13 @@ void main() {
       );
 
       when(
-        () => authDataService.getCurrentAuthData(),
+        () => mockAuthDataService.getCurrentAuthData(),
       ).thenAnswer((_) async => newAuthData);
 
-      await authInterceptor.onError(dioException, errorHandler);
+      await sut.onError(dioException, mockErrorHandler);
 
-      verify(() => errorHandler.resolve(any())).called(1);
-      verify(() => originalClient.fetch<dynamic>(any())).called(1);
+      verify(() => mockErrorHandler.resolve(any())).called(1);
+      verify(() => mockClient.fetch<dynamic>(any())).called(1);
     },
   );
 
@@ -223,10 +224,10 @@ void main() {
         ),
       );
 
-      await authInterceptor.onError(dioException, errorHandler);
+      await sut.onError(dioException, mockErrorHandler);
 
-      verify(() => errorHandler.resolve(any())).called(1);
-      verify(() => originalClient.fetch<dynamic>(any())).called(1);
+      verify(() => mockErrorHandler.resolve(any())).called(1);
+      verify(() => mockClient.fetch<dynamic>(any())).called(1);
     },
   );
 
@@ -242,15 +243,15 @@ void main() {
         ),
       );
 
-      when(() => authDataService.refreshCurrentAuthData()).thenAnswer(
+      when(() => mockAuthDataService.refreshCurrentAuthData()).thenAnswer(
         (_) async => ApiResult.failure(
           ApiError.fromServerError(InvalidAuthStateForRefresh()),
         ),
       );
 
-      await authInterceptor.onError(dioException, errorHandler);
+      await sut.onError(dioException, mockErrorHandler);
 
-      final verification = verify(() => errorHandler.reject(captureAny()));
+      final verification = verify(() => mockErrorHandler.reject(captureAny()));
       final customException = verification.captured.single as DioException;
 
       verification.called(1);
