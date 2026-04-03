@@ -23,8 +23,8 @@ import 'package:path/path.dart' as path;
 /// ```dart
 /// final resolver = DartUnitResolver();
 ///
-/// setUp(() async => resolver.setUp());
-/// tearDown(() async => resolver.tearDown());
+/// setUpAll(() async => resolver.setUp());
+/// tearDownAll(() async => resolver.tearDown());
 ///
 /// test('example', () async {
 ///   final result = await resolver.resolveSource('''
@@ -51,7 +51,7 @@ class DartUnitResolver {
 
   /// Deletes the temporary directory created in [setUp].
   ///
-  /// Must be called after each test, typically in a [tearDown] block.
+  /// Must be called after all tests, typically in a [tearDownAll] block.
   Future<void> tearDown() async {
     _tempDir.deleteSync(recursive: true);
   }
