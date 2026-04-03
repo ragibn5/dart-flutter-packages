@@ -17,7 +17,7 @@ dependencies:
 
 ```yaml
 dependencies:
-  string_extensions:
+  analysis_server_core:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_server_core
