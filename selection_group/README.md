@@ -26,7 +26,7 @@ dependencies:
 
 ## Get Started
 
-Use the [`VivaSelectionGroup`](lib/src/selection_group.dart) to construct r selection group
+Use the [`VivaSelectionGroup`](lib/src/selection_group.dart) to construct a selection group
 widget.
 It expects the following components:
 
