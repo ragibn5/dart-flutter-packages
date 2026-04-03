@@ -2,7 +2,7 @@ import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final DartUnitResolver resolver = DartUnitResolver();
+  final resolver = DartUnitResolver();
 
   setUpAll(() async {
     await resolver.setUp();
