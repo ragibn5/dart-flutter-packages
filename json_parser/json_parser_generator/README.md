@@ -1,4 +1,4 @@
-# parser
+# json_parser_generator
 
 Generator counterpart of the [`json_parser`](../../json_parser) package.
 

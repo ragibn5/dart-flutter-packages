@@ -30,6 +30,89 @@ dependencies:
       ref: main
 ```
 
+### Usage
+
+Let a custom type be:
+
+```dart
+class User {
+  final int id;
+  final String name;
+
+  User(this.id, this.name);
+
+  @override
+  String toString() {
+    return 'User{id: $id, name: $name}';
+  }
+}
+```
+
+Create a parser implementation using [`Parser`] from [`parser`](../parser/lib/src/parser.dart):
+
+```dart
+// Create a custom parser for the User
+class UserParser implements Parser<User, Json> {
+  const UserParser();
+
+  @override
+  User decode(Json encoded) {
+    final map = encoded! as JsonMap;
+
+    return User(
+      id: map['id']! as int,
+      name: map['name']! as String,
+    );
+  }
+
+  @override
+  Json encode(User value) {
+    return {
+      'id': value.id,
+      'name': value.name,
+    };
+  }
+}
+
+// Usage
+void main() {
+  final user = User(1, 'John');
+  final userParser = UserParser();
+
+  // Use of the parser
+  final encoded = userParser.encode(user);
+  final decoded = userParser.decode(encoded);
+  // Output: {'id': 1, 'name': 'John'}
+  print(encoded);
+  // Output: User{id: 1, name: John}
+  print(decoded);
+}
+```
+
+[`Json`, `JsonMap` & `JsonList`](lib/src/types/json_types.dart) are type-aliases that should be used
+to construct all custom JSON parser implementations.
+
+Building a parser registry using [`JsonParserRegistry`](lib/src/registry/json_parser_registry.dart):
+
+```dart
+// Usage
+void main() {
+  final user = User(1, 'John');
+  final userParser = UserParser();
+
+  // Use of the json parser registry
+  // Create a registry with known parsers (or use default constructor for empty registry)
+  final jsonParserRegistry = JsonParserRegistry.withKnownParsers();
+  final userParserFromRegistry = parserRegistry.getParser<User>();
+  final encodedFromRegistry = userParserFromRegistry!.encode(user);
+  final decodedFromRegistry = userParserFromRegistry.decode(encodedFromRegistry);
+  // Output: {'id': 1, 'name': 'John'}
+  print(encodedFromRegistry);
+  // Output: User{id: 1, name: John}
+  print(decodedFromRegistry);
+}
+```
+
 ### Example
 
 See the [example](example/example.dart) for a complete demonstration.
