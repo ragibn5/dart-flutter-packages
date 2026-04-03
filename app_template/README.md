@@ -2,8 +2,6 @@
 
 A template to start new applications from.
 
-## Getting Started
-
 ### Setup environment
 
 #### Install required plugins
@@ -177,7 +175,7 @@ You may want to modify the platform specific values and components to get starte
     - Finally, run this script file (from the run icon on top of the file). This will overwrite the
       existing related files with your firebase files.
 
-### Final TODOs
+## Final TODOs
 
 🎯 Congratulations! You’ve successfully set up the project.
 
@@ -206,3 +204,7 @@ You may want to modify the platform specific values and components to get starte
 <br>
 
 🎯 Verify the project setup by running it into all platforms.
+
+## License
+
+Click [here](../LICENSE) to see the license.

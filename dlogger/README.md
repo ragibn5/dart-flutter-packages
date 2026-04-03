@@ -10,14 +10,14 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  datetime_utils: ^0.0.1
+  dlogger: ^0.0.1
 ```
 
 #### Or, From Git repo (Internal members only)
 
 ```yaml
 dependencies:
-  datetime_utils:
+  dlogger:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: dlogger

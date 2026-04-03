@@ -2,7 +2,7 @@
 
 Useful extensions over dart's built-in `Collection` types.
 
-# Overview
+## Overview
 
 The current version has support for the following `Collection` types:
 

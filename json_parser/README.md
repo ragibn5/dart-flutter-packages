@@ -1,19 +1,12 @@
-# parser
+# json_parser
 
 A lightweight & flexible JSON parser for encoding and decoding data in Dart & Flutter applications.
-
-## Overview
-
-`json_parser` is a type-safe JSON parser that simplifies the process of serializing and
-deserializing data. It provides a consistent interface for encoding objects to various formats and
-decoding them back to strongly-typed Dart objects.
 
 ## Features
 
 - Built-in JSON parsing capability.
 - Type-safe encoding and decoding.
 - Type-safe parser registry for custom & built-in type parsers.
-- Extensible architecture for building parsers for custom & built-in types.
 
 ## Installation
 
@@ -98,7 +91,6 @@ void main() {
 
 [`Json`, `JsonMap` & `JsonList`](lib/src/types/json_types.dart) are type-aliases that should be used
 to construct all custom JSON parser implementations.
-
 
 Building a parser registry using [`JsonParserRegistry`](lib/src/registry/json_parser_registry.dart):
 
