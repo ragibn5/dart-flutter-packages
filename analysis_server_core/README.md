@@ -28,6 +28,10 @@ dependencies:
 
 See the [example](example/example.dart) for a complete demonstration.
 
+You may also see real plugins developed by this library:
+- [clean_arch_lint](../clean_arch_lint)
+- [json_parser_analyzer](../json_parser/json_parser_analyzer)
+
 ## License
 
 Click [here](../LICENSE) to see the license.
