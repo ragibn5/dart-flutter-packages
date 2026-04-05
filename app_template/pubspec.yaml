@@ -62,6 +62,8 @@ dependencies:
     path: ../dlogger
   json_parser:
     path: ../json_parser
+  json_parser_annotations:
+    path: ../json_parser/json_parser_annotations
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

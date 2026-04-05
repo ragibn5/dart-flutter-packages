@@ -711,7 +711,7 @@ packages:
     source: path
     version: "0.0.1"
   json_parser_annotations:
-    dependency: transitive
+    dependency: "direct main"
     description:
       path: "../json_parser/json_parser_annotations"
       relative: true
