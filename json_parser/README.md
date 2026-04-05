@@ -51,6 +51,7 @@ Built-in parsers are also available for other primitive types such as `bool`, `d
 `String`.
 
 #### Create a parser implementation using [`Parser`] from [
+
 `parser`](../parser/lib/src/parser.dart) package:
 
 Let a custom type be:
@@ -114,6 +115,7 @@ void main() {
 to construct all custom JSON parser implementations.
 
 #### Building a parser registry using [
+
 `JsonParserRegistry`](lib/src/registry/json_parser_registry.dart):
 
 ```dart
@@ -139,6 +141,15 @@ void main() {
 
 <br><br>
 See the example section for more examples, like encoding/decoding primitive constructs and more.
+
+### Tooling
+
+Additional tooling is available for `json_parser`:
+
+- [`json_parser_generator`](json_parser_generator/README.md): Generates type-safe JSON parsers and
+  parser registries for annotated models.
+- [`json_parser_analyzer`](json_parser_analyzer/README.md): Adds analyzer checks to enforce
+  `json_parser`-compatible model structures.
 
 ### Example
 
