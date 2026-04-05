@@ -101,7 +101,6 @@ There is no limit of how many levels you can nest your menus, you can make it as
 as you want.
 
 ```dart
-
 final subMenuItems = [
   MenuItemData<String>(
     data: "sub1",
