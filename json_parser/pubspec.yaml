@@ -19,8 +19,6 @@ environment:
 # (Bundled in executable artifact)
 dependencies:
   mocktail: ^1.0.4
-  json_parser_annotations:
-    path: json_parser_annotations
   parser:
     path: ../parser
 
