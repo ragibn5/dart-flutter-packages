@@ -11,43 +11,44 @@ void main() {
   }
 
   testWidgets(
-      'Delegate to appropriate feedback container widget with proper values',
-      (tester) async {
-    const opacityFeedbackConfig = OpacityFeedbackConfig();
-    const overlayFeedbackConfig = OverlayFeedbackConfig(Colors.white);
-    const child = SizedBox.shrink();
-    void onTap() {}
-    final opacityBasedContainer = ClickFeedbackContainer(
-      feedbackConfig: opacityFeedbackConfig,
-      onTap: onTap,
-      child: child,
-    );
-    final overlayBasedContainer = ClickFeedbackContainer(
-      feedbackConfig: overlayFeedbackConfig,
-      onTap: onTap,
-      child: child,
-    );
+    'Delegate to appropriate feedback container widget with proper values',
+    (tester) async {
+      const opacityFeedbackConfig = OpacityFeedbackConfig();
+      const overlayFeedbackConfig = OverlayFeedbackConfig(Colors.white);
+      const child = SizedBox.shrink();
+      void onTap() {}
+      final opacityBasedContainer = ClickFeedbackContainer(
+        feedbackConfig: opacityFeedbackConfig,
+        onTap: onTap,
+        child: child,
+      );
+      final overlayBasedContainer = ClickFeedbackContainer(
+        feedbackConfig: overlayFeedbackConfig,
+        onTap: onTap,
+        child: child,
+      );
 
-    await tester.pumpWidget(wrap(opacityBasedContainer));
-    expect(
-      tester.widget(find.byType(OpacityFeedbackContainer)),
-      isA<OpacityFeedbackContainer>()
-          .having(
-              (w) => w.feedbackConfig, 'feedbackConfig', opacityFeedbackConfig)
-          .having((w) => w.child, 'child', child)
-          .having((w) => w.onTap, 'onTap', onTap),
-    );
+      await tester.pumpWidget(wrap(opacityBasedContainer));
+      expect(
+        tester.widget(find.byType(OpacityFeedbackContainer)),
+        isA<OpacityFeedbackContainer>()
+            .having((w) => w.feedbackConfig, 'feedbackConfig',
+                opacityFeedbackConfig)
+            .having((w) => w.child, 'child', child)
+            .having((w) => w.onTap, 'onTap', onTap),
+      );
 
-    await tester.pumpWidget(wrap(overlayBasedContainer));
-    expect(
-      tester.widget(find.byType(OverlayFeedbackContainer)),
-      isA<OverlayFeedbackContainer>()
-          .having(
-              (w) => w.feedbackConfig, 'feedbackConfig', overlayFeedbackConfig)
-          .having((w) => w.child, 'child', child)
-          .having((w) => w.onTap, 'onTap', onTap),
-    );
-  });
+      await tester.pumpWidget(wrap(overlayBasedContainer));
+      expect(
+        tester.widget(find.byType(OverlayFeedbackContainer)),
+        isA<OverlayFeedbackContainer>()
+            .having((w) => w.feedbackConfig, 'feedbackConfig',
+                overlayFeedbackConfig)
+            .having((w) => w.child, 'child', child)
+            .having((w) => w.onTap, 'onTap', onTap),
+      );
+    },
+  );
 
   testWidgets('Does not render OverlayFeedbackContainer for opacity config',
       (tester) async {
@@ -61,15 +62,17 @@ void main() {
     expect(find.byType(OpacityFeedbackContainer), findsOneWidget);
   });
 
-  testWidgets('Does not render OpacityFeedbackContainer for overlay config',
-      (tester) async {
-    await tester.pumpWidget(wrap(ClickFeedbackContainer(
-      feedbackConfig: const OverlayFeedbackConfig(Colors.white),
-      onTap: () {},
-      child: const SizedBox.shrink(),
-    )));
+  testWidgets(
+    'Does not render OpacityFeedbackContainer for overlay config',
+    (tester) async {
+      await tester.pumpWidget(wrap(ClickFeedbackContainer(
+        feedbackConfig: const OverlayFeedbackConfig(Colors.white),
+        onTap: () {},
+        child: const SizedBox.shrink(),
+      )));
 
-    expect(find.byType(OpacityFeedbackContainer), findsNothing);
-    expect(find.byType(OverlayFeedbackContainer), findsOneWidget);
-  });
+      expect(find.byType(OpacityFeedbackContainer), findsNothing);
+      expect(find.byType(OverlayFeedbackContainer), findsOneWidget);
+    },
+  );
 }

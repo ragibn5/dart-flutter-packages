@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_redundant_argument_values
+// ignore_for_file: avoid_redundant_argument_values, lines_longer_than_80_chars
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,50 +68,53 @@ void main() {
       expect(listView.semanticChildCount, 4);
     });
 
-    testWidgets('ListView receives correct layout config values',
-        (tester) async {
-      const padding = EdgeInsets.all(16);
-      const physics = ClampingScrollPhysics();
+    testWidgets(
+      'ListView receives correct layout config values',
+      (tester) async {
+        const padding = EdgeInsets.all(16);
+        const physics = ClampingScrollPhysics();
 
-      await tester.pumpWidget(
-        wrap(
-          Menu<String>(
-            menuData: buildMenuData(
-              config: const MenuLayoutConfig(
-                shrinkWrap: false,
-                padding: padding,
-                scrollPhysics: physics,
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(
+                config: const MenuLayoutConfig(
+                  shrinkWrap: false,
+                  padding: padding,
+                  scrollPhysics: physics,
+                ),
               ),
+              menuItemBuilder: textItemBuilder,
             ),
-            menuItemBuilder: textItemBuilder,
           ),
-        ),
-      );
+        );
 
-      final listView = tester.widget<ListView>(find.byType(ListView));
-      expect(listView.shrinkWrap, false);
-      expect(listView.padding, padding);
-      expect(listView.physics, isA<ClampingScrollPhysics>());
-    });
+        final listView = tester.widget<ListView>(find.byType(ListView));
+        expect(listView.shrinkWrap, false);
+        expect(listView.padding, padding);
+        expect(listView.physics, isA<ClampingScrollPhysics>());
+      },
+    );
   });
 
   group('menuItemBuilder', () {
     testWidgets(
-        'Only header is built when no menu items were provided, but header is provided',
-        (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          Menu<String>(
-            menuData: buildMenuData(items: []),
-            menuItemBuilder: (index, size, item) => const Text('Item'),
-            menuHeaderBuilder: (context, _) => const Text('Header'),
+      'Only header is built when no menu items were provided, but header is provided',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(items: []),
+              menuItemBuilder: (index, size, item) => const Text('Item'),
+              menuHeaderBuilder: (context, _) => const Text('Header'),
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text('Header'), findsOneWidget);
-      expect(find.text('Item'), findsNothing);
-    });
+        expect(find.text('Header'), findsOneWidget);
+        expect(find.text('Item'), findsNothing);
+      },
+    );
 
     testWidgets('Renders menu items using menuItemBuilder', (tester) async {
       await tester.pumpWidget(
@@ -133,26 +136,27 @@ void main() {
     });
 
     testWidgets(
-        'Passes correct index, hostMenuSize and itemData to menuItemBuilder',
-        (tester) async {
-      final items = [buildItem(title: 'Item 1'), buildItem(title: 'Item 2')];
-      final captured = <(int, int, MenuItemData<String>)>[];
+      'Passes correct index, hostMenuSize and itemData to menuItemBuilder',
+      (tester) async {
+        final items = [buildItem(title: 'Item 1'), buildItem(title: 'Item 2')];
+        final captured = <(int, int, MenuItemData<String>)>[];
 
-      await tester.pumpWidget(
-        wrap(
-          Menu<String>(
-            menuData: buildMenuData(items: items),
-            menuItemBuilder: (index, hostMenuSize, itemData) {
-              captured.add((index, hostMenuSize, itemData));
-              return Text(itemData.itemTitle);
-            },
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(items: items),
+              menuItemBuilder: (index, hostMenuSize, itemData) {
+                captured.add((index, hostMenuSize, itemData));
+                return Text(itemData.itemTitle);
+              },
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(captured[0], (0, 2, items[0]));
-      expect(captured[1], (1, 2, items[1]));
-    });
+        expect(captured[0], (0, 2, items[0]));
+        expect(captured[1], (1, 2, items[1]));
+      },
+    );
 
     testWidgets('Renders no items when menuItems is empty', (tester) async {
       await tester.pumpWidget(
@@ -186,56 +190,83 @@ void main() {
   });
 
   group('menuHeaderBuilder', () {
-    testWidgets('Renders header when menuHeaderBuilder is provided',
-        (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          Menu<String>(
-            menuData: buildMenuData(),
-            menuItemBuilder: textItemBuilder,
-            menuHeaderBuilder: (context, _) => const Text('Header'),
+    testWidgets(
+      'Renders header when menuHeaderBuilder is provided',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(),
+              menuItemBuilder: textItemBuilder,
+              menuHeaderBuilder: (context, _) => const Text('Header'),
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text('Header'), findsOneWidget);
-    });
+        expect(find.text('Header'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Does not render header when menuHeaderBuilder is omitted',
-        (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          Menu<String>(
-            menuData: buildMenuData(),
-            menuItemBuilder: textItemBuilder,
+    testWidgets(
+      'Does not render header when menuHeaderBuilder is omitted',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(),
+              menuItemBuilder: textItemBuilder,
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text('Header'), findsNothing);
-    });
+        expect(find.text('Header'), findsNothing);
+      },
+    );
 
-    testWidgets('Passes null submenuRootMenuItemData to header for root menu',
-        (tester) async {
-      MenuItemData<String>? receivedRootItem = MenuItemData(
-        data: 'placeholder',
-        itemTitle: 'placeholder',
-      );
+    testWidgets(
+      'Passes null submenuRootMenuItemData to header for root menu',
+      (tester) async {
+        MenuItemData<String>? receivedRootItem = MenuItemData(
+          data: 'placeholder',
+          itemTitle: 'placeholder',
+        );
+
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(),
+              menuItemBuilder: textItemBuilder,
+              menuHeaderBuilder: (context, submenuRootMenuItemData) {
+                receivedRootItem = submenuRootMenuItemData;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+
+        expect(receivedRootItem, isNull);
+      },
+    );
+
+    testWidgets('Passes parentItem to header for submenu menu', (tester) async {
+      final parentItem = buildItem(title: 'Parent');
+      MenuItemData<String>? receivedParentItem;
 
       await tester.pumpWidget(
         wrap(
           Menu<String>(
+            parentItem: parentItem,
             menuData: buildMenuData(),
             menuItemBuilder: textItemBuilder,
             menuHeaderBuilder: (context, submenuRootMenuItemData) {
-              receivedRootItem = submenuRootMenuItemData;
-              return const SizedBox();
+              receivedParentItem = submenuRootMenuItemData;
+              return const SizedBox.shrink();
             },
           ),
         ),
       );
 
-      expect(receivedRootItem, isNull);
+      expect(receivedParentItem, same(parentItem));
     });
   });
 
@@ -388,60 +419,73 @@ void main() {
     });
 
     testWidgets(
-        'Calls both onItemAction and onSubmenuRequest when item has both',
-        (tester) async {
-      var actionCalled = false;
-      MenuData<String>? receivedSubmenu;
-      final submenuData = buildMenuData(items: [buildItem(title: 'Sub Item')]);
+      'Calls both onItemAction and onSubmenuRequest when item has both',
+      (tester) async {
+        var actionCalled = false;
+        MenuItemData<String>? receivedParentItem;
+        MenuData<String>? receivedSubmenu;
+        final item = buildItem(
+          onItemAction: (_) => actionCalled = true,
+          subMenuData: buildMenuData(items: [buildItem(title: 'Sub Item')]),
+        );
 
-      await tester.pumpWidget(
-        wrap(
-          Menu<String>(
-            menuData: buildMenuData(
-              items: [
-                buildItem(
-                  onItemAction: (_) => actionCalled = true,
-                  subMenuData: submenuData,
-                ),
-              ],
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(
+                items: [item],
+              ),
+              menuItemBuilder: (index, size, item) => buildItemWidget(),
+              onSubmenuRequest: (context, submenuRootMenuItemData, submenu) {
+                receivedParentItem = submenuRootMenuItemData;
+                receivedSubmenu = submenu;
+              },
+              onPop: (_) {},
             ),
-            menuItemBuilder: (index, size, item) => buildItemWidget(),
-            onSubmenuRequest: (context, submenu) => receivedSubmenu = submenu,
-            onPop: (_) {},
           ),
-        ),
-      );
+        );
 
-      await tapFirstItem(tester);
+        await tapFirstItem(tester);
 
-      expect(actionCalled, isTrue);
-      expect(receivedSubmenu, submenuData);
-    });
+        expect(actionCalled, isTrue);
+        expect(receivedParentItem, same(item));
+        expect(receivedSubmenu, same(item.subMenuData));
+      },
+    );
   });
 
   group('onSubmenuRequest', () {
-    testWidgets('Calls onSubmenuRequest when item with submenu is tapped',
-        (tester) async {
-      MenuData<String>? receivedSubmenu;
-      final submenuData = buildMenuData(items: [buildItem(title: 'Sub Item')]);
+    testWidgets(
+      'Calls onSubmenuRequest when item with submenu is tapped',
+      (tester) async {
+        MenuItemData<String>? receivedParentItem;
+        MenuData<String>? receivedSubmenu;
+        final item = buildItem(
+          subMenuData: buildMenuData(items: [buildItem(title: 'Sub Item')]),
+        );
 
-      await tester.pumpWidget(
-        wrap(
-          Menu<String>(
-            menuData: buildMenuData(
-              items: [buildItem(subMenuData: submenuData)],
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(
+                items: [item],
+              ),
+              menuItemBuilder: (index, size, item) => buildItemWidget(),
+              onSubmenuRequest: (context, submenuRootMenuItemData, submenu) {
+                receivedParentItem = submenuRootMenuItemData;
+                receivedSubmenu = submenu;
+              },
+              onPop: (_) {},
             ),
-            menuItemBuilder: (index, size, item) => buildItemWidget(),
-            onSubmenuRequest: (context, submenu) => receivedSubmenu = submenu,
-            onPop: (_) {},
           ),
-        ),
-      );
+        );
 
-      await tapFirstItem(tester);
+        await tapFirstItem(tester);
 
-      expect(receivedSubmenu, submenuData);
-    });
+        expect(receivedParentItem, same(item));
+        expect(receivedSubmenu, same(item.subMenuData));
+      },
+    );
 
     testWidgets('Does not call onSubmenuRequest when submenu is empty',
         (tester) async {
@@ -454,7 +498,9 @@ void main() {
               items: [buildItem(subMenuData: buildMenuData(items: []))],
             ),
             menuItemBuilder: (index, size, item) => buildItemWidget(),
-            onSubmenuRequest: (context, submenu) => submenuRequestCalled = true,
+            onSubmenuRequest: (context, submenuRootMenuItemData, submenu) {
+              submenuRequestCalled = true;
+            },
             onPop: (_) {},
           ),
         ),
@@ -466,27 +512,29 @@ void main() {
     });
 
     testWidgets(
-        'Does not throw when onSubmenuRequest is null and item has submenu',
-        (tester) async {
-      final submenuData = buildMenuData(items: [buildItem(title: 'Sub Item')]);
+      'Does not throw when onSubmenuRequest is null and item has submenu',
+      (tester) async {
+        final submenuData =
+            buildMenuData(items: [buildItem(title: 'Sub Item')]);
 
-      await tester.pumpWidget(
-        wrap(
-          Menu<String>(
-            menuData: buildMenuData(
-              items: [buildItem(subMenuData: submenuData)],
+        await tester.pumpWidget(
+          wrap(
+            Menu<String>(
+              menuData: buildMenuData(
+                items: [buildItem(subMenuData: submenuData)],
+              ),
+              menuItemBuilder: (index, size, item) => buildItemWidget(),
+              onPop: (_) {},
             ),
-            menuItemBuilder: (index, size, item) => buildItemWidget(),
-            onPop: (_) {},
           ),
-        ),
-      );
+        );
 
-      expect(
-        () async => tester.tap(find.byType(ClickFeedbackContainer).first),
-        returnsNormally,
-      );
-    });
+        expect(
+          () async => tester.tap(find.byType(ClickFeedbackContainer).first),
+          returnsNormally,
+        );
+      },
+    );
   });
 
   group('onPop', () {
@@ -508,41 +556,43 @@ void main() {
       expect(popCalled, isTrue);
     });
 
-    testWidgets('Calls Navigator.pop when onPop is not provided',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => TextButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute<dynamic>(
-                    builder: (_) => Scaffold(
-                      body: Menu<String>(
-                        menuData: buildMenuData(),
-                        menuItemBuilder: (index, size, item) =>
-                            buildItemWidget(),
+    testWidgets(
+      'Calls Navigator.pop when onPop is not provided',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<dynamic>(
+                      builder: (_) => Scaffold(
+                        body: Menu<String>(
+                          menuData: buildMenuData(),
+                          menuItemBuilder: (index, size, item) =>
+                              buildItemWidget(),
+                        ),
                       ),
                     ),
                   ),
+                  child: const Text('Open'),
                 ),
-                child: const Text('Open'),
               ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(Menu<String>), findsOneWidget);
+        expect(find.byType(Menu<String>), findsOneWidget);
 
-      await tester.tap(find.byType(ClickFeedbackContainer).first);
-      await tester.pumpAndSettle();
+        await tester.tap(find.byType(ClickFeedbackContainer).first);
+        await tester.pumpAndSettle();
 
-      expect(find.byType(Menu<String>), findsNothing);
-    });
+        expect(find.byType(Menu<String>), findsNothing);
+      },
+    );
   });
 }
