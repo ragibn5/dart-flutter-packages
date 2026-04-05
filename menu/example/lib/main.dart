@@ -61,7 +61,11 @@ class _ExampleHomePageState extends State<ExampleHomePage> {
             children: [
               FilledButton(
                 child: const Text('Show Menu'),
-                onPressed: () => _showMenu(context, null, _menuData),
+                onPressed: () => _showMenu(
+                  context,
+                  _menuData,
+                  null,
+                ),
               ),
               Text(_lastSelection),
             ],
@@ -79,23 +83,22 @@ class _ExampleHomePageState extends State<ExampleHomePage> {
 
   void _showMenu(
     BuildContext context,
-    MenuItemData<String>? parentItem,
     MenuData<String> menuData,
+    MenuItemData<String>? parentItemData,
   ) {
     showModalBottomSheet(
       context: context,
       builder: (_) => SafeArea(
         child: Menu(
-          parentItem: parentItem,
+          parent: parentItemData,
           menuData: menuData,
-          menuItemBuilder: (_, __, itemData) => MenuItem(itemData: itemData),
-          separatorBuilder: (_, __, itemData) => const Divider(height: 1),
-          menuHeaderBuilder: (_, parentItemData) =>
-              MenuHeader(parentItemData: parentItemData),
+          menuItemBuilder: (_, __, item) => MenuItem(item: item),
+          separatorBuilder: (_, __, item) => const Divider(height: 1),
+          menuHeaderBuilder: (_, parent) => MenuHeader(parentItemData: parent),
           // Submenu request handler
           // We are calling the method itself to do the job.
-          onSubmenuRequest: (menuContext, parentItem, submenuData) =>
-              _showMenu(menuContext, parentItem, submenuData),
+          onSubmenuRequest: (menuContext, submenu, parent) =>
+              _showMenu(menuContext, submenu, parent),
         ),
       ),
     );
@@ -124,11 +127,11 @@ class MenuHeader extends StatelessWidget {
 }
 
 class MenuItem extends StatelessWidget {
-  final MenuItemData<String> itemData;
+  final MenuItemData<String> item;
 
   const MenuItem({
     super.key,
-    required this.itemData,
+    required this.item,
   });
 
   @override
@@ -138,13 +141,13 @@ class MenuItem extends StatelessWidget {
       child: Row(
         spacing: 8,
         children: [
-          switch (itemData.itemIcon) {
+          switch (item.itemIcon) {
             final IconFromPath path => Image.asset(path.iconPath),
             final IconFromIconData iconData => Icon(iconData.iconData),
             null => const SizedBox.shrink(),
           },
-          Expanded(child: Text(itemData.itemTitle)),
-          itemData.subMenuData != null
+          Expanded(child: Text(item.itemTitle)),
+          item.subMenuData != null
               ? const Icon(Icons.arrow_right)
               : const SizedBox.shrink(),
         ],
