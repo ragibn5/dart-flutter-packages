@@ -224,7 +224,7 @@ void main() {
     );
 
     testWidgets(
-      'Passes null submenuRootMenuItemData to header for root menu',
+      'Passes null parent to header for root menu',
       (tester) async {
         MenuItemData<String>? receivedRootItem = MenuItemData(
           data: 'placeholder',
@@ -236,8 +236,8 @@ void main() {
             Menu<String>(
               menuData: buildMenuData(),
               menuItemBuilder: textItemBuilder,
-              menuHeaderBuilder: (context, submenuRootMenuItemData) {
-                receivedRootItem = submenuRootMenuItemData;
+              menuHeaderBuilder: (context, parent) {
+                receivedRootItem = parent;
                 return const SizedBox();
               },
             ),
@@ -255,11 +255,11 @@ void main() {
       await tester.pumpWidget(
         wrap(
           Menu<String>(
-            parentItem: parentItem,
+            parent: parentItem,
             menuData: buildMenuData(),
             menuItemBuilder: textItemBuilder,
-            menuHeaderBuilder: (context, submenuRootMenuItemData) {
-              receivedParentItem = submenuRootMenuItemData;
+            menuHeaderBuilder: (context, parent) {
+              receivedParentItem = parent;
               return const SizedBox.shrink();
             },
           ),
@@ -436,8 +436,8 @@ void main() {
                 items: [item],
               ),
               menuItemBuilder: (index, size, item) => buildItemWidget(),
-              onSubmenuRequest: (context, submenuRootMenuItemData, submenu) {
-                receivedParentItem = submenuRootMenuItemData;
+              onSubmenuRequest: (context, submenu, parent) {
+                receivedParentItem = parent;
                 receivedSubmenu = submenu;
               },
               onPop: (_) {},
@@ -471,8 +471,8 @@ void main() {
                 items: [item],
               ),
               menuItemBuilder: (index, size, item) => buildItemWidget(),
-              onSubmenuRequest: (context, submenuRootMenuItemData, submenu) {
-                receivedParentItem = submenuRootMenuItemData;
+              onSubmenuRequest: (context, submenu, parent) {
+                receivedParentItem = parent;
                 receivedSubmenu = submenu;
               },
               onPop: (_) {},
@@ -498,7 +498,7 @@ void main() {
               items: [buildItem(subMenuData: buildMenuData(items: []))],
             ),
             menuItemBuilder: (index, size, item) => buildItemWidget(),
-            onSubmenuRequest: (context, submenuRootMenuItemData, submenu) {
+            onSubmenuRequest: (context, parent, submenu) {
               submenuRequestCalled = true;
             },
             onPop: (_) {},

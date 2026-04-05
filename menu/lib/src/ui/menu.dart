@@ -12,8 +12,8 @@ import 'package:menu/src/ui/feedback/click_feedback_container.dart';
 class Menu<D> extends StatefulWidget {
   /// The parent menu item, if this is a submenu.
   ///
-  /// In case of a root menu, this is `null`.
-  final MenuItemData<D>? parentItem;
+  /// In case of a root menu, this should be `null`.
+  final MenuItemData<D>? parent;
 
   /// The menu model to render.
   final MenuData<D> menuData;
@@ -26,26 +26,22 @@ class Menu<D> extends StatefulWidget {
   ///
   /// To customize tap feedback, use [MenuData.menuLayoutConfig] and
   /// [MenuLayoutConfig.selectionFeedbackConfig].
-  final Widget Function(
-    int index,
-    int hostMenuSize,
-    MenuItemData<D> itemData,
-  ) menuItemBuilder;
+  final Widget Function(int index, int hostMenuSize, MenuItemData<D> item)
+      menuItemBuilder;
 
   /// Builds the optional header shown above the first menu item.
   ///
   /// If omitted, no header is shown.
   ///
-  /// The second argument is the [parentItem]:
-  /// - `null` when building a root menu
-  /// - non-null when building a submenu
+  /// The second argument is:
+  /// - null when building a root menu (no parent/owner)
+  /// - non-null when building a submenu (submenu's parent/owner)
   ///
-  /// This lets the header reflect submenu context, for example by showing the
-  /// title or icon of the parent item that opened it.
-  final Widget Function(
-    BuildContext menuContext,
-    MenuItemData<D>? submenuRootMenuItemData,
-  )? menuHeaderBuilder;
+  /// This lets the header reflect the context of the current menu,
+  /// for example, by showing the title or icon of the parent item of
+  /// the current menu.
+  final Widget Function(BuildContext menuContext, MenuItemData<D>? parent)?
+      menuHeaderBuilder;
 
   /// Builds the separator between adjacent menu items.
   ///
@@ -53,11 +49,8 @@ class Menu<D> extends StatefulWidget {
   ///
   /// The callback receives the item before the separator, along with its index
   /// and the total item count, so you can vary separators by position.
-  final Widget Function(
-    int index,
-    int hostMenuSize,
-    MenuItemData<D> itemData,
-  )? separatorBuilder;
+  final Widget Function(int index, int hostMenuSize, MenuItemData<D> item)?
+      separatorBuilder;
 
   /// Called after an item with a non-empty submenu is tapped.
   ///
@@ -73,8 +66,8 @@ class Menu<D> extends StatefulWidget {
   /// matches how the current menu was presented.
   final void Function(
     BuildContext menuContext,
-    MenuItemData<D>? submenuRootMenuItemData,
-    MenuData<D> submenuData,
+    MenuData<D> submenu,
+    MenuItemData<D> parent,
   )? onSubmenuRequest;
 
   /// Handles dismissal of the current menu after an item is selected.
@@ -85,7 +78,7 @@ class Menu<D> extends StatefulWidget {
   /// Creates a [Menu].
   const Menu({
     super.key,
-    this.parentItem,
+    this.parent,
     required this.menuData,
     required this.menuItemBuilder,
     this.menuHeaderBuilder,
@@ -125,35 +118,35 @@ class _MenuState<D> extends State<Menu<D>> {
 
   Widget _buildMenuItem(BuildContext context, int index) {
     if (index == 0) {
-      return widget.menuHeaderBuilder?.call(context, widget.parentItem) ??
+      return widget.menuHeaderBuilder?.call(context, widget.parent) ??
           const SizedBox.shrink();
     }
 
     final itemIndex = index - 1;
-    final itemData = widget.menuData.menuItems[itemIndex];
+    final item = widget.menuData.menuItems[itemIndex];
     return ClickFeedbackContainer(
       feedbackConfig: widget.menuData.menuLayoutConfig.selectionFeedbackConfig,
-      onTap: () => _handleTap(context, itemData),
+      onTap: () => _handleTap(context, item),
       child: widget.menuItemBuilder(
         itemIndex,
         widget.menuData.menuItems.length,
-        itemData,
+        item,
       ),
     );
   }
 
-  void _handleTap(BuildContext context, MenuItemData<D> itemData) {
+  void _handleTap(BuildContext context, MenuItemData<D> item) {
     // pop the current menu page
     widget.onPop != null ? widget.onPop!(context) : Navigator.pop(context);
 
     // fire the given callback for this item
-    itemData.onItemAction?.call(itemData.data);
+    item.onItemAction?.call(item.data);
 
     // if there is a non-empty submenu, send request to open it
     // (if `onSubmenuRequest` is not null)
-    final submenu = itemData.subMenuData;
+    final submenu = item.subMenuData;
     if (submenu != null && submenu.menuItems.isNotEmpty) {
-      widget.onSubmenuRequest?.call(context, itemData, submenu);
+      widget.onSubmenuRequest?.call(context, submenu, item);
     }
   }
 }
