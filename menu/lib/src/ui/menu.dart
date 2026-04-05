@@ -9,10 +9,10 @@ import 'package:menu/src/ui/feedback/click_feedback_container.dart';
 /// This widget delegates item/header/separator UI construction to the
 /// provided builders. The widget itself handles tap feedback, dismissal,
 /// and submenu dispatch.
-class Menu<D> extends StatelessWidget {
-  /// The item that opened this menu, if this menu is shown as a submenu.
+class Menu<D> extends StatefulWidget {
+  /// The parent menu item, if this is a submenu.
   ///
-  /// This is `null` for a root menu and non-null for submenu instances.
+  /// In case of a root menu, this is `null`.
   final MenuItemData<D>? parentItem;
 
   /// The menu model to render.
@@ -95,43 +95,48 @@ class Menu<D> extends StatelessWidget {
   });
 
   @override
+  State<Menu<D>> createState() => _MenuState<D>();
+}
+
+class _MenuState<D> extends State<Menu<D>> {
+  @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      shrinkWrap: menuData.menuLayoutConfig.shrinkWrap,
-      physics: menuData.menuLayoutConfig.scrollPhysics,
-      padding: menuData.menuLayoutConfig.padding,
-      itemCount: menuData.menuItems.length + 1,
+      shrinkWrap: widget.menuData.menuLayoutConfig.shrinkWrap,
+      physics: widget.menuData.menuLayoutConfig.scrollPhysics,
+      padding: widget.menuData.menuLayoutConfig.padding,
+      itemCount: widget.menuData.menuItems.length + 1,
       separatorBuilder: (_, index) => _buildSeparator(index),
       itemBuilder: _buildMenuItem,
     );
   }
 
   Widget _buildSeparator(int index) {
-    if (index == 0 || separatorBuilder == null) {
+    if (index == 0 || widget.separatorBuilder == null) {
       return const SizedBox.shrink();
     }
 
-    return separatorBuilder!(
+    return widget.separatorBuilder!(
       index - 1,
-      menuData.menuItems.length,
-      menuData.menuItems[index - 1],
+      widget.menuData.menuItems.length,
+      widget.menuData.menuItems[index - 1],
     );
   }
 
   Widget _buildMenuItem(BuildContext context, int index) {
     if (index == 0) {
-      return menuHeaderBuilder?.call(context, parentItem) ??
+      return widget.menuHeaderBuilder?.call(context, widget.parentItem) ??
           const SizedBox.shrink();
     }
 
     final itemIndex = index - 1;
-    final itemData = menuData.menuItems[itemIndex];
+    final itemData = widget.menuData.menuItems[itemIndex];
     return ClickFeedbackContainer(
-      feedbackConfig: menuData.menuLayoutConfig.selectionFeedbackConfig,
+      feedbackConfig: widget.menuData.menuLayoutConfig.selectionFeedbackConfig,
       onTap: () => _handleTap(context, itemData),
-      child: menuItemBuilder(
+      child: widget.menuItemBuilder(
         itemIndex,
-        menuData.menuItems.length,
+        widget.menuData.menuItems.length,
         itemData,
       ),
     );
@@ -139,7 +144,7 @@ class Menu<D> extends StatelessWidget {
 
   void _handleTap(BuildContext context, MenuItemData<D> itemData) {
     // pop the current menu page
-    onPop != null ? onPop!(context) : Navigator.pop(context);
+    widget.onPop != null ? widget.onPop!(context) : Navigator.pop(context);
 
     // fire the given callback for this item
     itemData.onItemAction?.call(itemData.data);
@@ -148,7 +153,7 @@ class Menu<D> extends StatelessWidget {
     // (if `onSubmenuRequest` is not null)
     final submenu = itemData.subMenuData;
     if (submenu != null && submenu.menuItems.isNotEmpty) {
-      onSubmenuRequest?.call(context, itemData, submenu);
+      widget.onSubmenuRequest?.call(context, itemData, submenu);
     }
   }
 }
