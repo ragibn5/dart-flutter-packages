@@ -136,7 +136,7 @@ final wrapLayoutConfig = WrapLayoutConfig(
 
 ## Example
 
-Check out the [example](example) project for more info and visuals.
+Check out the [example](demo) project for more info and visuals.
 
 ## License
 
