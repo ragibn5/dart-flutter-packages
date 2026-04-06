@@ -26,129 +26,117 @@ dependencies:
 
 ## Get Started
 
-Use the [`VivaSelectionGroup`](lib/src/selection_group.dart) to construct a selection group
-widget.
-It expects the following components:
+1. Create a model that extends [
+   `SelectionItemUiModel`](lib/src/models/selection_item_ui_model.dart).
+2. Pass a list of those models to [`SelectionGroup`](lib/src/selection_group.dart).
+3. Choose a layout config: `ListLayoutConfig`, `GridLayoutConfig`, or `WrapLayoutConfig`.
+4. Build each cell in `cellBuilder`.
+5. Handle selection changes in `onSelectionChanged`.
+6. Optionally limit concurrent selections with `maxSelectionCount`.
 
-- `uiModels`: List of ui models (Subtype of [
-  `SelectionItemUiModel`](lib/src/models/selection_item_ui_model.dart)).
-  If you want an item to be non-selectable, set `shouldBeSelected` = false.
-- `layoutConfig`: A layout config (Subtype of [
-  `SelectionGroupLayoutConfig`](lib/src/configs/selection_group_layout_config.dart)).
-  Can be one of the following:
-    - `ListSelectionGroupLayoutConfig`: For a `ListView` style selection group.
-    - `GridSelectionGroupLayoutConfig`: For a `GridView` style selection group.
-    - `WrapSelectionGroupLayoutConfig`: For a `Wrap` style selection group.
-      See the constructor parameters of each config type to know all the customization you can make.
-- `cellBuilder`: A callback to provide a scope where you can return the widget for the given index.
-  Use the provided ui model and the selection status (named) to create the widget you want. Please
-  note, you have to differentiate between selected and non-selected appearance with the widget you
-  return to this callback. In fact, this package does not provide any default ui or styles at all,
-  it shows what you provide.
-- `onSelectionChanged`: A callback to notify the latest selected indices.
-- `maxSelectionCount`: The maximum number of items that can be selected.
-  By default it is null (which corresponds to unlimited selection count).
-- `initialSelectionIndices`: The initial selection indices.
-- `onSelectionOverflow`: Fired when tried to select more than `maxSelectionCount` items. No new
-  items are selected.
-- `leadingWidgets` & `trailingWidgets`: If you want to add specific widgets before and after the
-  actual widgets (that are for selection).
+This example shows a basic list-based selection group with one disabled item, a selection limit, and
+local state for the current selection.
 
-<br>
-
-For example, consider the following widget:
+**Create a model that extends `SelectionItemUiModel`**
 
 ```dart
-// The Ui Model
-class TestItemUiModel extends SelectionItemUiModel {
-  final int i;
+class DemoOption extends SelectionItemUiModel {
+  final String title;
 
-  TestItemUiModel({super.shouldBeSelected = true, required this.i});
+  const DemoOption({
+    required this.title,
+    super.shouldBeSelected = true,
+  });
+}
+```
+
+Set `shouldBeSelected` to false on any item if you want that item to be non-selectable.
+
+**Construct a selection group that sends a list of the model defined above**
+
+```dart
+class Example extends StatefulWidget {
+  const Example({super.key});
+
+  @override
+  State<Example> createState() => _ExampleState();
 }
 
-// Host Widget
-class TestWidget extends StatelessWidget {
-  final List<TestItemUiModel> uiModels;
-  final SelectionGroupLayoutConfig layoutConfig;
+class _ExampleState extends State<Example> {
+  static const options = [
+    DemoOption(title: 'Starter'),
+    DemoOption(title: 'Pro'),
+    DemoOption(title: 'Disabled', shouldBeSelected: false),
+  ];
 
-  const TestWidget({
-    super.key,
-    required this.uiModels,
-    required this.layoutConfig,
-  });
+  List<int> selectedIndices = [0];
 
   @override
   Widget build(BuildContext context) {
-    return VivaSelectionGroup(
-      uiModels: uiModels,
-      layoutConfig: layoutConfig,
-      cellBuilder: (model, {required selected}) =>
-          _buildCell(model.i, selected),
-      onSelectionChanged: (selectedModel) => debugPrint("$selectedModel"),
-    );
-  }
-
-  // The cell builder method.
-  // You should use a stateless widget instead, this is just for demonstration.
-  Widget _buildCell(int i, bool selected) {
-    return Container(
-      color: selected ? Colors.green : Colors.grey,
-      child: Center(
-        child: Text(
-          "$i",
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
+    return SelectionGroup<DemoOption>(
+      uiModels: options,
+      layoutConfig: const ListLayoutConfig(
+        spacing: 12,
+        padding: EdgeInsets.all(16),
       ),
+      initialSelectionIndices: selectedIndices,
+      maxSelectionCount: 2,
+      onSelectionChanged: (newSelectionIndices) {
+        setState(() {
+          selectedIndices = newSelectionIndices;
+        });
+      },
+      onSelectionOverflow: () {
+        debugPrint('Selection limit reached');
+      },
+      cellBuilder: (model, {required selected}) =>
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: selected ? Colors.green : Colors.grey.shade300,
+            child: Text(model.title),
+          ),
     );
   }
 }
 ```
 
-<br>
+You may use different layout configs to arrange the items in different ways, for example:
 
-For `ListSelectionGroupLayoutConfig`:
+List-based arrangement:
 
 ```dart
 
-final listLayoutConfig = ListSelectionGroupLayoutConfig.scrollable(
+final listLayoutConfig = ListLayoutConfig.scrollable(
   spacing: 8,
   padding: EdgeInsets.all(8),
 );
 ```
 
-Preview:
-<img src="assets/list_preview.png" alt="drawing" width="200"/>
-
-<br>
-
-For `GridSelectionGroupLayoutConfig`:
+Grid-based arrangement:
 
 ```dart
 
-final gridLayoutConfig = GridSelectionGroupLayoutConfig.scrollable(
+final gridLayoutConfig = GridLayoutConfig.scrollable(
+  crossAxisItemCount: 2,
   horizontalSpacing: 8,
   verticalSpacing: 8,
   padding: EdgeInsets.all(8),
 );
 ```
 
-Preview:
-<img src="assets/grid_preview.png" alt="drawing" width="200"/>
-
-<br>
-
-For `WrapSelectionGroupLayoutConfig`:
+Wrap-based arrangement:
 
 ```dart
 
-final wrapLayoutConfig = WrapSelectionGroupLayoutConfig(
+final wrapLayoutConfig = WrapLayoutConfig(
   spacing: 8,
   runSpacing: 8,
 );
 ```
 
-Preview:
-<img src="assets/wrap_preview.png" alt="drawing" width="200"/>
+## Example
+
+Check out the [example](demo) project for more info and visuals.
 
 ## License
 

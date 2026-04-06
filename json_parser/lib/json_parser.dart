@@ -1,7 +1,6 @@
 /// The `json_parser` package.
 library;
 
-export 'package:json_parser_annotations/json_parser_annotations.dart';
 export 'package:parser/parser.dart';
 
 export 'src/parsers/bool_parser.dart';

@@ -13,7 +13,6 @@ export 'package:analyzer/error/error.dart';
 export 'package:analyzer/workspace/workspace.dart';
 
 export 'src/models/context_config.dart';
-export 'src/models/custom_diagnostic_message.dart';
 export 'src/models/log_config.dart';
 export 'src/models/package_info.dart';
 export 'src/models/rule_metadata.dart';

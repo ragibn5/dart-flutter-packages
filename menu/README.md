@@ -4,7 +4,7 @@ A fully customizable menu for flutter apps with support for nested menu and much
 
 ## Features
 
-- 📱 Fully customizable menu items and separators
+- 📱 Fully customizable menu items, separators, and header
 - 🌲 Support for infinitely nested menus
 - 🎭 Visual feedback options (opacity or overlay)
 - 🧩 Generic data type support for menu items
@@ -37,8 +37,8 @@ dependencies:
 
 ### Creating and displaying a menu
 
-To show a menu, the first thing we need to do is to create a [
-`MenuData`](lib/src/models/menu_data.dart) instance.
+To show a menu, first create a
+[`MenuData`](lib/src/models/menu_data.dart) instance.
 
 It consists of:
 
@@ -50,19 +50,17 @@ It consists of:
   separators in particular.
 
 ```dart
-// Create menu data
 final menuData = MenuData<String>(
-  // Pass the items
   menuItems: [
     MenuItemData<String>(
-      data: "item1",
-      itemTitle: "Settings",
+      data: 'settings',
+      itemTitle: 'Settings',
       itemIcon: IconFromIconData(Icons.settings),
       onItemAction: (data) => print("Selected: $data"),
     ),
     MenuItemData<String>(
-      data: "item2",
-      itemTitle: "Profile",
+      data: 'profile',
+      itemTitle: 'Profile',
       itemIcon: IconFromIconData(Icons.person),
       onItemAction: (data) => print("Selected: $data"),
     ),
@@ -70,17 +68,22 @@ final menuData = MenuData<String>(
 );
 ```
 
-Finally, use the [`Menu`](lib/src/ui/menu.dart) widget to display your menu.
+Then use the [`Menu`](lib/src/ui/menu.dart) widget to display it.
 
 ```dart
-// We recommend using a method/function to show the menu.
-// This will help us process the submenu request easily and consistently.
-// We will discuss more on submenu on next section.
-void showMenu(BuildContext context, MenuData<int?> menuData) {
-  showBottomSheet(
+import 'package:flutter/material.dart';
+import 'package:menu/menu.dart';
+
+void showMenu(
+  BuildContext context,
+  MenuData<String> menuData,
+  MenuItemData<String>? parentItemData,
+) {
+  showModalBottomSheet(
     context: context,
-    builder: (_) {
-      return Menu(
+    builder: (_) => SafeArea(
+      child: Menu<String>(
+        parent: parentItemData,
         menuData: menuData,
         menuItemBuilder: (index, hostMenuSize, itemData) {
           return Padding(
@@ -88,8 +91,8 @@ void showMenu(BuildContext context, MenuData<int?> menuData) {
             child: Text(itemData.itemTitle),
           );
         },
-      );
-    },
+      ),
+    ),
   );
 }
 ```
@@ -101,48 +104,53 @@ There is no limit of how many levels you can nest your menus, you can make it as
 as you want.
 
 ```dart
-
-final subMenuItems = [
-  MenuItemData<String>(
-    data: "sub1",
-    itemTitle: "Light Theme",
-    onItemAction: (data) => print("Selected: $data"),
-  ),
-  MenuItemData<String>(
-    data: "sub2",
-    itemTitle: "Dark Theme",
-    onItemAction: (data) => print("Selected: $data"),
-  ),
-];
-
-final menuItems = [
-  MenuItemData<String>(
-    data: "item1",
-    itemTitle: "Theme",
-    itemIcon: IconFromIconData(Icons.palette),
-    // Adding the submenu as the child of this menu item
-    subMenuData: MenuData<String>(menuItems: subMenuItems),
-  ),
-  MenuItemData<String>(
-    data: "item2",
-    itemTitle: "Settings",
-    itemIcon: IconFromIconData(Icons.settings),
-    onItemAction: (data) => print("Selected: $data"),
-  ),
-];
+final menuData = MenuData<String>(
+  menuItems: [
+    MenuItemData<String>(
+      data: 'theme',
+      itemTitle: 'Theme',
+      itemIcon: IconFromIconData(Icons.palette),
+      subMenuData: MenuData<String>(
+        menuItems: [
+          MenuItemData<String>(
+            data: 'light-theme',
+            itemTitle: 'Light Theme',
+            onItemAction: (data) => print("Selected: $data"),
+          ),
+          MenuItemData<String>(
+            data: 'dark-theme',
+            itemTitle: 'Dark Theme',
+            onItemAction: (data) => print("Selected: $data"),
+          ),
+        ],
+      ),
+    ),
+    MenuItemData<String>(
+      data: 'settings',
+      itemTitle: 'Settings',
+      itemIcon: IconFromIconData(Icons.settings),
+      onItemAction: (data) => print("Selected: $data"),
+    ),
+  ],
+);
 ```
 
-<br>
-
-To show the menu, with handling submenu opening request as well, use the `onSubmenuRequest` callback
-like this:
+To show a submenu, pass the tapped menu item back into `Menu.parent`:
 
 ```dart
-void showMenu(BuildContext context, MenuData<int?> menuData) {
-  showBottomSheet(
+import 'package:flutter/material.dart';
+import 'package:menu/menu.dart';
+
+void showMenu(
+  BuildContext context,
+  MenuData<String> menuData,
+  MenuItemData<String>? parentItemData,
+) {
+  showModalBottomSheet(
     context: context,
-    builder: (_) {
-      return Menu(
+    builder: (_) => SafeArea(
+      child: Menu<String>(
+        parent: parentItemData,
         menuData: menuData,
         menuItemBuilder: (index, hostMenuSize, itemData) {
           return Padding(
@@ -150,13 +158,11 @@ void showMenu(BuildContext context, MenuData<int?> menuData) {
             child: Text(itemData.itemTitle),
           );
         },
-        // Submenu request handler
-        // We are calling the method itself to do the job.
-        onSubmenuRequest: (menuContext, submenuData) {
-          showMenu(menuContext, submenuData);
+        onSubmenuRequest: (menuContext, submenuData, parentItem) {
+          showMenu(menuContext, submenuData, parentItem);
         },
-      );
-    },
+      ),
+    ),
   );
 }
 ```
@@ -166,31 +172,47 @@ void showMenu(BuildContext context, MenuData<int?> menuData) {
 You can add headers and separators to enhance your menu's visual organization:
 
 ```dart
-void showMenu(BuildContext context, MenuData<int?> menuData) {
-  showBottomSheet(
+import 'package:flutter/material.dart';
+import 'package:menu/menu.dart';
+
+void showMenu(
+  BuildContext context,
+  MenuData<String> menuData,
+  MenuItemData<String>? parentItemData,
+) {
+  showModalBottomSheet(
     context: context,
-    builder: (_) {
-      return Menu<String>(
+    builder: (_) => SafeArea(
+      child: Menu<String>(
+        parent: parentItemData,
         menuData: menuData,
-        menuItemBuilder: (index, size, itemData) =>
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(itemData.itemTitle),
-            ),
-        menuHeaderBuilder: (context, parentItemData) {
+        menuItemBuilder: (index, size, itemData) {
           return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(parentItemData?.itemTitle ?? "Menu"),
+            padding: const EdgeInsets.all(16),
+            child: Text(itemData.itemTitle),
+          );
+        },
+        menuHeaderBuilder: (context, parentItem) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(parentItem?.itemTitle ?? 'Menu'),
           );
         },
         separatorBuilder: (index, size, itemData) {
           return const Divider(height: 1);
         },
-      );
-    },
+        onSubmenuRequest: (menuContext, submenuData, parentItem) {
+          showMenu(menuContext, submenuData, parentItem);
+        },
+      ),
+    ),
   );
 }
 ```
+
+## Example
+
+Check out the [example](example) project for more info and visuals.
 
 ## License
 

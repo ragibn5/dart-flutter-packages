@@ -1,81 +1,84 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:menu/src/configs/menu_layout_config.dart';
 import 'package:menu/src/models/menu_data.dart';
 import 'package:menu/src/models/menu_item_data.dart';
 import 'package:menu/src/ui/feedback/click_feedback_container.dart';
 
-class Menu<D> extends StatelessWidget {
-  /// # The data for the menu to be shown.
+/// Construct a menu based on the given [menuData].
+///
+/// This widget delegates item/header/separator UI construction to the
+/// provided builders. The widget itself handles tap feedback, dismissal,
+/// and submenu dispatch.
+class Menu<D> extends StatefulWidget {
+  /// The parent menu item, if this is a submenu.
+  ///
+  /// In case of a root menu, this should be `null`.
+  final MenuItemData<D>? parent;
+
+  /// The menu model to render.
   final MenuData<D> menuData;
 
-  /// ### Build menu item widget.
+  /// Builds the visible content for a single menu item.
   ///
-  /// Note: Do not wrap the returning widget with any user event
-  /// detector like `InkWell` or `GestureDetector`. You just provide
-  /// the UI that the user will look at and the we will handle the rest.
+  /// Do not wrap the returned widget in gesture handlers such as [InkWell] or
+  /// [GestureDetector]. [Menu] already handles pointer interaction and
+  /// selection feedback for each item.
   ///
-  /// For customizing the visual feedback on click events, see the
-  /// [MenuData.menuLayoutConfig] and
+  /// To customize tap feedback, use [MenuData.menuLayoutConfig] and
   /// [MenuLayoutConfig.selectionFeedbackConfig].
-  final Widget Function(
-    int index,
-    int hostMenuSize,
-    MenuItemData<D> itemData,
-  ) menuItemBuilder;
+  final Widget Function(int index, int hostMenuSize, MenuItemData<D> item)
+      menuItemBuilder;
 
-  /// ### Build menu header widget.
-  /// If omitted, no headers will be shown.
+  /// Builds the optional header shown above the first menu item.
   ///
-  /// Params:
-  /// - `menuContext` :
-  ///   The [BuildContext] of the menu.
-  ///   You may use this to cancel the menu or do other stuff.
-  /// - `submenuRootMenuItemData` :
-  ///   - For the root menu, this will always be null.
-  ///   - If the currently showing menu is a submenu, this will be non-null.
+  /// If omitted, no header is shown.
   ///
-  /// You may use the `submenuRootMenuItemData` to customize your header
-  /// based on the parent of the current submenu, such as showing the title
-  /// and icon of the parent menu item.
-  final Widget Function(
-    BuildContext menuContext,
-    MenuItemData<D>? submenuRootMenuItemData,
-  )? menuHeaderBuilder;
+  /// The second argument is:
+  /// - null when building a root menu (no parent/owner)
+  /// - non-null when building a submenu (submenu's parent/owner)
+  ///
+  /// This lets the header reflect the context of the current menu,
+  /// for example, by showing the title or icon of the parent item of
+  /// the current menu.
+  final Widget Function(BuildContext menuContext, MenuItemData<D>? parent)?
+      menuHeaderBuilder;
 
-  /// ### Build menu item separator widget.
-  /// If omitted, no separator is shown.
+  /// Builds the separator between adjacent menu items.
   ///
-  /// You can use the callback params to determine the position of the
-  final Widget Function(
-    int index,
-    int hostMenuSize,
-    MenuItemData<D> itemData,
-  )? separatorBuilder;
+  /// If omitted, no separators are shown.
+  ///
+  /// The callback receives the item before the separator, along with its index
+  /// and the total item count, so you can vary separators by position.
+  final Widget Function(int index, int hostMenuSize, MenuItemData<D> item)?
+      separatorBuilder;
 
-  /// ### Submenu request callback.
-  /// If omitted, submenu requests are not sent.
+  /// Called after an item with a non-empty submenu is tapped.
   ///
-  /// If the selected menu item contains a submenu, first it will pop
-  /// the current menu using [onPop] (or Default [Navigator.pop] if [onPop]
-  /// was not provided), and then [onSubmenuRequest] will be called with the
-  /// submenu data. It is the user's responsibility to open the submenu the
-  /// way he opened the menu.
+  /// If omitted, submenu requests are ignored.
+  ///
+  /// The current menu is dismissed first using [onPop], or [Navigator.pop] if
+  /// [onPop] is not provided. After that, this callback is invoked with:
+  /// - the current menu [BuildContext]
+  /// - the tapped item that requested the submenu
+  /// - the submenu data to open
+  ///
+  /// It is the caller's responsibility to present the submenu in a way that
+  /// matches how the current menu was presented.
   final void Function(
     BuildContext menuContext,
-    MenuData<D> submenuData,
+    MenuData<D> submenu,
+    MenuItemData<D> parent,
   )? onSubmenuRequest;
 
-  /// # Handle pop action
-  /// If omitted, will use the default [Navigator.pop].
+  /// Handles dismissal of the current menu after an item is selected.
   ///
-  /// Used to dismiss or pop the current menu when a selection is made.
+  /// If omitted, [Navigator.pop] is used.
   final void Function(BuildContext menuContext)? onPop;
 
-  /// # Create a [Menu] widget
-  /// Please see the doc for each parameters for more info.
+  /// Creates a [Menu].
   const Menu({
     super.key,
+    this.parent,
     required this.menuData,
     required this.menuItemBuilder,
     this.menuHeaderBuilder,
@@ -85,63 +88,65 @@ class Menu<D> extends StatelessWidget {
   });
 
   @override
+  State<Menu<D>> createState() => _MenuState<D>();
+}
+
+class _MenuState<D> extends State<Menu<D>> {
+  @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      shrinkWrap: menuData.menuLayoutConfig.shrinkWrap,
-      physics: menuData.menuLayoutConfig.scrollPhysics,
-      padding: menuData.menuLayoutConfig.padding,
-      itemCount: menuData.menuItems.length + 1,
+      shrinkWrap: widget.menuData.menuLayoutConfig.shrinkWrap,
+      physics: widget.menuData.menuLayoutConfig.scrollPhysics,
+      padding: widget.menuData.menuLayoutConfig.padding,
+      itemCount: widget.menuData.menuItems.length + 1,
       separatorBuilder: (_, index) => _buildSeparator(index),
       itemBuilder: _buildMenuItem,
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return menuHeaderBuilder?.call(context, null) ?? const SizedBox.shrink();
-  }
-
   Widget _buildSeparator(int index) {
-    if (index == 0 || separatorBuilder == null) {
-      return const SizedBox();
+    if (index == 0 || widget.separatorBuilder == null) {
+      return const SizedBox.shrink();
     }
 
-    return separatorBuilder!(
+    return widget.separatorBuilder!(
       index - 1,
-      menuData.menuItems.length,
-      menuData.menuItems[index - 1],
+      widget.menuData.menuItems.length,
+      widget.menuData.menuItems[index - 1],
     );
   }
 
   Widget _buildMenuItem(BuildContext context, int index) {
     if (index == 0) {
-      return _buildHeader(context);
+      return widget.menuHeaderBuilder?.call(context, widget.parent) ??
+          const SizedBox.shrink();
     }
 
     final itemIndex = index - 1;
-    final itemData = menuData.menuItems[itemIndex];
+    final item = widget.menuData.menuItems[itemIndex];
     return ClickFeedbackContainer(
-      feedbackConfig: menuData.menuLayoutConfig.selectionFeedbackConfig,
-      onTap: () => _handleTap(context, itemData),
-      child: menuItemBuilder(
+      feedbackConfig: widget.menuData.menuLayoutConfig.selectionFeedbackConfig,
+      onTap: () => _handleTap(context, item),
+      child: widget.menuItemBuilder(
         itemIndex,
-        menuData.menuItems.length,
-        itemData,
+        widget.menuData.menuItems.length,
+        item,
       ),
     );
   }
 
-  void _handleTap(BuildContext context, MenuItemData<D> itemData) {
+  void _handleTap(BuildContext context, MenuItemData<D> item) {
     // pop the current menu page
-    onPop != null ? onPop!(context) : Navigator.pop(context);
+    widget.onPop != null ? widget.onPop!(context) : Navigator.pop(context);
 
     // fire the given callback for this item
-    itemData.onItemAction?.call(itemData.data);
+    item.onItemAction?.call(item.data);
 
     // if there is a non-empty submenu, send request to open it
     // (if `onSubmenuRequest` is not null)
-    final submenu = itemData.subMenuData;
+    final submenu = item.subMenuData;
     if (submenu != null && submenu.menuItems.isNotEmpty) {
-      onSubmenuRequest?.call(context, submenu);
+      widget.onSubmenuRequest?.call(context, submenu, item);
     }
   }
 }

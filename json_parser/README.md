@@ -32,6 +32,28 @@ dependencies:
 
 ### Usage
 
+#### Primitive parsers
+
+```dart
+import 'package:json_parser/src/parsers/int_parser.dart';
+
+void main() {
+  const parser = IntParser();
+  final encoded = parser.encode(42);
+  final decoded = parser.decode(encoded);
+
+  print(encoded); // 42
+  print(decoded); // 42
+}
+```
+
+Built-in parsers are also available for other primitive types such as `bool`, `double`, and
+`String`.
+
+#### Create a parser implementation using [`Parser`] from [
+
+`parser`](../parser/lib/src/parser.dart) package:
+
 Let a custom type be:
 
 ```dart
@@ -48,7 +70,7 @@ class User {
 }
 ```
 
-Create a parser implementation using [`Parser`] from [`parser`](../parser/lib/src/parser.dart):
+Build a parser for type `User`:
 
 ```dart
 // Create a custom parser for the User
@@ -92,7 +114,9 @@ void main() {
 [`Json`, `JsonMap` & `JsonList`](lib/src/types/json_types.dart) are type-aliases that should be used
 to construct all custom JSON parser implementations.
 
-Building a parser registry using [`JsonParserRegistry`](lib/src/registry/json_parser_registry.dart):
+#### Building a parser registry using [
+
+`JsonParserRegistry`](lib/src/registry/json_parser_registry.dart):
 
 ```dart
 // Usage
@@ -103,7 +127,9 @@ void main() {
   // Use of the json parser registry
   // Create a registry with known parsers (or use default constructor for empty registry)
   final jsonParserRegistry = JsonParserRegistry.withKnownParsers();
-  final userParserFromRegistry = parserRegistry.getParser<User>();
+  jsonParserRegistry.addParser(userParser);
+
+  final userParserFromRegistry = jsonParserRegistry.getParser<User>();
   final encodedFromRegistry = userParserFromRegistry!.encode(user);
   final decodedFromRegistry = userParserFromRegistry.decode(encodedFromRegistry);
   // Output: {'id': 1, 'name': 'John'}
@@ -112,6 +138,18 @@ void main() {
   print(decodedFromRegistry);
 }
 ```
+
+<br><br>
+See the example section for more examples, like encoding/decoding primitive constructs and more.
+
+### Tooling
+
+Additional tooling is available for `json_parser`:
+
+- [`json_parser_generator`](json_parser_generator/README.md): Generates type-safe JSON parsers and
+  parser registries for annotated models.
+- [`json_parser_analyzer`](json_parser_analyzer/README.md): Adds analyzer checks to enforce
+  `json_parser`-compatible model structures.
 
 ### Example
 
