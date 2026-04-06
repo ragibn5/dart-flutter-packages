@@ -1,125 +1,309 @@
 import 'package:flutter/material.dart';
+import 'package:radio_group/radio_group.dart' as custom_radio_group;
 
 void main() {
   runApp(const MyApp());
 }
 
+class DemoOption extends custom_radio_group.RadioItemUiModel {
+  final String title;
+  final String subtitle;
+
+  const DemoOption({
+    required this.title,
+    required this.subtitle,
+    super.shouldBeSelected = true,
+  });
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'radio_group example',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0E7490)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const RadioGroupExampleApp(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class RadioGroupExampleApp extends StatelessWidget {
+  const RadioGroupExampleApp({super.key});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  static const _options = [
+    DemoOption(title: 'Starter', subtitle: 'Good for new users'),
+    DemoOption(title: 'Pro', subtitle: 'Most balanced choice'),
+    DemoOption(title: 'Team', subtitle: 'For collaboration'),
+    DemoOption(
+      title: 'Disabled',
+      subtitle: 'Non-selectable example',
+      shouldBeSelected: false,
+    ),
+    DemoOption(title: 'Enterprise', subtitle: 'Larger deployments'),
+    DemoOption(title: 'Custom', subtitle: 'Build your own setup'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('radio_group example'),
+          bottom: const PreferredSize(
+            preferredSize: Size.fromHeight(60),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Center(
+                child: TabBar(
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.center,
+                  tabs: [
+                    Tab(text: 'List'),
+                    Tab(text: 'Grid'),
+                    Tab(text: 'Wrap'),
+                  ],
+                ),
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _ModePage(
+              title: 'List layout',
+              description: 'A vertical radio group using list spacing.',
+              layoutConfig: custom_radio_group.ListLayoutConfig(
+                spacing: 12,
+                padding: const EdgeInsets.all(20),
+              ),
+              uiModels: _options,
+            ),
+            _ModePage(
+              title: 'Grid layout',
+              description: 'A two-column radio group with fixed gaps.',
+              layoutConfig: custom_radio_group.GridLayoutConfig(
+                crossAxisItemCount: 2,
+                horizontalSpacing: 12,
+                verticalSpacing: 12,
+                padding: const EdgeInsets.all(20),
+              ),
+              uiModels: _options,
+            ),
+            _ModePage(
+              title: 'Wrap layout',
+              description: 'A compact flow layout for chip-like choices.',
+              layoutConfig: const custom_radio_group.WrapLayoutConfig(
+                spacing: 12,
+                runSpacing: 12,
+              ),
+              uiModels: _options,
+              compactCells: true,
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class _ModePage extends StatefulWidget {
+  final String title;
+  final String description;
+  final List<DemoOption> uiModels;
+  final custom_radio_group.RadioGroupLayoutConfig layoutConfig;
+  final bool compactCells;
+
+  const _ModePage({
+    required this.title,
+    required this.description,
+    required this.uiModels,
+    required this.layoutConfig,
+    this.compactCells = false,
+  });
+
+  @override
+  State<_ModePage> createState() => _ModePageState();
+}
+
+class _ModePageState extends State<_ModePage> {
+  DemoOption? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.uiModels.firstWhere((option) => option.shouldBeSelected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 760),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.title,
+                  style: theme.textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(widget.description),
+                const SizedBox(height: 12),
+                Text(
+                  'Selected: ${_selected?.title ?? 'None'}',
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                custom_radio_group.RadioGroup<DemoOption>(
+                  uiModels: widget.uiModels,
+                  layoutConfig: widget.layoutConfig,
+                  initialSelectionIndex: 0,
+                  onSelectionChanged: (selectedModel) {
+                    setState(() {
+                      _selected = selectedModel;
+                    });
+                  },
+                  cellBuilder: (model, {required selected}) => _OptionTile(
+                    model: model,
+                    selected: selected,
+                    compact: widget.compactCells,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OptionTile extends StatelessWidget {
+  final DemoOption model;
+  final bool selected;
+  final bool compact;
+
+  const _OptionTile({
+    required this.model,
+    required this.selected,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final disabled = !model.shouldBeSelected;
+    final backgroundColor = disabled
+        ? scheme.surfaceContainerHighest.withValues(alpha: 0.5)
+        : selected
+            ? scheme.primaryContainer
+            : scheme.surfaceContainerLow;
+    final sideColor = disabled
+        ? scheme.outlineVariant
+        : selected
+            ? scheme.primary
+            : scheme.outline;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: sideColor),
+      ),
+      child: compact
+          ? _buildCompactContent(context, scheme, disabled)
+          : _buildFullContent(context, scheme, disabled),
+    );
+  }
+
+  Widget _buildCompactContent(
+    BuildContext context,
+    ColorScheme scheme,
+    bool disabled,
+  ) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          disabled
+              ? Icons.block
+              : selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
+          color: disabled
+              ? scheme.outline
+              : selected
+                  ? scheme.primary
+                  : scheme.onSurfaceVariant,
+          size: 20,
+        ),
+        const SizedBox(width: 10),
+        Text(
+          model.title,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: disabled ? scheme.onSurfaceVariant : null,
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFullContent(
+    BuildContext context,
+    ColorScheme scheme,
+    bool disabled,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                model.title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: disabled ? scheme.onSurfaceVariant : null,
+                    ),
+              ),
+            ),
+            Icon(
+              disabled
+                  ? Icons.block
+                  : selected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
+              color: disabled
+                  ? scheme.outline
+                  : selected
+                      ? scheme.primary
+                      : scheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          model.subtitle,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: disabled ? scheme.onSurfaceVariant : null,
+              ),
+        ),
+      ],
     );
   }
 }
