@@ -4,7 +4,16 @@ A fully customizable radio group.
 
 ## Installation
 
-Use a git dependency for now:
+#### From pub.dev (Not yet available, use git based dependency management for now)
+
+Add this to your `pubspec.yaml`
+
+```yaml
+dependencies:
+  radio_group: ^0.0.1
+```
+
+#### Or, From Git repo (Internal members only)
 
 ```yaml
 dependencies:
