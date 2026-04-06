@@ -4,16 +4,7 @@ A fully customizable radio group.
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
-
-Add this to your `pubspec.yaml`
-
-```yaml
-dependencies:
-  radio_group: ^0.0.1
-```
-
-#### Or, From Git repo (Internal members only)
+Use a git dependency for now:
 
 ```yaml
 dependencies:
@@ -26,125 +17,111 @@ dependencies:
 
 ## Get Started
 
-Use the [`RadioGroup`](lib/src/widgets/radio_group.dart) to construct a radio group widget.
-It expects the following components:
+1. Create a model that extends [`RadioItemUiModel`](lib/src/models/radio_item_ui_model.dart).
+2. Pass a list of those models to [`RadioGroup`](lib/src/widgets/radio_group.dart).
+3. Choose a layout config: `ListLayoutConfig`, `GridLayoutConfig`, or `WrapLayoutConfig`.
+4. Build each cell in `cellBuilder`.
+5. Handle selection in `onSelectionChanged`.
 
-- `uiModels`: List of ui models (Subtype of [
-  `RadioItemUiModel`](lib/src/models/radio_item_ui_model.dart)).
-  If you want an item to be non-selectable, set `shouldBeSelected` = false.
-- `layoutConfig`: A layout config (Subtype of [
-  `RadioGroupLayoutConfig`](lib/src/configs/radio_group_layout_config.dart)).
-  Can be one of the following:
-    - `ListRadioGroupLayoutConfig`: For a `ListView` style radio group.
-    - `GridRadioGroupLayoutConfig`: For a `GridView` style radio group.
-    - `WrapRadioGroupLayoutConfig`: For a `Wrap` style radio group.
-      See the constructor parameters of each config type to know all the customization you can make.
-- `cellBuilder`: A callback to provide a scope where you can return the widget for the given index.
-  Use the provided ui model and the selection status (named) to create the widget you want. Please
-  note, you have to differentiate between selected and non-selected appearance with the widget you
-  return to this callback. In fact, this package does not provide any default ui or styles at all,
-  it shows what you provide.
-- `onSelectionChanged`: A callback to notify which option was selected. The callback provides the
-  corresponding ui model, i.e. the uiModel of the selected cell.
-- `initialSelectionIndex`: The index of the initial selection.
-- `leadingWidgets` & `trailingWidgets`: If you want to add specific widgets before and after the
-  actual widgets (that are for selection).
+This example shows a basic list-based radio group with one disabled item and local state for the
+current selection.
 
-<br>
-
-For example, consider the following widget:
+**Create a model that extends `RadioItemUiModel`**
 
 ```dart
-// The Ui Model
-class TestItemUiModel extends RadioItemUiModel {
-  final int i;
+class DemoOption extends RadioItemUiModel {
+  final String title;
 
-  TestItemUiModel({super.shouldBeSelected = true, required this.i});
+  const DemoOption({
+    required this.title,
+    super.shouldBeSelected = true,
+  });
+}
+```
+
+Set `shouldBeSelected` to false on any item if you want that item to be non-selectable.
+
+**Construct a radio group that sends a list of the model defined above**
+
+```dart
+class Example extends StatefulWidget {
+  const Example({super.key});
+
+  @override
+  State<Example> createState() => _ExampleState();
 }
 
-// Host Widget
-class TestWidget extends StatelessWidget {
-  final List<TestItemUiModel> uiModels;
-  final RadioGroupLayoutConfig layoutConfig;
+class _ExampleState extends State<Example> {
+  static const options = [
+    DemoOption(title: 'Starter'),
+    DemoOption(title: 'Pro'),
+    DemoOption(title: 'Disabled', shouldBeSelected: false),
+  ];
 
-  const TestWidget({
-    super.key,
-    required this.uiModels,
-    required this.layoutConfig,
-  });
+  DemoOption? selected = options.first;
 
   @override
   Widget build(BuildContext context) {
     return RadioGroup(
-      uiModels: uiModels,
-      layoutConfig: layoutConfig,
-      cellBuilder: (model, {required selected}) =>
-          _buildCell(model.i, selected),
-      onSelectionChanged: (selectedModel) => debugPrint("$selectedModel"),
-    );
-  }
-
-  // The cell builder method.
-  // You should use a stateless widget instead, this is just for demonstration.
-  Widget _buildCell(int i, bool selected) {
-    return Container(
-      color: selected ? Colors.green : Colors.grey,
-      child: Center(
-        child: Text(
-          "$i",
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
+      uiModels: options,
+      layoutConfig: const ListLayoutConfig(
+        spacing: 12,
+        padding: EdgeInsets.all(16),
       ),
+      initialSelectionIndex: 0,
+      onSelectionChanged: (selectedModel) {
+        setState(() {
+          selected = selectedModel;
+        });
+      },
+      cellBuilder: (model, {required selected}) =>
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: selected ? Colors.green : Colors.grey.shade300,
+            child: Text(model.title),
+          ),
     );
   }
 }
 ```
 
-<br>
+You may use different layout configs to arrange the items in different ways, for example:
 
-For `ListRadioGroupLayoutConfig`:
+List-based arrangement:
 
 ```dart
 
-final listLayoutConfig = ListRadioGroupLayoutConfig.scrollable(
+final listLayoutConfig = ListLayoutConfig.scrollable(
   spacing: 8,
   padding: EdgeInsets.all(8),
 );
 ```
 
-Preview:
-<img src="assets/list_preview.png" alt="drawing" width="200"/>
-
-<br>
-
-For `GridRadioGroupLayoutConfig`:
+Grid-based arrangement:
 
 ```dart
 
-final gridLayoutConfig = GridRadioGroupLayoutConfig.scrollable(
+final gridLayoutConfig = GridLayoutConfig.scrollable(
+  crossAxisItemCount: 2,
   horizontalSpacing: 8,
   verticalSpacing: 8,
   padding: EdgeInsets.all(8),
 );
 ```
 
-Preview:
-<img src="assets/grid_preview.png" alt="drawing" width="200"/>
-
-<br>
-
-For `WrapRadioGroupLayoutConfig`:
+Wrap-based arrangement:
 
 ```dart
 
-final wrapLayoutConfig = WrapRadioGroupLayoutConfig(
+final wrapLayoutConfig = WrapLayoutConfig(
   spacing: 8,
   runSpacing: 8,
 );
 ```
 
-Preview:
-<img src="assets/wrap_preview.png" alt="drawing" width="200"/>
+## Example
+
+Check out the [example](example) project for more info and visuals.
 
 ## License
 
