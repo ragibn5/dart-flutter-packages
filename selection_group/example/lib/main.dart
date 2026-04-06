@@ -1,125 +1,367 @@
 import 'package:flutter/material.dart';
+import 'package:selection_group/selection_group.dart' as custom_selection_group;
 
 void main() {
   runApp(const MyApp());
 }
 
+class DemoOption extends custom_selection_group.SelectionItemUiModel {
+  final String title;
+  final String subtitle;
+
+  const DemoOption({
+    required this.title,
+    required this.subtitle,
+    super.shouldBeSelected = true,
+  });
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'selection_group example',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F766E)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const SelectionGroupExampleApp(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class SelectionGroupExampleApp extends StatelessWidget {
+  const SelectionGroupExampleApp({super.key});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  static const _options = [
+    DemoOption(title: 'Starter', subtitle: 'Essential workflow coverage'),
+    DemoOption(title: 'Automation', subtitle: 'Background task support'),
+    DemoOption(title: 'Analytics', subtitle: 'Reports and deeper insights'),
+    DemoOption(
+      title: 'Disabled',
+      subtitle: 'Non-selectable example',
+      shouldBeSelected: false,
+    ),
+    DemoOption(title: 'Notifications', subtitle: 'Delivery and reminders'),
+    DemoOption(title: 'Export', subtitle: 'CSV and PDF handoff'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('selection_group example'),
+          bottom: const PreferredSize(
+            preferredSize: Size.fromHeight(60),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Center(
+                child: TabBar(
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.center,
+                  tabs: [
+                    Tab(text: 'List'),
+                    Tab(text: 'Grid'),
+                    Tab(text: 'Wrap'),
+                  ],
+                ),
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _ModePage(
+              title: 'List layout',
+              description:
+                  'A vertical multi-select group with room for detail.',
+              layoutConfig: custom_selection_group.ListLayoutConfig(
+                spacing: 12,
+                padding: const EdgeInsets.all(20),
+              ),
+              uiModels: _options,
+              initialSelectionIndices: const [0, 2],
+            ),
+            _ModePage(
+              title: 'Grid layout',
+              description:
+                  'A two-column selection group with shared selection cap.',
+              layoutConfig: custom_selection_group.GridLayoutConfig(
+                crossAxisItemCount: 2,
+                horizontalSpacing: 12,
+                verticalSpacing: 12,
+                padding: const EdgeInsets.all(20),
+              ),
+              uiModels: _options,
+              initialSelectionIndices: const [1],
+            ),
+            _ModePage(
+              title: 'Wrap layout',
+              description:
+                  'A compact flow layout for chip-like multi-selection.',
+              layoutConfig: const custom_selection_group.WrapLayoutConfig(
+                spacing: 12,
+                runSpacing: 12,
+              ),
+              uiModels: _options,
+              initialSelectionIndices: const [0, 4],
+              compactCells: true,
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class _ModePage extends StatefulWidget {
+  final String title;
+  final String description;
+  final List<DemoOption> uiModels;
+  final custom_selection_group.SelectionGroupLayoutConfig layoutConfig;
+  final List<int> initialSelectionIndices;
+  final bool compactCells;
+
+  const _ModePage({
+    required this.title,
+    required this.description,
+    required this.uiModels,
+    required this.layoutConfig,
+    required this.initialSelectionIndices,
+    this.compactCells = false,
+  });
+
+  @override
+  State<_ModePage> createState() => _ModePageState();
+}
+
+class _ModePageState extends State<_ModePage> {
+  static const _maxSelectionCount = 3;
+
+  late List<int> _selectedIndices;
+  String? _overflowMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndices = List<int>.from(widget.initialSelectionIndices);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final selectedTitles = _selectedIndices
+        .map((index) => widget.uiModels[index].title)
+        .join(', ');
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 760),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.title, style: theme.textTheme.headlineSmall),
+                const SizedBox(height: 8),
+                Text(widget.description),
+                const SizedBox(height: 12),
+                Text(
+                  'Selected (${_selectedIndices.length}/$_maxSelectionCount): '
+                  '${selectedTitles.isEmpty ? 'None' : selectedTitles}',
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tap again to remove an item. Disabled items ignore taps.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                if (_overflowMessage != null) ...[
+                  const SizedBox(height: 16),
+                  _OverflowBanner(message: _overflowMessage!),
+                ],
+                const SizedBox(height: 16),
+                custom_selection_group.SelectionGroup<DemoOption>(
+                  uiModels: widget.uiModels,
+                  layoutConfig: widget.layoutConfig,
+                  maxSelectionCount: _maxSelectionCount,
+                  initialSelectionIndices: widget.initialSelectionIndices,
+                  onSelectionChanged: (newSelectionIndices) {
+                    setState(() {
+                      _selectedIndices = newSelectionIndices;
+                      _overflowMessage = null;
+                    });
+                  },
+                  onSelectionOverflow: () {
+                    setState(() {
+                      _overflowMessage =
+                          'You can select up to $_maxSelectionCount items at once.';
+                    });
+                  },
+                  cellBuilder: (model, {required selected}) => _OptionTile(
+                    model: model,
+                    selected: selected,
+                    compact: widget.compactCells,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OptionTile extends StatelessWidget {
+  final DemoOption model;
+  final bool selected;
+  final bool compact;
+
+  const _OptionTile({
+    required this.model,
+    required this.selected,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final disabled = !model.shouldBeSelected;
+    final backgroundColor = disabled
+        ? scheme.surfaceContainerHighest.withValues(alpha: 0.5)
+        : selected
+            ? scheme.primaryContainer
+            : scheme.surfaceContainerLow;
+    final sideColor = disabled
+        ? scheme.outlineVariant
+        : selected
+            ? scheme.primary
+            : scheme.outline;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: sideColor),
+      ),
+      child: compact
+          ? _buildCompactContent(context, scheme, disabled)
+          : _buildFullContent(context, scheme, disabled),
+    );
+  }
+
+  Widget _buildCompactContent(
+    BuildContext context,
+    ColorScheme scheme,
+    bool disabled,
+  ) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          disabled
+              ? Icons.block
+              : selected
+                  ? Icons.check_circle
+                  : Icons.radio_button_unchecked,
+          color: disabled
+              ? scheme.outline
+              : selected
+                  ? scheme.primary
+                  : scheme.onSurfaceVariant,
+          size: 20,
+        ),
+        const SizedBox(width: 10),
+        Text(
+          model.title,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: disabled ? scheme.onSurfaceVariant : null,
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFullContent(
+    BuildContext context,
+    ColorScheme scheme,
+    bool disabled,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                model.title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: disabled ? scheme.onSurfaceVariant : null,
+                    ),
+              ),
+            ),
+            Icon(
+              disabled
+                  ? Icons.block
+                  : selected
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+              color: disabled
+                  ? scheme.outline
+                  : selected
+                      ? scheme.primary
+                      : scheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          model.subtitle,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: disabled ? scheme.onSurfaceVariant : null,
+              ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OverflowBanner extends StatelessWidget {
+  final String message;
+
+  const _OverflowBanner({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: scheme.errorContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        message,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: scheme.onErrorContainer,
+              fontWeight: FontWeight.w600,
+            ),
+      ),
     );
   }
 }
