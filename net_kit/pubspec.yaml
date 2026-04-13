@@ -21,6 +21,8 @@ dependencies:
   dio: ^5.8.0+1
   parser:
     path: ../parser
+  functions:
+    path: ../functions
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
