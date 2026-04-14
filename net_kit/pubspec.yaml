@@ -19,8 +19,6 @@ environment:
 # (Bundled in executable artifact)
 dependencies:
   dio: ^5.8.0+1
-  parser:
-    path: ../parser
   functions:
     path: ../functions
 
