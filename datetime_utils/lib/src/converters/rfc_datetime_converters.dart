@@ -1,4 +1,5 @@
-import 'package:datetime_utils/datetime_utils.dart';
+import 'package:datetime_utils/src/converters/iso_datetime_converters.dart';
+import 'package:datetime_utils/src/extensions/iso_datetime_extensions.dart';
 
 class RFCDateTimeConverters {
   const RFCDateTimeConverters();
