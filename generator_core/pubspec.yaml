@@ -21,14 +21,15 @@ dependencies:
   intl: any
   build: ^4.0.4
   source_gen: ^4.2.1
-  mocktail: ^1.0.4
   dlogger:
     path: ../dlogger
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
+  test: ^1.25.6
+  build_test: ^3.5.12
+  mocktail: ^1.0.4
   lints: ^6.0.0
   very_good_analysis: ^7.0.0
-  build_test: ^3.5.12
-  test: ^1.25.6
+

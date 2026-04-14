@@ -19,11 +19,11 @@ environment:
 # (Bundled in executable artifact)
 dependencies:
   path: ^1.8.0
-  mocktail: any
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
   test: ^1.24.9
+  mocktail: ^1.0.5
   lints: ^3.0.0
   very_good_analysis: ^5.1.0
