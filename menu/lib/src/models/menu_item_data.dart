@@ -1,4 +1,5 @@
-import 'package:menu/menu.dart';
+import 'package:menu/src/models/icon_path_or_data.dart';
+import 'package:menu/src/models/menu_data.dart';
 
 class MenuItemData<D> {
   final D? data;
