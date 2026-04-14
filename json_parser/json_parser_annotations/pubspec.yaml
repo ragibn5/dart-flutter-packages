@@ -18,6 +18,7 @@ environment:
 # Regular dependencies
 # (Bundled in executable artifact)
 dependencies:
+  #path: any
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

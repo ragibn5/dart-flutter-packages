@@ -20,7 +20,6 @@ environment:
 dependencies:
   path: ^1.9.0
   yaml: ^3.1.3
-  mocktail: ^1.0.4
   string_extensions:
     path: ../string_extensions
   functions:
@@ -32,6 +31,7 @@ dependencies:
 # (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
   test: ^1.25.6
+  mocktail: ^1.0.4
   lints: ^6.0.0
   very_good_analysis: ^7.0.0
   analysis_plugin_test_helper:
