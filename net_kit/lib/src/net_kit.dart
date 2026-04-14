@@ -60,11 +60,11 @@ class NetKit {
 
   /// Executes the given [spec] and returns a typed [Result].
   Future<Result<NetKitException, Res>> execute<Req, Res, Err>(
-    RequestSpec<Req, Res, Err> spec,
+    RequestSpec<Req, Res, Err> spec, {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-  ) async {
+  }) async {
     try {
       final encodedRequest =
           _requestEncoder.encode(spec.body, spec.codec.encodeBody);

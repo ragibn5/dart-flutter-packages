@@ -91,7 +91,7 @@ void main() {
       () => mockRequestEncoder.encode<String>('request-body', any()),
     ).thenReturn(Result.error(parseException));
 
-    final result = await sut.execute(spec, null, null, null);
+    final result = await sut.execute(spec);
 
     expect(result.isError, isTrue);
     expect(result.errorOrNull, same(parseException));
@@ -118,6 +118,9 @@ void main() {
       data: responseData,
     );
 
+    void onSendProgress(_, __) {}
+    void onReceiveProgress(_, __) {}
+
     when(
       () => mockRequestEncoder.encode<String>('request-body', any()),
     ).thenReturn(Result.success(encodedBody));
@@ -128,8 +131,8 @@ void main() {
         queryParameters: spec.queryParameters,
         cancelToken: cancelToken,
         options: any(named: 'options'),
-        onSendProgress: null,
-        onReceiveProgress: null,
+        onSendProgress: onSendProgress,
+        onReceiveProgress: onReceiveProgress,
       ),
     ).thenAnswer((_) async => response);
     when(() => mockResponseClassifier.isError(response)).thenReturn(false);
@@ -140,7 +143,12 @@ void main() {
       ),
     ).thenReturn(Result.success(decodedResponse));
 
-    final result = await sut.execute(spec, cancelToken, null, null);
+    final result = await sut.execute(
+      spec,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
 
     expect(result.isSuccess, isTrue);
     expect(result.resultOrNull, decodedResponse);
@@ -151,8 +159,8 @@ void main() {
         queryParameters: spec.queryParameters,
         cancelToken: cancelToken,
         options: captureAny(named: 'options'),
-        onSendProgress: null,
-        onReceiveProgress: null,
+        onSendProgress: onSendProgress,
+        onReceiveProgress: onReceiveProgress,
       ),
     ).captured.single as Options;
     expect(capturedOptions.method, spec.method.value);
@@ -185,7 +193,7 @@ void main() {
       () => mockErrorResponseDecoder.decode<String>(responseData, any()),
     ).thenReturn(Result.success(decodedError));
 
-    final result = await sut.execute(spec, null, null, null);
+    final result = await sut.execute(spec);
 
     expect(
       result.errorOrNull,
@@ -226,7 +234,7 @@ void main() {
       () => mockErrorResponseDecoder.decode<String>(responseData, any()),
     ).thenReturn(Result.error(parseException));
 
-    final result = await sut.execute(spec, null, null, null);
+    final result = await sut.execute(spec);
 
     expect(result.isError, isTrue);
     expect(result.errorOrNull, same(parseException));
@@ -260,7 +268,7 @@ void main() {
       ),
     ).thenReturn(mappedException);
 
-    final result = await sut.execute(spec, null, null, null);
+    final result = await sut.execute(spec);
 
     expect(result.isError, isTrue);
     expect(result.errorOrNull, same(mappedException));
