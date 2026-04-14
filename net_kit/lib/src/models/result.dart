@@ -1,50 +1,72 @@
-enum _ResultType {
-  error,
-  success;
+sealed class Result<E, D> {
+  const Result();
+
+  factory Result.error(E value) = _ErrorResult<E, D>;
+
+  factory Result.success(D value) = _SuccessResult<E, D>;
+
+  T fold<T>({
+    required T Function(D value) onSuccess,
+    required T Function(E value) onError,
+  });
+
+  bool get isError;
+
+  bool get isSuccess;
+
+  E? get errorOrNull;
+
+  D? get resultOrNull;
 }
 
-class Result<E, D> {
-  final _ResultType _type;
+final class _ErrorResult<E, D> extends Result<E, D> {
+  final E _error;
 
-  final D? _data;
-  final E? _error;
+  const _ErrorResult(this._error);
 
-  Result._({
-    required _ResultType typeId,
-    D? data,
-    E? error,
-  })  : _type = typeId,
-        _data = data,
-        _error = error;
-
-  /// Factory constructor for E
-  factory Result.error(E value) {
-    return Result._(typeId: _ResultType.error, error: value);
-  }
-
-  /// Factory constructor for D
-  factory Result.data(D value) {
-    return Result._(typeId: _ResultType.success, data: value);
-  }
-
-  /// Fold method to handle different types
+  @override
   T fold<T>({
     required T Function(D value) onSuccess,
     required T Function(E value) onError,
   }) {
-    switch (_type) {
-      case _ResultType.error:
-        return onError(_error as E);
-      case _ResultType.success:
-        return onSuccess(_data as D);
-    }
+    return onError(_error);
   }
 
-  bool get isError => _type == _ResultType.error;
+  @override
+  bool get isError => true;
 
-  bool get isSuccess => _type == _ResultType.success;
+  @override
+  bool get isSuccess => false;
 
-  E? get errorOrNull => _error;
+  @override
+  E get errorOrNull => _error;
 
-  D? get resultOrNull => _data;
+  @override
+  D? get resultOrNull => null;
+}
+
+final class _SuccessResult<E, D> extends Result<E, D> {
+  final D _data;
+
+  const _SuccessResult(this._data);
+
+  @override
+  T fold<T>({
+    required T Function(D value) onSuccess,
+    required T Function(E value) onError,
+  }) {
+    return onSuccess(_data);
+  }
+
+  @override
+  bool get isError => false;
+
+  @override
+  bool get isSuccess => true;
+
+  @override
+  E? get errorOrNull => null;
+
+  @override
+  D get resultOrNull => _data;
 }

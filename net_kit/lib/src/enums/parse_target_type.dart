@@ -1,0 +1,5 @@
+enum ParseTargetType {
+  REQUEST_ENCODE,
+  RESPONSE_DECODE,
+  ERROR_DECODE;
+}
