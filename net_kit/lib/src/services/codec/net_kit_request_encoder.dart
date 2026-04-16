@@ -10,7 +10,7 @@ class DefaultNetKitRequestEncoder implements NetKitRequestEncoder {
   const DefaultNetKitRequestEncoder();
 
   @override
-  EncodeResult encode<D>(D data, dynamic Function(D p1) encoder) {
+  EncodeResult encode<D>(D data, dynamic Function(D) encoder) {
     if (data == null) {
       return Result.success(null);
     }

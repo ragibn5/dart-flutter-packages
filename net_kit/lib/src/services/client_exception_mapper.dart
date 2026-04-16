@@ -7,7 +7,7 @@ abstract interface class ClientExceptionMapper {
   NetKitException mapException<E>(
     Object exception, {
     StackTrace? stackTrace,
-    required E Function(dynamic data) errorDecoder,
+    required E Function(dynamic) errorDecoder,
   });
 }
 
@@ -20,7 +20,7 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
   NetKitException mapException<E>(
     Object exception, {
     StackTrace? stackTrace,
-    required E Function(dynamic data) errorDecoder,
+    required E Function(dynamic) errorDecoder,
   }) {
     if (exception is! DioException) {
       return UnexpectedException(
@@ -78,7 +78,7 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
   /// Decodes an error response, wrapping decode failures.
   NetKitException _decodeErrorResponse<E>({
     required Response<dynamic>? response,
-    required E Function(dynamic data) errorResponseDecoder,
+    required E Function(dynamic) errorResponseDecoder,
     required Object? cause,
     required StackTrace? stackTrace,
   }) {

@@ -6,7 +6,7 @@ enum HttpMethod {
   PATCH('PATCH'),
   DELETE('DELETE');
 
-  /// The raw string value passed to Dio.
+  /// The raw string value passed to the HTTP client.
   final String value;
 
   const HttpMethod(this.value);

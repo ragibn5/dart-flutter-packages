@@ -8,7 +8,7 @@ import 'package:net_kit/src/services/client_exception_mapper.dart';
 import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
 
-/// A thin, generic HTTP executor built on top of [Dio].
+/// A thin, generic HTTP executor for typed requests and responses.
 class NetKit {
   static const _defaultRequestEncoder = DefaultNetKitRequestEncoder();
   static const _defaultErrorResponseDecoder =
@@ -192,6 +192,6 @@ class NetKit {
     );
   }
 
-  /// Closes the underlying [Dio] client and frees its resources.
+  /// Closes the underlying HTTP client and frees its resources.
   void close() => _dio.close();
 }

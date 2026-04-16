@@ -1,7 +1,7 @@
 abstract interface class RequestCodec<Req, Res, Err> {
-  /// Encodes [body] into a form that Dio can send over the wire.
+  /// Encodes [body] into a form that the HTTP client can send over the wire.
   ///
-  /// The return value is passed directly to Dio as the request `data`.
+  /// The return value is passed directly as the request `data`.
   /// Return `null` to send no body.
   ///
   /// Common implementations:
@@ -12,15 +12,15 @@ abstract interface class RequestCodec<Req, Res, Err> {
   /// This method is only called when [body] is non-null.
   dynamic encodeBody(Req body);
 
-  /// Decodes the raw Dio response data into [Res].
+  /// Decodes the raw response data into [Res].
   ///
-  /// [raw] is `response.data` as returned by Dio — typically a
+  /// [raw] is the raw response data from the HTTP client — typically a
   /// `Map<String, dynamic>`, `List<dynamic>`, or a primitive, depending on
-  /// your Dio configuration and the server response.
+  /// the client configuration and the server response.
   Res decodeResponse(dynamic raw);
 
-  /// Decodes the raw Dio error response data into [Err].
+  /// Decodes the raw error response data into [Err].
   ///
-  /// [raw] is `response.data` as returned by Dio on an error response.
+  /// [raw] is the raw response data from the HTTP client on an error response.
   Err decodeError(dynamic raw);
 }
