@@ -45,7 +45,7 @@ void main() {
 
   late RequestSpec<String, String, String> spec;
 
-  late NetKitImpl sut;
+  late NetKit sut;
 
   setUpAll(() {
     registerFallbackValue(FakeOptions());

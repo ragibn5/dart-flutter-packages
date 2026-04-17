@@ -1,5 +1,5 @@
 /// A failure indicating an domain specific error returned by the server.
-final class DomainException<E> {
+class DomainException<E> {
   /// The decoded, domain-typed error from the server.
   final E error;
 

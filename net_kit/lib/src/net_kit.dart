@@ -10,6 +10,7 @@ import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
 
 abstract interface class NetKit {
+  /// Executes the given [spec] and returns a typed [Result].
   Future<Result<NetKitException, Result<DomainException<Err>, Res>>>
       execute<Req, Res, Err>(
     RequestSpec<Req, Res, Err> spec, {
@@ -17,6 +18,58 @@ abstract interface class NetKit {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   });
+
+  /// Fires a data request and returns the unwrapped [Response].
+  ///
+  /// Use this for endpoints where you need full control over the response —
+  /// for example, file downloads or streaming. No encoding or decoding is
+  /// performed.
+  Future<Response<dynamic>> executeRaw(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+
+  /// Fires a request from a pre-built [RequestOptions] and returns the data
+  /// [Response]. This can be useful for many scenarios, for example,
+  /// retrying intercepted requests.
+  Future<Response<dynamic>> executeRawWithOptions(
+    RequestOptions requestOptions,
+  );
+
+  /// Downloads a file from [urlPath] and saves it to [savePath].
+  Future<Response<dynamic>> download(
+    String urlPath,
+    dynamic savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
+    String lengthHeader = Headers.contentLengthHeader,
+    Object? data,
+    Options? options,
+  });
+
+  /// Downloads a file from [uri] and saves it to [savePath].
+  Future<Response<dynamic>> downloadUri(
+    Uri uri,
+    dynamic savePath, {
+    ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
+    String lengthHeader = Headers.contentLengthHeader,
+    Object? data,
+    Options? options,
+  });
+
+  /// Closes the underlying HTTP client and frees its resources.
+  void close();
 }
 
 /// A thin, generic HTTP executor for typed requests and responses.
@@ -130,6 +183,7 @@ class NetKitImpl implements NetKit {
   /// Use this for endpoints where you need full control over the response —
   /// for example, file downloads or streaming. No encoding or decoding is
   /// performed.
+  @override
   Future<Response<dynamic>> executeRaw(
     String path, {
     Object? data,
@@ -153,6 +207,7 @@ class NetKitImpl implements NetKit {
   /// Fires a request from a pre-built [RequestOptions] and returns the data
   /// [Response]. This can be useful for many scenarios, for example,
   /// retrying intercepted requests.
+  @override
   Future<Response<dynamic>> executeRawWithOptions(
     RequestOptions requestOptions,
   ) {
@@ -160,6 +215,7 @@ class NetKitImpl implements NetKit {
   }
 
   /// Downloads a file from [urlPath] and saves it to [savePath].
+  @override
   Future<Response<dynamic>> download(
     String urlPath,
     dynamic savePath, {
@@ -187,6 +243,7 @@ class NetKitImpl implements NetKit {
   }
 
   /// Downloads a file from [uri] and saves it to [savePath].
+  @override
   Future<Response<dynamic>> downloadUri(
     Uri uri,
     dynamic savePath, {
@@ -212,5 +269,6 @@ class NetKitImpl implements NetKit {
   }
 
   /// Closes the underlying HTTP client and frees its resources.
+  @override
   void close() => _dio.close();
 }

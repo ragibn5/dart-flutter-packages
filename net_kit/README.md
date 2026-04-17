@@ -96,8 +96,7 @@ Configure interceptors, headers, auth, retries, or logging on `dio` exactly as y
 ### 4. Create `NetKit`
 
 ```dart
-
-final netKit = NetKit(dio);
+final netKit = NetKitImpl(dio);
 ```
 
 ### 5. Build a `RequestSpec`
@@ -132,7 +131,7 @@ final request = RequestSpec<Map<String, dynamic>, User, ApiError>(
 
 ```dart
 void main() async {
-  final result = await netKit.execute(request, null, null, null);
+  final result = await netKit.execute(request);
 }
 ```
 
@@ -147,27 +146,33 @@ Example with a cancel token:
 ```dart
 void main() async {
   final cancelToken = CancelToken();
-  final result = await netKit.execute(request, cancelToken, null, null);
+  final result = await netKit.execute(request, cancelToken: cancelToken);
 }
 ```
 
 ### 7. Handle the result
 
-On success, you get your decoded `Res`.
-On failure, you get a `NetKitException`.
+`execute(...)` now returns a nested result:
+
+- `Result.error(...)` contains infrastructure failures as `NetKitException`
+- `Result.success(Result.success(res))` contains a decoded success response
+- `Result.success(Result.error(DomainException<Err>))` contains a decoded domain error
 
 ```dart
 void main() async {
   result.fold(
-    onSuccess: (user) {
-      print(user.name);
+    onSuccess: (response) {
+      response.fold(
+        onSuccess: (user) {
+          print(user.name);
+        },
+        onError: (domainError) {
+          print('API error: ${domainError.error.message}');
+        },
+      );
     },
     onError: (error) {
       switch (error) {
-        case DomainException<ApiError>(error: final apiError):
-          print('API error: ${apiError.message}');
-        case DomainException():
-          print('API error');
         case NetworkException(type: final type):
           print('Network error: $type');
         case ParseException():
@@ -176,8 +181,6 @@ void main() async {
           print('Unexpected error: $message');
         case CancellationException():
           print('Cancelled');
-        case ApplicationException():
-          print('Application error');
       }
     },
   );
@@ -189,16 +192,22 @@ void main() async {
 `NetKit.execute(...)` returns:
 
 ```dart
-Result<NetKitException, Res>
+Result<NetKitException, Result<DomainException<Err>, Res>>
 ```
 
-Possible error types:
+Possible outcomes:
 
-- `DomainException<Err>`
-  The server responded with an error body, and `decodeError(...)` succeeded.
+- `Result.error(NetKitException)`
+  The request failed before a domain result could be produced.
+- `Result.success(Result.success(res))`
+  The request completed successfully and `decodeResponse(...)` succeeded.
+- `Result.success(Result.error(DomainException<Err>))`
+  The server returned an application/domain error and `decodeError(...)` succeeded.
+
+Possible outer-error types:
+
 - `NetworkException`
-  Dio reported a transport-level failure such as timeout, certificate issue, or
-  connection failure.
+  Dio reported a transport-level failure such as timeout, certificate issue, or connection failure.
 - `ParseException`
   Encoding or decoding failed.
 - `CancellationException`

@@ -71,7 +71,7 @@ Future<void> main() async {
     ),
   );
 
-  final netKit = NetKit(dio);
+  final netKit = NetKitImpl(dio);
 
   final request = RequestSpec<Object?, User, ApiError>(
     path: '/users/1',
@@ -83,15 +83,15 @@ Future<void> main() async {
   final result = await netKit.execute(request);
 
   result.fold(
-    onSuccess: (user) {
-      print('User: ${user.name}');
+    onSuccess: (response) {
+      response.fold(
+        onSuccess: (user) => print('User: ${user.name}'),
+        onError: (domainError) =>
+            print('Domain error: ${domainError.error.message}'),
+      );
     },
     onError: (error) {
       switch (error) {
-        case DomainException<ApiError>(error: final apiError):
-          print('API error: ${apiError.message}');
-        case DomainException():
-          print('API error');
         case NetworkException(type: final type):
           print('Network error: $type');
         case ParseException():
