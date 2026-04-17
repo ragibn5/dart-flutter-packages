@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
+import 'package:net_kit/src/models/domain_exception.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/client_exception_mapper.dart';
@@ -33,12 +34,15 @@ void main() {
     );
 
     expect(
-      result,
+      result.errorOrNull,
       isA<NetworkException>()
           .having((p) => p.type, 'type', expectedType)
           .having((p) => p.cause, 'cause', expectedInnerCause)
           .having((p) => p.stackTrace, 'stackTrace', expectedStackTrace),
     );
+    expect(result.isError, isTrue);
+    expect(result.isSuccess, isFalse);
+    expect(result.resultOrNull, isNull);
   }
 
   setUp(() {
@@ -60,16 +64,19 @@ void main() {
     );
 
     expect(
-      result,
+      result.errorOrNull,
       isA<UnexpectedException>()
           .having((p) => p.message, 'message', 'Received unknown exception')
           .having((p) => p.cause, 'cause', cause)
           .having((p) => p.stackTrace, 'stackTrace', st),
     );
+    expect(result.isError, isTrue);
+    expect(result.isSuccess, isFalse);
+    expect(result.resultOrNull, isNull);
   });
 
   test(
-    'If exception is a DioException of types other than badResponse or unknown, returns NetworkException',
+    'If exception is a DioException of types other than badResponse, unknown, or cancel, returns NetworkException',
     () {
       final st = StackTrace.current;
       final innerCause = Exception();
@@ -123,11 +130,14 @@ void main() {
       );
 
       expect(
-        result,
+        result.errorOrNull,
         isA<CancellationException>()
             .having((p) => p.cause, 'cause', innerCause)
             .having((p) => p.stackTrace, 'stackTrace', st),
       );
+      expect(result.isError, isTrue);
+      expect(result.isSuccess, isFalse);
+      expect(result.resultOrNull, isNull);
     },
   );
 
@@ -152,7 +162,7 @@ void main() {
       );
 
       expect(
-        result,
+        result.errorOrNull,
         isA<UnexpectedException>()
             .having(
               (p) => p.message,
@@ -162,6 +172,9 @@ void main() {
             .having((p) => p.cause, 'cause', innerCause)
             .having((p) => p.stackTrace, 'stackTrace', st),
       );
+      expect(result.isError, isTrue);
+      expect(result.isSuccess, isFalse);
+      expect(result.resultOrNull, isNull);
     },
   );
 
@@ -183,13 +196,16 @@ void main() {
       );
 
       expect(
-        result,
+        result.errorOrNull,
         isA<CancellationException>().having(
           (p) => p.stackTrace,
           'stackTrace',
           same(exceptionStackTrace),
         ),
       );
+      expect(result.isError, isTrue);
+      expect(result.isSuccess, isFalse);
+      expect(result.resultOrNull, isNull);
     },
   );
 
@@ -213,7 +229,7 @@ void main() {
       );
 
       expect(
-        result,
+        result.errorOrNull,
         isA<UnexpectedException>()
             .having(
               (p) => p.message,
@@ -223,6 +239,9 @@ void main() {
             .having((p) => p.cause, 'cause', innerCause)
             .having((p) => p.stackTrace, 'stackTrace', st),
       );
+      expect(result.isError, isTrue);
+      expect(result.isSuccess, isFalse);
+      expect(result.resultOrNull, isNull);
     },
   );
 
@@ -249,7 +268,10 @@ void main() {
         errorDecoder: (data) => throw Exception(),
       );
 
-      expect(result, same(parseException));
+      expect(result.errorOrNull, same(parseException));
+      expect(result.isError, isTrue);
+      expect(result.isSuccess, isFalse);
+      expect(result.resultOrNull, isNull);
     },
   );
 
@@ -306,12 +328,15 @@ void main() {
       );
 
       expect(
-        result,
+        result.resultOrNull,
         isA<DomainException<String>>()
             .having((p) => p.error, 'error', decodedError)
             .having((p) => p.cause, 'cause', innerCause)
             .having((p) => p.stackTrace, 'stackTrace', st),
       );
+      expect(result.isSuccess, isTrue);
+      expect(result.isError, isFalse);
+      expect(result.errorOrNull, isNull);
     },
   );
 }

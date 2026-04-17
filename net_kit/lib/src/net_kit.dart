@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
+import 'package:net_kit/src/models/domain_exception.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/result.dart';
@@ -8,8 +9,18 @@ import 'package:net_kit/src/services/client_exception_mapper.dart';
 import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
 
+abstract interface class NetKit {
+  Future<Result<NetKitException, Result<DomainException<Err>, Res>>>
+      execute<Req, Res, Err>(
+    RequestSpec<Req, Res, Err> spec, {
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+}
+
 /// A thin, generic HTTP executor for typed requests and responses.
-class NetKit {
+class NetKitImpl implements NetKit {
   static const _defaultRequestEncoder = DefaultNetKitRequestEncoder();
   static const _defaultErrorResponseDecoder =
       DefaultNetKitResponseDecoder(ParseTargetType.ERROR_DECODE);
@@ -26,7 +37,7 @@ class NetKit {
 
   final ClientExceptionMapper _clientExceptionMapper;
 
-  NetKit(Dio dio)
+  NetKitImpl(Dio dio)
       : this._(
           dio,
           _defaultRequestEncoder,
@@ -36,7 +47,7 @@ class NetKit {
         );
 
   @visibleForTesting
-  NetKit.test(
+  NetKitImpl.test(
     Dio dio,
     NetKitRequestEncoder requestEncoder,
     NetKitResponseDecoder errorResponseDecoder,
@@ -50,7 +61,7 @@ class NetKit {
           clientExceptionMapper,
         );
 
-  NetKit._(
+  NetKitImpl._(
     this._dio,
     this._requestEncoder,
     this._errorResponseDecoder,
@@ -59,7 +70,9 @@ class NetKit {
   );
 
   /// Executes the given [spec] and returns a typed [Result].
-  Future<Result<NetKitException, Res>> execute<Req, Res, Err>(
+  @override
+  Future<Result<NetKitException, Result<DomainException<Err>, Res>>>
+      execute<Req, Res, Err>(
     RequestSpec<Req, Res, Err> spec, {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -86,23 +99,29 @@ class NetKit {
         return _errorResponseDecoder
             .decode(response.data, spec.codec.decodeError)
             .fold(
-              onSuccess: (e) => Result.error(DomainException(e)),
               onError: Result.error,
+              onSuccess: (de) =>
+                  Result.success(Result.error(DomainException(de))),
             );
       }
 
-      return _successfulResponseDecoder.decode(
-        response.data,
-        spec.codec.decodeResponse,
-      );
+      return _successfulResponseDecoder
+          .decode(response.data, spec.codec.decodeResponse)
+          .fold(
+            onError: Result.error,
+            onSuccess: (d) => Result.success(Result.success(d)),
+          );
     } catch (e, st) {
-      return Result.error(
-        _clientExceptionMapper.mapException<Err>(
-          e,
-          stackTrace: st,
-          errorDecoder: spec.codec.decodeError,
-        ),
-      );
+      return _clientExceptionMapper
+          .mapException(
+            e,
+            stackTrace: st,
+            errorDecoder: spec.codec.decodeError,
+          )
+          .fold(
+            onError: Result.error,
+            onSuccess: (d) => Result.success(Result.error(d)),
+          );
     }
   }
 

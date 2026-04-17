@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
+import 'package:net_kit/src/models/domain_exception.dart';
 import 'package:net_kit/src/models/http_method.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
@@ -41,8 +42,10 @@ void main() {
   late MockClientExceptionMapper mockClientExceptionMapper;
   late MockRequestCodec mockRequestCodec;
   late MockResponseClassifier mockResponseClassifier;
-  late NetKit sut;
+
   late RequestSpec<String, String, String> spec;
+
+  late NetKitImpl sut;
 
   setUpAll(() {
     registerFallbackValue(FakeOptions());
@@ -58,14 +61,6 @@ void main() {
     mockRequestCodec = MockRequestCodec();
     mockResponseClassifier = MockResponseClassifier();
 
-    sut = NetKit.test(
-      mockDio,
-      mockRequestEncoder,
-      mockErrorResponseDecoder,
-      mockSuccessfulResponseDecoder,
-      mockClientExceptionMapper,
-    );
-
     spec = RequestSpec<String, String, String>(
       path: '/users',
       method: HttpMethod.POST,
@@ -76,39 +71,131 @@ void main() {
       headers: const {'authorization': 'Bearer token'},
     );
 
+    sut = NetKitImpl.test(
+      mockDio,
+      mockRequestEncoder,
+      mockErrorResponseDecoder,
+      mockSuccessfulResponseDecoder,
+      mockClientExceptionMapper,
+    );
+
     when(
       () => mockRequestEncoder.encode<String>(spec.body, any()),
     ).thenReturn(Result.success(null));
   });
 
-  test('execute returns request encoder error without calling Dio', () async {
-    const parseException = ParseException(
-      targetType: ParseTargetType.REQUEST_ENCODE,
-      data: 'request-body',
-    );
+  test(
+    'execute returns request encoder error without calling client',
+    () async {
+      const parseException = ParseException(
+        targetType: ParseTargetType.REQUEST_ENCODE,
+        data: 'request-body',
+      );
 
-    when(
-      () => mockRequestEncoder.encode<String>('request-body', any()),
-    ).thenReturn(Result.error(parseException));
+      when(
+        () => mockRequestEncoder.encode<String>('request-body', any()),
+      ).thenReturn(Result.error(parseException));
 
-    final result = await sut.execute(spec);
+      final result = await sut.execute(spec);
 
-    expect(result.isError, isTrue);
-    expect(result.errorOrNull, same(parseException));
-    verifyNever(
-      () => mockDio.request<dynamic>(
-        any(),
-        data: any(named: 'data'),
-        queryParameters: any(named: 'queryParameters'),
-        cancelToken: any(named: 'cancelToken'),
-        options: any(named: 'options'),
-        onSendProgress: any(named: 'onSendProgress'),
-        onReceiveProgress: any(named: 'onReceiveProgress'),
-      ),
-    );
-  });
+      expect(result.isError, isTrue);
+      expect(result.errorOrNull, same(parseException));
+      verifyNever(
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          cancelToken: any(named: 'cancelToken'),
+          options: any(named: 'options'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
+      );
+    },
+  );
 
-  test('execute returns decoded success for non-error response', () async {
+  test(
+    'execute returns DomainException for classified error with decodable error body',
+    () async {
+      const responseData = {'code': 'invalid'};
+      const decodedError = 'decoded-error';
+      final response = Response<dynamic>(
+          requestOptions: RequestOptions(path: spec.path), data: responseData);
+
+      when(
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          cancelToken: any(named: 'cancelToken'),
+          options: any(named: 'options'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
+      ).thenAnswer((_) async => response);
+      when(() => mockResponseClassifier.isError(response)).thenReturn(true);
+      when(
+        () => mockErrorResponseDecoder.decode<String>(responseData, any()),
+      ).thenReturn(Result.success(decodedError));
+
+      final result = await sut.execute(spec);
+
+      expect(result.isSuccess, isTrue);
+      expect(result.errorOrNull, isNull);
+      expect(
+        result.resultOrNull,
+        isA<Result<DomainException<String>, String>>()
+            .having((p) => p.isError, 'isError', isTrue)
+            .having((p) => p.isSuccess, 'isSuccess', isFalse)
+            .having((p) => p.resultOrNull, 'resultOrNull', isNull),
+      );
+      expect(
+        result.resultOrNull?.errorOrNull,
+        isA<DomainException<String>>()
+            .having((p) => p.error, 'error', decodedError),
+      );
+    },
+  );
+
+  test(
+    'execute returns decoder ParseException for classified error with undecodable error body',
+    () async {
+      const responseData = {'code': 'invalid'};
+      const parseException = ParseException(
+        targetType: ParseTargetType.ERROR_DECODE,
+        data: responseData,
+      );
+      final response = Response<dynamic>(
+        requestOptions: RequestOptions(path: spec.path),
+        data: responseData,
+      );
+
+      when(
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          cancelToken: any(named: 'cancelToken'),
+          options: any(named: 'options'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
+      ).thenAnswer((_) async => response);
+      when(() => mockResponseClassifier.isError(response)).thenReturn(true);
+      when(
+        () => mockErrorResponseDecoder.decode<String>(responseData, any()),
+      ).thenReturn(Result.error(parseException));
+
+      final result = await sut.execute(spec);
+
+      expect(result.isError, isTrue);
+      expect(result.errorOrNull, same(parseException));
+      expect(result.resultOrNull, isNull);
+    },
+  );
+
+  test('execute returns decoded success for non-error(success) response',
+      () async {
     const encodedBody = {'name': 'Alice'};
     const responseData = {'id': 1};
     const decodedResponse = 'decoded-response';
@@ -149,9 +236,6 @@ void main() {
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
-
-    expect(result.isSuccess, isTrue);
-    expect(result.resultOrNull, decodedResponse);
     final capturedOptions = verify(
       () => mockDio.request<dynamic>(
         spec.path,
@@ -163,116 +247,136 @@ void main() {
         onReceiveProgress: onReceiveProgress,
       ),
     ).captured.single as Options;
+    expect(result.isSuccess, isTrue);
+    expect(result.errorOrNull, isNull);
+    expect(result.resultOrNull?.isSuccess, isTrue);
+    expect(result.resultOrNull?.isError, isFalse);
+    expect(result.resultOrNull?.errorOrNull, isNull);
+    expect(result.resultOrNull?.resultOrNull, decodedResponse);
     expect(capturedOptions.method, spec.method.value);
     expect(capturedOptions.headers, spec.headers);
   });
 
   test(
-      'execute returns DomainException for classified error with decodable error body',
-      () async {
-    const responseData = {'code': 'invalid'};
-    const decodedError = 'decoded-error';
-    final response = Response<dynamic>(
-      requestOptions: RequestOptions(path: spec.path),
-      data: responseData,
-    );
+    'execute returns decoder ParseException for non-error(success) response with undecodable body',
+    () async {
+      const responseData = {'id': 1};
+      const parseException = ParseException(
+        targetType: ParseTargetType.RESPONSE_DECODE,
+        data: responseData,
+      );
+      final response = Response<dynamic>(
+        requestOptions: RequestOptions(path: spec.path),
+        data: responseData,
+      );
 
-    when(
-      () => mockDio.request<dynamic>(
-        any(),
-        data: any(named: 'data'),
-        queryParameters: any(named: 'queryParameters'),
-        cancelToken: any(named: 'cancelToken'),
-        options: any(named: 'options'),
-        onSendProgress: any(named: 'onSendProgress'),
-        onReceiveProgress: any(named: 'onReceiveProgress'),
-      ),
-    ).thenAnswer((_) async => response);
-    when(() => mockResponseClassifier.isError(response)).thenReturn(true);
-    when(
-      () => mockErrorResponseDecoder.decode<String>(responseData, any()),
-    ).thenReturn(Result.success(decodedError));
+      when(
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          cancelToken: any(named: 'cancelToken'),
+          options: any(named: 'options'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
+      ).thenAnswer((_) async => response);
+      when(() => mockResponseClassifier.isError(response)).thenReturn(false);
+      when(
+        () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
+      ).thenReturn(Result.error(parseException));
 
-    final result = await sut.execute(spec);
+      final result = await sut.execute(spec);
 
-    expect(
-      result.errorOrNull,
-      isA<DomainException<String>>().having(
-        (p) => p.error,
-        'error',
-        decodedError,
-      ),
-    );
-  });
+      expect(result.isError, isTrue);
+      expect(result.errorOrNull, same(parseException));
+      expect(result.resultOrNull, isNull);
+    },
+  );
 
   test(
-      'execute returns decoder ParseException for classified error with undecodable error body',
-      () async {
-    const responseData = {'code': 'invalid'};
-    const parseException = ParseException(
-      targetType: ParseTargetType.ERROR_DECODE,
-      data: responseData,
-    );
-    final response = Response<dynamic>(
-      requestOptions: RequestOptions(path: spec.path),
-      data: responseData,
-    );
+    'execute returns outer error when client exception mapper returns Result.error',
+    () async {
+      final exception = DioException(
+        requestOptions: RequestOptions(path: spec.path),
+        type: DioExceptionType.connectionError,
+      );
+      const mappedException =
+          NetworkException(NetworkExceptionType.CONNECTION_ERROR);
 
-    when(
-      () => mockDio.request<dynamic>(
-        any(),
-        data: any(named: 'data'),
-        queryParameters: any(named: 'queryParameters'),
-        cancelToken: any(named: 'cancelToken'),
-        options: any(named: 'options'),
-        onSendProgress: any(named: 'onSendProgress'),
-        onReceiveProgress: any(named: 'onReceiveProgress'),
-      ),
-    ).thenAnswer((_) async => response);
-    when(() => mockResponseClassifier.isError(response)).thenReturn(true);
-    when(
-      () => mockErrorResponseDecoder.decode<String>(responseData, any()),
-    ).thenReturn(Result.error(parseException));
+      when(
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          cancelToken: any(named: 'cancelToken'),
+          options: any(named: 'options'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
+      ).thenThrow(exception);
+      when(
+        () => mockClientExceptionMapper.mapException<String>(
+          exception,
+          stackTrace: any(named: 'stackTrace'),
+          errorDecoder: any(named: 'errorDecoder'),
+        ),
+      ).thenReturn(Result.error(mappedException));
 
-    final result = await sut.execute(spec);
+      final result = await sut.execute(spec);
 
-    expect(result.isError, isTrue);
-    expect(result.errorOrNull, same(parseException));
-  });
+      expect(result.isError, isTrue);
+      expect(result.errorOrNull, same(mappedException));
+      expect(result.resultOrNull, isNull);
+    },
+  );
 
-  test('execute maps thrown exception with client exception mapper', () async {
-    final exception = DioException(
-      requestOptions: RequestOptions(path: spec.path),
-      type: DioExceptionType.connectionError,
-    );
-    const mappedException = NetworkException(
-      NetworkExceptionType.CONNECTION_ERROR,
-    );
+  test(
+    'execute returns nested DomainException when client exception mapper returns Result.success',
+    () async {
+      final exception = DioException(
+        requestOptions: RequestOptions(path: spec.path),
+        type: DioExceptionType.badResponse,
+      );
+      const mappedDomainException = DomainException<String>('decoded-error');
 
-    when(
-      () => mockDio.request<dynamic>(
-        any(),
-        data: any(named: 'data'),
-        queryParameters: any(named: 'queryParameters'),
-        cancelToken: any(named: 'cancelToken'),
-        options: any(named: 'options'),
-        onSendProgress: any(named: 'onSendProgress'),
-        onReceiveProgress: any(named: 'onReceiveProgress'),
-      ),
-    ).thenThrow(exception);
-    when(
-      () => mockClientExceptionMapper.mapException<String>(
-        exception,
-        stackTrace: any(named: 'stackTrace'),
-        errorDecoder: any(named: 'errorDecoder'),
-      ),
-    ).thenReturn(mappedException);
+      when(
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          cancelToken: any(named: 'cancelToken'),
+          options: any(named: 'options'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
+      ).thenThrow(exception);
+      when(
+        () => mockClientExceptionMapper.mapException<String>(
+          exception,
+          stackTrace: any(named: 'stackTrace'),
+          errorDecoder: any(named: 'errorDecoder'),
+        ),
+      ).thenReturn(Result.success(mappedDomainException));
 
-    final result = await sut.execute(spec);
+      final result = await sut.execute(spec);
 
-    expect(result.isError, isTrue);
-    expect(result.errorOrNull, same(mappedException));
-  });
+      expect(result.isSuccess, isTrue);
+      expect(result.errorOrNull, isNull);
+      expect(
+        result.resultOrNull,
+        isA<Result<DomainException<String>, String>>()
+            .having((p) => p.isError, 'isError', isTrue)
+            .having((p) => p.isSuccess, 'isSuccess', isFalse)
+            .having(
+              (p) => p.errorOrNull,
+              'errorOrNull',
+              same(mappedDomainException),
+            )
+            .having((p) => p.resultOrNull, 'resultOrNull', isNull),
+      );
+    },
+  );
 
   test('executeRaw delegates to Dio.request', () async {
     final cancelToken = CancelToken();

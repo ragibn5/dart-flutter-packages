@@ -3,8 +3,7 @@ import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/net_kit.dart';
 
 /// The base exception type that [NetKit.execute] returns when it
-/// encounters any error, either from the underlying client, or while
-/// processing the request and/or response.
+/// encounters any error.
 ///
 /// See its subtypes for more details.
 sealed class NetKitException {
@@ -15,24 +14,6 @@ sealed class NetKitException {
   final StackTrace? stackTrace;
 
   const NetKitException(this.cause, this.stackTrace);
-}
-
-/// A failure indicating an domain specific error returned by the server.
-final class DomainException<Err> extends NetKitException {
-  /// The decoded, domain-typed error from the server.
-  final Err error;
-
-  const DomainException(
-    this.error, {
-    Object? cause,
-    StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
-
-  @override
-  String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'DomainException{error: $error, cause: $cause, stackTrace: $stackTrace}';
-  }
 }
 
 /// A network failure.
@@ -53,13 +34,8 @@ final class NetworkException extends NetKitException {
   }
 }
 
-/// A failure indicating an application-level-specific error.
-sealed class ApplicationException extends NetKitException {
-  const ApplicationException(super.cause, super.stackTrace);
-}
-
 /// A failure indicating encode/decode data (request, response, error response etc.).
-final class ParseException extends ApplicationException {
+final class ParseException extends NetKitException {
   /// The type of target that we were failed to encode/decode.
   final ParseTargetType targetType;
 
@@ -81,7 +57,7 @@ final class ParseException extends ApplicationException {
 }
 
 /// A failure indicating explicit request cancellation.
-final class CancellationException extends ApplicationException {
+final class CancellationException extends NetKitException {
   const CancellationException({
     Object? cause,
     StackTrace? stackTrace,
