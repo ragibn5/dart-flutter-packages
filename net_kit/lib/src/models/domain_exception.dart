@@ -1,5 +1,8 @@
 /// A failure indicating an domain specific error returned by the server.
 class DomainException<E> {
+  /// The HTTP status code from the server.
+  final int statusCode;
+
   /// The decoded, domain-typed error from the server.
   final E error;
 
@@ -10,6 +13,7 @@ class DomainException<E> {
   final StackTrace? stackTrace;
 
   const DomainException(
+    this.statusCode,
     this.error, {
     this.cause,
     this.stackTrace,
@@ -18,6 +22,6 @@ class DomainException<E> {
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'DomainException{error: $error, cause: $cause, stackTrace: $stackTrace}';
+    return 'DomainException{statusCode: $statusCode, error: $error, cause: $cause, stackTrace: $stackTrace}';
   }
 }

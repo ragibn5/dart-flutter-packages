@@ -153,8 +153,9 @@ class NetKitImpl implements NetKit {
             .decode(response.data, spec.codec.decodeError)
             .fold(
               onError: Result.error,
-              onSuccess: (de) =>
-                  Result.success(Result.error(DomainException(de))),
+              onSuccess: (de) => Result.success(
+                Result.error(DomainException(response.statusCode ?? 0, de)),
+              ),
             );
       }
 

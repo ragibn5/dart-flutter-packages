@@ -117,7 +117,12 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
         .fold(
           onError: Result.error,
           onSuccess: (e) => Result.success(
-            DomainException(e, cause: cause, stackTrace: stackTrace),
+            DomainException(
+              response.statusCode ?? 0,
+              e,
+              cause: cause,
+              stackTrace: stackTrace,
+            ),
           ),
         );
   }

@@ -312,7 +312,11 @@ void main() {
       final innerCause = Exception();
       final dioException = DioException(
         requestOptions: mockRequestOptions,
-        response: Response(requestOptions: mockRequestOptions, data: data),
+        response: Response(
+          requestOptions: mockRequestOptions,
+          statusCode: 400,
+          data: data,
+        ),
         type: DioExceptionType.badResponse,
         error: innerCause,
         stackTrace: st,
@@ -330,6 +334,7 @@ void main() {
       expect(
         result.resultOrNull,
         isA<DomainException<String>>()
+            .having((p) => p.statusCode, 'statusCode', 400)
             .having((p) => p.error, 'error', decodedError)
             .having((p) => p.cause, 'cause', innerCause)
             .having((p) => p.stackTrace, 'stackTrace', st),

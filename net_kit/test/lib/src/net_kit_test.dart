@@ -120,7 +120,10 @@ void main() {
       const responseData = {'code': 'invalid'};
       const decodedError = 'decoded-error';
       final response = Response<dynamic>(
-          requestOptions: RequestOptions(path: spec.path), data: responseData);
+        requestOptions: RequestOptions(path: spec.path),
+        statusCode: 422,
+        data: responseData,
+      );
 
       when(
         () => mockDio.request<dynamic>(
@@ -152,6 +155,7 @@ void main() {
       expect(
         result.resultOrNull?.errorOrNull,
         isA<DomainException<String>>()
+            .having((p) => p.statusCode, 'statusCode', 422)
             .having((p) => p.error, 'error', decodedError),
       );
     },
@@ -338,7 +342,7 @@ void main() {
         requestOptions: RequestOptions(path: spec.path),
         type: DioExceptionType.badResponse,
       );
-      const mappedDomainException = DomainException<String>('decoded-error');
+      const mappedDomainException = DomainException<String>(409, 'decoded-error');
 
       when(
         () => mockDio.request<dynamic>(
