@@ -6,6 +6,7 @@ export 'package:dio/dio.dart';
 
 export 'src/enums/network_exception_type.dart';
 export 'src/enums/parse_target_type.dart';
+export 'src/models/domain_exception.dart';
 export 'src/models/http_method.dart';
 export 'src/models/net_kit_exception.dart';
 export 'src/models/request_spec.dart';
