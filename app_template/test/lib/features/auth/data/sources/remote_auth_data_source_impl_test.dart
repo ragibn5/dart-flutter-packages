@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/api_result.dart';
+import 'package:app_template/core/models/result.dart';
 import 'package:app_template/core/models/server_message.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
@@ -24,7 +24,7 @@ void main() {
     refreshTokenExpiry: DateTime.now(),
   );
   final clientResponse =
-      ApiResult<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.success(
+      Result<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.success(
         authDataDTO,
       );
 

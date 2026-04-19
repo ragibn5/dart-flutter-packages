@@ -4,7 +4,7 @@
 import 'dart:io';
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/api_result.dart';
+import 'package:app_template/core/models/result.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
@@ -98,7 +98,7 @@ void main() {
     ).thenAnswer((_) async => authData);
     when(
       () => mockAuthDataService.refreshCurrentAuthData(),
-    ).thenAnswer((_) async => ApiResult.success(authData));
+    ).thenAnswer((_) async => Result.success(authData));
     when(
       () => mockClient.fetch<dynamic>(any()),
     ).thenAnswer((_) async => Response(requestOptions: authedRequestOptions));
@@ -244,7 +244,7 @@ void main() {
       );
 
       when(() => mockAuthDataService.refreshCurrentAuthData()).thenAnswer(
-        (_) async => ApiResult.failure(
+        (_) async => Result.failure(
           ApiError.fromServerError(InvalidAuthStateForRefresh()),
         ),
       );

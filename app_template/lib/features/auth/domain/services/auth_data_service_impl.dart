@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/api_result.dart';
+import 'package:app_template/core/models/result.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
@@ -23,11 +23,11 @@ class AuthDataServiceImpl implements AuthDataService {
   }
 
   @override
-  Future<ApiResult<ApiError<AuthDataRefreshError>, AuthData>>
+  Future<Result<ApiError<AuthDataRefreshError>, AuthData>>
   refreshCurrentAuthData() async {
     final currentAuthData = await _authRepository.getCurrentAuthData();
     if (currentAuthData == null) {
-      return ApiResult.failure(
+      return Result.failure(
         ApiError.fromServerError(InvalidAuthStateForRefresh()),
       );
     }
@@ -37,13 +37,13 @@ class AuthDataServiceImpl implements AuthDataService {
     );
     if (refreshedAuthData.isError) {
       return refreshedAuthData.errorOrNull!.fold(
-        (ae) => ApiResult.failure(ApiError.fromAppError(ae)),
-        (ne) => ApiResult.failure(ApiError.fromNetworkError(ne)),
-        (se) => ApiResult.failure(ApiError.fromServerError(se)),
+        (ae) => Result.failure(ApiError.fromAppError(ae)),
+        (ne) => Result.failure(ApiError.fromNetworkError(ne)),
+        (se) => Result.failure(ApiError.fromServerError(se)),
       );
     }
 
-    return ApiResult.success(refreshedAuthData.dataOrNull!);
+    return Result.success(refreshedAuthData.dataOrNull!);
   }
 
   @override

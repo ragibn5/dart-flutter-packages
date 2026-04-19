@@ -1,26 +1,26 @@
 import 'package:equatable/equatable.dart';
 
-enum _ApiResultType { error, success }
+enum _ResultType { error, success }
 
-class ApiResult<E, D> extends Equatable {
-  final _ApiResultType _type;
+class Result<E, D> extends Equatable {
+  final _ResultType _type;
 
   final D? _data;
   final E? _error;
 
-  const ApiResult._({required _ApiResultType type, D? data, E? error})
+  const Result._({required _ResultType type, D? data, E? error})
     : _error = error,
       _data = data,
       _type = type;
 
   /// Factory constructor for E
-  factory ApiResult.failure(E error) {
-    return ApiResult._(type: _ApiResultType.error, error: error);
+  factory Result.failure(E error) {
+    return Result._(type: _ResultType.error, error: error);
   }
 
   /// Factory constructor for D
-  factory ApiResult.success(D data) {
-    return ApiResult._(type: _ApiResultType.success, data: data);
+  factory Result.success(D data) {
+    return Result._(type: _ResultType.success, data: data);
   }
 
   /// Fold method to handle different types
@@ -29,16 +29,16 @@ class ApiResult<E, D> extends Equatable {
     required T Function(E error) onFailure,
   }) {
     switch (_type) {
-      case _ApiResultType.error:
+      case _ResultType.error:
         return onFailure(_error as E);
-      case _ApiResultType.success:
+      case _ResultType.success:
         return onSuccess(_data as D);
     }
   }
 
-  bool get isError => _type == _ApiResultType.error;
+  bool get isError => _type == _ResultType.error;
 
-  bool get isSuccess => _type == _ApiResultType.success;
+  bool get isSuccess => _type == _ResultType.success;
 
   E? get errorOrNull => _error;
 

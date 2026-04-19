@@ -1,5 +1,5 @@
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/api_result.dart';
+import 'package:app_template/core/models/result.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 
@@ -19,7 +19,7 @@ abstract interface class AuthDataService {
   /// Returns the newly refreshed [AuthData] if succeeded, or an instance of
   /// [ApiError<AuthDataRefreshError>] in case of failure. See the sub-types
   /// of [AuthDataRefreshError] for more details.
-  Future<ApiResult<ApiError<AuthDataRefreshError>, AuthData>>
+  Future<Result<ApiError<AuthDataRefreshError>, AuthData>>
   refreshCurrentAuthData();
 
   /// Watch for changes of the auth data.

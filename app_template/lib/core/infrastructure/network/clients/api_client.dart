@@ -1,11 +1,11 @@
-import 'package:app_template/core/models/api_result.dart';
+import 'package:app_template/core/models/result.dart';
 
 abstract interface class ApiClient<
   RequestBodyType,
   ResponseBodyType,
   ErrorType
 > {
-  Future<ApiResult<ErrorType, ResponseBodyType>> request(
+  Future<Result<ErrorType, ResponseBodyType>> request(
     RequestBodyType requestBody,
   );
 }

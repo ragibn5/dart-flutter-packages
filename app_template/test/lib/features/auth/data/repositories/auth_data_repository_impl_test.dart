@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/api_result.dart';
+import 'package:app_template/core/models/result.dart';
 import 'package:app_template/core/models/server_message.dart';
 import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart';
 import 'package:app_template/features/auth/data/mappers/auth_refresh_error_mapper.dart';
@@ -66,7 +66,7 @@ void main() {
   final authData = authDataDTO.toEntity();
   final refreshedAuthData = refreshedAuthDataDTO.toEntity();
   final succeededAuthRefreshResult =
-      ApiResult<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.success(
+      Result<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.success(
         refreshedAuthDataDTO,
       );
   final authRefreshDataError = ApiError.fromServerError(
@@ -79,7 +79,7 @@ void main() {
     InvalidRefreshToken(),
   );
   final failedAuthRefreshResult =
-      ApiResult<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.failure(
+      Result<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.failure(
         authRefreshDataError,
       );
 
