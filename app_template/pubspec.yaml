@@ -60,10 +60,8 @@ dependencies:
     path: ../datetime_utils
   dlogger:
     path: ../dlogger
-  json_parser:
-    path: ../json_parser
-  json_parser_annotations:
-    path: ../json_parser/json_parser_annotations
+  net_kit:
+    path: ../net_kit
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

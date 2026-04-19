@@ -17,10 +17,6 @@ plugins:
     path: ../clean_arch_lint
     diagnostics:
       clean_arch_dependency_direction: true
-  json_parser_analyzer:
-    path: ../json_parser/json_parser_analyzer
-    diagnostics:
-      json_parser_requirements: true
 
 analyzer:
   # Set/Modify language features
