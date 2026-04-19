@@ -73,22 +73,23 @@ Future<void> main() async {
 
   final netKit = NetKitImpl(dio);
 
-  final request = RequestSpec<Object?, User, ApiError>(
+  final request = RequestSpec<Object?>(
     path: '/users/1',
     method: HttpMethod.GET,
     body: null,
-    codec: const UserCodec(),
   );
 
-  final result = await netKit.execute(request);
+  final result = await netKit.execute(spec: request, codec: const UserCodec());
 
   result.fold(
     onSuccess: (response) {
-      response.fold(
-        onSuccess: (user) => print('User: ${user.name}'),
-        onError: (domainError) =>
-            print('Domain error: ${domainError.error.message}'),
-      );
+      if (response.data.isSuccess) {
+        final user = response.data.resultOrNull!;
+        print('User: ${user.name}');
+      } else {
+        final apiError = response.data.errorOrNull!;
+        print('Domain error: ${apiError.message}');
+      }
     },
     onError: (error) {
       switch (error) {

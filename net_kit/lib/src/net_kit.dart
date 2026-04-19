@@ -1,71 +1,22 @@
-import 'package:dio/dio.dart';
+import 'dart:async';
+
 import 'package:meta/meta.dart';
-import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/models/domain_exception.dart';
-import 'package:net_kit/src/models/net_kit_exception.dart';
-import 'package:net_kit/src/models/request_spec.dart';
-import 'package:net_kit/src/models/result.dart';
+import 'package:net_kit/net_kit.dart';
+import 'package:net_kit/src/models/api_response.dart';
 import 'package:net_kit/src/services/client_exception_mapper.dart';
 import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
+import 'package:net_kit/src/types/progress_listener.dart';
 
 abstract interface class NetKit {
   /// Executes the given [spec] and returns a typed [Result].
-  Future<Result<NetKitException, Result<DomainException<Err>, Res>>>
-      execute<Req, Res, Err>(
-    RequestSpec<Req, Res, Err> spec, {
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  });
-
-  /// Fires a data request and returns the unwrapped [Response].
-  ///
-  /// Use this for endpoints where you need full control over the response —
-  /// for example, file downloads or streaming. No encoding or decoding is
-  /// performed.
-  Future<Response<dynamic>> executeRaw(
-    String path, {
-    Object? data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  });
-
-  /// Fires a request from a pre-built [RequestOptions] and returns the data
-  /// [Response]. This can be useful for many scenarios, for example,
-  /// retrying intercepted requests.
-  Future<Response<dynamic>> executeRawWithOptions(
-    RequestOptions requestOptions,
-  );
-
-  /// Downloads a file from [urlPath] and saves it to [savePath].
-  Future<Response<dynamic>> download(
-    String urlPath,
-    dynamic savePath, {
-    ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
-    CancelToken? cancelToken,
-    bool deleteOnError = true,
-    FileAccessMode fileAccessMode = FileAccessMode.write,
-    String lengthHeader = Headers.contentLengthHeader,
-    Object? data,
-    Options? options,
-  });
-
-  /// Downloads a file from [uri] and saves it to [savePath].
-  Future<Response<dynamic>> downloadUri(
-    Uri uri,
-    dynamic savePath, {
-    ProgressCallback? onReceiveProgress,
-    CancelToken? cancelToken,
-    bool deleteOnError = true,
-    FileAccessMode fileAccessMode = FileAccessMode.write,
-    String lengthHeader = Headers.contentLengthHeader,
-    Object? data,
-    Options? options,
+  Future<ApiCallResult<Req, Res, Err>> execute<Req, Res, Err>({
+    required RequestSpec<Req> spec,
+    required RequestCodec<Req, Res, Err> codec,
+    ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
+    ProgressListener? onSendProgress,
+    ProgressListener? onReceiveProgress,
+    RequestCanceller<Req>? requestCanceller,
   });
 
   /// Closes the underlying HTTP client and frees its resources.
@@ -74,13 +25,16 @@ abstract interface class NetKit {
 
 /// A thin, generic HTTP executor for typed requests and responses.
 class NetKitImpl implements NetKit {
+  static const _defaultResponseCode = 0;
   static const _defaultRequestEncoder = DefaultNetKitRequestEncoder();
   static const _defaultErrorResponseDecoder =
       DefaultNetKitResponseDecoder(ParseTargetType.ERROR_DECODE);
   static const _defaultSuccessfulResponseDecoder =
       DefaultNetKitResponseDecoder(ParseTargetType.RESPONSE_DECODE);
-  static const _defaultClientExceptionMapper =
-      ClientExceptionMapperImpl(_defaultErrorResponseDecoder);
+  static const _defaultClientExceptionMapper = ClientExceptionMapperImpl(
+    _defaultResponseCode,
+    _defaultErrorResponseDecoder,
+  );
 
   final Dio _dio;
 
@@ -124,16 +78,17 @@ class NetKitImpl implements NetKit {
 
   /// Executes the given [spec] and returns a typed [Result].
   @override
-  Future<Result<NetKitException, Result<DomainException<Err>, Res>>>
-      execute<Req, Res, Err>(
-    RequestSpec<Req, Res, Err> spec, {
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
+  Future<ApiCallResult<Req, Res, Err>> execute<Req, Res, Err>({
+    required RequestSpec<Req> spec,
+    required RequestCodec<Req, Res, Err> codec,
+    ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
+    ProgressListener? onSendProgress,
+    ProgressListener? onReceiveProgress,
+    RequestCanceller<Req>? requestCanceller,
   }) async {
     try {
       final encodedRequest =
-          _requestEncoder.encode(spec.body, spec.codec.encodeBody);
+          _requestEncoder.encode(spec.body, codec.encodeBody);
       if (encodedRequest.isError) {
         return Result.error(encodedRequest.errorOrNull!);
       }
@@ -143,133 +98,82 @@ class NetKitImpl implements NetKit {
         queryParameters: spec.queryParameters,
         options: Options(method: spec.method.value, headers: spec.headers),
         data: encodedRequest.resultOrNull,
-        cancelToken: cancelToken,
+        cancelToken: _createCancelToken(spec, requestCanceller),
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
 
-      if (spec.responseClassifier.isError(response)) {
+      if (responseClassifier.isError(response)) {
         return _errorResponseDecoder
-            .decode(response.data, spec.codec.decodeError)
+            .decode(response.data, codec.decodeError)
             .fold(
               onError: Result.error,
               onSuccess: (de) => Result.success(
-                Result.error(DomainException(response.statusCode ?? 0, de)),
+                ApiResponse(
+                  statusCode: response.statusCode ?? _defaultResponseCode,
+                  data: Result.error(de),
+                  headers: response.headers.map,
+                  requestSpec: spec,
+                ),
               ),
             );
       }
 
       return _successfulResponseDecoder
-          .decode(response.data, spec.codec.decodeResponse)
+          .decode(response.data, codec.decodeResponse)
           .fold(
             onError: Result.error,
-            onSuccess: (d) => Result.success(Result.success(d)),
+            onSuccess: (d) => Result.success(
+              ApiResponse(
+                statusCode: response.statusCode ?? _defaultResponseCode,
+                data: Result.success(d),
+                headers: response.headers.map,
+                requestSpec: spec,
+              ),
+            ),
           );
     } catch (e, st) {
       return _clientExceptionMapper
-          .mapException(
-            e,
-            stackTrace: st,
-            errorDecoder: spec.codec.decodeError,
-          )
+          .mapException(e, stackTrace: st, errorDecoder: codec.decodeError)
           .fold(
             onError: Result.error,
-            onSuccess: (d) => Result.success(Result.error(d)),
+            onSuccess: (d) => Result.success(
+              ApiResponse(
+                statusCode: d.statusCode,
+                data: Result.error(d.error),
+                headers: d.headers,
+                requestSpec: spec,
+              ),
+            ),
           );
     }
-  }
-
-  /// Fires a data request and returns the unwrapped [Response].
-  ///
-  /// Use this for endpoints where you need full control over the response —
-  /// for example, file downloads or streaming. No encoding or decoding is
-  /// performed.
-  @override
-  Future<Response<dynamic>> executeRaw(
-    String path, {
-    Object? data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) {
-    return _dio.request<dynamic>(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
-  }
-
-  /// Fires a request from a pre-built [RequestOptions] and returns the data
-  /// [Response]. This can be useful for many scenarios, for example,
-  /// retrying intercepted requests.
-  @override
-  Future<Response<dynamic>> executeRawWithOptions(
-    RequestOptions requestOptions,
-  ) {
-    return _dio.fetch<dynamic>(requestOptions);
-  }
-
-  /// Downloads a file from [urlPath] and saves it to [savePath].
-  @override
-  Future<Response<dynamic>> download(
-    String urlPath,
-    dynamic savePath, {
-    ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
-    CancelToken? cancelToken,
-    bool deleteOnError = true,
-    FileAccessMode fileAccessMode = FileAccessMode.write,
-    String lengthHeader = Headers.contentLengthHeader,
-    Object? data,
-    Options? options,
-  }) {
-    return _dio.download(
-      urlPath,
-      savePath,
-      onReceiveProgress: onReceiveProgress,
-      queryParameters: queryParameters,
-      cancelToken: cancelToken,
-      deleteOnError: deleteOnError,
-      fileAccessMode: fileAccessMode,
-      lengthHeader: lengthHeader,
-      data: data,
-      options: options,
-    );
-  }
-
-  /// Downloads a file from [uri] and saves it to [savePath].
-  @override
-  Future<Response<dynamic>> downloadUri(
-    Uri uri,
-    dynamic savePath, {
-    ProgressCallback? onReceiveProgress,
-    CancelToken? cancelToken,
-    bool deleteOnError = true,
-    FileAccessMode fileAccessMode = FileAccessMode.write,
-    String lengthHeader = Headers.contentLengthHeader,
-    Object? data,
-    Options? options,
-  }) {
-    return _dio.downloadUri(
-      uri,
-      savePath,
-      onReceiveProgress: onReceiveProgress,
-      cancelToken: cancelToken,
-      deleteOnError: deleteOnError,
-      fileAccessMode: fileAccessMode,
-      lengthHeader: lengthHeader,
-      data: data,
-      options: options,
-    );
   }
 
   /// Closes the underlying HTTP client and frees its resources.
   @override
   void close() => _dio.close();
+
+  CancelToken? _createCancelToken<Req>(
+    RequestSpec<Req> requestSpec,
+    RequestCanceller<Req>? requestCanceller,
+  ) {
+    if (requestCanceller == null) {
+      return null;
+    }
+
+    requestCanceller.bindRequestSpec(requestSpec);
+
+    final cancelToken = CancelToken();
+    final reason = requestCanceller.reason;
+    if (reason != null) {
+      cancelToken.cancel(reason);
+      return cancelToken;
+    } else {
+      unawaited(
+        requestCanceller.whenCancel.then(cancelToken.cancel),
+      );
+    }
+
+    return cancelToken;
+  }
 }

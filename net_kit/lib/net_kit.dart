@@ -12,5 +12,7 @@ export 'src/models/net_kit_exception.dart';
 export 'src/models/request_spec.dart';
 export 'src/models/result.dart';
 export 'src/net_kit.dart';
+export 'src/services/request_canceller.dart';
 export 'src/services/request_codec.dart';
 export 'src/services/response_classifier.dart';
+export 'src/types/api_call_result.dart';

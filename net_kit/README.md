@@ -96,80 +96,51 @@ Configure interceptors, headers, auth, retries, or logging on `dio` exactly as y
 ### 4. Create `NetKit`
 
 ```dart
+
 final netKit = NetKitImpl(dio);
 ```
 
 ### 5. Build a `RequestSpec`
 
-`RequestSpec<Req, Res, Err>` describes one request:
+`RequestSpec<Req>` describes a request, for example:
 
 ```dart
 
-final request = RequestSpec<Object?, User, ApiError>(
-  path: '/users/1',
-  method: HttpMethod.GET,
-  body: null,
-  codec: const UserCodec(),
-);
-```
-
-Example with query parameters and headers:
-
-```dart
-
-final request = RequestSpec<Map<String, dynamic>, User, ApiError>(
+final request = RequestSpec<Map<String, dynamic>>(
   path: '/users',
   method: HttpMethod.POST,
   body: const {'name': 'Ragib'},
-  codec: const UserCodec(),
   queryParameters: const {'include': 'profile'},
   headers: const {'x-request-id': 'abc-123'},
 );
 ```
 
-### 6. Execute the request
+### 6. Execute and handle the request
+
+`execute(...)` returns:
+
+- `Result.error(...)` contains infrastructure failures as `NetKitException`.
+  See `NetKitException` and its subtypes for more details.
+- `Result.success(ApiResponse(...))` contains either a decoded success payload
+  or a decoded domain error payload. See the `ApiResponse` type for more details.
+
+For example:
 
 ```dart
 void main() async {
-  final result = await netKit.execute(request);
-}
-```
+  // Execute
+  final result = await netKit.execute(spec: request, codec: const UserCodec());
 
-Arguments after `request` are:
-
-- `CancelToken? cancelToken`
-- `ProgressCallback? onSendProgress`
-- `ProgressCallback? onReceiveProgress`
-
-Example with a cancel token:
-
-```dart
-void main() async {
-  final cancelToken = CancelToken();
-  final result = await netKit.execute(request, cancelToken: cancelToken);
-}
-```
-
-### 7. Handle the result
-
-`execute(...)` now returns a nested result:
-
-- `Result.error(...)` contains infrastructure failures as `NetKitException`
-- `Result.success(Result.success(res))` contains a decoded success response
-- `Result.success(Result.error(DomainException<Err>))` contains a decoded domain error
-
-```dart
-void main() async {
+  // Handle response as needed
   result.fold(
     onSuccess: (response) {
-      response.fold(
-        onSuccess: (user) {
-          print(user.name);
-        },
-        onError: (domainError) {
-          print('API error: ${domainError.error.message}');
-        },
-      );
+      if (response.data.isSuccess) {
+        final user = response.data.resultOrNull!;
+        print(user.name);
+      } else {
+        final apiError = response.data.errorOrNull!;
+        print('API error: ${apiError.message}');
+      }
     },
     onError: (error) {
       switch (error) {
@@ -183,86 +154,6 @@ void main() async {
           print('Cancelled');
       }
     },
-  );
-}
-```
-
-## Error Model
-
-`NetKit.execute(...)` returns:
-
-```dart
-Result<NetKitException, Result<DomainException<Err>, Res>>
-```
-
-Possible outcomes:
-
-- `Result.error(NetKitException)`
-  The request failed before a domain result could be produced.
-- `Result.success(Result.success(res))`
-  The request completed successfully and `decodeResponse(...)` succeeded.
-- `Result.success(Result.error(DomainException<Err>))`
-  The server returned an application/domain error and `decodeError(...)` succeeded.
-
-Possible outer-error types:
-
-- `NetworkException`
-  Dio reported a transport-level failure such as timeout, certificate issue, or connection failure.
-- `ParseException`
-  Encoding or decoding failed.
-- `CancellationException`
-  The request was cancelled.
-- `UnexpectedException`
-  An uncategorized failure occurred.
-
-## Custom Error Classification
-
-By default, responses with `statusCode >= 400` are treated as errors.
-
-If your backend uses something else, provide a custom `ResponseClassifier` in
-the request spec.
-
-Example: an API that always returns `200` and uses `success: false` in the
-response body.
-
-```dart
-class ApiResponseClassifier implements ResponseClassifier {
-  const ApiResponseClassifier();
-
-  @override
-  bool isError(Response<dynamic> response) {
-    final body = response.data as Map<String, dynamic>?;
-    return body?['success'] != true;
-  }
-}
-
-final request = RequestSpec<Object?, User, ApiError>(
-  path: '/users/1',
-  method: HttpMethod.GET,
-  body: null,
-  codec: const UserCodec(),
-  responseClassifier: const ApiResponseClassifier(),
-);
-```
-
-## Raw Methods
-
-Use these when you want direct `dio` behavior without codec-based decoding:
-
-- `executeRaw`
-- `executeRawWithOptions`
-- `download`
-- `downloadUri`
-- `close`
-
-Example:
-
-```dart
-void main() async {
-  final response = await
-  netKit.executeRaw(
-    '/files/report.pdf'
-    , options: Options(method: 'GET'),
   );
 }
 ```

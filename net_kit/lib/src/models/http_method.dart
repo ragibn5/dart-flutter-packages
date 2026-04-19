@@ -10,4 +10,17 @@ enum HttpMethod {
   final String value;
 
   const HttpMethod(this.value);
+
+  static HttpMethod fromValue(String value) {
+    final normalizedValue = value.trim().toUpperCase();
+
+    return HttpMethod.values.firstWhere(
+      (method) => method.value == normalizedValue,
+      orElse: () => throw ArgumentError.value(
+        value,
+        'value',
+        'Unsupported HTTP method',
+      ),
+    );
+  }
 }

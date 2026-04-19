@@ -16,6 +16,8 @@ class MockRequestOptions extends Mock implements RequestOptions {}
 class MockNetKitResponseDecoder extends Mock implements NetKitResponseDecoder {}
 
 void main() {
+  const defaultResponseCode = 0;
+
   late MockRequestOptions mockRequestOptions;
   late MockNetKitResponseDecoder mockNetKitResponseDecoder;
 
@@ -49,7 +51,10 @@ void main() {
     mockRequestOptions = MockRequestOptions();
     mockNetKitResponseDecoder = MockNetKitResponseDecoder();
 
-    sut = ClientExceptionMapperImpl(mockNetKitResponseDecoder);
+    sut = ClientExceptionMapperImpl(
+      defaultResponseCode,
+      mockNetKitResponseDecoder,
+    );
 
     when(() => mockRequestOptions.preserveHeaderCase).thenReturn(true);
   });
@@ -338,6 +343,41 @@ void main() {
             .having((p) => p.error, 'error', decodedError)
             .having((p) => p.cause, 'cause', innerCause)
             .having((p) => p.stackTrace, 'stackTrace', st),
+      );
+      expect(result.isSuccess, isTrue);
+      expect(result.isError, isFalse);
+      expect(result.errorOrNull, isNull);
+    },
+  );
+
+  test(
+    'Type badResponse with null statusCode uses the configured default status code',
+    () {
+      const data = 'iamadata';
+      const decodedError = 'decoded-error';
+      final dioException = DioException(
+        requestOptions: mockRequestOptions,
+        response: Response(
+          requestOptions: mockRequestOptions,
+          data: data,
+        ),
+        type: DioExceptionType.badResponse,
+      );
+
+      when(
+        () => mockNetKitResponseDecoder.decode<String>(any<dynamic>(), any()),
+      ).thenReturn(Result.success(decodedError));
+
+      final result = sut.mapException(
+        dioException,
+        errorDecoder: (data) => decodedError,
+      );
+
+      expect(
+        result.resultOrNull,
+        isA<DomainException<String>>()
+            .having((p) => p.statusCode, 'statusCode', defaultResponseCode)
+            .having((p) => p.error, 'error', decodedError),
       );
       expect(result.isSuccess, isTrue);
       expect(result.isError, isFalse);

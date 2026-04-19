@@ -6,15 +6,19 @@ class DomainException<E> {
   /// The decoded, domain-typed error from the server.
   final E error;
 
+  /// The response headers.
+  final Map<String, List<String>> headers;
+
   /// The cause of the exception.
   final Object? cause;
 
   /// The stack trace of the exception.
   final StackTrace? stackTrace;
 
-  const DomainException(
-    this.statusCode,
-    this.error, {
+  const DomainException({
+    required this.statusCode,
+    required this.error,
+    required this.headers,
     this.cause,
     this.stackTrace,
   });
@@ -22,6 +26,6 @@ class DomainException<E> {
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'DomainException{statusCode: $statusCode, error: $error, cause: $cause, stackTrace: $stackTrace}';
+    return 'DomainException{statusCode: $statusCode, headers: $headers, error: $error, cause: $cause, stackTrace: $stackTrace}';
   }
 }

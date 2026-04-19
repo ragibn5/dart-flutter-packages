@@ -15,9 +15,13 @@ abstract interface class ClientExceptionMapper {
 }
 
 class ClientExceptionMapperImpl implements ClientExceptionMapper {
+  final int _defaultResponseCode;
   final NetKitResponseDecoder _errorResponseDecoder;
 
-  const ClientExceptionMapperImpl(this._errorResponseDecoder);
+  const ClientExceptionMapperImpl(
+    this._defaultResponseCode,
+    this._errorResponseDecoder,
+  );
 
   @override
   Result<NetKitException, DomainException<DomainErrorType>>
@@ -118,8 +122,9 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
           onError: Result.error,
           onSuccess: (e) => Result.success(
             DomainException(
-              response.statusCode ?? 0,
-              e,
+              statusCode: response.statusCode ?? _defaultResponseCode,
+              error: e,
+              headers: response.headers.map,
               cause: cause,
               stackTrace: stackTrace,
             ),
