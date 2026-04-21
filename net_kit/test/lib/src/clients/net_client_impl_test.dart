@@ -9,7 +9,7 @@ import 'package:net_kit/src/clients/net_client_impl.dart';
 import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/models/domain_exception.dart';
+import 'package:net_kit/src/models/decoded_error_response.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
@@ -557,7 +557,7 @@ void main() {
         requestOptions: RequestOptions(path: spec.path),
         type: DioExceptionType.badResponse,
       );
-      const mappedDomainException = DomainException<String>(
+      const errorResponse = DecodedErrorResponse<String>(
         statusCode: 409,
         error: 'decoded-error',
         headers: {
@@ -585,7 +585,7 @@ void main() {
           stackTrace: any(named: 'stackTrace'),
           errorDecoder: any(named: 'errorDecoder'),
         ),
-      ).thenReturn(Result.success(mappedDomainException));
+      ).thenReturn(Result.success(errorResponse));
 
       final result = await sut.execute(
         spec: spec,
@@ -596,13 +596,10 @@ void main() {
       expect(result.isSuccess, isTrue);
       expect(result.errorOrNull, isNull);
       expect(result.resultOrNull?.statusCode, 409);
-      expect(result.resultOrNull?.headers, mappedDomainException.headers);
+      expect(result.resultOrNull?.headers, errorResponse.headers);
       expect(result.resultOrNull?.requestSpec, same(spec));
       expect(result.resultOrNull?.data.isError, isTrue);
-      expect(
-        result.resultOrNull?.data.errorOrNull,
-        mappedDomainException.error,
-      );
+      expect(result.resultOrNull?.data.errorOrNull, errorResponse.error);
     },
   );
 }

@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/models/domain_exception.dart';
+import 'package:net_kit/src/models/decoded_error_response.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/client_exception_mapper.dart';
@@ -235,14 +235,11 @@ void main() {
 
       expect(
         result.errorOrNull,
-        isA<UnexpectedException>()
-            .having(
-              (p) => p.message,
-              'message',
-              'Expected a response to be non-null',
-            )
-            .having((p) => p.cause, 'cause', innerCause)
-            .having((p) => p.stackTrace, 'stackTrace', st),
+        isA<UnexpectedException>().having(
+          (p) => p.message,
+          'message',
+          'Expected a response to be non-null',
+        ),
       );
       expect(result.isError, isTrue);
       expect(result.isSuccess, isFalse);
@@ -309,7 +306,7 @@ void main() {
   );
 
   test(
-    'Type badResponse with decodable error returns DomainException',
+    'Type badResponse with decodable error returns DecodedErrorResponse',
     () {
       const data = 'iamadata';
       const decodedError = 'decoded-error';
@@ -338,11 +335,9 @@ void main() {
 
       expect(
         result.resultOrNull,
-        isA<DomainException<String>>()
+        isA<DecodedErrorResponse<String>>()
             .having((p) => p.statusCode, 'statusCode', 400)
-            .having((p) => p.error, 'error', decodedError)
-            .having((p) => p.cause, 'cause', innerCause)
-            .having((p) => p.stackTrace, 'stackTrace', st),
+            .having((p) => p.error, 'error', decodedError),
       );
       expect(result.isSuccess, isTrue);
       expect(result.isError, isFalse);
@@ -375,7 +370,7 @@ void main() {
 
       expect(
         result.resultOrNull,
-        isA<DomainException<String>>()
+        isA<DecodedErrorResponse<String>>()
             .having((p) => p.statusCode, 'statusCode', defaultResponseCode)
             .having((p) => p.error, 'error', decodedError),
       );

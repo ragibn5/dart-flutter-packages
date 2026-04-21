@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
-import 'package:net_kit/src/models/domain_exception.dart';
+import 'package:net_kit/src/models/decoded_error_response.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
 
 abstract interface class ClientExceptionMapper {
-  Result<NetKitException, DomainException<DomainErrorType>>
+  Result<NetKitException, DecodedErrorResponse<DomainErrorType>>
       mapException<DomainErrorType>(
     Object exception, {
     StackTrace? stackTrace,
@@ -24,7 +24,7 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
   );
 
   @override
-  Result<NetKitException, DomainException<DomainErrorType>>
+  Result<NetKitException, DecodedErrorResponse<DomainErrorType>>
       mapException<DomainErrorType>(
     Object exception, {
     StackTrace? stackTrace,
@@ -93,26 +93,18 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
       DioExceptionType.badResponse => _decodeErrorResponse(
           response: exception.response,
           errorResponseDecoder: errorDecoder,
-          cause: exception.error,
-          stackTrace: exception.stackTrace,
         ),
     };
   }
 
   /// Decodes an error response, wrapping decode failures.
-  Result<NetKitException, DomainException<E>> _decodeErrorResponse<E>({
+  Result<NetKitException, DecodedErrorResponse<E>> _decodeErrorResponse<E>({
     required Response<dynamic>? response,
     required E Function(dynamic) errorResponseDecoder,
-    required Object? cause,
-    required StackTrace? stackTrace,
   }) {
     if (response == null) {
       return Result.error(
-        UnexpectedException(
-          'Expected a response to be non-null',
-          cause: cause,
-          stackTrace: stackTrace,
-        ),
+        const UnexpectedException('Expected a response to be non-null'),
       );
     }
 
@@ -121,12 +113,10 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
         .fold(
           onError: Result.error,
           onSuccess: (e) => Result.success(
-            DomainException(
+            DecodedErrorResponse(
               statusCode: response.statusCode ?? _defaultResponseCode,
               error: e,
               headers: response.headers.map,
-              cause: cause,
-              stackTrace: stackTrace,
             ),
           ),
         );

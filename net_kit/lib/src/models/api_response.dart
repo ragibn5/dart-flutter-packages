@@ -14,12 +14,29 @@ class ApiResponse<Req, Res, Err> {
   /// The request spec that was sent to the server.
   final RequestSpec<Req> requestSpec;
 
+  /// Low-level transport/client cause associated with this response.
+  ///
+  /// This is typically only populated when a client exception produced a
+  /// decodable error response.
+  final Object? cause;
+
+  /// Stack trace associated with [cause].
+  ///
+  /// This is typically only populated when a client exception produced a
+  /// decodable error response.
+  final StackTrace? stackTrace;
+
   ApiResponse({
     required this.statusCode,
     required this.data,
     required this.headers,
     required this.requestSpec,
+    this.cause,
+    this.stackTrace,
   });
+
+  /// Whether transport diagnostics are available for this response.
+  bool get hasDiagnostics => cause != null || stackTrace != null;
 
   bool isError() => data.isError;
 
