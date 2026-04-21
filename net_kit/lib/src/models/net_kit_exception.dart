@@ -1,8 +1,8 @@
+import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/net_kit.dart';
 
-/// The base exception type that [NetKit.execute] returns when it
+/// The base exception type that [NetClient.execute] returns when it
 /// encounters any error.
 ///
 /// See its subtypes for more details.

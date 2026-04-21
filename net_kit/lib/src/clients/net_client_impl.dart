@@ -2,30 +2,23 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_kit/src/clients/net_client.dart';
+import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/models/api_response.dart';
+import 'package:net_kit/src/models/request_spec.dart';
+import 'package:net_kit/src/models/response_context.dart';
+import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/client_exception_mapper.dart';
 import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
+import 'package:net_kit/src/services/request_canceller.dart';
+import 'package:net_kit/src/services/request_codec.dart';
+import 'package:net_kit/src/services/response_classifier.dart';
+import 'package:net_kit/src/types/api_call_result.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
-abstract interface class NetKit {
-  /// Executes the given [spec] and returns a typed [Result].
-  Future<ApiCallResult<Req, Res, Err>> execute<Req, Res, Err>({
-    required RequestSpec<Req> spec,
-    required RequestCodec<Req, Res, Err> codec,
-    ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
-    ProgressListener? onSendProgress,
-    ProgressListener? onReceiveProgress,
-    RequestCanceller<Req>? requestCanceller,
-  });
-
-  /// Closes the underlying HTTP client and frees its resources.
-  void close();
-}
-
 /// A thin, generic HTTP executor for typed requests and responses.
-class NetKitImpl implements NetKit {
+class NetClientImpl implements NetClient {
   static const _defaultResponseCode = 0;
   static const _defaultRequestEncoder = DefaultNetKitRequestEncoder();
   static const _defaultErrorResponseDecoder =
@@ -45,7 +38,7 @@ class NetKitImpl implements NetKit {
 
   final ClientExceptionMapper _clientExceptionMapper;
 
-  NetKitImpl(Dio dio)
+  NetClientImpl(Dio dio)
       : this._(
           dio,
           _defaultRequestEncoder,
@@ -55,7 +48,7 @@ class NetKitImpl implements NetKit {
         );
 
   @visibleForTesting
-  NetKitImpl.test(
+  NetClientImpl.test(
     Dio dio,
     NetKitRequestEncoder requestEncoder,
     NetKitResponseDecoder errorResponseDecoder,
@@ -69,7 +62,7 @@ class NetKitImpl implements NetKit {
           clientExceptionMapper,
         );
 
-  NetKitImpl._(
+  NetClientImpl._(
     this._dio,
     this._requestEncoder,
     this._errorResponseDecoder,

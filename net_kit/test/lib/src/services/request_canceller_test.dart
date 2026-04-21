@@ -1,6 +1,8 @@
 // ignore_for_file: cascade_invocations
 
-import 'package:net_kit/net_kit.dart';
+import 'package:net_kit/src/enums/http_method.dart';
+import 'package:net_kit/src/models/request_spec.dart';
+import 'package:net_kit/src/services/request_canceller.dart';
 import 'package:test/test.dart';
 
 void main() {

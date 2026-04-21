@@ -72,7 +72,7 @@ Future<void> main() async {
     ),
   );
 
-  final netKit = NetKitImpl(dio);
+  final netKit = NetClientImpl(dio);
 
   final request = RequestSpec<Object?>(
     path: '/users/1',

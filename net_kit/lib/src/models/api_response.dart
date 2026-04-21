@@ -1,4 +1,5 @@
-import 'package:net_kit/net_kit.dart';
+import 'package:net_kit/src/models/request_spec.dart';
+import 'package:net_kit/src/models/result.dart';
 
 class ApiResponse<Req, Res, Err> {
   /// The status code from the server side.

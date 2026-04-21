@@ -82,7 +82,7 @@ class UserCodec implements RequestCodec<Object?, User, ApiError> {
 
 ```dart
 import 'package:dio/dio.dart';
-import 'package:net_kit/net_kit.dart';
+import 'package:net_kit/net_client_impl.dart';
 
 final dio = Dio(
   BaseOptions(

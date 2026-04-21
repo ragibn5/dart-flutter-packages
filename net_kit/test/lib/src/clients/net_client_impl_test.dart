@@ -4,6 +4,8 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/src/clients/net_client.dart';
+import 'package:net_kit/src/clients/net_client_impl.dart';
 import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
@@ -12,7 +14,6 @@ import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/net_kit.dart';
 import 'package:net_kit/src/services/client_exception_mapper.dart';
 import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
@@ -50,7 +51,7 @@ void main() {
   late MockResponseClassifier mockResponseClassifier;
   late RequestSpec<String> spec;
 
-  late NetKit sut;
+  late NetClient sut;
 
   setUpAll(() {
     registerFallbackValue(FakeOptions());
@@ -75,7 +76,7 @@ void main() {
       headers: const {'authorization': 'Bearer token'},
     );
 
-    sut = NetKitImpl.test(
+    sut = NetClientImpl.test(
       mockDio,
       mockRequestEncoder,
       mockErrorResponseDecoder,
