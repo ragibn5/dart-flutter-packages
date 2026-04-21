@@ -4,15 +4,7 @@ import 'package:net_kit/src/models/decoded_error_response.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
-
-abstract interface class ClientExceptionMapper {
-  Result<NetKitException, DecodedErrorResponse<DomainErrorType>>
-      mapException<DomainErrorType>(
-    Object exception, {
-    StackTrace? stackTrace,
-    required DomainErrorType Function(dynamic) errorDecoder,
-  });
-}
+import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 
 class ClientExceptionMapperImpl implements ClientExceptionMapper {
   final int _defaultResponseCode;

@@ -8,12 +8,14 @@ import 'package:net_kit/src/models/api_response.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/client_exception_mapper.dart';
+import 'package:net_kit/src/services/cancellation/request_canceller.dart';
 import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
-import 'package:net_kit/src/services/request_canceller.dart';
-import 'package:net_kit/src/services/request_codec.dart';
-import 'package:net_kit/src/services/response_classifier.dart';
+import 'package:net_kit/src/services/codec/request_codec.dart';
+import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
+import 'package:net_kit/src/services/mappers/client_exception_mapper_impl.dart';
+import 'package:net_kit/src/services/mappers/response_classifier.dart';
+import 'package:net_kit/src/services/mappers/response_classifier_impl.dart';
 import 'package:net_kit/src/types/api_call_result.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 

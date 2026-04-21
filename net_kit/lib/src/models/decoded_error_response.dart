@@ -18,6 +18,6 @@ class DecodedErrorResponse<E> {
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'DomainException{statusCode: $statusCode, headers: $headers, error: $error}';
+    return 'DecodedErrorResponse{statusCode: $statusCode, headers: $headers, error: $error}';
   }
 }

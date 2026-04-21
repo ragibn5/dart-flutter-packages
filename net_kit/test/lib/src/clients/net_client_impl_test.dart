@@ -14,12 +14,12 @@ import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/client_exception_mapper.dart';
+import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
-import 'package:net_kit/src/services/request_canceller.dart';
-import 'package:net_kit/src/services/request_codec.dart';
-import 'package:net_kit/src/services/response_classifier.dart';
+import 'package:net_kit/src/services/cancellation/request_canceller.dart';
+import 'package:net_kit/src/services/codec/request_codec.dart';
+import 'package:net_kit/src/services/mappers/response_classifier.dart';
 import 'package:test/test.dart';
 
 class MockDio extends Mock implements Dio {}

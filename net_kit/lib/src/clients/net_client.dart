@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/request_canceller.dart';
-import 'package:net_kit/src/services/request_codec.dart';
-import 'package:net_kit/src/services/response_classifier.dart';
+import 'package:net_kit/src/services/cancellation/request_canceller.dart';
+import 'package:net_kit/src/services/codec/request_codec.dart';
+import 'package:net_kit/src/services/mappers/response_classifier.dart';
+import 'package:net_kit/src/services/mappers/response_classifier_impl.dart';
 import 'package:net_kit/src/types/api_call_result.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
