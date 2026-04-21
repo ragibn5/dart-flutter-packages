@@ -108,10 +108,10 @@ class NetClientImpl implements NetClient {
             .decode(response.data, codec.decodeError)
             .fold(
               onError: Result.error,
-              onSuccess: (de) => Result.success(
+              onSuccess: (e) => Result.success(
                 ApiResponse(
                   statusCode: responseContext.statusCode,
-                  data: Result.error(de),
+                  data: Result.error(e),
                   headers: responseContext.responseHeaders,
                   requestSpec: spec,
                 ),
@@ -123,10 +123,10 @@ class NetClientImpl implements NetClient {
           .decode(response.data, codec.decodeResponse)
           .fold(
             onError: Result.error,
-            onSuccess: (d) => Result.success(
+            onSuccess: (r) => Result.success(
               ApiResponse(
                 statusCode: responseContext.statusCode,
-                data: Result.success(d),
+                data: Result.success(r),
                 headers: responseContext.responseHeaders,
                 requestSpec: spec,
               ),
@@ -137,11 +137,11 @@ class NetClientImpl implements NetClient {
           .mapException(e, stackTrace: st, errorDecoder: codec.decodeError)
           .fold(
             onError: Result.error,
-            onSuccess: (d) => Result.success(
+            onSuccess: (e) => Result.success(
               ApiResponse(
-                statusCode: d.statusCode,
-                data: Result.error(d.error),
-                headers: d.headers,
+                statusCode: e.statusCode,
+                data: Result.error(e.error),
+                headers: e.headers,
                 requestSpec: spec,
               ),
             ),
