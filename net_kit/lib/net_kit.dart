@@ -10,6 +10,7 @@ export 'src/enums/parse_target_type.dart';
 export 'src/models/domain_exception.dart';
 export 'src/models/net_kit_exception.dart';
 export 'src/models/request_spec.dart';
+export 'src/models/response_context.dart';
 export 'src/models/result.dart';
 export 'src/net_kit.dart';
 export 'src/services/request_canceller.dart';

@@ -6,7 +6,6 @@ abstract interface class RequestCodec<Req, Res, Err> {
   ///
   /// Common implementations:
   /// - JSON: `return body.toJson();`
-  /// - Form data: `return FormData.fromMap(body.toMap());`
   /// - Raw string: `return body.toString();`
   ///
   /// This method is only called when [body] is non-null.

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:net_kit/src/models/api_response.dart';
@@ -103,16 +104,21 @@ class NetKitImpl implements NetKit {
         onReceiveProgress: onReceiveProgress,
       );
 
-      if (responseClassifier.isError(response)) {
+      final responseContext = ResponseContext(
+        statusCode: response.statusCode ?? _defaultResponseCode,
+        responseHeaders: response.headers.map,
+        responseBody: response.data,
+      );
+      if (responseClassifier.isError(responseContext)) {
         return _errorResponseDecoder
             .decode(response.data, codec.decodeError)
             .fold(
               onError: Result.error,
               onSuccess: (de) => Result.success(
                 ApiResponse(
-                  statusCode: response.statusCode ?? _defaultResponseCode,
+                  statusCode: responseContext.statusCode,
                   data: Result.error(de),
-                  headers: response.headers.map,
+                  headers: responseContext.responseHeaders,
                   requestSpec: spec,
                 ),
               ),
@@ -125,9 +131,9 @@ class NetKitImpl implements NetKit {
             onError: Result.error,
             onSuccess: (d) => Result.success(
               ApiResponse(
-                statusCode: response.statusCode ?? _defaultResponseCode,
+                statusCode: responseContext.statusCode,
                 data: Result.success(d),
-                headers: response.headers.map,
+                headers: responseContext.responseHeaders,
                 requestSpec: spec,
               ),
             ),

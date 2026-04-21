@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:net_kit/net_kit.dart';
 
 class User {

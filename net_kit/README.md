@@ -81,6 +81,8 @@ class UserCodec implements RequestCodec<Object?, User, ApiError> {
 ### 3. Create and configure `Dio`
 
 ```dart
+import 'package:dio/dio.dart';
+import 'package:net_kit/net_kit.dart';
 
 final dio = Dio(
   BaseOptions(
@@ -96,7 +98,6 @@ Configure interceptors, headers, auth, retries, or logging on `dio` exactly as y
 ### 4. Create `NetKit`
 
 ```dart
-
 final netKit = NetKitImpl(dio);
 ```
 
@@ -105,7 +106,6 @@ final netKit = NetKitImpl(dio);
 `RequestSpec<Req>` describes a request, for example:
 
 ```dart
-
 final request = RequestSpec<Map<String, dynamic>>(
   path: '/users',
   method: HttpMethod.POST,

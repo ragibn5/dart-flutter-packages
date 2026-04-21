@@ -4,12 +4,13 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/models/domain_exception.dart';
-import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
+import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/net_kit.dart';
 import 'package:net_kit/src/services/client_exception_mapper.dart';
@@ -37,6 +38,8 @@ class FakeRequestOptions extends Fake implements RequestOptions {}
 
 class FakeOptions extends Fake implements Options {}
 
+class FakeResponseContext extends Fake implements ResponseContext {}
+
 void main() {
   late MockDio mockDio;
   late MockRequestEncoder mockRequestEncoder;
@@ -52,6 +55,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(FakeOptions());
     registerFallbackValue(FakeRequestOptions());
+    registerFallbackValue(FakeResponseContext());
   });
 
   setUp(() {
@@ -141,7 +145,7 @@ void main() {
           onReceiveProgress: null,
         ),
       ).thenAnswer((_) async => response);
-      when(() => mockResponseClassifier.isError(response)).thenReturn(false);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
         () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
       ).thenReturn(Result.success(decodedResponse));
@@ -206,7 +210,7 @@ void main() {
 
         return response;
       });
-      when(() => mockResponseClassifier.isError(response)).thenReturn(false);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
         () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
       ).thenReturn(Result.success(decodedResponse));
@@ -267,7 +271,7 @@ void main() {
 
         return response;
       });
-      when(() => mockResponseClassifier.isError(response)).thenReturn(false);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
         () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
       ).thenReturn(Result.success(decodedResponse));
@@ -318,7 +322,7 @@ void main() {
           onReceiveProgress: any(named: 'onReceiveProgress'),
         ),
       ).thenAnswer((_) async => response);
-      when(() => mockResponseClassifier.isError(response)).thenReturn(true);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(true);
       when(
         () => mockErrorResponseDecoder.decode<String>(responseData, any()),
       ).thenReturn(Result.error(parseException));
@@ -364,7 +368,7 @@ void main() {
           onReceiveProgress: null,
         ),
       ).thenAnswer((_) async => response);
-      when(() => mockResponseClassifier.isError(response)).thenReturn(true);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(true);
       when(
         () => mockErrorResponseDecoder.decode<String>(responseData, any()),
       ).thenReturn(Result.success(decodedError));
@@ -414,7 +418,7 @@ void main() {
           onReceiveProgress: any(named: 'onReceiveProgress'),
         ),
       ).thenAnswer((_) async => response);
-      when(() => mockResponseClassifier.isError(response)).thenReturn(false);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
         () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
       ).thenReturn(Result.error(parseException));
@@ -464,7 +468,7 @@ void main() {
           onReceiveProgress: onReceiveProgress,
         ),
       ).thenAnswer((_) async => response);
-      when(() => mockResponseClassifier.isError(response)).thenReturn(false);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
         () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
       ).thenReturn(Result.success(decodedResponse));

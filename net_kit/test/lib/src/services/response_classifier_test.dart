@@ -1,32 +1,35 @@
-import 'package:dio/dio.dart';
+import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/services/response_classifier.dart';
 import 'package:test/test.dart';
 
 void main() {
   const sut = DefaultResponseClassifier();
-  final requestOptions = RequestOptions();
 
   test('Status code below 400 returns false', () {
-    final response = Response<dynamic>(
-      requestOptions: requestOptions,
+    final response = ResponseContext(
       statusCode: 399,
+      responseHeaders: {},
+      responseBody: null,
     );
 
     expect(sut.isError(response), isFalse);
   });
 
   test('Status code 400 or above returns true', () {
-    final response = Response<dynamic>(
-      requestOptions: requestOptions,
+    final response = ResponseContext(
       statusCode: 400,
+      responseHeaders: {},
+      responseBody: null,
     );
 
     expect(sut.isError(response), isTrue);
   });
 
-  test('Null status code returns false', () {
-    final response = Response<dynamic>(
-      requestOptions: requestOptions,
+  test('Status code 0 returns false', () {
+    final response = ResponseContext(
+      statusCode: 0,
+      responseHeaders: {},
+      responseBody: null,
     );
 
     expect(sut.isError(response), isFalse);
