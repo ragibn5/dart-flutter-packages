@@ -100,7 +100,8 @@ class NetClientImpl implements NetClient {
       final responseContext = ResponseContext(
         statusCode: response.statusCode ?? _defaultResponseCode,
         responseHeaders: response.headers.map,
-        responseBody: response.data,
+        rawResponseBody: response.data,
+        requestMetadata: spec,
       );
       if (responseClassifier.isError(responseContext)) {
         return _errorResponseDecoder

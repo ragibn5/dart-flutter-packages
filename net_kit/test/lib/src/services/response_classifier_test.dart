@@ -1,15 +1,24 @@
+import 'package:net_kit/src/enums/http_method.dart';
+import 'package:net_kit/src/models/request_metadata.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/services/response_classifier.dart';
 import 'package:test/test.dart';
 
 void main() {
   const sut = DefaultResponseClassifier();
+  final requestMetadata = RequestMetadata(
+    path: '/users',
+    method: HttpMethod.GET,
+    queryParameters: const {},
+    headers: const {},
+  );
 
   test('Status code below 400 returns false', () {
     final response = ResponseContext(
       statusCode: 399,
       responseHeaders: {},
-      responseBody: null,
+      rawResponseBody: null,
+      requestMetadata: requestMetadata,
     );
 
     expect(sut.isError(response), isFalse);
@@ -19,7 +28,8 @@ void main() {
     final response = ResponseContext(
       statusCode: 400,
       responseHeaders: {},
-      responseBody: null,
+      rawResponseBody: null,
+      requestMetadata: requestMetadata,
     );
 
     expect(sut.isError(response), isTrue);
@@ -29,7 +39,8 @@ void main() {
     final response = ResponseContext(
       statusCode: 0,
       responseHeaders: {},
-      responseBody: null,
+      rawResponseBody: null,
+      requestMetadata: requestMetadata,
     );
 
     expect(sut.isError(response), isFalse);
