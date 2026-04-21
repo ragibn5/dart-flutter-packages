@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/models/domain_exception.dart';
-import 'package:net_kit/src/models/http_method.dart';
+import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/result.dart';

@@ -1,4 +1,4 @@
-import 'package:net_kit/src/models/http_method.dart';
+import 'package:net_kit/src/enums/http_method.dart';
 import 'package:test/test.dart';
 
 void main() {

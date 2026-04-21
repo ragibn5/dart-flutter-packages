@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_init_to_null
 
-import 'package:net_kit/src/models/http_method.dart';
+import 'package:net_kit/src/enums/http_method.dart';
 
 class RequestSpec<RequestBodyType> {
   /// The endpoint path, relative to the base URL.
