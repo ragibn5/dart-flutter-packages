@@ -9,8 +9,8 @@ import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/cancellation/request_canceller.dart';
-import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
-import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
+import 'package:net_kit/src/services/codec/net_client_request_encoder.dart';
+import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
 import 'package:net_kit/src/services/codec/request_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper_impl.dart';
@@ -20,13 +20,13 @@ import 'package:net_kit/src/types/api_call_result.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
 /// A thin, generic HTTP executor for typed requests and responses.
-class NetClientImpl implements NetClient {
+class DioNetClient implements NetClient {
   static const _defaultResponseCode = 0;
-  static const _defaultRequestEncoder = DefaultNetKitRequestEncoder();
+  static const _defaultRequestEncoder = DefaultNetClientRequestEncoder();
   static const _defaultErrorResponseDecoder =
-      DefaultNetKitResponseDecoder(ParseTargetType.ERROR_DECODE);
+      DefaultNetClientResponseDecoder(ParseTargetType.ERROR_DECODE);
   static const _defaultSuccessfulResponseDecoder =
-      DefaultNetKitResponseDecoder(ParseTargetType.RESPONSE_DECODE);
+      DefaultNetClientResponseDecoder(ParseTargetType.RESPONSE_DECODE);
   static const _defaultClientExceptionMapper = ClientExceptionMapperImpl(
     _defaultResponseCode,
     _defaultErrorResponseDecoder,
@@ -34,13 +34,13 @@ class NetClientImpl implements NetClient {
 
   final Dio _dio;
 
-  final NetKitRequestEncoder _requestEncoder;
-  final NetKitResponseDecoder _errorResponseDecoder;
-  final NetKitResponseDecoder _successfulResponseDecoder;
+  final NetClientRequestEncoder _requestEncoder;
+  final NetClientResponseDecoder _errorResponseDecoder;
+  final NetClientResponseDecoder _successfulResponseDecoder;
 
   final ClientExceptionMapper _clientExceptionMapper;
 
-  NetClientImpl(Dio dio)
+  DioNetClient(Dio dio)
       : this._(
           dio,
           _defaultRequestEncoder,
@@ -50,11 +50,11 @@ class NetClientImpl implements NetClient {
         );
 
   @visibleForTesting
-  NetClientImpl.test(
+  DioNetClient.test(
     Dio dio,
-    NetKitRequestEncoder requestEncoder,
-    NetKitResponseDecoder errorResponseDecoder,
-    NetKitResponseDecoder successfulResponseDecoder,
+    NetClientRequestEncoder requestEncoder,
+    NetClientResponseDecoder errorResponseDecoder,
+    NetClientResponseDecoder successfulResponseDecoder,
     ClientExceptionMapper clientExceptionMapper,
   ) : this._(
           dio,
@@ -64,7 +64,7 @@ class NetClientImpl implements NetClient {
           clientExceptionMapper,
         );
 
-  NetClientImpl._(
+  DioNetClient._(
     this._dio,
     this._requestEncoder,
     this._errorResponseDecoder,

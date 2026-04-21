@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:net_kit/net_kit.dart';
 
 class User {
@@ -72,7 +71,7 @@ Future<void> main() async {
     ),
   );
 
-  final netKit = NetClientImpl(dio);
+  final client = DioNetClient(dio);
 
   final request = RequestSpec<Object?>(
     path: '/users/1',
@@ -80,7 +79,7 @@ Future<void> main() async {
     body: null,
   );
 
-  final result = await netKit.execute(spec: request, codec: const UserCodec());
+  final result = await client.execute(spec: request, codec: const UserCodec());
 
   result.fold(
     onSuccess: (response) {

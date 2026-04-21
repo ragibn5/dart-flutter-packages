@@ -1,13 +1,13 @@
 import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/models/net_kit_exception.dart';
-import 'package:net_kit/src/services/codec/net_kit_request_encoder.dart';
+import 'package:net_kit/src/models/net_client_exception.dart';
+import 'package:net_kit/src/services/codec/net_client_request_encoder.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late NetKitRequestEncoder sut;
+  late NetClientRequestEncoder sut;
 
   setUp(() {
-    sut = const DefaultNetKitRequestEncoder();
+    sut = const DefaultNetClientRequestEncoder();
   });
 
   test('If data is null, returns Result.success() with null data', () {

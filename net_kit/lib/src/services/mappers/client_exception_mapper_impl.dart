@@ -1,14 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
-import 'package:net_kit/src/models/decoded_error_response.dart';
-import 'package:net_kit/src/models/net_kit_exception.dart';
+import 'package:net_kit/src/models/error_response_data.dart';
+import 'package:net_kit/src/models/net_client_exception.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
+import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 
 class ClientExceptionMapperImpl implements ClientExceptionMapper {
   final int _defaultResponseCode;
-  final NetKitResponseDecoder _errorResponseDecoder;
+  final NetClientResponseDecoder _errorResponseDecoder;
 
   const ClientExceptionMapperImpl(
     this._defaultResponseCode,
@@ -16,7 +16,7 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
   );
 
   @override
-  Result<NetKitException, DecodedErrorResponse<DomainErrorType>>
+  Result<NetClientException, ErrorResponseData<DomainErrorType>>
       mapException<DomainErrorType>(
     Object exception, {
     StackTrace? stackTrace,
@@ -90,7 +90,7 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
   }
 
   /// Decodes an error response, wrapping decode failures.
-  Result<NetKitException, DecodedErrorResponse<E>> _decodeErrorResponse<E>({
+  Result<NetClientException, ErrorResponseData<E>> _decodeErrorResponse<E>({
     required Response<dynamic>? response,
     required E Function(dynamic) errorResponseDecoder,
   }) {
@@ -105,7 +105,7 @@ class ClientExceptionMapperImpl implements ClientExceptionMapper {
         .fold(
           onError: Result.error,
           onSuccess: (e) => Result.success(
-            DecodedErrorResponse(
+            ErrorResponseData(
               statusCode: response.statusCode ?? _defaultResponseCode,
               error: e,
               headers: response.headers.map,

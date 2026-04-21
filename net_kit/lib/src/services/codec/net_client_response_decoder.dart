@@ -1,15 +1,15 @@
 import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/models/net_kit_exception.dart';
+import 'package:net_kit/src/models/net_client_exception.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/codec/net_kit_decoder.dart';
+import 'package:net_kit/src/services/codec/net_client_data_decoder.dart';
 
-abstract interface class NetKitResponseDecoder
-    implements NetKitDecoder<dynamic> {}
+abstract interface class NetClientResponseDecoder
+    implements NetClientDataDecoder<dynamic> {}
 
-class DefaultNetKitResponseDecoder implements NetKitResponseDecoder {
+class DefaultNetClientResponseDecoder implements NetClientResponseDecoder {
   final ParseTargetType targetType;
 
-  const DefaultNetKitResponseDecoder(this.targetType);
+  const DefaultNetClientResponseDecoder(this.targetType);
 
   @override
   DecodeResult<D> decode<D>(dynamic data, D Function(dynamic) decoder) {

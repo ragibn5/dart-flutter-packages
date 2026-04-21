@@ -53,7 +53,7 @@ If you already have these, you may skip this step.
 
 ### 2. Implement a `RequestCodec`
 
-`RequestCodec<Req, Res, Err>` tells `NetKit` how to:
+`RequestCodec<Req, Res, Err>` tells the client how to:
 
 - Encode the request body
 - Decode the success body into `Res`
@@ -82,7 +82,7 @@ class UserCodec implements RequestCodec<Object?, User, ApiError> {
 
 ```dart
 import 'package:dio/dio.dart';
-import 'package:net_kit/net_client_impl.dart';
+import 'package:net_kit/dio_net_client.dart';
 
 final dio = Dio(
   BaseOptions(
@@ -95,10 +95,11 @@ final dio = Dio(
 
 Configure interceptors, headers, auth, retries, or logging on `dio` exactly as you normally would.
 
-### 4. Create `NetKit`
+### 4. Create the Client
 
 ```dart
-final netKit = NetKitImpl(dio);
+
+final client = DioNetClient(dio);
 ```
 
 ### 5. Build a `RequestSpec`
@@ -106,6 +107,7 @@ final netKit = NetKitImpl(dio);
 `RequestSpec<Req>` describes a request, for example:
 
 ```dart
+
 final request = RequestSpec<Map<String, dynamic>>(
   path: '/users',
   method: HttpMethod.POST,
@@ -119,8 +121,8 @@ final request = RequestSpec<Map<String, dynamic>>(
 
 `execute(...)` returns:
 
-- `Result.error(...)` contains infrastructure failures as `NetKitException`.
-  See `NetKitException` and its subtypes for more details.
+- `Result.error(...)` contains infrastructure failures as `NetClientException`.
+  See `NetClientException` and its subtypes for more details.
 - `Result.success(ApiResponse(...))` contains either a decoded success payload
   or a decoded domain error payload. See the `ApiResponse` type for more details.
 
@@ -129,7 +131,7 @@ For example:
 ```dart
 void main() async {
   // Execute
-  final result = await netKit.execute(spec: request, codec: const UserCodec());
+  final result = await client.execute(spec: request, codec: const UserCodec());
 
   // Handle response as needed
   result.fold(

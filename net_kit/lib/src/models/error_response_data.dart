@@ -1,5 +1,5 @@
 /// A failure indicating an domain specific error returned by the server.
-class DecodedErrorResponse<E> {
+class ErrorResponseData<E> {
   /// The HTTP status code from the server.
   final int statusCode;
 
@@ -9,7 +9,7 @@ class DecodedErrorResponse<E> {
   /// The response headers.
   final Map<String, List<String>> headers;
 
-  const DecodedErrorResponse({
+  const ErrorResponseData({
     required this.statusCode,
     required this.error,
     required this.headers,
@@ -18,6 +18,6 @@ class DecodedErrorResponse<E> {
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'DecodedErrorResponse{statusCode: $statusCode, headers: $headers, error: $error}';
+    return 'ErrorResponseData{statusCode: $statusCode, headers: $headers, error: $error}';
   }
 }

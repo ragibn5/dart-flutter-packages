@@ -4,23 +4,24 @@ import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/models/decoded_error_response.dart';
-import 'package:net_kit/src/models/net_kit_exception.dart';
+import 'package:net_kit/src/models/error_response_data.dart';
+import 'package:net_kit/src/models/net_client_exception.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/codec/net_kit_response_decoder.dart';
+import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper_impl.dart';
 import 'package:test/test.dart';
 
 class MockRequestOptions extends Mock implements RequestOptions {}
 
-class MockNetKitResponseDecoder extends Mock implements NetKitResponseDecoder {}
+class MockNetClientResponseDecoder extends Mock
+    implements NetClientResponseDecoder {}
 
 void main() {
   const defaultResponseCode = 0;
 
   late MockRequestOptions mockRequestOptions;
-  late MockNetKitResponseDecoder mockNetKitResponseDecoder;
+  late MockNetClientResponseDecoder mockNetClientResponseDecoder;
 
   late ClientExceptionMapper sut;
 
@@ -50,11 +51,11 @@ void main() {
 
   setUp(() {
     mockRequestOptions = MockRequestOptions();
-    mockNetKitResponseDecoder = MockNetKitResponseDecoder();
+    mockNetClientResponseDecoder = MockNetClientResponseDecoder();
 
     sut = ClientExceptionMapperImpl(
       defaultResponseCode,
-      mockNetKitResponseDecoder,
+      mockNetClientResponseDecoder,
     );
 
     when(() => mockRequestOptions.preserveHeaderCase).thenReturn(true);
@@ -263,7 +264,7 @@ void main() {
       );
 
       when(
-        () => mockNetKitResponseDecoder.decode<Never>(any<dynamic>(), any()),
+        () => mockNetClientResponseDecoder.decode<Never>(any<dynamic>(), any()),
       ).thenReturn(Result.error(parseException));
 
       final result = sut.mapException(
@@ -292,7 +293,7 @@ void main() {
       );
 
       when(
-        () => mockNetKitResponseDecoder.decode<String>(data, decoder),
+        () => mockNetClientResponseDecoder.decode<String>(data, decoder),
       ).thenReturn(Result.success(decodedError));
 
       sut.mapException(
@@ -301,7 +302,7 @@ void main() {
       );
 
       verify(
-        () => mockNetKitResponseDecoder.decode<String>(data, decoder),
+        () => mockNetClientResponseDecoder.decode<String>(data, decoder),
       ).called(1);
     },
   );
@@ -326,7 +327,8 @@ void main() {
       );
 
       when(
-        () => mockNetKitResponseDecoder.decode<String>(any<dynamic>(), any()),
+        () =>
+            mockNetClientResponseDecoder.decode<String>(any<dynamic>(), any()),
       ).thenReturn(Result.success(decodedError));
 
       final result = sut.mapException(
@@ -336,7 +338,7 @@ void main() {
 
       expect(
         result.resultOrNull,
-        isA<DecodedErrorResponse<String>>()
+        isA<ErrorResponseData<String>>()
             .having((p) => p.statusCode, 'statusCode', 400)
             .having((p) => p.error, 'error', decodedError),
       );
@@ -361,7 +363,8 @@ void main() {
       );
 
       when(
-        () => mockNetKitResponseDecoder.decode<String>(any<dynamic>(), any()),
+        () =>
+            mockNetClientResponseDecoder.decode<String>(any<dynamic>(), any()),
       ).thenReturn(Result.success(decodedError));
 
       final result = sut.mapException(
@@ -371,7 +374,7 @@ void main() {
 
       expect(
         result.resultOrNull,
-        isA<DecodedErrorResponse<String>>()
+        isA<ErrorResponseData<String>>()
             .having((p) => p.statusCode, 'statusCode', defaultResponseCode)
             .having((p) => p.error, 'error', decodedError),
       );

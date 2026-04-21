@@ -6,18 +6,18 @@ import 'package:net_kit/src/enums/parse_target_type.dart';
 /// encounters any error.
 ///
 /// See its subtypes for more details.
-sealed class NetKitException {
+sealed class NetClientException {
   /// The cause of the exception.
   final Object? cause;
 
   /// The stack trace of the exception.
   final StackTrace? stackTrace;
 
-  const NetKitException(this.cause, this.stackTrace);
+  const NetClientException(this.cause, this.stackTrace);
 }
 
 /// A network failure.
-final class NetworkException extends NetKitException {
+final class NetworkException extends NetClientException {
   /// The type of network failure.
   final NetworkExceptionType type;
 
@@ -35,7 +35,7 @@ final class NetworkException extends NetKitException {
 }
 
 /// A failure indicating encode/decode data (request, response, error response etc.).
-final class ParseException extends NetKitException {
+final class ParseException extends NetClientException {
   /// The type of target that we were failed to encode/decode.
   final ParseTargetType targetType;
 
@@ -57,7 +57,7 @@ final class ParseException extends NetKitException {
 }
 
 /// A failure indicating explicit request cancellation.
-final class CancellationException extends NetKitException {
+final class CancellationException extends NetClientException {
   const CancellationException({
     Object? cause,
     StackTrace? stackTrace,
@@ -71,7 +71,7 @@ final class CancellationException extends NetKitException {
 }
 
 /// Generic failure indicating an unexpected exception from the client.
-final class UnexpectedException extends NetKitException {
+final class UnexpectedException extends NetClientException {
   final String message;
 
   const UnexpectedException(

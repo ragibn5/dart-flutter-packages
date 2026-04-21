@@ -1,13 +1,13 @@
 import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/models/net_kit_exception.dart';
+import 'package:net_kit/src/models/net_client_exception.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/codec/net_kit_encoder.dart';
+import 'package:net_kit/src/services/codec/net_client_data_encoder.dart';
 
-abstract interface class NetKitRequestEncoder
-    implements NetKitEncoder<dynamic> {}
+abstract interface class NetClientRequestEncoder
+    implements NetClientDataEncoder<dynamic> {}
 
-class DefaultNetKitRequestEncoder implements NetKitRequestEncoder {
-  const DefaultNetKitRequestEncoder();
+class DefaultNetClientRequestEncoder implements NetClientRequestEncoder {
+  const DefaultNetClientRequestEncoder();
 
   @override
   EncodeResult encode<D>(D data, dynamic Function(D) encoder) {
