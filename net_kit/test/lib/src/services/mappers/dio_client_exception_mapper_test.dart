@@ -9,7 +9,7 @@ import 'package:net_kit/src/models/net_client_exception.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
-import 'package:net_kit/src/services/mappers/client_exception_mapper_impl.dart';
+import 'package:net_kit/src/services/mappers/dio_client_exception_mapper.dart';
 import 'package:test/test.dart';
 
 class MockRequestOptions extends Mock implements RequestOptions {}
@@ -53,7 +53,7 @@ void main() {
     mockRequestOptions = MockRequestOptions();
     mockNetClientResponseDecoder = MockNetClientResponseDecoder();
 
-    sut = ClientExceptionMapperImpl(
+    sut = DioClientExceptionMapper(
       defaultResponseCode,
       mockNetClientResponseDecoder,
     );

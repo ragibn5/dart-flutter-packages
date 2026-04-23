@@ -6,11 +6,11 @@ import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 
-class ClientExceptionMapperImpl implements ClientExceptionMapper {
+class DioClientExceptionMapper implements ClientExceptionMapper {
   final int _defaultResponseCode;
   final NetClientResponseDecoder _errorResponseDecoder;
 
-  const ClientExceptionMapperImpl(
+  const DioClientExceptionMapper(
     this._defaultResponseCode,
     this._errorResponseDecoder,
   );

@@ -13,7 +13,7 @@ import 'package:net_kit/src/services/codec/net_client_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
 import 'package:net_kit/src/services/codec/request_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
-import 'package:net_kit/src/services/mappers/client_exception_mapper_impl.dart';
+import 'package:net_kit/src/services/mappers/dio_client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/response_classifier.dart';
 import 'package:net_kit/src/services/mappers/response_classifier_impl.dart';
 import 'package:net_kit/src/types/api_call_result.dart';
@@ -27,7 +27,7 @@ class DioNetClient implements NetClient {
       DefaultNetClientResponseDecoder(ParseTargetType.ERROR_DECODE);
   static const _defaultSuccessfulResponseDecoder =
       DefaultNetClientResponseDecoder(ParseTargetType.RESPONSE_DECODE);
-  static const _defaultClientExceptionMapper = ClientExceptionMapperImpl(
+  static const _defaultClientExceptionMapper = DioClientExceptionMapper(
     _defaultResponseCode,
     _defaultErrorResponseDecoder,
   );
