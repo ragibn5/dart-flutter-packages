@@ -8,10 +8,8 @@ void main() {
   const sut = DefaultResponseClassifier();
 
   final requestMetadata = RequestMetadata(
-    path: '/users',
+    pathOrUrl: '/users',
     method: HttpMethod.GET,
-    queryParameters: const {},
-    headers: const {},
   );
 
   test('Status code below 400 returns false', () {

@@ -90,9 +90,14 @@ class DioNetClient implements NetClient {
       }
 
       final response = await _dio.request<dynamic>(
-        spec.path,
+        spec.pathOrUrl,
         queryParameters: spec.queryParameters,
-        options: Options(method: spec.method.value, headers: spec.headers),
+        options: Options(
+          method: spec.method.value,
+          headers: spec.headers,
+          sendTimeout: spec.sendTimeout,
+          receiveTimeout: spec.receiveTimeout,
+        ),
         data: encodedRequest.resultOrNull,
         cancelToken: _createCancelToken(spec, requestCanceller),
         onSendProgress: onSendProgress,

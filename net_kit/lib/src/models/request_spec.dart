@@ -9,10 +9,13 @@ class RequestSpec<RequestBodyType> extends RequestMetadata {
   final RequestBodyType body;
 
   RequestSpec({
-    required super.path,
+    required super.pathOrUrl,
     required super.method,
-    super.queryParameters = const {},
-    super.headers = const {},
+    super.queryParameters,
+    super.headers,
+    super.sendTimeout,
+    super.receiveTimeout,
+    super.connectionTimeout,
     required this.body,
   });
 }

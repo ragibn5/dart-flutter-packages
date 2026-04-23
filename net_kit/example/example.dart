@@ -74,9 +74,11 @@ Future<void> main() async {
   final client = DioNetClient(dio);
 
   final request = RequestSpec<Object?>(
-    path: '/users/1',
+    pathOrUrl: '/users/1',
     method: HttpMethod.GET,
     body: null,
+    sendTimeout: const Duration(seconds: 2),
+    receiveTimeout: const Duration(seconds: 2),
   );
 
   final result = await client.execute(spec: request, codec: const UserCodec());

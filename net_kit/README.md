@@ -109,11 +109,13 @@ final client = DioNetClient(dio);
 ```dart
 
 final request = RequestSpec<Map<String, dynamic>>(
-  path: '/users',
+  pathOrUrl: '/users',
   method: HttpMethod.POST,
   body: const {'name': 'Ragib'},
   queryParameters: const {'include': 'profile'},
   headers: const {'x-request-id': 'abc-123'},
+  sendTimeout: const Duration(seconds: 3),
+  receiveTimeout: const Duration(seconds: 3),
 );
 ```
 

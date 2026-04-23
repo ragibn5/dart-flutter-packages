@@ -69,7 +69,7 @@ void main() {
     mockResponseClassifier = MockResponseClassifier();
 
     spec = RequestSpec<String>(
-      path: '/users',
+      pathOrUrl: '/users',
       method: HttpMethod.POST,
       body: 'request-body',
       queryParameters: const {'page': 1},
@@ -127,7 +127,7 @@ void main() {
       const responseData = {'id': 1};
       const decodedResponse = 'decoded-response';
       final response = Response<dynamic>(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         statusCode: 200,
         data: responseData,
       );
@@ -137,7 +137,7 @@ void main() {
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.request<dynamic>(
-          spec.path,
+          spec.pathOrUrl,
           data: encodedBody,
           queryParameters: spec.queryParameters,
           cancelToken: null,
@@ -161,7 +161,7 @@ void main() {
       expect(result.resultOrNull?.data.resultOrNull, decodedResponse);
       verify(
         () => mockDio.request<dynamic>(
-          spec.path,
+          spec.pathOrUrl,
           data: encodedBody,
           queryParameters: spec.queryParameters,
           cancelToken: null,
@@ -181,7 +181,7 @@ void main() {
       const decodedResponse = 'decoded-response';
       final requestCanceller = RequestCanceller<String>();
       final response = Response<dynamic>(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         statusCode: 200,
         data: responseData,
       );
@@ -193,7 +193,7 @@ void main() {
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.request<dynamic>(
-          spec.path,
+          spec.pathOrUrl,
           data: encodedBody,
           queryParameters: spec.queryParameters,
           cancelToken: any(named: 'cancelToken'),
@@ -236,7 +236,7 @@ void main() {
       const decodedResponse = 'decoded-response';
       final requestCanceller = RequestCanceller<String>();
       final response = Response<dynamic>(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         statusCode: 200,
         data: responseData,
       );
@@ -248,7 +248,7 @@ void main() {
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.request<dynamic>(
-          spec.path,
+          spec.pathOrUrl,
           data: encodedBody,
           queryParameters: spec.queryParameters,
           cancelToken: any(named: 'cancelToken'),
@@ -304,7 +304,7 @@ void main() {
         data: responseData,
       );
       final response = Response<dynamic>(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         statusCode: 422,
         data: responseData,
       );
@@ -347,7 +347,7 @@ void main() {
       const responseData = {'code': 'invalid'};
       const decodedError = 'decoded-error';
       final response = Response<dynamic>(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         statusCode: 422,
         data: responseData,
         headers: Headers.fromMap(const {
@@ -360,7 +360,7 @@ void main() {
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.request<dynamic>(
-          spec.path,
+          spec.pathOrUrl,
           data: encodedBody,
           queryParameters: spec.queryParameters,
           cancelToken: null,
@@ -400,7 +400,7 @@ void main() {
         data: responseData,
       );
       final response = Response<dynamic>(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         statusCode: 200,
         data: responseData,
       );
@@ -443,7 +443,7 @@ void main() {
       const responseData = {'id': 1};
       const decodedResponse = 'decoded-response';
       final response = Response<dynamic>(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         statusCode: 200,
         data: responseData,
         headers: Headers.fromMap(const {
@@ -460,7 +460,7 @@ void main() {
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.request<dynamic>(
-          spec.path,
+          spec.pathOrUrl,
           data: encodedBody,
           queryParameters: spec.queryParameters,
           cancelToken: null,
@@ -484,7 +484,7 @@ void main() {
 
       final capturedOptions = verify(
         () => mockDio.request<dynamic>(
-          spec.path,
+          spec.pathOrUrl,
           data: encodedBody,
           queryParameters: spec.queryParameters,
           cancelToken: null,
@@ -503,6 +503,72 @@ void main() {
       expect(result.resultOrNull?.data.resultOrNull, decodedResponse);
       expect(capturedOptions.method, spec.method.value);
       expect(capturedOptions.headers, spec.headers);
+      expect(capturedOptions.sendTimeout, isNull);
+      expect(capturedOptions.receiveTimeout, isNull);
+    },
+  );
+
+  test(
+    'execute passes per-request send and receive timeouts via Dio options',
+    () async {
+      const encodedBody = {'name': 'Alice'};
+      const responseData = {'id': 1};
+      const decodedResponse = 'decoded-response';
+      final timedSpec = RequestSpec<String>(
+        pathOrUrl: 'https://api.example.com/users',
+        method: HttpMethod.HEAD,
+        body: 'request-body',
+        sendTimeout: const Duration(seconds: 2),
+        receiveTimeout: const Duration(seconds: 3),
+        connectionTimeout: const Duration(seconds: 4),
+      );
+      final response = Response<dynamic>(
+        requestOptions: RequestOptions(path: timedSpec.pathOrUrl),
+        statusCode: 200,
+        data: responseData,
+      );
+
+      when(
+        () => mockRequestEncoder.encode<String>('request-body', any()),
+      ).thenReturn(Result.success(encodedBody));
+      when(
+        () => mockDio.request<dynamic>(
+          timedSpec.pathOrUrl,
+          data: encodedBody,
+          queryParameters: timedSpec.queryParameters,
+          cancelToken: null,
+          options: any(named: 'options'),
+          onSendProgress: null,
+          onReceiveProgress: null,
+        ),
+      ).thenAnswer((_) async => response);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(false);
+      when(
+        () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
+      ).thenReturn(Result.success(decodedResponse));
+
+      final result = await sut.execute(
+        spec: timedSpec,
+        codec: mockRequestCodec,
+        responseClassifier: mockResponseClassifier,
+      );
+
+      final capturedOptions = verify(
+        () => mockDio.request<dynamic>(
+          timedSpec.pathOrUrl,
+          data: encodedBody,
+          queryParameters: timedSpec.queryParameters,
+          cancelToken: null,
+          options: captureAny(named: 'options'),
+          onSendProgress: null,
+          onReceiveProgress: null,
+        ),
+      ).captured.single as Options;
+
+      expect(result.isSuccess, isTrue);
+      expect(capturedOptions.method, HttpMethod.HEAD.value);
+      expect(capturedOptions.sendTimeout, timedSpec.sendTimeout);
+      expect(capturedOptions.receiveTimeout, timedSpec.receiveTimeout);
     },
   );
 
@@ -510,7 +576,7 @@ void main() {
     'execute returns outer error when client exception mapper fails',
     () async {
       final exception = DioException(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         type: DioExceptionType.connectionError,
       );
       const mappedException =
@@ -554,7 +620,7 @@ void main() {
     'execute returns decoded error payload when client exception mapper succeeds',
     () async {
       final exception = DioException(
-        requestOptions: RequestOptions(path: spec.path),
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
         type: DioExceptionType.badResponse,
       );
       const errorResponseData = ErrorResponseData<String>(

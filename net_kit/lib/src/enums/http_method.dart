@@ -1,6 +1,7 @@
 /// Represents the HTTP method used in a request.
 enum HttpMethod {
   GET('GET'),
+  HEAD('HEAD'),
   POST('POST'),
   PUT('PUT'),
   PATCH('PATCH'),

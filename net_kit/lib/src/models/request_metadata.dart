@@ -4,7 +4,7 @@ class RequestMetadata {
   /// The endpoint path, relative to the base URL.
   ///
   /// Example: `'/users/42'`
-  final String path;
+  final String pathOrUrl;
 
   /// The HTTP method to use for this request.
   final HttpMethod method;
@@ -19,10 +19,22 @@ class RequestMetadata {
   /// NOTE: These take precedence over client-level headers on collision.
   final Map<String, dynamic> headers;
 
+  /// Timeout for sending the request.
+  final Duration? sendTimeout;
+
+  /// Timeout for receiving the request.
+  final Duration? receiveTimeout;
+
+  /// Timeout for creating the connection.
+  final Duration? connectionTimeout;
+
   RequestMetadata({
-    required this.path,
+    required this.pathOrUrl,
     required this.method,
-    required this.queryParameters,
-    required this.headers,
+    this.queryParameters = const {},
+    this.headers = const {},
+    this.sendTimeout,
+    this.receiveTimeout,
+    this.connectionTimeout,
   });
 }

@@ -68,12 +68,12 @@ void main() {
 
   test('Binds requestSpec only once', () {
     final firstSpec = RequestSpec<String>(
-      path: '/users/42',
+      pathOrUrl: '/users/42',
       method: HttpMethod.GET,
       body: '',
     );
     final secondSpec = RequestSpec<String>(
-      path: '/users/99',
+      pathOrUrl: '/users/99',
       method: HttpMethod.POST,
       body: 'payload',
     );
