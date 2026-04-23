@@ -86,7 +86,7 @@ void main() {
   });
 
   test(
-    'execute returns request encoder error without calling client',
+    'Execute returns request encoder error without calling client',
     () async {
       const parseException = ParseException(
         targetType: ParseTargetType.REQUEST_ENCODE,
@@ -121,7 +121,7 @@ void main() {
   );
 
   test(
-    'execute passes null cancelToken when requestCanceller is null',
+    'Execute passes null cancelToken when requestCanceller is null',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'id': 1};
@@ -174,7 +174,7 @@ void main() {
   );
 
   test(
-    'execute passes an already-cancelled cancelToken when requestCanceller is already cancelled',
+    'Execute passes an already-cancelled cancelToken when requestCanceller is already cancelled',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'id': 1};
@@ -229,7 +229,7 @@ void main() {
   );
 
   test(
-    'execute cancels the Dio cancelToken when requestCanceller is cancelled later',
+    'Execute cancels the Dio cancelToken when requestCanceller is cancelled later',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'id': 1};
@@ -295,7 +295,7 @@ void main() {
   );
 
   test(
-    'execute returns ParseException for undecodable classified error body',
+    'Execute returns ParseException for undecodable classified error body',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'code': 'invalid'};
@@ -341,7 +341,7 @@ void main() {
   );
 
   test(
-    'execute returns decoded error payload for classified error response',
+    'Execute returns decoded error payload for classified error response',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'code': 'invalid'};
@@ -391,7 +391,7 @@ void main() {
   );
 
   test(
-    'execute returns ParseException for undecodable success body',
+    'Execute returns ParseException for undecodable success body',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'id': 1};
@@ -437,7 +437,7 @@ void main() {
   );
 
   test(
-    'execute returns decoded success payload for non-error response',
+    'Execute returns decoded success payload for non-error response',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'id': 1};
@@ -509,7 +509,7 @@ void main() {
   );
 
   test(
-    'execute passes per-request send and receive timeouts via Dio options',
+    'Execute passes per-request send and receive timeouts via Dio options',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'id': 1};
@@ -520,7 +520,6 @@ void main() {
         body: 'request-body',
         sendTimeout: const Duration(seconds: 2),
         receiveTimeout: const Duration(seconds: 3),
-        connectionTimeout: const Duration(seconds: 4),
       );
       final response = Response<dynamic>(
         requestOptions: RequestOptions(path: timedSpec.pathOrUrl),
@@ -573,7 +572,7 @@ void main() {
   );
 
   test(
-    'execute returns outer error when client exception mapper fails',
+    'Execute returns outer error when client exception mapper fails',
     () async {
       final exception = DioException(
         requestOptions: RequestOptions(path: spec.pathOrUrl),
@@ -617,7 +616,7 @@ void main() {
   );
 
   test(
-    'execute returns decoded error payload when client exception mapper succeeds',
+    'Execute returns decoded error payload when client exception mapper succeeds',
     () async {
       final exception = DioException(
         requestOptions: RequestOptions(path: spec.pathOrUrl),
