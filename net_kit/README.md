@@ -78,31 +78,19 @@ class UserCodec implements RequestCodec<Object?, User, ApiError> {
 }
 ```
 
-### 3. Create and configure `Dio`
+### 3. Create the client
 
 ```dart
-import 'package:dio/dio.dart';
-import 'package:net_kit/dio_net_client.dart';
-
-final dio = Dio(
-  BaseOptions(
+final client = NetClientFactory.create(
+  const DefaultClientConfig(
     baseUrl: 'https://your-api.example.com',
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 5),
+    connectionTimeout: Duration(seconds: 5),
+    receiveTimeout: Duration(seconds: 5),
   ),
 );
 ```
 
-Configure interceptors, headers, auth, retries, or logging on `dio` exactly as you normally would.
-
-### 4. Create the Client
-
-```dart
-
-final client = DioNetClient(dio);
-```
-
-### 5. Build a `RequestSpec`
+### 4. Build a `RequestSpec`
 
 `RequestSpec<Req>` describes a request, for example:
 
@@ -119,7 +107,7 @@ final request = RequestSpec<Map<String, dynamic>>(
 );
 ```
 
-### 6. Execute and handle the request
+### 5. Execute and handle the request
 
 `execute(...)` returns:
 

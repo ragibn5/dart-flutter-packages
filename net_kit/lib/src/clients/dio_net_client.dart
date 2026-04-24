@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/models/api_response.dart';
+import 'package:net_kit/src/models/default_client_config.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/models/result.dart';
@@ -40,9 +41,9 @@ class DioNetClient implements NetClient {
 
   final ClientExceptionMapper _clientExceptionMapper;
 
-  DioNetClient(Dio dio)
+  DioNetClient([DefaultClientConfig config = const DefaultClientConfig()])
       : this._(
-          dio,
+          _createDio(config),
           _defaultRequestEncoder,
           _defaultErrorResponseDecoder,
           _defaultSuccessfulResponseDecoder,
@@ -71,6 +72,19 @@ class DioNetClient implements NetClient {
     this._successfulResponseDecoder,
     this._clientExceptionMapper,
   );
+
+  static Dio _createDio(DefaultClientConfig config) {
+    return Dio(
+      BaseOptions(
+        baseUrl: config.baseUrl ?? '',
+        connectTimeout: config.connectionTimeout,
+        sendTimeout: config.sendTimeout,
+        receiveTimeout: config.receiveTimeout,
+        queryParameters: config.queryParameters,
+        headers: config.headers,
+      ),
+    );
+  }
 
   /// Executes the given [spec] and returns a typed [Result].
   @override

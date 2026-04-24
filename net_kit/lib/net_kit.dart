@@ -2,14 +2,13 @@
 /// Import this file to use the package in your project.
 library;
 
-export 'package:dio/dio.dart';
-
-export 'src/clients/dio_net_client.dart';
 export 'src/clients/net_client.dart';
+export 'src/clients/net_client_factory.dart';
 export 'src/enums/http_method.dart';
 export 'src/enums/network_exception_type.dart';
 export 'src/enums/parse_target_type.dart';
 export 'src/models/api_response.dart';
+export 'src/models/default_client_config.dart';
 export 'src/models/net_client_exception.dart';
 export 'src/models/request_metadata.dart';
 export 'src/models/request_spec.dart';

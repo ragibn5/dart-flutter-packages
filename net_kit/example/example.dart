@@ -45,33 +45,13 @@ class UserCodec implements RequestCodec<Object?, User, ApiError> {
 }
 
 Future<void> main() async {
-  final dio = Dio(
-    BaseOptions(
+  final client = NetClientFactory.create(
+    const DefaultClientConfig(
       baseUrl: 'https://example.com/api',
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 5),
+      connectionTimeout: Duration(seconds: 5),
+      receiveTimeout: Duration(seconds: 5),
     ),
   );
-
-  // Ignore this block
-  dio.interceptors.add(
-    InterceptorsWrapper(
-      onRequest: (options, handler) {
-        handler.resolve(
-          Response<dynamic>(
-            requestOptions: options,
-            statusCode: 200,
-            data: const {
-              'id': 1,
-              'name': 'Ragib',
-            },
-          ),
-        );
-      },
-    ),
-  );
-
-  final client = DioNetClient(dio);
 
   final request = RequestSpec<Object?>(
     pathOrUrl: '/users/1',
