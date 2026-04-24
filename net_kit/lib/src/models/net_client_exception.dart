@@ -2,15 +2,24 @@ import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
 
-/// The base exception type that [NetClient.execute] returns when it
-/// encounters any error.
+/// The base exception returned by [NetClient] when it encounters any error.
 ///
 /// See its subtypes for more details.
 sealed class NetClientException {
-  /// The cause of the exception.
+  /// The underlying cause of this exception.
+  ///
+  /// **Warning**:
+  /// This value can be transport or runtime specific, and may come
+  /// from the underlying HTTP client. This is not a part of the stable
+  /// API and should never be used for control flow.
   final Object? cause;
 
-  /// The stack trace of the exception.
+  /// Stack trace associated with this failure.
+  ///
+  /// **Warning**:
+  /// This value can be transport or runtime specific, and may come
+  /// from the underlying HTTP client. This is not a part of the stable
+  /// API and should never be used for control flow.
   final StackTrace? stackTrace;
 
   const NetClientException(this.cause, this.stackTrace);
@@ -72,6 +81,9 @@ final class CancellationException extends NetClientException {
 
 /// Generic failure indicating an unexpected exception from the client.
 final class UnexpectedException extends NetClientException {
+  /// Summary of the unexpected failure.
+  ///
+  /// This should not be used for control flow.
   final String message;
 
   const UnexpectedException(

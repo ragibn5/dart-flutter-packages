@@ -103,19 +103,25 @@ class DioNetClient implements NetClient {
         return Result.error(encodedRequest.errorOrNull!);
       }
 
-      final response = await _dio.request<dynamic>(
-        spec.pathOrUrl,
-        queryParameters: spec.queryParameters,
-        options: Options(
+      final response = await _dio.fetch<dynamic>(
+        RequestOptions(
+          path: spec.pathOrUrl,
+          data: encodedRequest.resultOrNull,
+          onReceiveProgress: onReceiveProgress,
+          onSendProgress: onSendProgress,
+          cancelToken: _createCancelToken(spec, requestCanceller),
           method: spec.method.value,
-          headers: spec.headers,
           sendTimeout: spec.sendTimeout,
           receiveTimeout: spec.receiveTimeout,
+          connectTimeout: spec.connectionTimeout,
+          queryParameters: spec.queryParameters,
+          headers: spec.headers,
+          // We may need multiple factors to decide whether the
+          // response is an error response, the status-code itself
+          // may not be sufficient. We will decide this with the
+          // response classifier later on.
+          validateStatus: (s) => true,
         ),
-        data: encodedRequest.resultOrNull,
-        cancelToken: _createCancelToken(spec, requestCanceller),
-        onSendProgress: onSendProgress,
-        onReceiveProgress: onReceiveProgress,
       );
 
       final responseContext = ResponseContext(
@@ -158,11 +164,11 @@ class DioNetClient implements NetClient {
           .mapException(e, stackTrace: st, errorDecoder: codec.decodeError)
           .fold(
             onError: Result.error,
-            onSuccess: (e) => Result.success(
+            onSuccess: (errorResponse) => Result.success(
               ApiResponse(
-                statusCode: e.statusCode,
-                data: Result.error(e.error),
-                headers: e.headers,
+                statusCode: errorResponse.statusCode,
+                data: Result.error(errorResponse.error),
+                headers: errorResponse.headers,
                 requestSpec: spec,
               ),
             ),
