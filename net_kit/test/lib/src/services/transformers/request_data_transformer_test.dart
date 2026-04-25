@@ -1,17 +1,36 @@
 import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/models/net_client_exception.dart';
-import 'package:net_kit/src/services/codec/net_client_request_encoder.dart';
+import 'package:net_kit/src/services/codec/request_data_codec.dart';
+import 'package:net_kit/src/services/transformers/request_data_transformer.dart';
 import 'package:test/test.dart';
 
+class IdentityRequestDataEncoder implements RequestDataEncoder<dynamic> {
+  const IdentityRequestDataEncoder();
+
+  @override
+  dynamic encodeRequestData(dynamic data) => data;
+}
+
+class ThrowingRequestDataEncoder implements RequestDataEncoder<String> {
+  const ThrowingRequestDataEncoder(this.throwable);
+
+  final Object throwable;
+
+  @override
+  // ignore: only_throw_errors
+  dynamic encodeRequestData(String data) => throw throwable;
+}
+
 void main() {
-  late NetClientRequestEncoder sut;
+  late RequestDataTransformer requestDataTransformer;
 
   setUp(() {
-    sut = const DefaultNetClientRequestEncoder();
+    requestDataTransformer = const DefaultRequestDataTransformer();
   });
 
   test('If data is null, returns Result.success() with null data', () {
-    final result = sut.encode(null, (data) => data);
+    final result = requestDataTransformer.transform(
+        null, const IdentityRequestDataEncoder());
     expect(result.isSuccess, true);
     expect(result.resultOrNull, null);
   });
@@ -19,7 +38,10 @@ void main() {
   test(
     'If encoder does not throw, returns Result.success() with encoded data',
     () {
-      final result = sut.encode('data', (data) => data);
+      final result = requestDataTransformer.transform(
+        'data',
+        const IdentityRequestDataEncoder(),
+      );
       expect(result.isSuccess, true);
       expect(result.resultOrNull, 'data');
     },
@@ -29,7 +51,10 @@ void main() {
     'If encoder throws, returns Result.error() with ParseException()',
     () {
       final throwable = Exception('invalid-encodable-data');
-      final result = sut.encode('encodable-data', (data) => throw throwable);
+      final result = requestDataTransformer.transform(
+        'encodable-data',
+        ThrowingRequestDataEncoder(throwable),
+      );
       expect(result.isError, true);
       expect(
         result.errorOrNull,

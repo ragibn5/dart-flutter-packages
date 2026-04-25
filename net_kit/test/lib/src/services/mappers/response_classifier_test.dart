@@ -1,7 +1,7 @@
 import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/models/request_metadata.dart';
 import 'package:net_kit/src/models/response_context.dart';
-import 'package:net_kit/src/services/mappers/response_classifier_impl.dart';
+import 'package:net_kit/src/services/mappers/response_classifier.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,10 +1,12 @@
-abstract interface class RequestCodec<Req, Res, Err>
+/// A codec for requests and responses.
+abstract interface class RequestDataCodec<Req, Res, Err>
     implements
-        RequestEncoder<Req>,
-        ResponseDecoder<Res>,
-        ErrorResponseDecoder<Err> {}
+        RequestDataEncoder<Req>,
+        ResponseDataDecoder<Res>,
+        ErrorResponseDataDecoder<Err> {}
 
-abstract interface class RequestEncoder<Req> {
+/// Encodes data into a form that the HTTP client can send over the wire.
+abstract interface class RequestDataEncoder<Req> {
   /// Encodes [data] into a form that the HTTP client can send over the wire.
   ///
   /// The return value is passed directly as the request `data`.
@@ -17,18 +19,20 @@ abstract interface class RequestEncoder<Req> {
   dynamic encodeRequestData(Req data);
 }
 
-abstract interface class ResponseDecoder<Res> {
+/// Decodes data from the HTTP client's response.
+abstract interface class ResponseDataDecoder<Res> {
   /// Decodes the raw response data into [Res].
   ///
   /// [raw] is the raw response data from the HTTP client — typically a
   /// `Map<String, dynamic>`, `List<dynamic>`, or a primitive, depending on
   /// the client configuration and the server response.
-  Res decodeSuccessfulResponse(dynamic raw);
+  Res decodeData(dynamic raw);
 }
 
-abstract interface class ErrorResponseDecoder<Err> {
+/// Decodes data from the HTTP client's error response.
+abstract interface class ErrorResponseDataDecoder<Err> {
   /// Decodes the raw error response data into [Err].
   ///
   /// [raw] is the raw response data from the HTTP client on an error response.
-  Err decodeErrorResponse(dynamic raw);
+  Err decodeErrorData(dynamic raw);
 }

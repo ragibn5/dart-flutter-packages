@@ -7,21 +7,42 @@ import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/models/error_response_data.dart';
 import 'package:net_kit/src/models/net_client_exception.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
+import 'package:net_kit/src/services/codec/request_data_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/dio_client_exception_mapper.dart';
+import 'package:net_kit/src/services/transformers/error_response_data_transformer.dart';
 import 'package:test/test.dart';
 
 class MockRequestOptions extends Mock implements RequestOptions {}
 
-class MockNetClientResponseDecoder extends Mock
-    implements NetClientResponseDecoder {}
+class MockErrorResponseDataTransformer extends Mock
+    implements ErrorResponseDataTransformer {}
+
+class TestErrorResponseDataDecoder implements ErrorResponseDataDecoder<String> {
+  const TestErrorResponseDataDecoder(this.value);
+
+  final String value;
+
+  @override
+  String decodeErrorData(dynamic raw) => value;
+}
+
+class ThrowingErrorResponseDataDecoder
+    implements ErrorResponseDataDecoder<String> {
+  const ThrowingErrorResponseDataDecoder(this.throwable);
+
+  final Object throwable;
+
+  @override
+  // ignore: only_throw_errors
+  String decodeErrorData(dynamic raw) => throw throwable;
+}
 
 void main() {
   const defaultResponseCode = 0;
 
   late MockRequestOptions mockRequestOptions;
-  late MockNetClientResponseDecoder mockNetClientResponseDecoder;
+  late MockErrorResponseDataTransformer mockErrorResponseDataTransformer;
 
   late ClientExceptionMapper sut;
 
@@ -34,7 +55,8 @@ void main() {
     final result = sut.mapException(
       exception,
       stackTrace: expectedStackTrace,
-      errorDecoder: (data) => data,
+      errorResponseDataDecoder:
+          const TestErrorResponseDataDecoder('decoded-error'),
     );
 
     expect(
@@ -51,11 +73,11 @@ void main() {
 
   setUp(() {
     mockRequestOptions = MockRequestOptions();
-    mockNetClientResponseDecoder = MockNetClientResponseDecoder();
+    mockErrorResponseDataTransformer = MockErrorResponseDataTransformer();
 
     sut = DioClientExceptionMapper(
       defaultResponseCode,
-      mockNetClientResponseDecoder,
+      mockErrorResponseDataTransformer,
     );
 
     when(() => mockRequestOptions.preserveHeaderCase).thenReturn(true);
@@ -67,7 +89,8 @@ void main() {
     final result = sut.mapException(
       cause,
       stackTrace: st,
-      errorDecoder: (data) => data,
+      errorResponseDataDecoder:
+          const TestErrorResponseDataDecoder('decoded-error'),
     );
 
     expect(
@@ -133,7 +156,8 @@ void main() {
       final result = sut.mapException(
         dioException,
         stackTrace: st,
-        errorDecoder: (data) => data,
+        errorResponseDataDecoder:
+            const TestErrorResponseDataDecoder('decoded-error'),
       );
 
       expect(
@@ -165,7 +189,8 @@ void main() {
       final result = sut.mapException(
         dioException,
         stackTrace: st,
-        errorDecoder: (data) => data,
+        errorResponseDataDecoder:
+            const TestErrorResponseDataDecoder('decoded-error'),
       );
 
       expect(
@@ -199,7 +224,8 @@ void main() {
       final result = sut.mapException(
         dioException,
         stackTrace: methodStackTrace,
-        errorDecoder: (data) => data,
+        errorResponseDataDecoder:
+            const TestErrorResponseDataDecoder('decoded-error'),
       );
 
       expect(
@@ -232,7 +258,8 @@ void main() {
       final result = sut.mapException(
         dioException,
         stackTrace: st,
-        errorDecoder: (data) => data,
+        errorResponseDataDecoder:
+            const TestErrorResponseDataDecoder('decoded-error'),
       );
 
       expect(
@@ -257,6 +284,8 @@ void main() {
         targetType: ParseTargetType.ERROR_DECODE,
         data: data,
       );
+      final decoder =
+          ThrowingErrorResponseDataDecoder(Exception('decode failed'));
       final dioException = DioException(
         requestOptions: mockRequestOptions,
         response: Response(requestOptions: mockRequestOptions, data: data),
@@ -264,12 +293,12 @@ void main() {
       );
 
       when(
-        () => mockNetClientResponseDecoder.decode<Never>(any<dynamic>(), any()),
+        () => mockErrorResponseDataTransformer.transform<String>(data, decoder),
       ).thenReturn(Result.error(parseException));
 
       final result = sut.mapException(
         dioException,
-        errorDecoder: (data) => throw Exception(),
+        errorResponseDataDecoder: decoder,
       );
 
       expect(result.errorOrNull, same(parseException));
@@ -284,7 +313,7 @@ void main() {
     () {
       const data = 'iamadata';
       const decodedError = 'decoded-error';
-      String decoder(dynamic input) => decodedError;
+      const decoder = TestErrorResponseDataDecoder(decodedError);
 
       final dioException = DioException(
         requestOptions: mockRequestOptions,
@@ -293,16 +322,16 @@ void main() {
       );
 
       when(
-        () => mockNetClientResponseDecoder.decode<String>(data, decoder),
+        () => mockErrorResponseDataTransformer.transform<String>(data, decoder),
       ).thenReturn(Result.success(decodedError));
 
       sut.mapException(
         dioException,
-        errorDecoder: decoder,
+        errorResponseDataDecoder: decoder,
       );
 
       verify(
-        () => mockNetClientResponseDecoder.decode<String>(data, decoder),
+        () => mockErrorResponseDataTransformer.transform<String>(data, decoder),
       ).called(1);
     },
   );
@@ -314,6 +343,7 @@ void main() {
       const decodedError = 'decoded-error';
       final st = StackTrace.current;
       final innerCause = Exception();
+      const decoder = TestErrorResponseDataDecoder(decodedError);
       final dioException = DioException(
         requestOptions: mockRequestOptions,
         response: Response(
@@ -327,13 +357,12 @@ void main() {
       );
 
       when(
-        () =>
-            mockNetClientResponseDecoder.decode<String>(any<dynamic>(), any()),
+        () => mockErrorResponseDataTransformer.transform<String>(data, decoder),
       ).thenReturn(Result.success(decodedError));
 
       final result = sut.mapException(
         dioException,
-        errorDecoder: (data) => decodedError,
+        errorResponseDataDecoder: decoder,
       );
 
       expect(
@@ -353,6 +382,7 @@ void main() {
     () {
       const data = 'iamadata';
       const decodedError = 'decoded-error';
+      const decoder = TestErrorResponseDataDecoder(decodedError);
       final dioException = DioException(
         requestOptions: mockRequestOptions,
         response: Response(
@@ -363,13 +393,12 @@ void main() {
       );
 
       when(
-        () =>
-            mockNetClientResponseDecoder.decode<String>(any<dynamic>(), any()),
+        () => mockErrorResponseDataTransformer.transform<String>(data, decoder),
       ).thenReturn(Result.success(decodedError));
 
       final result = sut.mapException(
         dioException,
-        errorDecoder: (data) => decodedError,
+        errorResponseDataDecoder: decoder,
       );
 
       expect(

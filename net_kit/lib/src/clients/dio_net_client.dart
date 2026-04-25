@@ -3,63 +3,63 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
-import 'package:net_kit/src/services/codec/net_client_request_encoder.dart';
-import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/dio_client_exception_mapper.dart';
-import 'package:net_kit/src/services/mappers/response_classifier_impl.dart';
+import 'package:net_kit/src/services/transformers/error_response_data_transformer.dart';
+import 'package:net_kit/src/services/transformers/request_data_transformer.dart';
+import 'package:net_kit/src/services/transformers/successful_response_data_transformer.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
 /// A thin, generic HTTP executor for typed requests and responses.
 class DioNetClient implements NetClient {
   static const _defaultResponseCode = 0;
-  static const _defaultRequestEncoder = DefaultNetClientRequestEncoder();
-  static const _defaultErrorResponseDecoder =
-      DefaultNetClientResponseDecoder(ParseTargetType.ERROR_DECODE);
-  static const _defaultSuccessfulResponseDecoder =
-      DefaultNetClientResponseDecoder(ParseTargetType.RESPONSE_DECODE);
+  static const _defaultRequestDataTransformer = DefaultRequestDataTransformer();
+  static const _defaultErrorResponseDataTransformer =
+      DefaultErrorResponseDataTransformer();
+  static const _defaultSuccessfulResponseDataTransformer =
+      DefaultSuccessfulResponseDataTransformer();
   static const _defaultClientExceptionMapper = DioClientExceptionMapper(
     _defaultResponseCode,
-    _defaultErrorResponseDecoder,
+    _defaultErrorResponseDataTransformer,
   );
 
   final Dio _dio;
 
-  final NetClientRequestEncoder _requestEncoder;
-  final NetClientResponseDecoder _errorResponseDecoder;
-  final NetClientResponseDecoder _successfulResponseDecoder;
+  final RequestDataTransformer _requestDataTransformer;
+  final ErrorResponseDataTransformer _errorResponseDataTransformer;
+  final SuccessfulResponseDataTransformer _successfulResponseDataTransformer;
 
   final ClientExceptionMapper _clientExceptionMapper;
 
   DioNetClient([DefaultClientConfig config = const DefaultClientConfig()])
       : this._(
           _createDio(config),
-          _defaultRequestEncoder,
-          _defaultErrorResponseDecoder,
-          _defaultSuccessfulResponseDecoder,
+          _defaultRequestDataTransformer,
+          _defaultErrorResponseDataTransformer,
+          _defaultSuccessfulResponseDataTransformer,
           _defaultClientExceptionMapper,
         );
 
   @visibleForTesting
   DioNetClient.test(
     Dio dio,
-    NetClientRequestEncoder requestEncoder,
-    NetClientResponseDecoder errorResponseDecoder,
-    NetClientResponseDecoder successfulResponseDecoder,
+    RequestDataTransformer requestDataTransformer,
+    ErrorResponseDataTransformer errorResponseDataTransformer,
+    SuccessfulResponseDataTransformer successfulResponseDataTransformer,
     ClientExceptionMapper clientExceptionMapper,
   ) : this._(
           dio,
-          requestEncoder,
-          errorResponseDecoder,
-          successfulResponseDecoder,
+          requestDataTransformer,
+          errorResponseDataTransformer,
+          successfulResponseDataTransformer,
           clientExceptionMapper,
         );
 
   DioNetClient._(
     this._dio,
-    this._requestEncoder,
-    this._errorResponseDecoder,
-    this._successfulResponseDecoder,
+    this._requestDataTransformer,
+    this._errorResponseDataTransformer,
+    this._successfulResponseDataTransformer,
     this._clientExceptionMapper,
   );
 
@@ -80,23 +80,23 @@ class DioNetClient implements NetClient {
   @override
   Future<ApiCallResult<Req, Res, Err>> execute<Req, Res, Err>({
     required RequestSpec<Req> spec,
-    required RequestCodec<Req, Res, Err> codec,
+    required RequestDataCodec<Req, Res, Err> codec,
     ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
     ProgressListener? onSendProgress,
     ProgressListener? onReceiveProgress,
     RequestCanceller<Req>? requestCanceller,
   }) async {
     try {
-      final encodedRequest =
-          _requestEncoder.encode(spec.body, codec.encodeRequestData);
-      if (encodedRequest.isError) {
-        return Result.error(encodedRequest.errorOrNull!);
+      final transformedRequest =
+          _requestDataTransformer.transform(spec.body, codec);
+      if (transformedRequest.isError) {
+        return Result.error(transformedRequest.errorOrNull!);
       }
 
       final response = await _dio.fetch<dynamic>(
         RequestOptions(
           path: spec.pathOrUrl,
-          data: encodedRequest.resultOrNull,
+          data: transformedRequest.resultOrNull,
           onReceiveProgress: onReceiveProgress,
           onSendProgress: onSendProgress,
           cancelToken: _createCancelToken(spec, requestCanceller),
@@ -121,8 +121,8 @@ class DioNetClient implements NetClient {
         requestMetadata: spec,
       );
       if (responseClassifier.isError(responseContext)) {
-        return _errorResponseDecoder
-            .decode(response.data, codec.decodeErrorResponse)
+        return _errorResponseDataTransformer
+            .transform(response.data, codec)
             .fold(
               onError: Result.error,
               onSuccess: (e) => Result.success(
@@ -136,8 +136,8 @@ class DioNetClient implements NetClient {
             );
       }
 
-      return _successfulResponseDecoder
-          .decode(response.data, codec.decodeSuccessfulResponse)
+      return _successfulResponseDataTransformer
+          .transform(response.data, codec)
           .fold(
             onError: Result.error,
             onSuccess: (r) => Result.success(
@@ -151,11 +151,7 @@ class DioNetClient implements NetClient {
           );
     } catch (e, st) {
       return _clientExceptionMapper
-          .mapException(
-            e,
-            stackTrace: st,
-            errorDecoder: codec.decodeErrorResponse,
-          )
+          .mapException(e, stackTrace: st, errorResponseDataDecoder: codec)
           .fold(
             onError: Result.error,
             onSuccess: (errorResponse) => Result.success(

@@ -27,19 +27,19 @@ class ApiError {
   }
 }
 
-class UserCodec implements RequestCodec<Object?, User, ApiError> {
+class UserCodec implements RequestDataCodec<Object?, User, ApiError> {
   const UserCodec();
 
   @override
   Object? encodeRequestData(Object? body) => body;
 
   @override
-  User decodeSuccessfulResponse(dynamic raw) {
+  User decodeData(dynamic raw) {
     return User.fromJson(raw as Map<String, dynamic>);
   }
 
   @override
-  ApiError decodeErrorResponse(dynamic raw) {
+  ApiError decodeErrorData(dynamic raw) {
     return ApiError.fromJson(raw as Map<String, dynamic>);
   }
 }

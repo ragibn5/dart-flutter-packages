@@ -3,16 +3,17 @@ import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/models/error_response_data.dart';
 import 'package:net_kit/src/models/net_client_exception.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
+import 'package:net_kit/src/services/codec/request_data_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
+import 'package:net_kit/src/services/transformers/error_response_data_transformer.dart';
 
 class DioClientExceptionMapper implements ClientExceptionMapper {
   final int _defaultResponseCode;
-  final NetClientResponseDecoder _errorResponseDecoder;
+  final ErrorResponseDataTransformer _errorResponseDataTransformer;
 
   const DioClientExceptionMapper(
     this._defaultResponseCode,
-    this._errorResponseDecoder,
+    this._errorResponseDataTransformer,
   );
 
   @override
@@ -20,7 +21,7 @@ class DioClientExceptionMapper implements ClientExceptionMapper {
       mapException<DomainErrorType>(
     Object exception, {
     StackTrace? stackTrace,
-    required DomainErrorType Function(dynamic) errorDecoder,
+    required ErrorResponseDataDecoder<DomainErrorType> errorResponseDataDecoder,
   }) {
     if (exception is! DioException) {
       return Result.error(
@@ -84,7 +85,7 @@ class DioClientExceptionMapper implements ClientExceptionMapper {
         ),
       DioExceptionType.badResponse => _decodeErrorResponse(
           response: exception.response,
-          errorResponseDecoder: errorDecoder,
+          errorResponseDataDecoder: errorResponseDataDecoder,
         ),
     };
   }
@@ -92,7 +93,7 @@ class DioClientExceptionMapper implements ClientExceptionMapper {
   /// Decodes an error response, wrapping decode failures.
   Result<NetClientException, ErrorResponseData<E>> _decodeErrorResponse<E>({
     required Response<dynamic>? response,
-    required E Function(dynamic) errorResponseDecoder,
+    required ErrorResponseDataDecoder<E> errorResponseDataDecoder,
   }) {
     if (response == null) {
       return Result.error(
@@ -100,8 +101,8 @@ class DioClientExceptionMapper implements ClientExceptionMapper {
       );
     }
 
-    return _errorResponseDecoder
-        .decode(response.data, errorResponseDecoder)
+    return _errorResponseDataTransformer
+        .transform(response.data, errorResponseDataDecoder)
         .fold(
           onError: Result.error,
           onSuccess: (e) => Result.success(

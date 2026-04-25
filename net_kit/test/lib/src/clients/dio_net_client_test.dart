@@ -15,23 +15,29 @@ import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/cancellation/request_canceller.dart';
-import 'package:net_kit/src/services/codec/net_client_request_encoder.dart';
-import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
-import 'package:net_kit/src/services/codec/request_codec.dart';
+import 'package:net_kit/src/services/codec/request_data_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/response_classifier.dart';
+import 'package:net_kit/src/services/transformers/error_response_data_transformer.dart';
+import 'package:net_kit/src/services/transformers/request_data_transformer.dart';
+import 'package:net_kit/src/services/transformers/successful_response_data_transformer.dart';
 import 'package:test/test.dart';
 
 class MockDio extends Mock implements Dio {}
 
-class MockRequestEncoder extends Mock implements NetClientRequestEncoder {}
+class MockRequestDataTransformer extends Mock
+    implements RequestDataTransformer {}
 
-class MockResponseDecoder extends Mock implements NetClientResponseDecoder {}
+class MockErrorResponseDataTransformer extends Mock
+    implements ErrorResponseDataTransformer {}
+
+class MockSuccessfulResponseDataTransformer extends Mock
+    implements SuccessfulResponseDataTransformer {}
 
 class MockClientExceptionMapper extends Mock implements ClientExceptionMapper {}
 
 class MockRequestCodec extends Mock
-    implements RequestCodec<String, String, String> {}
+    implements RequestDataCodec<String, String, String> {}
 
 class MockResponseClassifier extends Mock implements ResponseClassifier {}
 
@@ -41,9 +47,10 @@ class FakeResponseContext extends Fake implements ResponseContext {}
 
 void main() {
   late MockDio mockDio;
-  late MockRequestEncoder mockRequestEncoder;
-  late MockResponseDecoder mockErrorResponseDecoder;
-  late MockResponseDecoder mockSuccessfulResponseDecoder;
+  late MockRequestDataTransformer mockRequestDataTransformer;
+  late MockErrorResponseDataTransformer mockErrorResponseDataTransformer;
+  late MockSuccessfulResponseDataTransformer
+      mockSuccessfulResponseDataTransformer;
   late MockClientExceptionMapper mockClientExceptionMapper;
   late MockRequestCodec mockRequestCodec;
   late MockResponseClassifier mockResponseClassifier;
@@ -58,9 +65,10 @@ void main() {
 
   setUp(() {
     mockDio = MockDio();
-    mockRequestEncoder = MockRequestEncoder();
-    mockErrorResponseDecoder = MockResponseDecoder();
-    mockSuccessfulResponseDecoder = MockResponseDecoder();
+    mockRequestDataTransformer = MockRequestDataTransformer();
+    mockErrorResponseDataTransformer = MockErrorResponseDataTransformer();
+    mockSuccessfulResponseDataTransformer =
+        MockSuccessfulResponseDataTransformer();
     mockClientExceptionMapper = MockClientExceptionMapper();
     mockRequestCodec = MockRequestCodec();
     mockResponseClassifier = MockResponseClassifier();
@@ -75,15 +83,15 @@ void main() {
 
     sut = DioNetClient.test(
       mockDio,
-      mockRequestEncoder,
-      mockErrorResponseDecoder,
-      mockSuccessfulResponseDecoder,
+      mockRequestDataTransformer,
+      mockErrorResponseDataTransformer,
+      mockSuccessfulResponseDataTransformer,
       mockClientExceptionMapper,
     );
   });
 
   test(
-    'Execute returns request encoder error without calling client',
+    'Execute returns request data transformer error without calling client',
     () async {
       const parseException = ParseException(
         targetType: ParseTargetType.REQUEST_ENCODE,
@@ -91,7 +99,10 @@ void main() {
       );
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.error(parseException));
 
       final result = await sut.execute(
@@ -122,14 +133,20 @@ void main() {
       );
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.fetch<dynamic>(any()),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
-        () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
+        () => mockSuccessfulResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(decodedResponse));
 
       final result = await sut.execute(
@@ -168,7 +185,10 @@ void main() {
       requestCanceller.cancel(reason: 'user aborted');
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.fetch<dynamic>(any()),
@@ -188,7 +208,10 @@ void main() {
       });
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
-        () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
+        () => mockSuccessfulResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(decodedResponse));
 
       final result = await sut.execute(
@@ -219,7 +242,10 @@ void main() {
       final cancellationObserved = Completer<void>();
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.fetch<dynamic>(any()),
@@ -245,7 +271,10 @@ void main() {
       });
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
-        () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
+        () => mockSuccessfulResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(decodedResponse));
 
       final resultFuture = sut.execute(
@@ -281,14 +310,20 @@ void main() {
       );
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.fetch<dynamic>(any()),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(true);
       when(
-        () => mockErrorResponseDecoder.decode<String>(responseData, any()),
+        () => mockErrorResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.error(parseException));
 
       final result = await sut.execute(
@@ -304,7 +339,7 @@ void main() {
   );
 
   test(
-    'Execute returns decoded error payload for classified error response',
+    'Execute returns decoded error response data for classified error response',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'code': 'invalid'};
@@ -319,14 +354,20 @@ void main() {
       );
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.fetch<dynamic>(any()),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(true);
       when(
-        () => mockErrorResponseDecoder.decode<String>(responseData, any()),
+        () => mockErrorResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(decodedError));
 
       final result = await sut.execute(
@@ -361,14 +402,20 @@ void main() {
       );
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.fetch<dynamic>(any()),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
-        () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
+        () => mockSuccessfulResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.error(parseException));
 
       final result = await sut.execute(
@@ -403,14 +450,20 @@ void main() {
       void onReceiveProgress(_, __) {}
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.fetch<dynamic>(any()),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
-        () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
+        () => mockSuccessfulResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(decodedResponse));
 
       final result = await sut.execute(
@@ -466,14 +519,20 @@ void main() {
       );
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(encodedBody));
       when(
         () => mockDio.fetch<dynamic>(any()),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
-        () => mockSuccessfulResponseDecoder.decode<String>(responseData, any()),
+        () => mockSuccessfulResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success(decodedResponse));
 
       final result = await sut.execute(
@@ -508,7 +567,10 @@ void main() {
           NetworkException(NetworkExceptionType.CONNECTION_ERROR);
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success('encoded'));
       when(
         () => mockDio.fetch<dynamic>(any()),
@@ -517,7 +579,7 @@ void main() {
         () => mockClientExceptionMapper.mapException<String>(
           exception,
           stackTrace: any(named: 'stackTrace'),
-          errorDecoder: any(named: 'errorDecoder'),
+          errorResponseDataDecoder: mockRequestCodec,
         ),
       ).thenReturn(Result.error(mappedException));
 
@@ -534,7 +596,7 @@ void main() {
   );
 
   test(
-    'Execute returns decoded error payload when client exception mapper succeeds',
+    'Execute returns decoded error response data when client exception mapper succeeds',
     () async {
       final exception = DioException(
         requestOptions: RequestOptions(path: spec.pathOrUrl),
@@ -549,7 +611,10 @@ void main() {
       );
 
       when(
-        () => mockRequestEncoder.encode<String>('request-body', any()),
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
       ).thenReturn(Result.success('encoded'));
       when(
         () => mockDio.fetch<dynamic>(any()),
@@ -558,7 +623,7 @@ void main() {
         () => mockClientExceptionMapper.mapException<String>(
           exception,
           stackTrace: any(named: 'stackTrace'),
-          errorDecoder: any(named: 'errorDecoder'),
+          errorResponseDataDecoder: mockRequestCodec,
         ),
       ).thenReturn(Result.success(errorResponseData));
 
