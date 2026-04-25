@@ -1,6 +1,6 @@
 enum RequestBodyType {
-  json,
-  formUrlEncoded,
-  multipart,
-  raw,
+  JSON,
+  FORM_URL_ENCODED,
+  MULTIPART,
+  RAW;
 }

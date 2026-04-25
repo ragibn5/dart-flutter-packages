@@ -7,10 +7,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/src/clients/dio_net_client.dart';
 import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/enums/http_method.dart';
-import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
+import 'package:net_kit/src/enums/transport_error_type.dart';
 import 'package:net_kit/src/models/error_response_data.dart';
-import 'package:net_kit/src/models/net_client_exception.dart';
+import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/models/result.dart';
@@ -564,7 +564,7 @@ void main() {
         type: DioExceptionType.connectionError,
       );
       const mappedException =
-          NetworkException(NetworkExceptionType.CONNECTION_ERROR);
+          TransportException(TransportErrorType.CONNECTION_ERROR);
 
       when(
         () => mockRequestDataTransformer.transform<String>(

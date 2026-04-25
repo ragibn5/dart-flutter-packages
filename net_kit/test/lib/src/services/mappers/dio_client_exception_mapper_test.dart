@@ -2,10 +2,10 @@
 
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_kit/src/enums/network_exception_type.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
+import 'package:net_kit/src/enums/transport_error_type.dart';
 import 'package:net_kit/src/models/error_response_data.dart';
-import 'package:net_kit/src/models/net_client_exception.dart';
+import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/codec/request_data_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
@@ -46,11 +46,11 @@ void main() {
 
   late ClientExceptionMapper sut;
 
-  void verifyNetworkException(
+  void verifyTransportException(
     DioException exception,
     Object? expectedInnerCause,
     StackTrace? expectedStackTrace,
-    NetworkExceptionType expectedType,
+    TransportErrorType expectedType,
   ) {
     final result = sut.mapException(
       exception,
@@ -61,7 +61,7 @@ void main() {
 
     expect(
       result.errorOrNull,
-      isA<NetworkException>()
+      isA<TransportException>()
           .having((p) => p.type, 'type', expectedType)
           .having((p) => p.cause, 'cause', expectedInnerCause)
           .having((p) => p.stackTrace, 'stackTrace', expectedStackTrace),
@@ -106,22 +106,19 @@ void main() {
   });
 
   test(
-    'If exception is a DioException of types other than badResponse, unknown, or cancel, returns NetworkException',
+    'If exception is a DioException of types other than badResponse, unknown, or cancel, returns TransportException',
     () {
       final st = StackTrace.current;
       final innerCause = Exception();
       final matchingDioToNetworkExceptionTypes = [
         (
           DioExceptionType.connectionTimeout,
-          NetworkExceptionType.CONNECTION_TIMEOUT
+          TransportErrorType.CONNECTION_TIMEOUT
         ),
-        (DioExceptionType.sendTimeout, NetworkExceptionType.SEND_TIMEOUT),
-        (DioExceptionType.receiveTimeout, NetworkExceptionType.RECEIVE_TIMEOUT),
-        (DioExceptionType.badCertificate, NetworkExceptionType.BAD_CERTIFICATE),
-        (
-          DioExceptionType.connectionError,
-          NetworkExceptionType.CONNECTION_ERROR
-        ),
+        (DioExceptionType.sendTimeout, TransportErrorType.SEND_TIMEOUT),
+        (DioExceptionType.receiveTimeout, TransportErrorType.RECEIVE_TIMEOUT),
+        (DioExceptionType.badCertificate, TransportErrorType.BAD_CERTIFICATE),
+        (DioExceptionType.connectionError, TransportErrorType.CONNECTION_ERROR),
       ];
       for (final type in matchingDioToNetworkExceptionTypes) {
         final dioException = DioException(
@@ -131,7 +128,7 @@ void main() {
           stackTrace: st,
         );
 
-        verifyNetworkException(
+        verifyTransportException(
           dioException,
           innerCause,
           st,

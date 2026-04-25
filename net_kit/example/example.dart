@@ -75,8 +75,8 @@ Future<void> main() async {
     },
     onError: (error) {
       switch (error) {
-        case NetworkException(type: final type):
-          print('Network error: $type');
+        case TransportException(type: final type):
+          print('Transport error: $type');
         case ParseException():
           print('Response parsing failed');
         case UnexpectedException(message: final message):

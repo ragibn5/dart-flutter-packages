@@ -81,6 +81,7 @@ class UserCodec implements RequestCodec<Object?, User, ApiError> {
 ### 3. Create the client
 
 ```dart
+
 final client = NetClientFactory.create(
   const DefaultClientConfig(
     baseUrl: 'https://your-api.example.com',
@@ -111,8 +112,8 @@ final request = RequestSpec<Map<String, dynamic>>(
 
 `execute(...)` returns:
 
-- `Result.error(...)` contains infrastructure failures as `NetClientException`.
-  See `NetClientException` and its subtypes for more details.
+- `Result.error(...)` contains infrastructure failures as `NetKitException`.
+  See `NetKitException` and its subtypes for more details.
 - `Result.success(ApiResponse(...))` contains either a decoded success payload
   or a decoded domain error payload. See the `ApiResponse` type for more details.
 
@@ -136,14 +137,14 @@ void main() async {
     },
     onError: (error) {
       switch (error) {
-        case NetworkException(type: final type):
-          print('Network error: $type');
+        case TransportException(type: final type):
+          print('Transport/Network error: $type');
         case ParseException():
           print('Parsing failed');
-        case UnexpectedException(message: final message):
-          print('Unexpected error: $message');
         case CancellationException():
           print('Cancelled');
+        case UnexpectedException(message: final message):
+          print('Unexpected error: $message');
       }
     },
   );

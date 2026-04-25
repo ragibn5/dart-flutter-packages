@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:net_kit/src/enums/network_exception_type.dart';
+import 'package:net_kit/src/enums/transport_error_type.dart';
 import 'package:net_kit/src/models/error_response_data.dart';
-import 'package:net_kit/src/models/net_client_exception.dart';
+import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/codec/request_data_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
@@ -17,7 +17,7 @@ class DioClientExceptionMapper implements ClientExceptionMapper {
   );
 
   @override
-  Result<NetClientException, ErrorResponseData<DomainErrorType>>
+  Result<NetKitException, ErrorResponseData<DomainErrorType>>
       mapException<DomainErrorType>(
     Object exception, {
     StackTrace? stackTrace,
@@ -35,36 +35,36 @@ class DioClientExceptionMapper implements ClientExceptionMapper {
 
     return switch (exception.type) {
       DioExceptionType.connectionTimeout => Result.error(
-          NetworkException(
-            NetworkExceptionType.CONNECTION_TIMEOUT,
+          TransportException(
+            TransportErrorType.CONNECTION_TIMEOUT,
             cause: exception.error,
             stackTrace: exception.stackTrace,
           ),
         ),
       DioExceptionType.sendTimeout => Result.error(
-          NetworkException(
-            NetworkExceptionType.SEND_TIMEOUT,
+          TransportException(
+            TransportErrorType.SEND_TIMEOUT,
             cause: exception.error,
             stackTrace: exception.stackTrace,
           ),
         ),
       DioExceptionType.receiveTimeout => Result.error(
-          NetworkException(
-            NetworkExceptionType.RECEIVE_TIMEOUT,
+          TransportException(
+            TransportErrorType.RECEIVE_TIMEOUT,
             cause: exception.error,
             stackTrace: exception.stackTrace,
           ),
         ),
       DioExceptionType.badCertificate => Result.error(
-          NetworkException(
-            NetworkExceptionType.BAD_CERTIFICATE,
+          TransportException(
+            TransportErrorType.BAD_CERTIFICATE,
             cause: exception.error,
             stackTrace: exception.stackTrace,
           ),
         ),
       DioExceptionType.connectionError => Result.error(
-          NetworkException(
-            NetworkExceptionType.CONNECTION_ERROR,
+          TransportException(
+            TransportErrorType.CONNECTION_ERROR,
             cause: exception.error,
             stackTrace: exception.stackTrace,
           ),
@@ -91,7 +91,7 @@ class DioClientExceptionMapper implements ClientExceptionMapper {
   }
 
   /// Decodes an error response, wrapping decode failures.
-  Result<NetClientException, ErrorResponseData<E>> _decodeErrorResponse<E>({
+  Result<NetKitException, ErrorResponseData<E>> _decodeErrorResponse<E>({
     required Response<dynamic>? response,
     required ErrorResponseDataDecoder<E> errorResponseDataDecoder,
   }) {
