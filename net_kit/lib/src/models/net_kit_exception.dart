@@ -39,7 +39,7 @@ final class TransportException extends NetKitException {
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'TransportException{type: $type, cause: $cause, stackTrace: $stackTrace}';
+    return 'TransportException {type: $type, cause: $cause, stackTrace: $stackTrace}';
   }
 }
 
@@ -95,6 +95,6 @@ final class UnexpectedException extends NetKitException {
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'UnexpectedException{message: $message, cause: $cause, stackTrace: $stackTrace}';
+    return 'UnexpectedException {message: $message, cause: $cause, stackTrace: $stackTrace}';
   }
 }

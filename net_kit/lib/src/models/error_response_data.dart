@@ -18,6 +18,6 @@ class ErrorResponseData<E> {
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'ErrorResponseData{statusCode: $statusCode, headers: $headers, error: $error}';
+    return 'ErrorResponseData {statusCode: $statusCode, headers: $headers, error: $error}';
   }
 }
