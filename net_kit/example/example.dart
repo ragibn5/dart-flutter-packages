@@ -31,15 +31,15 @@ class UserCodec implements RequestCodec<Object?, User, ApiError> {
   const UserCodec();
 
   @override
-  Object? encodeBody(Object? body) => body;
+  Object? encodeRequestData(Object? body) => body;
 
   @override
-  User decodeResponse(dynamic raw) {
+  User decodeSuccessfulResponse(dynamic raw) {
     return User.fromJson(raw as Map<String, dynamic>);
   }
 
   @override
-  ApiError decodeError(dynamic raw) {
+  ApiError decodeErrorResponse(dynamic raw) {
     return ApiError.fromJson(raw as Map<String, dynamic>);
   }
 }

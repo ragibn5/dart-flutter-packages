@@ -2,22 +2,12 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
-import 'package:net_kit/src/clients/net_client.dart';
-import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/models/api_response.dart';
-import 'package:net_kit/src/models/default_client_config.dart';
-import 'package:net_kit/src/models/request_spec.dart';
-import 'package:net_kit/src/models/response_context.dart';
-import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/cancellation/request_canceller.dart';
+import 'package:net_kit/net_kit.dart';
 import 'package:net_kit/src/services/codec/net_client_request_encoder.dart';
 import 'package:net_kit/src/services/codec/net_client_response_decoder.dart';
-import 'package:net_kit/src/services/codec/request_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/dio_client_exception_mapper.dart';
-import 'package:net_kit/src/services/mappers/response_classifier.dart';
 import 'package:net_kit/src/services/mappers/response_classifier_impl.dart';
-import 'package:net_kit/src/types/api_call_result.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
 /// A thin, generic HTTP executor for typed requests and responses.
@@ -98,7 +88,7 @@ class DioNetClient implements NetClient {
   }) async {
     try {
       final encodedRequest =
-          _requestEncoder.encode(spec.body, codec.encodeBody);
+          _requestEncoder.encode(spec.body, codec.encodeRequestData);
       if (encodedRequest.isError) {
         return Result.error(encodedRequest.errorOrNull!);
       }
@@ -132,7 +122,7 @@ class DioNetClient implements NetClient {
       );
       if (responseClassifier.isError(responseContext)) {
         return _errorResponseDecoder
-            .decode(response.data, codec.decodeError)
+            .decode(response.data, codec.decodeErrorResponse)
             .fold(
               onError: Result.error,
               onSuccess: (e) => Result.success(
@@ -147,7 +137,7 @@ class DioNetClient implements NetClient {
       }
 
       return _successfulResponseDecoder
-          .decode(response.data, codec.decodeResponse)
+          .decode(response.data, codec.decodeSuccessfulResponse)
           .fold(
             onError: Result.error,
             onSuccess: (r) => Result.success(
@@ -161,7 +151,11 @@ class DioNetClient implements NetClient {
           );
     } catch (e, st) {
       return _clientExceptionMapper
-          .mapException(e, stackTrace: st, errorDecoder: codec.decodeError)
+          .mapException(
+            e,
+            stackTrace: st,
+            errorDecoder: codec.decodeErrorResponse,
+          )
           .fold(
             onError: Result.error,
             onSuccess: (errorResponse) => Result.success(
