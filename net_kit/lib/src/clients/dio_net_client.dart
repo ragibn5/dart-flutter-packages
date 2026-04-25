@@ -93,18 +93,14 @@ class DioNetClient implements NetClient {
         return Result.error(transformedRequest.errorOrNull!);
       }
 
-      final response = await _dio.fetch<dynamic>(
-        RequestOptions(
-          path: spec.pathOrUrl,
-          data: transformedRequest.resultOrNull,
-          onReceiveProgress: onReceiveProgress,
-          onSendProgress: onSendProgress,
-          cancelToken: _createCancelToken(spec, requestCanceller),
+      final response = await _dio.request<dynamic>(
+        spec.pathOrUrl,
+        data: transformedRequest.resultOrNull,
+        queryParameters: spec.queryParameters,
+        options: Options(
           method: spec.method.value,
           sendTimeout: spec.sendTimeout,
           receiveTimeout: spec.receiveTimeout,
-          connectTimeout: spec.connectionTimeout,
-          queryParameters: spec.queryParameters,
           headers: spec.headers,
           // We may need multiple factors to decide whether the
           // response is an error response, the status-code itself
@@ -112,6 +108,9 @@ class DioNetClient implements NetClient {
           // response classifier later on.
           validateStatus: (s) => true,
         ),
+        onReceiveProgress: onReceiveProgress,
+        onSendProgress: onSendProgress,
+        cancelToken: _createCancelToken(spec, requestCanceller),
       );
 
       final responseContext = ResponseContext(

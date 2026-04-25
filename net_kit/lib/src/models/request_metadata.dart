@@ -25,9 +25,6 @@ class RequestMetadata {
   /// Timeout for receiving the request.
   final Duration? receiveTimeout;
 
-  /// Timeout for creating the connection.
-  final Duration? connectionTimeout;
-
   RequestMetadata({
     required this.pathOrUrl,
     required this.method,
@@ -35,6 +32,5 @@ class RequestMetadata {
     this.headers = const {},
     this.sendTimeout,
     this.receiveTimeout,
-    this.connectionTimeout,
   });
 }

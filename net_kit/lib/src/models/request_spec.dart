@@ -15,7 +15,6 @@ class RequestSpec<RequestBodyType> extends RequestMetadata {
     super.headers,
     super.sendTimeout,
     super.receiveTimeout,
-    super.connectionTimeout,
     required this.body,
   });
 }

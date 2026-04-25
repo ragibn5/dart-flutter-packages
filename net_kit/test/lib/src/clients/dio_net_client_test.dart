@@ -41,7 +41,7 @@ class MockRequestCodec extends Mock
 
 class MockResponseClassifier extends Mock implements ResponseClassifier {}
 
-class FakeRequestOptions extends Fake implements RequestOptions {}
+class FakeOptions extends Fake implements Options {}
 
 class FakeResponseContext extends Fake implements ResponseContext {}
 
@@ -59,7 +59,7 @@ void main() {
   late NetClient sut;
 
   setUpAll(() {
-    registerFallbackValue(FakeRequestOptions());
+    registerFallbackValue(FakeOptions());
     registerFallbackValue(FakeResponseContext());
   });
 
@@ -115,7 +115,15 @@ void main() {
       expect(result.errorOrNull, same(parseException));
       expect(result.resultOrNull, isNull);
       verifyNever(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       );
     },
   );
@@ -139,7 +147,15 @@ void main() {
         ),
       ).thenReturn(Result.success(encodedBody));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
@@ -157,15 +173,24 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       expect(result.resultOrNull?.data.resultOrNull, decodedResponse);
-      final capturedRequest = verify(
-        () => mockDio.fetch<dynamic>(captureAny()),
-      ).captured.single as RequestOptions;
-      expect(capturedRequest.path, spec.pathOrUrl);
-      expect(capturedRequest.data, encodedBody);
-      expect(capturedRequest.queryParameters, spec.queryParameters);
-      expect(capturedRequest.cancelToken, isNull);
-      expect(capturedRequest.onSendProgress, isNull);
-      expect(capturedRequest.onReceiveProgress, isNull);
+      final verification = verify(
+        () => mockDio.request<dynamic>(
+          captureAny(),
+          data: captureAny(named: 'data'),
+          queryParameters: captureAny(named: 'queryParameters'),
+          options: captureAny(named: 'options'),
+          cancelToken: captureAny(named: 'cancelToken'),
+          onSendProgress: captureAny(named: 'onSendProgress'),
+          onReceiveProgress: captureAny(named: 'onReceiveProgress'),
+        ),
+      );
+      final captured = verification.captured;
+      expect(captured[0], spec.pathOrUrl);
+      expect(captured[1], encodedBody);
+      expect(captured[2], spec.queryParameters);
+      expect(captured[4], isNull);
+      expect(captured[5], isNull);
+      expect(captured[6], isNull);
     },
   );
 
@@ -191,17 +216,27 @@ void main() {
         ),
       ).thenReturn(Result.success(encodedBody));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenAnswer((invocation) async {
-        final requestOptions =
-            invocation.positionalArguments.single as RequestOptions;
-        final cancelToken = requestOptions.cancelToken;
+        final path = invocation.positionalArguments.single as String;
+        final data = invocation.namedArguments[#data];
+        final queryParameters = invocation.namedArguments[#queryParameters];
+        final cancelToken =
+            invocation.namedArguments[#cancelToken] as CancelToken?;
 
         expect(cancelToken, isNotNull);
         expect(cancelToken!.isCancelled, isTrue);
-        expect(requestOptions.path, spec.pathOrUrl);
-        expect(requestOptions.data, encodedBody);
-        expect(requestOptions.queryParameters, spec.queryParameters);
+        expect(path, spec.pathOrUrl);
+        expect(data, encodedBody);
+        expect(queryParameters, spec.queryParameters);
         expect(requestCanceller.requestSpec, same(spec));
 
         return response;
@@ -248,17 +283,27 @@ void main() {
         ),
       ).thenReturn(Result.success(encodedBody));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenAnswer((invocation) async {
-        final requestOptions =
-            invocation.positionalArguments.single as RequestOptions;
-        final cancelToken = requestOptions.cancelToken;
+        final path = invocation.positionalArguments.single as String;
+        final data = invocation.namedArguments[#data];
+        final queryParameters = invocation.namedArguments[#queryParameters];
+        final cancelToken =
+            invocation.namedArguments[#cancelToken] as CancelToken?;
 
         expect(cancelToken, isNotNull);
         expect(cancelToken!.isCancelled, isFalse);
-        expect(requestOptions.path, spec.pathOrUrl);
-        expect(requestOptions.data, encodedBody);
-        expect(requestOptions.queryParameters, spec.queryParameters);
+        expect(path, spec.pathOrUrl);
+        expect(data, encodedBody);
+        expect(queryParameters, spec.queryParameters);
         expect(requestCanceller.requestSpec, same(spec));
 
         requestStarted.complete();
@@ -316,7 +361,15 @@ void main() {
         ),
       ).thenReturn(Result.success(encodedBody));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(true);
       when(
@@ -360,7 +413,15 @@ void main() {
         ),
       ).thenReturn(Result.success(encodedBody));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(true);
       when(
@@ -408,7 +469,15 @@ void main() {
         ),
       ).thenReturn(Result.success(encodedBody));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
@@ -456,7 +525,15 @@ void main() {
         ),
       ).thenReturn(Result.success(encodedBody));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
@@ -474,9 +551,19 @@ void main() {
         onReceiveProgress: onReceiveProgress,
       );
 
-      final capturedRequest = verify(
-        () => mockDio.fetch<dynamic>(captureAny()),
-      ).captured.single as RequestOptions;
+      final verification = verify(
+        () => mockDio.request<dynamic>(
+          captureAny(),
+          data: captureAny(named: 'data'),
+          queryParameters: captureAny(named: 'queryParameters'),
+          options: captureAny(named: 'options'),
+          cancelToken: captureAny(named: 'cancelToken'),
+          onSendProgress: captureAny(named: 'onSendProgress'),
+          onReceiveProgress: captureAny(named: 'onReceiveProgress'),
+        ),
+      );
+      final captured = verification.captured;
+      final capturedOptions = captured[3] as Options;
 
       expect(result.isSuccess, isTrue);
       expect(result.errorOrNull, isNull);
@@ -485,17 +572,16 @@ void main() {
       expect(result.resultOrNull?.requestSpec, same(spec));
       expect(result.resultOrNull?.data.isSuccess, isTrue);
       expect(result.resultOrNull?.data.resultOrNull, decodedResponse);
-      expect(capturedRequest.path, spec.pathOrUrl);
-      expect(capturedRequest.data, encodedBody);
-      expect(capturedRequest.queryParameters, spec.queryParameters);
-      expect(capturedRequest.cancelToken, isNull);
-      expect(capturedRequest.method, spec.method.value);
-      expect(capturedRequest.headers, spec.headers);
-      expect(capturedRequest.onSendProgress, same(onSendProgress));
-      expect(capturedRequest.onReceiveProgress, same(onReceiveProgress));
-      expect(capturedRequest.sendTimeout, isNull);
-      expect(capturedRequest.receiveTimeout, isNull);
-      expect(capturedRequest.connectTimeout, isNull);
+      expect(captured[0], spec.pathOrUrl);
+      expect(captured[1], encodedBody);
+      expect(captured[2], spec.queryParameters);
+      expect(captured[4], isNull);
+      expect(capturedOptions.method, spec.method.value);
+      expect(capturedOptions.headers, spec.headers);
+      expect(captured[5], same(onSendProgress));
+      expect(captured[6], same(onReceiveProgress));
+      expect(capturedOptions.sendTimeout, isNull);
+      expect(capturedOptions.receiveTimeout, isNull);
     },
   );
 
@@ -525,7 +611,15 @@ void main() {
         ),
       ).thenReturn(Result.success(encodedBody));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenAnswer((_) async => response);
       when(() => mockResponseClassifier.isError(any())).thenReturn(false);
       when(
@@ -541,18 +635,28 @@ void main() {
         responseClassifier: mockResponseClassifier,
       );
 
-      final capturedRequest = verify(
-        () => mockDio.fetch<dynamic>(captureAny()),
-      ).captured.single as RequestOptions;
+      final verification = verify(
+        () => mockDio.request<dynamic>(
+          captureAny(),
+          data: captureAny(named: 'data'),
+          queryParameters: captureAny(named: 'queryParameters'),
+          options: captureAny(named: 'options'),
+          cancelToken: captureAny(named: 'cancelToken'),
+          onSendProgress: captureAny(named: 'onSendProgress'),
+          onReceiveProgress: captureAny(named: 'onReceiveProgress'),
+        ),
+      );
+      final captured = verification.captured;
+      final capturedOptions = captured[3] as Options;
 
       expect(result.isSuccess, isTrue);
-      expect(capturedRequest.path, timedSpec.pathOrUrl);
-      expect(capturedRequest.data, encodedBody);
-      expect(capturedRequest.queryParameters, timedSpec.queryParameters);
-      expect(capturedRequest.cancelToken, isNull);
-      expect(capturedRequest.method, HttpMethod.HEAD.value);
-      expect(capturedRequest.sendTimeout, timedSpec.sendTimeout);
-      expect(capturedRequest.receiveTimeout, timedSpec.receiveTimeout);
+      expect(captured[0], timedSpec.pathOrUrl);
+      expect(captured[1], encodedBody);
+      expect(captured[2], timedSpec.queryParameters);
+      expect(captured[4], isNull);
+      expect(capturedOptions.method, HttpMethod.HEAD.value);
+      expect(capturedOptions.sendTimeout, timedSpec.sendTimeout);
+      expect(capturedOptions.receiveTimeout, timedSpec.receiveTimeout);
     },
   );
 
@@ -573,7 +677,15 @@ void main() {
         ),
       ).thenReturn(Result.success('encoded'));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenThrow(exception);
       when(
         () => mockClientExceptionMapper.mapException<String>(
@@ -617,7 +729,15 @@ void main() {
         ),
       ).thenReturn(Result.success('encoded'));
       when(
-        () => mockDio.fetch<dynamic>(any()),
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
       ).thenThrow(exception);
       when(
         () => mockClientExceptionMapper.mapException<String>(
