@@ -1,20 +1,19 @@
-class MultipartFilePart {
-  /// Multipart field name that this file belongs to.
+import 'package:net_kit/src/models/file_source.dart';
+
+final class MultipartFilePart {
   final String fieldName;
 
-  /// File name reported to the server.
   final String fileName;
+  final FileSource source;
 
-  /// In-memory file contents.
-  final List<int> bytes;
+  final String? contentType;
+  final Map<String, String>? headers;
 
   const MultipartFilePart({
     required this.fieldName,
     required this.fileName,
-    required this.bytes,
+    required this.source,
     this.contentType,
+    this.headers,
   });
-
-  /// Optional MIME type, for example `image/jpeg`.
-  final String? contentType;
 }

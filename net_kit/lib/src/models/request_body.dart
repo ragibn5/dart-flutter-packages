@@ -1,42 +1,37 @@
-import 'package:net_kit/src/models/multipart_field.dart';
 import 'package:net_kit/src/models/multipart_file_part.dart';
+import 'package:net_kit/src/models/raw_data.dart';
 
-sealed class RequestBody<Req> {
+sealed class RequestBody {
   const RequestBody();
 }
 
-final class EncodableRequestBody<Req> extends RequestBody<Req> {
-  /// An encodable strongly typed data of the request body.
-  final Req data;
+final class RawBody extends RequestBody {
+  final RawData data;
+  final String contentType;
 
-  const EncodableRequestBody(this.data);
+  const RawBody(this.data, {required this.contentType});
 }
 
-final class FormUrlEncodedRequestBody extends RequestBody<Never> {
-  /// Key-value pairs encoded as `application/x-www-form-urlencoded`.
-  final Map<String, dynamic> fields;
+final class JsonBody extends RequestBody {
+  final Map<String, dynamic> data;
 
-  const FormUrlEncodedRequestBody({
+  const JsonBody(this.data);
+}
+
+final class FormUrlEncodedBody extends RequestBody {
+  final Map<String, String> fields;
+
+  const FormUrlEncodedBody({
     this.fields = const {},
   });
 }
 
-final class MultipartRequestBody extends RequestBody<Never> {
-  /// Plain text fields sent alongside any file parts.
-  final List<MultipartField> fields;
-
-  /// File parts to upload.
+final class MultipartBody extends RequestBody {
+  final Map<String, String> fields;
   final List<MultipartFilePart> files;
 
-  const MultipartRequestBody({
-    this.fields = const [],
+  const MultipartBody({
+    this.fields = const {},
     this.files = const [],
   });
-}
-
-final class RawRequestBody extends RequestBody<Never> {
-  /// Raw bytes sent without structural encoding such as JSON or multipart.
-  final List<int> bytes;
-
-  const RawRequestBody(this.bytes);
 }
