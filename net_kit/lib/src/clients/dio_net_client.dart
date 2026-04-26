@@ -72,6 +72,8 @@ class DioNetClient implements NetClient {
         receiveTimeout: config.receiveTimeout,
         queryParameters: config.queryParameters,
         headers: config.headers,
+        followRedirects: config.followRedirects,
+        maxRedirects: config.maxRedirects,
       ),
     );
   }
@@ -102,6 +104,8 @@ class DioNetClient implements NetClient {
           sendTimeout: spec.sendTimeout,
           receiveTimeout: spec.receiveTimeout,
           headers: spec.headers,
+          followRedirects: spec.followRedirects,
+          maxRedirects: spec.maxRedirects,
           // We may need multiple factors to decide whether the
           // response is an error response, the status-code itself
           // may not be sufficient. We will decide this with the

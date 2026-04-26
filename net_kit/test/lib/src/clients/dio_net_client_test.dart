@@ -79,6 +79,8 @@ void main() {
       body: 'request-body',
       queryParameters: const {'page': 1},
       headers: const {'authorization': 'Bearer token'},
+      followRedirects: false,
+      maxRedirects: 1,
     );
 
     sut = DioNetClient.test(
@@ -500,23 +502,21 @@ void main() {
   );
 
   test(
-    'Execute returns decoded success payload for non-error response',
+    'Execute passes request values to Dio request/options',
     () async {
       const encodedBody = {'name': 'Alice'};
       const responseData = {'id': 1};
       const decodedResponse = 'decoded-response';
-      final response = Response<dynamic>(
-        requestOptions: RequestOptions(path: spec.pathOrUrl),
-        statusCode: 200,
-        data: responseData,
-        headers: Headers.fromMap(const {
-          'content-type': ['application/json'],
-        }),
-      );
 
       void onSendProgress(_, __) {}
 
       void onReceiveProgress(_, __) {}
+
+      final response = Response<dynamic>(
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
+        statusCode: 200,
+        data: responseData,
+      );
 
       when(
         () => mockRequestDataTransformer.transform<String>(
@@ -566,22 +566,74 @@ void main() {
       final capturedOptions = captured[3] as Options;
 
       expect(result.isSuccess, isTrue);
-      expect(result.errorOrNull, isNull);
-      expect(result.resultOrNull?.statusCode, 200);
-      expect(result.resultOrNull?.headers, response.headers.map);
-      expect(result.resultOrNull?.requestSpec, same(spec));
-      expect(result.resultOrNull?.data.isSuccess, isTrue);
-      expect(result.resultOrNull?.data.resultOrNull, decodedResponse);
       expect(captured[0], spec.pathOrUrl);
       expect(captured[1], encodedBody);
       expect(captured[2], spec.queryParameters);
       expect(captured[4], isNull);
       expect(capturedOptions.method, spec.method.value);
       expect(capturedOptions.headers, spec.headers);
+      expect(capturedOptions.followRedirects, spec.followRedirects);
+      expect(capturedOptions.maxRedirects, spec.maxRedirects);
       expect(captured[5], same(onSendProgress));
       expect(captured[6], same(onReceiveProgress));
       expect(capturedOptions.sendTimeout, isNull);
       expect(capturedOptions.receiveTimeout, isNull);
+    },
+  );
+
+  test(
+    'Execute returns decoded success payload for non-error response',
+    () async {
+      const encodedBody = {'name': 'Alice'};
+      const responseData = {'id': 1};
+      const decodedResponse = 'decoded-response';
+      final response = Response<dynamic>(
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
+        statusCode: 200,
+        data: responseData,
+        headers: Headers.fromMap(const {
+          'content-type': ['application/json'],
+        }),
+      );
+
+      when(
+        () => mockRequestDataTransformer.transform<String>(
+          'request-body',
+          mockRequestCodec,
+        ),
+      ).thenReturn(Result.success(encodedBody));
+      when(
+        () => mockDio.request<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+          cancelToken: any(named: 'cancelToken'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+        ),
+      ).thenAnswer((_) async => response);
+      when(() => mockResponseClassifier.isError(any())).thenReturn(false);
+      when(
+        () => mockSuccessfulResponseDataTransformer.transform<String>(
+          responseData,
+          mockRequestCodec,
+        ),
+      ).thenReturn(Result.success(decodedResponse));
+
+      final result = await sut.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+        responseClassifier: mockResponseClassifier,
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.errorOrNull, isNull);
+      expect(result.resultOrNull?.statusCode, 200);
+      expect(result.resultOrNull?.headers, response.headers.map);
+      expect(result.resultOrNull?.requestSpec, same(spec));
+      expect(result.resultOrNull?.data.isSuccess, isTrue);
+      expect(result.resultOrNull?.data.resultOrNull, decodedResponse);
     },
   );
 
@@ -657,6 +709,8 @@ void main() {
       expect(capturedOptions.method, HttpMethod.HEAD.value);
       expect(capturedOptions.sendTimeout, timedSpec.sendTimeout);
       expect(capturedOptions.receiveTimeout, timedSpec.receiveTimeout);
+      expect(capturedOptions.followRedirects, isNull);
+      expect(capturedOptions.maxRedirects, isNull);
     },
   );
 

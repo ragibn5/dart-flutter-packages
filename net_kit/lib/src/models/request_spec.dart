@@ -15,6 +15,8 @@ class RequestSpec<RequestBodyType> extends RequestMetadata {
     super.headers,
     super.sendTimeout,
     super.receiveTimeout,
+    super.followRedirects,
+    super.maxRedirects,
     required this.body,
   });
 }

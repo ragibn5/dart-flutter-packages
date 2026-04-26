@@ -2,31 +2,39 @@ class DefaultClientConfig {
   /// The base URL.
   final String? baseUrl;
 
-  /// Timeout for sending the request.
+  /// Default request timeout.
   final Duration? sendTimeout;
 
-  /// Timeout for receiving the request.
+  /// Default receive timeout.
   final Duration? receiveTimeout;
 
-  /// Timeout for creating the connection.
+  /// Default connection timeout.
   final Duration? connectionTimeout;
 
-  /// Optional query parameters appended to the URL.
-  ///
-  /// Example: `{'page': 1, 'limit': 20}`
-  final Map<String, dynamic> queryParameters;
+  /// Default list of query params.
+  final Map<String, dynamic>? queryParameters;
 
-  /// Additional headers to merge with the client-level headers.
+  /// Default list of query params.
+  final Map<String, dynamic>? headers;
+
+  /// Whether to follow redirects.
   ///
-  /// NOTE: These take precedence over client-level headers on collision.
-  final Map<String, dynamic> headers;
+  /// Defaults to true.
+  final bool followRedirects;
+
+  /// Maximum number of redirects to follow.
+  ///
+  /// Defaults to 5.
+  final int maxRedirects;
 
   const DefaultClientConfig({
     this.baseUrl,
     this.sendTimeout,
     this.receiveTimeout,
     this.connectionTimeout,
-    this.queryParameters = const {},
-    this.headers = const {},
+    this.queryParameters,
+    this.headers,
+    this.followRedirects = true,
+    this.maxRedirects = 5,
   });
 }
