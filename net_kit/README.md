@@ -51,28 +51,24 @@ class ApiError {
 
 If you already have these, you may skip this step.
 
-### 2. Implement a `RequestCodec`
+### 2. Implement a `ResponseDataCodec`
 
-`RequestCodec<Req, Res, Err>` tells the client how to:
+`ResponseDataCodec<Res, Err>` tells the client how to:
 
-- Encode the request body
 - Decode the success body into `Res`
 - Decode the error body into `Err`
 
 ```dart
-class UserCodec implements RequestCodec<Object?, User, ApiError> {
+class UserCodec implements ResponseDataCodec<User, ApiError> {
   const UserCodec();
 
   @override
-  Object? encodeBody(Object? body) => body;
-
-  @override
-  User decodeResponse(dynamic raw) {
+  User decodeData(dynamic raw) {
     return User.fromJson(raw as Map<String, dynamic>);
   }
 
   @override
-  ApiError decodeError(dynamic raw) {
+  ApiError decodeErrorData(dynamic raw) {
     return ApiError.fromJson(raw as Map<String, dynamic>);
   }
 }
@@ -93,20 +89,22 @@ final client = NetClientFactory.create(
 
 ### 4. Build a `RequestSpec`
 
-`RequestSpec<Req>` describes a request, for example:
+`RequestSpec` describes a request, for example:
 
 ```dart
-
-final request = RequestSpec<Map<String, dynamic>>(
+final request = RequestSpec(
   pathOrUrl: '/users',
   method: HttpMethod.POST,
-  body: const {'name': 'Ragib'},
+  body: const JsonBody({'name': 'Ragib'}),
   queryParameters: const {'include': 'profile'},
   headers: const {'x-request-id': 'abc-123'},
   sendTimeout: const Duration(seconds: 3),
   receiveTimeout: const Duration(seconds: 3),
 );
 ```
+
+Use `contentType` when you need to override the deduced content type for a
+request, or when you send a raw payload with `RawBody(...)`.
 
 ### 5. Execute and handle the request
 
@@ -122,7 +120,10 @@ For example:
 ```dart
 void main() async {
   // Execute
-  final result = await client.execute(spec: request, codec: const UserCodec());
+  final result = await client.execute<User, ApiError>(
+    spec: request,
+    codec: const UserCodec(),
+  );
 
   // Handle response as needed
   result.fold(

@@ -1,7 +1,7 @@
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/result.dart';
 
-class ApiResponse<Req, Res, Err> {
+class ApiResponse<Res, Err> {
   /// The status code from the server side.
   final int statusCode;
 
@@ -12,7 +12,7 @@ class ApiResponse<Req, Res, Err> {
   final Map<String, List<String>> headers;
 
   /// The request spec that was sent to the server.
-  final RequestSpec<Req> requestSpec;
+  final RequestSpec requestSpec;
 
   ApiResponse({
     required this.statusCode,

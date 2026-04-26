@@ -1,7 +1,7 @@
 import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
-import 'package:net_kit/src/services/codec/request_data_codec.dart';
-import 'package:net_kit/src/services/transformers/error_response_data_transformer.dart';
+import 'package:net_kit/src/services/codec/response_data_codec.dart';
+import 'package:net_kit/src/services/transformers/response/error_response_data_transformer.dart';
 import 'package:test/test.dart';
 
 class IdentityErrorResponseDataDecoder

@@ -1,15 +1,16 @@
 // ignore_for_file: cascade_invocations
 
 import 'package:net_kit/src/enums/http_method.dart';
+import 'package:net_kit/src/models/request_body.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/services/cancellation/request_canceller.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late RequestCanceller<String> sut;
+  late RequestCanceller sut;
 
   setUp(() {
-    sut = RequestCanceller<String>();
+    sut = RequestCanceller();
   });
 
   test('Starts with no cancellation state', () {
@@ -18,14 +19,16 @@ void main() {
     expect(sut.requestSpec, isNull);
   });
 
-  test('Completes an existing whenCancel listener after cancel is called',
-      () async {
-    final pendingCancellation = sut.whenCancel;
+  test(
+    'Completes an existing whenCancel listener after cancel is called',
+    () async {
+      final pendingCancellation = sut.whenCancel;
 
-    sut.cancel(reason: 'User aborted');
+      sut.cancel(reason: 'User aborted');
 
-    await expectLater(pendingCancellation, completion('User aborted'));
-  });
+      await expectLater(pendingCancellation, completion('User aborted'));
+    },
+  );
 
   test('Completes whenCancel with the provided reason', () async {
     sut.cancel(reason: 'User aborted');
@@ -42,12 +45,14 @@ void main() {
     expect(sut.reason, 'User aborted');
   });
 
-  test('Returns the same reason from whenCancel after prior cancellation',
-      () async {
-    sut.cancel(reason: 'User aborted');
+  test(
+    'Returns the same reason from whenCancel after prior cancellation',
+    () async {
+      sut.cancel(reason: 'User aborted');
 
-    await expectLater(sut.whenCancel, completion('User aborted'));
-  });
+      await expectLater(sut.whenCancel, completion('User aborted'));
+    },
+  );
 
   test('Accepts a non-String cancellation reason', () async {
     final reason = Exception('User aborted');
@@ -67,15 +72,15 @@ void main() {
   });
 
   test('Binds requestSpec only once', () {
-    final firstSpec = RequestSpec<String>(
+    final firstSpec = RequestSpec(
       pathOrUrl: '/users/42',
       method: HttpMethod.GET,
-      body: '',
+      body: const JsonBody({}),
     );
-    final secondSpec = RequestSpec<String>(
+    final secondSpec = RequestSpec(
       pathOrUrl: '/users/99',
       method: HttpMethod.POST,
-      body: 'payload',
+      body: const JsonBody({'payload': 'value'}),
     );
 
     sut.bindRequestSpec(firstSpec);

@@ -1,4 +1,4 @@
-import 'package:net_kit/src/models/request_metadata.dart';
+import 'package:net_kit/src/models/request_spec.dart';
 
 class ResponseContext {
   /// The status code from the server side.
@@ -10,13 +10,13 @@ class ResponseContext {
   /// The response headers.
   final Map<String, List<String>> responseHeaders;
 
-  /// The request metadata that initiated the corresponding request.
-  final RequestMetadata requestMetadata;
+  /// The original request.
+  final RequestSpec request;
 
   ResponseContext({
     required this.statusCode,
     required this.rawResponseBody,
     required this.responseHeaders,
-    required this.requestMetadata,
+    required this.request,
   });
 }

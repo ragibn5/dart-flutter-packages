@@ -1,5 +1,6 @@
 import 'package:net_kit/src/enums/http_method.dart';
-import 'package:net_kit/src/models/request_metadata.dart';
+import 'package:net_kit/src/models/request_body.dart';
+import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/models/response_context.dart';
 import 'package:net_kit/src/services/mappers/response_classifier.dart';
 import 'package:test/test.dart';
@@ -7,9 +8,10 @@ import 'package:test/test.dart';
 void main() {
   const sut = DefaultResponseClassifier();
 
-  final requestMetadata = RequestMetadata(
+  final request = RequestSpec(
     pathOrUrl: '/users',
     method: HttpMethod.GET,
+    body: const JsonBody({}),
   );
 
   test('Status code below 400 returns false', () {
@@ -17,7 +19,7 @@ void main() {
       statusCode: 399,
       responseHeaders: {},
       rawResponseBody: null,
-      requestMetadata: requestMetadata,
+      request: request,
     );
 
     expect(sut.isError(response), isFalse);
@@ -28,7 +30,7 @@ void main() {
       statusCode: 400,
       responseHeaders: {},
       rawResponseBody: null,
-      requestMetadata: requestMetadata,
+      request: request,
     );
 
     expect(sut.isError(response), isTrue);
@@ -39,7 +41,7 @@ void main() {
       statusCode: 0,
       responseHeaders: {},
       rawResponseBody: null,
-      requestMetadata: requestMetadata,
+      request: request,
     );
 
     expect(sut.isError(response), isFalse);

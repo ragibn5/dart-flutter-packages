@@ -7,10 +7,10 @@ import 'package:net_kit/src/enums/transport_error_type.dart';
 import 'package:net_kit/src/models/error_response_data.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/result.dart';
-import 'package:net_kit/src/services/codec/request_data_codec.dart';
+import 'package:net_kit/src/services/codec/response_data_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/dio_client_exception_mapper.dart';
-import 'package:net_kit/src/services/transformers/error_response_data_transformer.dart';
+import 'package:net_kit/src/services/transformers/response/error_response_data_transformer.dart';
 import 'package:test/test.dart';
 
 class MockRequestOptions extends Mock implements RequestOptions {}

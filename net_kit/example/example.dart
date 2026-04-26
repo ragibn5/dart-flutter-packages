@@ -27,11 +27,8 @@ class ApiError {
   }
 }
 
-class UserCodec implements RequestDataCodec<Object?, User, ApiError> {
+class UserCodec implements ResponseDataCodec<User, ApiError> {
   const UserCodec();
-
-  @override
-  Object? encodeRequestData(Object? body) => body;
 
   @override
   User decodeData(dynamic raw) {
@@ -53,15 +50,20 @@ Future<void> main() async {
     ),
   );
 
-  final request = RequestSpec<Object?>(
-    pathOrUrl: '/users/1',
-    method: HttpMethod.GET,
-    body: null,
+  final request = RequestSpec(
+    pathOrUrl: '/users',
+    method: HttpMethod.POST,
+    body: const JsonBody({
+      'name': 'Ragib',
+    }),
     sendTimeout: const Duration(seconds: 2),
     receiveTimeout: const Duration(seconds: 2),
   );
 
-  final result = await client.execute(spec: request, codec: const UserCodec());
+  final result = await client.execute<User, ApiError>(
+    spec: request,
+    codec: const UserCodec(),
+  );
 
   result.fold(
     onSuccess: (response) {

@@ -5,15 +5,19 @@ import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/dio_client_exception_mapper.dart';
-import 'package:net_kit/src/services/transformers/error_response_data_transformer.dart';
-import 'package:net_kit/src/services/transformers/request_data_transformer.dart';
-import 'package:net_kit/src/services/transformers/successful_response_data_transformer.dart';
+import 'package:net_kit/src/services/resolver/request_body_content_type_resolver.dart';
+import 'package:net_kit/src/services/transformers/request/dio_request_body_transformer.dart';
+import 'package:net_kit/src/services/transformers/request/request_body_transformer.dart';
+import 'package:net_kit/src/services/transformers/response/error_response_data_transformer.dart';
+import 'package:net_kit/src/services/transformers/response/successful_response_data_transformer.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
 /// A thin, generic HTTP executor for typed requests and responses.
 class DioNetClient implements NetClient {
   static const _defaultResponseCode = 0;
-  static const _defaultRequestDataTransformer = DefaultRequestDataTransformer();
+  static const _defaultRequestBodyTransformer = DioRequestBodyTransformer();
+  static const _defaultRequestBodyContentTypeResolver =
+      DefaultRequestBodyContentTypeResolver();
   static const _defaultErrorResponseDataTransformer =
       DefaultErrorResponseDataTransformer();
   static const _defaultSuccessfulResponseDataTransformer =
@@ -25,7 +29,8 @@ class DioNetClient implements NetClient {
 
   final Dio _dio;
 
-  final RequestDataTransformer _requestDataTransformer;
+  final RequestBodyTransformer _requestBodyTransformer;
+  final RequestBodyContentTypeResolver _requestBodyContentTypeResolver;
   final ErrorResponseDataTransformer _errorResponseDataTransformer;
   final SuccessfulResponseDataTransformer _successfulResponseDataTransformer;
 
@@ -34,7 +39,8 @@ class DioNetClient implements NetClient {
   DioNetClient([DefaultClientConfig config = const DefaultClientConfig()])
       : this._(
           _createDio(config),
-          _defaultRequestDataTransformer,
+          _defaultRequestBodyTransformer,
+          _defaultRequestBodyContentTypeResolver,
           _defaultErrorResponseDataTransformer,
           _defaultSuccessfulResponseDataTransformer,
           _defaultClientExceptionMapper,
@@ -43,13 +49,15 @@ class DioNetClient implements NetClient {
   @visibleForTesting
   DioNetClient.test(
     Dio dio,
-    RequestDataTransformer requestDataTransformer,
+    RequestBodyTransformer requestBodyTransformer,
+    RequestBodyContentTypeResolver requestBodyContentTypeResolver,
     ErrorResponseDataTransformer errorResponseDataTransformer,
     SuccessfulResponseDataTransformer successfulResponseDataTransformer,
     ClientExceptionMapper clientExceptionMapper,
   ) : this._(
           dio,
-          requestDataTransformer,
+          requestBodyTransformer,
+          requestBodyContentTypeResolver,
           errorResponseDataTransformer,
           successfulResponseDataTransformer,
           clientExceptionMapper,
@@ -57,7 +65,8 @@ class DioNetClient implements NetClient {
 
   DioNetClient._(
     this._dio,
-    this._requestDataTransformer,
+    this._requestBodyTransformer,
+    this._requestBodyContentTypeResolver,
     this._errorResponseDataTransformer,
     this._successfulResponseDataTransformer,
     this._clientExceptionMapper,
@@ -80,30 +89,28 @@ class DioNetClient implements NetClient {
 
   /// Executes the given [spec] and returns a typed [Result].
   @override
-  Future<ApiCallResult<Req, Res, Err>> execute<Req, Res, Err>({
-    required RequestSpec<Req> spec,
-    required RequestDataCodec<Req, Res, Err> codec,
+  Future<ApiCallResult<Res, Err>> execute<Res, Err>({
+    required RequestSpec spec,
+    required ResponseDataCodec<Res, Err> codec,
     ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
     ProgressListener? onSendProgress,
     ProgressListener? onReceiveProgress,
-    RequestCanceller<Req>? requestCanceller,
+    RequestCanceller? requestCanceller,
   }) async {
     try {
-      final transformedRequest =
-          _requestDataTransformer.transform(spec.body, codec);
-      if (transformedRequest.isError) {
-        return Result.error(transformedRequest.errorOrNull!);
-      }
-
+      final transformedRequest = _requestBodyTransformer.transform(spec.body);
+      final resolvedContentType = spec.contentType ??
+          _requestBodyContentTypeResolver.resolve(spec.body);
       final response = await _dio.request<dynamic>(
         spec.pathOrUrl,
-        data: transformedRequest.resultOrNull,
+        data: transformedRequest,
         queryParameters: spec.queryParameters,
         options: Options(
           method: spec.method.value,
           sendTimeout: spec.sendTimeout,
           receiveTimeout: spec.receiveTimeout,
           headers: spec.headers,
+          contentType: resolvedContentType,
           followRedirects: spec.followRedirects,
           maxRedirects: spec.maxRedirects,
           // We may need multiple factors to decide whether the
@@ -121,7 +128,7 @@ class DioNetClient implements NetClient {
         statusCode: response.statusCode ?? _defaultResponseCode,
         responseHeaders: response.headers.map,
         rawResponseBody: response.data,
-        requestMetadata: spec,
+        request: spec,
       );
       if (responseClassifier.isError(responseContext)) {
         return _errorResponseDataTransformer
@@ -173,9 +180,9 @@ class DioNetClient implements NetClient {
   @override
   void close() => _dio.close();
 
-  CancelToken? _createCancelToken<Req>(
-    RequestSpec<Req> requestSpec,
-    RequestCanceller<Req>? requestCanceller,
+  CancelToken? _createCancelToken(
+    RequestSpec requestSpec,
+    RequestCanceller? requestCanceller,
   ) {
     if (requestCanceller == null) {
       return null;

@@ -4,15 +4,15 @@ import 'package:meta/meta.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 
 /// Transport-agnostic request cancellation handle.
-final class RequestCanceller<Req> {
+final class RequestCanceller {
   Object? _reason;
-  RequestSpec<Req>? _requestSpec;
+  RequestSpec? _requestSpec;
   final _whenCancelCompleter = Completer<Object>();
 
   /// Corresponding request options for the request.
   ///
   /// This field can be null if the request was never submitted.
-  RequestSpec<Req>? get requestSpec => _requestSpec;
+  RequestSpec? get requestSpec => _requestSpec;
 
   /// The reason of the cancellation.
   ///
@@ -38,7 +38,7 @@ final class RequestCanceller<Req> {
   }
 
   @internal
-  void bindRequestSpec(RequestSpec<Req> requestSpec) {
+  void bindRequestSpec(RequestSpec requestSpec) {
     _requestSpec ??= requestSpec;
   }
 }
