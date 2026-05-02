@@ -27,64 +27,66 @@ import 'package:net_kit/src/services/transformers/response/error_response_data_t
 import 'package:net_kit/src/services/transformers/response/successful_response_data_transformer.dart';
 import 'package:test/test.dart';
 
-class MockDio extends Mock implements Dio {}
+class _MockDio extends Mock implements Dio {}
 
-class MockRequestComposer extends Mock implements RequestComposer {}
+class _MockRequestComposer extends Mock implements RequestComposer {}
 
-class MockRequestBodyTransformer extends Mock
+class _MockRequestBodyTransformer extends Mock
     implements RequestBodyTransformer {}
 
-class MockRequestBodyContentTypeResolver extends Mock
+class _MockRequestBodyContentTypeResolver extends Mock
     implements RequestBodyContentTypeResolver {}
 
-class MockDioCancelTokenFactory extends Mock implements DioCancelTokenFactory {}
+class _MockDioCancelTokenFactory extends Mock
+    implements DioCancelTokenFactory {}
 
 class MockDioRequestOptionsBuilder extends Mock
     implements DioRequestOptionsBuilder {}
 
-class MockErrorResponseDataTransformer extends Mock
+class _MockErrorResponseDataTransformer extends Mock
     implements ErrorResponseDataTransformer {}
 
-class MockSuccessfulResponseDataTransformer extends Mock
+class _MockSuccessfulResponseDataTransformer extends Mock
     implements SuccessfulResponseDataTransformer {}
 
-class MockClientExceptionMapper extends Mock implements ClientExceptionMapper {}
+class _MockClientExceptionMapper extends Mock
+    implements ClientExceptionMapper {}
 
-class MockResponseCodec extends Mock
+class _MockResponseCodec extends Mock
     implements ResponseDataCodec<String, String> {}
 
-class MockResponseClassifier extends Mock implements ResponseClassifier {}
+class _MockResponseClassifier extends Mock implements ResponseClassifier {}
 
-class FakeRequestSpec extends Fake implements RequestSpec {}
+class _FakeRequestSpec extends Fake implements RequestSpec {}
 
-class FakeRequestOptions extends Fake implements RequestOptions {}
+class _FakeRequestOptions extends Fake implements RequestOptions {}
 
-class FakeResponseContext extends Fake implements ResponseContext {}
+class _FakeResponseContext extends Fake implements ResponseContext {}
 
 void main() {
   late DefaultClientConfig defaultClientConfig;
   late RequestSpec spec;
   late Response<dynamic> defaultResponse;
 
-  late MockDio mockDio;
-  late MockRequestComposer mockRequestComposer;
-  late MockRequestBodyTransformer mockRequestBodyTransformer;
-  late MockRequestBodyContentTypeResolver mockRequestBodyContentTypeResolver;
-  late MockDioCancelTokenFactory mockDioCancelTokenFactory;
+  late _MockDio mockDio;
+  late _MockRequestComposer mockRequestComposer;
+  late _MockRequestBodyTransformer mockRequestBodyTransformer;
+  late _MockRequestBodyContentTypeResolver mockRequestBodyContentTypeResolver;
+  late _MockDioCancelTokenFactory mockDioCancelTokenFactory;
   late MockDioRequestOptionsBuilder mockDioRequestOptionsBuilder;
-  late MockErrorResponseDataTransformer mockErrorResponseDataTransformer;
-  late MockSuccessfulResponseDataTransformer
+  late _MockErrorResponseDataTransformer mockErrorResponseDataTransformer;
+  late _MockSuccessfulResponseDataTransformer
       mockSuccessfulResponseDataTransformer;
-  late MockClientExceptionMapper mockClientExceptionMapper;
-  late MockResponseCodec mockRequestCodec;
-  late MockResponseClassifier mockResponseClassifier;
+  late _MockClientExceptionMapper mockClientExceptionMapper;
+  late _MockResponseCodec mockRequestCodec;
+  late _MockResponseClassifier mockResponseClassifier;
 
   late NetClient sut;
 
   setUpAll(() {
-    registerFallbackValue(FakeRequestSpec());
-    registerFallbackValue(FakeRequestOptions());
-    registerFallbackValue(FakeResponseContext());
+    registerFallbackValue(_FakeRequestSpec());
+    registerFallbackValue(_FakeRequestOptions());
+    registerFallbackValue(_FakeResponseContext());
   });
 
   setUp(() {
@@ -104,18 +106,18 @@ void main() {
       data: {'id': 1},
     );
 
-    mockDio = MockDio();
-    mockRequestComposer = MockRequestComposer();
-    mockRequestBodyTransformer = MockRequestBodyTransformer();
-    mockRequestBodyContentTypeResolver = MockRequestBodyContentTypeResolver();
-    mockDioCancelTokenFactory = MockDioCancelTokenFactory();
+    mockDio = _MockDio();
+    mockRequestComposer = _MockRequestComposer();
+    mockRequestBodyTransformer = _MockRequestBodyTransformer();
+    mockRequestBodyContentTypeResolver = _MockRequestBodyContentTypeResolver();
+    mockDioCancelTokenFactory = _MockDioCancelTokenFactory();
     mockDioRequestOptionsBuilder = MockDioRequestOptionsBuilder();
-    mockErrorResponseDataTransformer = MockErrorResponseDataTransformer();
+    mockErrorResponseDataTransformer = _MockErrorResponseDataTransformer();
     mockSuccessfulResponseDataTransformer =
-        MockSuccessfulResponseDataTransformer();
-    mockClientExceptionMapper = MockClientExceptionMapper();
-    mockRequestCodec = MockResponseCodec();
-    mockResponseClassifier = MockResponseClassifier();
+        _MockSuccessfulResponseDataTransformer();
+    mockClientExceptionMapper = _MockClientExceptionMapper();
+    mockRequestCodec = _MockResponseCodec();
+    mockResponseClassifier = _MockResponseClassifier();
 
     when(() => mockRequestComposer.compose(spec, defaultClientConfig))
         .thenReturn(spec);

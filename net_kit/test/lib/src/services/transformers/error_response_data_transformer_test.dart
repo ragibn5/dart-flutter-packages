@@ -24,15 +24,15 @@ class ThrowingErrorResponseDataDecoder
 }
 
 void main() {
-  late ErrorResponseDataTransformer errorResponseDataTransformer;
+  late ErrorResponseDataTransformer sut;
 
   setUp(() {
-    errorResponseDataTransformer = const DefaultErrorResponseDataTransformer();
+    sut = const DefaultErrorResponseDataTransformer();
   });
 
   test('If decoder does not throw, returns Result.success() with decoded data',
       () {
-    final result = errorResponseDataTransformer.transform(
+    final result = sut.transform(
       'data',
       const IdentityErrorResponseDataDecoder(),
     );
@@ -42,7 +42,7 @@ void main() {
 
   test('If decoder throws, returns Result.error() with ParseException()', () {
     final throwable = Exception('invalid-error-decodable-data');
-    final result = errorResponseDataTransformer.transform(
+    final result = sut.transform(
       'decodable-error-data',
       ThrowingErrorResponseDataDecoder(throwable),
     );

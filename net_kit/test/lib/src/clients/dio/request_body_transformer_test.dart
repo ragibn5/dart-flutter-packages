@@ -10,20 +10,20 @@ import 'package:net_kit/src/services/transformers/request/request_body_transform
 import 'package:test/test.dart';
 
 void main() {
-  late RequestBodyTransformer requestBodyTransformer;
+  late RequestBodyTransformer sut;
 
   setUp(() {
-    requestBodyTransformer = const DioRequestBodyTransformer();
+    sut = const DioRequestBodyTransformer();
   });
 
   test('Null bodies are transformed to null', () {
-    final result = requestBodyTransformer.transform(null);
+    final result = sut.transform(null);
 
     expect(result, isNull);
   });
 
   test('RawString bodies are transformed to the raw string value', () {
-    final result = requestBodyTransformer.transform(
+    final result = sut.transform(
       const RawBody(
         RawString('payload'),
         contentType: 'text/plain',
@@ -34,7 +34,7 @@ void main() {
   });
 
   test('RawBytes bodies are transformed to the raw byte list', () {
-    final result = requestBodyTransformer.transform(
+    final result = sut.transform(
       const RawBody(
         RawBytes([1, 2, 3]),
         contentType: 'application/octet-stream',
@@ -47,7 +47,7 @@ void main() {
   test('RawStream bodies are transformed to the original stream', () async {
     final stream = Stream<List<int>>.value([1, 2, 3]);
 
-    final result = requestBodyTransformer.transform(
+    final result = sut.transform(
       RawBody(
         RawStream(3, stream),
         contentType: 'application/octet-stream',
@@ -60,7 +60,7 @@ void main() {
   });
 
   test('Json bodies are transformed to the original json map', () {
-    final result = requestBodyTransformer.transform(
+    final result = sut.transform(
       const JsonBody({'name': 'net_kit'}),
     );
 
@@ -68,7 +68,7 @@ void main() {
   });
 
   test('FormUrlEncoded bodies are transformed to the original fields', () {
-    final result = requestBodyTransformer.transform(
+    final result = sut.transform(
       const FormUrlEncodedBody(fields: {'name': 'net_kit'}),
     );
 
@@ -77,7 +77,7 @@ void main() {
 
   test('Multipart bodies are transformed to dio FormData', () {
     final streamController = StreamController<List<int>>();
-    final result = requestBodyTransformer.transform(
+    final result = sut.transform(
       MultipartBody(
         fields: const {'title': 'avatar'},
         files: [

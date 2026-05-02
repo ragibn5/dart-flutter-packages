@@ -7,7 +7,7 @@ import 'package:net_kit/src/models/request_spec.dart';
 import 'package:test/test.dart';
 
 void main() {
-const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
+  const sut = DioRequestOptionsBuilder();
 
   late RequestSpec composedSpec;
 
@@ -29,7 +29,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   });
 
   test('build assigns path, method, and baseUrl', () {
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -46,7 +46,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   test('build assigns transformed body data', () {
     const body = {'name': 'Alice'};
 
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: body,
       resolvedContentType: null,
@@ -59,7 +59,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   });
 
   test('build assigns null body when transformed body is null', () {
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -74,7 +74,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   test('build assigns resolved content type', () {
     const contentType = 'application/vnd.custom+json';
 
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: contentType,
@@ -87,7 +87,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   });
 
   test('build assigns null content type when not resolved', () {
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -102,7 +102,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   test('build assigns cancelToken', () {
     final cancelToken = CancelToken();
 
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -115,7 +115,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   });
 
   test('build assigns null cancelToken', () {
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -128,7 +128,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   });
 
   test('build assigns timeouts from composedSpec', () {
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -143,7 +143,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   });
 
   test('build assigns headers and queryParameters from composedSpec', () {
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -157,7 +157,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   });
 
   test('build assigns followRedirects and maxRedirects from composedSpec', () {
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -175,7 +175,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
 
     void onReceiveProgress(_, __) {}
 
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,
@@ -189,7 +189,7 @@ const dioRequestOptionsBuilder = DioRequestOptionsBuilder();
   });
 
   test('build sets validateStatus to always return true', () {
-    final requestOptions = dioRequestOptionsBuilder.build(
+    final requestOptions = sut.build(
       composedSpec: composedSpec,
       transformedBody: null,
       resolvedContentType: null,

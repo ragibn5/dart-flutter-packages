@@ -13,9 +13,9 @@ import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/transformers/response/error_response_data_transformer.dart';
 import 'package:test/test.dart';
 
-class MockRequestOptions extends Mock implements RequestOptions {}
+class _MockRequestOptions extends Mock implements RequestOptions {}
 
-class MockErrorResponseDataTransformer extends Mock
+class _MockErrorResponseDataTransformer extends Mock
     implements ErrorResponseDataTransformer {}
 
 class TestErrorResponseDataDecoder implements ErrorResponseDataDecoder<String> {
@@ -41,8 +41,8 @@ class ThrowingErrorResponseDataDecoder
 void main() {
   const defaultResponseCode = 0;
 
-  late MockRequestOptions mockRequestOptions;
-  late MockErrorResponseDataTransformer mockErrorResponseDataTransformer;
+  late _MockRequestOptions mockRequestOptions;
+  late _MockErrorResponseDataTransformer mockErrorResponseDataTransformer;
 
   late ClientExceptionMapper sut;
 
@@ -72,8 +72,8 @@ void main() {
   }
 
   setUp(() {
-    mockRequestOptions = MockRequestOptions();
-    mockErrorResponseDataTransformer = MockErrorResponseDataTransformer();
+    mockRequestOptions = _MockRequestOptions();
+    mockErrorResponseDataTransformer = _MockErrorResponseDataTransformer();
 
     sut = DioClientExceptionMapper(
       defaultResponseCode,

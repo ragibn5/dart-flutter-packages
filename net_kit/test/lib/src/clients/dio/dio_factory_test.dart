@@ -5,14 +5,16 @@ import 'package:net_kit/src/models/default_client_config.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('createDio assigns empty string if default config has null base url',
-      () {
-    const config = DefaultClientConfig(baseUrl: null);
+  test(
+    'createDio assigns empty string if default config has null base url',
+    () {
+      const config = DefaultClientConfig(baseUrl: null);
 
-    final dio = DioFactory.createDio(config);
+      final dio = DioFactory.createDio(config);
 
-    expect(dio.options.baseUrl, isEmpty);
-  });
+      expect(dio.options.baseUrl, isEmpty);
+    },
+  );
 
   test('createDio passes through same values from config', () {
     const baseUrl = 'https://example.com/api';

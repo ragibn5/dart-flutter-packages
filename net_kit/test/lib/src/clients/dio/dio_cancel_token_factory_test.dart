@@ -9,7 +9,7 @@ import 'package:net_kit/src/services/cancellation/request_canceller.dart';
 import 'package:test/test.dart';
 
 void main() {
-const dioCancelTokenFactory = DioCancelTokenFactory();
+  const sut = DioCancelTokenFactory();
 
   late RequestSpec spec;
 
@@ -24,7 +24,7 @@ const dioCancelTokenFactory = DioCancelTokenFactory();
   test(
     'Returns null when requestCanceller is null',
     () {
-      final cancelToken = dioCancelTokenFactory.create(spec, null);
+      final cancelToken = sut.create(spec, null);
 
       expect(cancelToken, isNull);
     },
@@ -35,7 +35,7 @@ const dioCancelTokenFactory = DioCancelTokenFactory();
     () {
       final requestCanceller = RequestCanceller();
 
-      dioCancelTokenFactory.create(spec, requestCanceller);
+      sut.create(spec, requestCanceller);
 
       expect(requestCanceller.requestSpec, same(spec));
     },
@@ -47,7 +47,7 @@ const dioCancelTokenFactory = DioCancelTokenFactory();
       final requestCanceller = RequestCanceller()
         ..cancel(reason: 'user aborted');
 
-      final cancelToken = dioCancelTokenFactory.create(spec, requestCanceller);
+      final cancelToken = sut.create(spec, requestCanceller);
 
       expect(cancelToken, isNotNull);
       expect(cancelToken!.isCancelled, isTrue);
@@ -60,7 +60,7 @@ const dioCancelTokenFactory = DioCancelTokenFactory();
       final requestCanceller = RequestCanceller()
         ..cancel(reason: 'custom abort reason');
 
-      final cancelToken = dioCancelTokenFactory.create(spec, requestCanceller);
+      final cancelToken = sut.create(spec, requestCanceller);
 
       expect(cancelToken, isNotNull);
       await expectLater(
@@ -75,7 +75,7 @@ const dioCancelTokenFactory = DioCancelTokenFactory();
     () {
       final requestCanceller = RequestCanceller();
 
-      final cancelToken = dioCancelTokenFactory.create(spec, requestCanceller);
+      final cancelToken = sut.create(spec, requestCanceller);
 
       expect(cancelToken, isNotNull);
       expect(cancelToken!.isCancelled, isFalse);
@@ -87,7 +87,7 @@ const dioCancelTokenFactory = DioCancelTokenFactory();
     () async {
       final requestCanceller = RequestCanceller();
 
-      final cancelToken = dioCancelTokenFactory.create(spec, requestCanceller)!;
+      final cancelToken = sut.create(spec, requestCanceller)!;
 
       expect(cancelToken.isCancelled, isFalse);
 
@@ -103,7 +103,7 @@ const dioCancelTokenFactory = DioCancelTokenFactory();
     () async {
       final requestCanceller = RequestCanceller();
 
-      final cancelToken = dioCancelTokenFactory.create(spec, requestCanceller)!;
+      final cancelToken = sut.create(spec, requestCanceller)!;
 
       requestCanceller.cancel(reason: 'later abort reason');
       await Future<void>.delayed(Duration.zero);

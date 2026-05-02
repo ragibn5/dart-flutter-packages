@@ -22,15 +22,14 @@ class ThrowingResponseDataDecoder implements ResponseDataDecoder<String> {
 }
 
 void main() {
-  late SuccessfulResponseDataTransformer successfulResponseDataTransformer;
+  late SuccessfulResponseDataTransformer sut;
 
   setUp(() {
-    successfulResponseDataTransformer =
-        const DefaultSuccessfulResponseDataTransformer();
+    sut = const DefaultSuccessfulResponseDataTransformer();
   });
 
   test('If data is null, returns Result.success() with null data', () {
-    final result = successfulResponseDataTransformer.transform(
+    final result = sut.transform(
       null,
       const IdentityResponseDataDecoder(),
     );
@@ -41,7 +40,7 @@ void main() {
   test(
     'If decoder does not throw, returns Result.success() with decoded data',
     () {
-      final result = successfulResponseDataTransformer.transform(
+      final result = sut.transform(
         'data',
         const IdentityResponseDataDecoder(),
       );
@@ -54,7 +53,7 @@ void main() {
     'If decoder throws, returns Result.error() with ParseException()',
     () {
       final throwable = Exception('invalid-decodable-data');
-      final result = successfulResponseDataTransformer.transform(
+      final result = sut.transform(
         'decodable-data',
         ThrowingResponseDataDecoder(throwable),
       );
