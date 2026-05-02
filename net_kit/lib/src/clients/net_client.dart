@@ -12,10 +12,10 @@ abstract interface class NetClient {
   Future<ApiCallResult<Res, Err>> execute<Res, Err>({
     required RequestSpec spec,
     required ResponseDataCodec<Res, Err> codec,
-    ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
     ProgressListener? onSendProgress,
     ProgressListener? onReceiveProgress,
     RequestCanceller? requestCanceller,
+    ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
   });
 
   /// Closes the underlying HTTP client and frees its resources.

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:net_kit/src/clients/dio/dio_request_body_transformer.dart';
 import 'package:net_kit/src/models/file_source.dart';
 import 'package:net_kit/src/models/multipart_file_part.dart';
 import 'package:net_kit/src/models/raw_data.dart';
 import 'package:net_kit/src/models/request_body.dart';
-import 'package:net_kit/src/services/transformers/request/dio_request_body_transformer.dart';
 import 'package:net_kit/src/services/transformers/request/request_body_transformer.dart';
 import 'package:test/test.dart';
 

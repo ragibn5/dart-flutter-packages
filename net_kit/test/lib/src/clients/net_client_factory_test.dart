@@ -1,4 +1,4 @@
-import 'package:net_kit/src/clients/dio_net_client.dart';
+import 'package:net_kit/src/clients/dio/dio_net_client.dart';
 import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/clients/net_client_factory.dart';
 import 'package:net_kit/src/models/default_client_config.dart';

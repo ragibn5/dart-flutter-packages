@@ -2,6 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/src/clients/dio/dio_client_exception_mapper.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/enums/transport_error_type.dart';
 import 'package:net_kit/src/models/error_response_data.dart';
@@ -9,7 +10,6 @@ import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/codec/response_data_codec.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
-import 'package:net_kit/src/services/mappers/dio_client_exception_mapper.dart';
 import 'package:net_kit/src/services/transformers/response/error_response_data_transformer.dart';
 import 'package:test/test.dart';
 
