@@ -1,5 +1,4 @@
 import 'package:net_kit/src/clients/net_client.dart';
-import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/enums/transport_error_type.dart';
 
 /// The base exception returned by [NetClient] when it encounters any error.
@@ -40,28 +39,6 @@ final class TransportException extends NetKitException {
   String toString() {
     // ignore: lines_longer_than_80_chars
     return 'TransportException {type: $type, cause: $cause, stackTrace: $stackTrace}';
-  }
-}
-
-/// A failure indicating encode/decode data (request, response, error response etc.).
-final class ParseException extends NetKitException {
-  /// The type of target that we were failed to encode/decode.
-  final ParseTargetType targetType;
-
-  /// The data data that failed to decode.
-  final dynamic data;
-
-  const ParseException({
-    required this.targetType,
-    required this.data,
-    Object? cause,
-    StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
-
-  @override
-  String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'ParseException {targetType: $targetType, data: $data, cause: $cause, stackTrace: $stackTrace}';
   }
 }
 

@@ -1,6 +1,6 @@
 import 'package:net_kit/src/models/request_spec.dart';
 
-class ResponseContext {
+class RawResponse {
   /// The status code from the server side.
   final int statusCode;
 
@@ -13,7 +13,7 @@ class ResponseContext {
   /// The original request.
   final RequestSpec request;
 
-  ResponseContext({
+  RawResponse({
     required this.statusCode,
     required this.rawResponseBody,
     required this.responseHeaders,

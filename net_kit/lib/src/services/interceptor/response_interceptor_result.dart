@@ -1,5 +1,5 @@
 import 'package:net_kit/src/models/net_kit_exception.dart';
-import 'package:net_kit/src/models/response_context.dart';
+import 'package:net_kit/src/models/raw_response.dart';
 
 sealed class ResponseInterceptorResult {
   const ResponseInterceptorResult();
@@ -7,7 +7,7 @@ sealed class ResponseInterceptorResult {
 
 /// Continue the pipeline with the (possibly modified) response.
 final class ContinueWithResponse extends ResponseInterceptorResult {
-  final ResponseContext response;
+  final RawResponse response;
 
   const ContinueWithResponse(this.response);
 }
@@ -21,7 +21,7 @@ final class RejectResponse extends ResponseInterceptorResult {
 
 /// Short-circuit with this response, skipping remaining interceptors.
 final class ResolveResponse extends ResponseInterceptorResult {
-  final ResponseContext response;
+  final RawResponse response;
 
   const ResolveResponse(this.response);
 }

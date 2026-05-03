@@ -1,5 +1,5 @@
 import 'package:net_kit/src/models/net_kit_exception.dart';
-import 'package:net_kit/src/models/response_context.dart';
+import 'package:net_kit/src/models/raw_response.dart';
 
 sealed class ErrorInterceptorResult {
   const ErrorInterceptorResult();
@@ -21,7 +21,7 @@ final class RejectError extends ErrorInterceptorResult {
 
 /// Recover from the error and treat it as a successful response.
 final class RecoverError extends ErrorInterceptorResult {
-  final ResponseContext response;
+  final RawResponse response;
 
   const RecoverError(this.response);
 }

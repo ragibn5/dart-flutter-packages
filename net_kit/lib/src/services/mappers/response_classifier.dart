@@ -1,13 +1,13 @@
-import 'package:net_kit/src/models/response_context.dart';
+import 'package:net_kit/src/models/raw_response.dart';
 
 abstract interface class ResponseClassifier {
   /// Determines whether a [response] should be treated as an error.
-  bool isError(ResponseContext response);
+  bool isError(RawResponse response);
 }
 
 class DefaultResponseClassifier implements ResponseClassifier {
   const DefaultResponseClassifier();
 
   @override
-  bool isError(ResponseContext response) => response.statusCode >= 400;
+  bool isError(RawResponse response) => response.statusCode >= 400;
 }

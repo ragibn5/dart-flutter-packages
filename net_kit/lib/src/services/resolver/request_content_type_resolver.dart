@@ -1,12 +1,11 @@
 import 'package:net_kit/src/models/request_body.dart';
 
-abstract interface class RequestBodyContentTypeResolver {
+abstract interface class RequestContentTypeResolver {
   String? resolve(RequestBody? body);
 }
 
-class DefaultRequestBodyContentTypeResolver
-    implements RequestBodyContentTypeResolver {
-  const DefaultRequestBodyContentTypeResolver();
+class DefaultRequestContentTypeResolver implements RequestContentTypeResolver {
+  const DefaultRequestContentTypeResolver();
 
   @override
   String? resolve(RequestBody? body) {

@@ -1,39 +1,45 @@
 import 'package:dio/dio.dart';
-import 'package:net_kit/src/models/request_spec.dart';
+import 'package:net_kit/net_kit.dart';
+import 'package:net_kit/src/clients/dio/dio_cancel_token_builder.dart';
+import 'package:net_kit/src/clients/dio/dio_request_body_transformer.dart';
+import 'package:net_kit/src/services/mappers/response_status_validator.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
 class DioRequestOptionsBuilder {
-  const DioRequestOptionsBuilder();
+  final ResponseStatusValidator _responseStatusValidator;
+
+  final DioCancelTokenBuilder _cancelTokenBuilder;
+  final DioRequestBodyTransformer _requestBodyTransformer;
+
+  const DioRequestOptionsBuilder([
+    this._responseStatusValidator = const DefaultResponseStatusValidator(),
+    this._cancelTokenBuilder = const DioCancelTokenBuilder(),
+    this._requestBodyTransformer = const DioRequestBodyTransformer(),
+  ]);
 
   RequestOptions build({
-    required RequestSpec composedSpec,
-    required Object? transformedBody,
-    required String? resolvedContentType,
-    required CancelToken? cancelToken,
+    required RequestSpec spec,
+    required RequestCanceller? canceller,
     required ProgressListener? onSendProgress,
     required ProgressListener? onReceiveProgress,
   }) {
     return RequestOptions(
-      path: composedSpec.pathOrUrl,
-      data: transformedBody,
-      method: composedSpec.method.value,
-      contentType: resolvedContentType,
-      cancelToken: cancelToken,
-      sendTimeout: composedSpec.sendTimeout,
-      receiveTimeout: composedSpec.receiveTimeout,
-      connectTimeout: composedSpec.connectionTimeout,
-      queryParameters: composedSpec.queryParameters,
-      baseUrl: composedSpec.baseUrl,
-      headers: composedSpec.headers,
-      followRedirects: composedSpec.followRedirects,
-      maxRedirects: composedSpec.maxRedirects,
+      path: spec.pathOrUrl,
+      data: _requestBodyTransformer.transform(spec.body),
+      method: spec.method.value,
+      contentType: spec.contentType,
+      cancelToken: _cancelTokenBuilder.create(spec, canceller),
+      sendTimeout: spec.sendTimeout,
+      receiveTimeout: spec.receiveTimeout,
+      connectTimeout: spec.connectionTimeout,
+      queryParameters: spec.queryParameters,
+      baseUrl: spec.baseUrl,
+      headers: spec.headers,
+      followRedirects: spec.followRedirects,
+      maxRedirects: spec.maxRedirects,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
-      // We may need multiple factors to decide whether the
-      // response is an error response, the status-code itself
-      // may not be sufficient. We will decide this with the
-      // response classifier later on.
-      validateStatus: (s) => true,
+      validateStatus: _responseStatusValidator.validateStatus,
     );
   }
 }

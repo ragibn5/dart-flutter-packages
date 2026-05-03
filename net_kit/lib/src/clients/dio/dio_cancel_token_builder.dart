@@ -4,8 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/services/cancellation/request_canceller.dart';
 
-class DioCancelTokenFactory {
-  const DioCancelTokenFactory();
+class DioCancelTokenBuilder {
+  const DioCancelTokenBuilder();
 
   CancelToken? create(
     RequestSpec requestSpec,

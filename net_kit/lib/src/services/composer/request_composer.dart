@@ -1,12 +1,9 @@
-import 'package:net_kit/src/models/client_config.dart';
-import 'package:net_kit/src/models/request_spec.dart';
+import 'package:net_kit/net_kit.dart';
 
 /// An interface to compose a [RequestSpec] with the given client specific
 /// [ClientConfig].
 ///
-class RequestComposer {
-  const RequestComposer();
-
+abstract interface class RequestComposer {
   /// Builds a merged a [RequestSpec] from the given [RequestSpec] and
   /// [ClientConfig].
   ///
@@ -15,6 +12,13 @@ class RequestComposer {
   /// - For collection type fields, such as headers and query params,
   ///   the resulting value is the result of merging all the map entries,
   ///   where values from [source] receive precedence over [clientConfig].
+  RequestSpec compose(RequestSpec source, ClientConfig clientConfig);
+}
+
+class DefaultRequestComposer implements RequestComposer {
+  const DefaultRequestComposer();
+
+  @override
   RequestSpec compose(RequestSpec source, ClientConfig clientConfig) {
     return source.copyWith(
       sendTimeout: source.sendTimeout ?? clientConfig.sendTimeout,

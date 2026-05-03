@@ -1,6 +1,6 @@
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_spec.dart';
-import 'package:net_kit/src/models/response_context.dart';
+import 'package:net_kit/src/models/raw_response.dart';
 
 sealed class RequestInterceptorResult {
   const RequestInterceptorResult();
@@ -22,7 +22,7 @@ final class RejectRequest extends RequestInterceptorResult {
 
 /// Short-circuit with a fake response, skipping the transport entirely.
 final class ResolveRequest extends RequestInterceptorResult {
-  final ResponseContext response;
+  final RawResponse response;
 
   const ResolveRequest(this.response);
 }

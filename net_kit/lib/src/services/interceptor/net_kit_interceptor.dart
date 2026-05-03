@@ -14,7 +14,7 @@ abstract class NetKitInterceptor {
   ///
   /// Called after the response is received.
   Future<ResponseInterceptorResult> onResponse(
-    ResponseContext response,
+    RawResponse response,
   ) async =>
       ContinueWithResponse(response);
 
