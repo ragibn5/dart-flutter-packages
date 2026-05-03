@@ -19,6 +19,10 @@ import 'package:net_kit/src/models/result.dart';
 import 'package:net_kit/src/services/cancellation/request_canceller.dart';
 import 'package:net_kit/src/services/codec/response_data_codec.dart';
 import 'package:net_kit/src/services/composer/request_composer.dart';
+import 'package:net_kit/src/services/interceptor/error_interceptor_result.dart';
+import 'package:net_kit/src/services/interceptor/net_kit_interceptor.dart';
+import 'package:net_kit/src/services/interceptor/request_interceptor_result.dart';
+import 'package:net_kit/src/services/interceptor/response_interceptor_result.dart';
 import 'package:net_kit/src/services/mappers/client_exception_mapper.dart';
 import 'package:net_kit/src/services/mappers/response_classifier.dart';
 import 'package:net_kit/src/services/resolver/request_body_content_type_resolver.dart';
@@ -149,6 +153,7 @@ void main() {
     sut = DioNetClient.test(
       mockDio,
       defaultClientConfig,
+      const [],
       mockRequestComposer,
       mockRequestBodyTransformer,
       mockRequestBodyContentTypeResolver,
@@ -500,4 +505,516 @@ void main() {
       client.close();
     },
   );
+
+  test(
+    'onRequest ContinueWithRequest passes modified request through pipeline',
+    () async {
+      final modifiedSpec = spec.copyWith(
+        pathOrUrl: '/modified',
+        headers: {'X-Custom': 'value'},
+      );
+      final interceptor = _OnRequestInterceptor(
+        (req) => ContinueWithRequest(modifiedSpec),
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      when(() => mockRequestComposer.compose(modifiedSpec, defaultClientConfig))
+          .thenReturn(modifiedSpec);
+
+      final result = await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(interceptor.onRequestCallCount, 1);
+    },
+  );
+
+  test(
+    'onRequest RejectRequest returns error and skips transport',
+    () async {
+      const exception = UnexpectedException('rejected');
+      final interceptor = _OnRequestInterceptor(
+        (req) => const RejectRequest(exception),
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      final result = await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(result.isError, isTrue);
+      expect(result.errorOrNull, same(exception));
+      verifyNever(() => mockDio.fetch<dynamic>(any()));
+    },
+  );
+
+  test(
+    'onRequest ResolveRequest returns response and skips transport',
+    () async {
+      final resolvedCtx = ResponseContext(
+        statusCode: 200,
+        rawResponseBody: {'cached': true},
+        responseHeaders: const {
+          'x-cache': ['HIT']
+        },
+        request: spec,
+      );
+      final interceptor = _OnRequestInterceptor(
+        (req) => ResolveRequest(resolvedCtx),
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      final result = await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.resultOrNull?.statusCode, 200);
+      expect(result.resultOrNull?.headers, resolvedCtx.responseHeaders);
+      verifyNever(() => mockDio.fetch<dynamic>(any()));
+    },
+  );
+
+  test(
+    'onResponse ContinueWithResponse passes modified response through',
+    () async {
+      final modifiedCtx = ResponseContext(
+        statusCode: 200,
+        rawResponseBody: {'modified': true},
+        responseHeaders: const {
+          'x-modified': ['true']
+        },
+        request: spec,
+      );
+      final interceptor = _OnResponseInterceptor(
+        (res) => ContinueWithResponse(modifiedCtx),
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      final result = await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.resultOrNull?.headers, modifiedCtx.responseHeaders);
+    },
+  );
+
+  test(
+    'onResponse RejectResponse turns success response into error',
+    () async {
+      const exception = UnexpectedException('rejected-response');
+      final interceptor = _OnResponseInterceptor(
+        (res) => const RejectResponse(exception),
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      final result = await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(result.isError, isTrue);
+      expect(result.errorOrNull, same(exception));
+    },
+  );
+
+  test(
+    'onError ContinueWithError transforms transport error',
+    () async {
+      final exception = DioException(
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
+        type: DioExceptionType.connectionError,
+      );
+      const mappedException =
+          TransportException(TransportErrorType.CONNECTION_ERROR);
+      const transformedError =
+          UnexpectedException('transformed', cause: mappedException);
+
+      when(() => mockDio.fetch<dynamic>(any())).thenThrow(exception);
+      when(
+        () => mockClientExceptionMapper.mapException<String>(
+          exception,
+          stackTrace: any(named: 'stackTrace'),
+          errorResponseDataDecoder: mockRequestCodec,
+        ),
+      ).thenReturn(Result.error(mappedException));
+
+      final interceptor = _OnErrorInterceptor(
+        (err) => const ContinueWithError(transformedError),
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      final result = await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(result.isError, isTrue);
+      expect(result.errorOrNull, same(transformedError));
+    },
+  );
+
+  test(
+    'onError RecoverError turns transport error into success response',
+    () async {
+      final exception = DioException(
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
+        type: DioExceptionType.connectionError,
+      );
+      const mappedException =
+          TransportException(TransportErrorType.CONNECTION_ERROR);
+      final recoveredCtx = ResponseContext(
+        statusCode: 200,
+        rawResponseBody: {'recovered': true},
+        responseHeaders: const {},
+        request: spec,
+      );
+      when(() => mockDio.fetch<dynamic>(any())).thenThrow(exception);
+      when(
+        () => mockClientExceptionMapper.mapException<String>(
+          exception,
+          stackTrace: any(named: 'stackTrace'),
+          errorResponseDataDecoder: mockRequestCodec,
+        ),
+      ).thenReturn(Result.error(mappedException));
+
+      final interceptor = _OnErrorInterceptor(
+        (err) => RecoverError(recoveredCtx),
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      final result = await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.resultOrNull?.statusCode, 200);
+    },
+  );
+
+  test(
+    'Request interceptors execute in forward order',
+    () async {
+      final order = <String>[];
+      final interceptor1 = _OnRequestInterceptor(
+        (req) {
+          order.add('onRequest-1');
+          return ContinueWithRequest(req);
+        },
+      );
+      final interceptor2 = _OnRequestInterceptor(
+        (req) {
+          order.add('onRequest-2');
+          return ContinueWithRequest(req);
+        },
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor1, interceptor2],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(order, ['onRequest-1', 'onRequest-2']);
+    },
+  );
+
+  test(
+    'Response interceptors execute in forward order',
+    () async {
+      final order = <String>[];
+      final interceptor1 = _OnResponseInterceptor(
+        (res) {
+          order.add('onResponse-1');
+          return ContinueWithResponse(res);
+        },
+      );
+      final interceptor2 = _OnResponseInterceptor(
+        (res) {
+          order.add('onResponse-2');
+          return ContinueWithResponse(res);
+        },
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor1, interceptor2],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(order, ['onResponse-1', 'onResponse-2']);
+    },
+  );
+
+  test(
+    'Error interceptors execute in forward order',
+    () async {
+      final exception = DioException(
+        requestOptions: RequestOptions(path: spec.pathOrUrl),
+        type: DioExceptionType.connectionError,
+      );
+      const mappedException =
+          TransportException(TransportErrorType.CONNECTION_ERROR);
+
+      when(() => mockDio.fetch<dynamic>(any())).thenThrow(exception);
+      when(
+        () => mockClientExceptionMapper.mapException<String>(
+          exception,
+          stackTrace: any(named: 'stackTrace'),
+          errorResponseDataDecoder: mockRequestCodec,
+        ),
+      ).thenReturn(Result.error(mappedException));
+
+      final order = <String>[];
+      final interceptor1 = _OnErrorInterceptor(
+        (err) {
+          order.add('onError-1');
+          return ContinueWithError(err);
+        },
+      );
+      final interceptor2 = _OnErrorInterceptor(
+        (err) {
+          order.add('onError-2');
+          return ContinueWithError(err);
+        },
+      );
+
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        [interceptor1, interceptor2],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(order, ['onError-1', 'onError-2']);
+    },
+  );
+
+  test(
+    'Empty interceptors list works without side effects',
+    () async {
+      final client = DioNetClient.test(
+        mockDio,
+        defaultClientConfig,
+        const [],
+        mockRequestComposer,
+        mockRequestBodyTransformer,
+        mockRequestBodyContentTypeResolver,
+        mockDioCancelTokenFactory,
+        mockDioRequestOptionsBuilder,
+        mockErrorResponseDataTransformer,
+        mockSuccessfulResponseDataTransformer,
+        mockClientExceptionMapper,
+      );
+
+      final result = await client.execute(
+        spec: spec,
+        codec: mockRequestCodec,
+      );
+
+      expect(result.isSuccess, isTrue);
+    },
+  );
+}
+
+class _OnRequestInterceptor extends NetKitInterceptor {
+  final RequestInterceptorResult Function(RequestSpec) _onRequestFn;
+
+  _OnRequestInterceptor(this._onRequestFn);
+
+  int onRequestCallCount = 0;
+  int onResponseCallCount = 0;
+  int onErrorCallCount = 0;
+
+  @override
+  Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
+    onRequestCallCount++;
+    return _onRequestFn(request);
+  }
+
+  @override
+  Future<ResponseInterceptorResult> onResponse(ResponseContext response) async {
+    onResponseCallCount++;
+    return ContinueWithResponse(response);
+  }
+
+  @override
+  Future<ErrorInterceptorResult> onError(NetKitException error) async {
+    onErrorCallCount++;
+    return ContinueWithError(error);
+  }
+}
+
+class _OnResponseInterceptor extends NetKitInterceptor {
+  final ResponseInterceptorResult Function(ResponseContext) _onResponseFn;
+
+  _OnResponseInterceptor(this._onResponseFn);
+
+  @override
+  Future<RequestInterceptorResult> onRequest(RequestSpec request) async =>
+      ContinueWithRequest(request);
+
+  @override
+  Future<ResponseInterceptorResult> onResponse(
+          ResponseContext response) async =>
+      _onResponseFn(response);
+
+  @override
+  Future<ErrorInterceptorResult> onError(NetKitException error) async =>
+      ContinueWithError(error);
+}
+
+class _OnErrorInterceptor extends NetKitInterceptor {
+  final ErrorInterceptorResult Function(NetKitException) _onErrorFn;
+
+  _OnErrorInterceptor(this._onErrorFn);
+
+  @override
+  Future<RequestInterceptorResult> onRequest(RequestSpec request) async =>
+      ContinueWithRequest(request);
+
+  @override
+  Future<ResponseInterceptorResult> onResponse(
+          ResponseContext response) async =>
+      ContinueWithResponse(response);
+
+  @override
+  Future<ErrorInterceptorResult> onError(NetKitException error) async =>
+      _onErrorFn(error);
 }
