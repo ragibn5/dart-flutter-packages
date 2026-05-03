@@ -1,14 +1,14 @@
 // ignore_for_file: avoid_redundant_argument_values
 
 import 'package:net_kit/src/clients/dio/dio_factory.dart';
-import 'package:net_kit/src/models/default_client_config.dart';
+import 'package:net_kit/src/models/client_config.dart';
 import 'package:test/test.dart';
 
 void main() {
   test(
     'createDio assigns empty string if default config has null base url',
     () {
-      const config = DefaultClientConfig(baseUrl: null);
+      const config = ClientConfig(baseUrl: null);
 
       final dio = DioFactory.createDio(config);
 
@@ -25,7 +25,7 @@ void main() {
     const headers = {'foo': 'bar'};
     const followRedirects = true;
     const maxRedirects = 10;
-    const config = DefaultClientConfig(
+    const config = ClientConfig(
       baseUrl: baseUrl,
       connectionTimeout: connectionTimeout,
       sendTimeout: sendTimeout,
@@ -41,7 +41,7 @@ void main() {
     expect(dio.options.baseUrl, config.baseUrl);
     expect(dio.options.connectTimeout, config.connectionTimeout);
     expect(dio.options.sendTimeout, config.sendTimeout);
-    expect(dio.options.receiveTimeout, config);
+    expect(dio.options.receiveTimeout, config.receiveTimeout);
     expect(dio.options.queryParameters, config.queryParameters);
     expect(dio.options.headers, config.headers);
     expect(dio.options.followRedirects, config.followRedirects);

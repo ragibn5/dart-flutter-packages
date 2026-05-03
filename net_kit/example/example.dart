@@ -43,7 +43,7 @@ class UserCodec implements ResponseDataCodec<User, ApiError> {
 
 Future<void> main() async {
   final client = NetClientFactory.create(
-    const DefaultClientConfig(
+    const ClientConfig(
       baseUrl: 'https://example.com/api',
       connectionTimeout: Duration(seconds: 5),
       receiveTimeout: Duration(seconds: 5),

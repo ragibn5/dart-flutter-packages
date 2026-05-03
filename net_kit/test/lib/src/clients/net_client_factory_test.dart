@@ -1,7 +1,7 @@
 import 'package:net_kit/src/clients/dio/dio_net_client.dart';
 import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/clients/net_client_factory.dart';
-import 'package:net_kit/src/models/default_client_config.dart';
+import 'package:net_kit/src/models/client_config.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -14,9 +14,9 @@ void main() {
     client.close();
   });
 
-  test('Create accepts an explicit DefaultClientConfig', () {
+  test('Create accepts an explicit ClientConfig', () {
     final client = NetClientFactory.create(
-      const DefaultClientConfig(
+      const ClientConfig(
         baseUrl: 'https://api.example.com',
         connectionTimeout: Duration(seconds: 5),
         sendTimeout: Duration(seconds: 3),

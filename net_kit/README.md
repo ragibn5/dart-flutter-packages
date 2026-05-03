@@ -79,7 +79,7 @@ class UserCodec implements ResponseDataCodec<User, ApiError> {
 ```dart
 
 final client = NetClientFactory.create(
-  const DefaultClientConfig(
+  const ClientConfig(
     baseUrl: 'https://your-api.example.com',
     connectionTimeout: Duration(seconds: 5),
     receiveTimeout: Duration(seconds: 5),

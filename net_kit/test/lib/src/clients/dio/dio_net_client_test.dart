@@ -9,7 +9,7 @@ import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/enums/parse_target_type.dart';
 import 'package:net_kit/src/enums/transport_error_type.dart';
-import 'package:net_kit/src/models/default_client_config.dart';
+import 'package:net_kit/src/models/client_config.dart';
 import 'package:net_kit/src/models/error_response_data.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
 import 'package:net_kit/src/models/request_body.dart';
@@ -68,7 +68,7 @@ class _FakeRequestOptions extends Fake implements RequestOptions {}
 class _FakeResponseContext extends Fake implements ResponseContext {}
 
 void main() {
-  late DefaultClientConfig defaultClientConfig;
+  late ClientConfig clientConfig;
   late RequestSpec spec;
   late Response<dynamic> defaultResponse;
 
@@ -94,7 +94,7 @@ void main() {
   });
 
   setUp(() {
-    defaultClientConfig = const DefaultClientConfig();
+    clientConfig = const ClientConfig();
     spec = RequestSpec(
       pathOrUrl: '/users',
       method: HttpMethod.POST,
@@ -123,7 +123,7 @@ void main() {
     mockRequestCodec = _MockResponseCodec();
     mockResponseClassifier = _MockResponseClassifier();
 
-    when(() => mockRequestComposer.compose(spec, defaultClientConfig))
+    when(() => mockRequestComposer.compose(spec, clientConfig))
         .thenReturn(spec);
     when(() => mockRequestBodyTransformer.transform(any()))
         .thenReturn({'name': 'Alice'});
@@ -152,7 +152,7 @@ void main() {
 
     sut = DioNetClient.test(
       mockDio,
-      defaultClientConfig,
+      clientConfig,
       const [],
       mockRequestComposer,
       mockRequestBodyTransformer,
@@ -166,7 +166,7 @@ void main() {
   });
 
   test(
-    'Execute passes spec and defaultClientConfig to RequestComposer',
+    'Execute passes spec and clientConfig to RequestComposer',
     () async {
       await sut.execute(
         spec: spec,
@@ -174,8 +174,7 @@ void main() {
         responseClassifier: mockResponseClassifier,
       );
 
-      verify(() => mockRequestComposer.compose(spec, defaultClientConfig))
-          .called(1);
+      verify(() => mockRequestComposer.compose(spec, clientConfig)).called(1);
     },
   );
 
@@ -185,7 +184,7 @@ void main() {
       final composedSpec =
           spec.copyWith(body: const JsonBody({'composed': true}));
 
-      when(() => mockRequestComposer.compose(spec, defaultClientConfig))
+      when(() => mockRequestComposer.compose(spec, clientConfig))
           .thenReturn(composedSpec);
       when(() => mockRequestBodyTransformer.transform(composedSpec.body))
           .thenReturn({'name': 'Alice'});
@@ -205,7 +204,7 @@ void main() {
           spec.copyWith(pathOrUrl: 'https://api.example.com/users');
       final cancelToken = CancelToken();
 
-      when(() => mockRequestComposer.compose(spec, defaultClientConfig))
+      when(() => mockRequestComposer.compose(spec, clientConfig))
           .thenReturn(composedSpec);
       when(() =>
               mockDioCancelTokenFactory.create(composedSpec, requestCanceller))
@@ -228,7 +227,7 @@ void main() {
     () async {
       final bodylessSpec =
           RequestSpec(pathOrUrl: '/health', method: HttpMethod.GET);
-      when(() => mockRequestComposer.compose(bodylessSpec, defaultClientConfig))
+      when(() => mockRequestComposer.compose(bodylessSpec, clientConfig))
           .thenReturn(bodylessSpec);
       when(() => mockRequestBodyTransformer.transform(bodylessSpec.body))
           .thenReturn(null);
@@ -519,7 +518,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -531,7 +530,7 @@ void main() {
         mockClientExceptionMapper,
       );
 
-      when(() => mockRequestComposer.compose(modifiedSpec, defaultClientConfig))
+      when(() => mockRequestComposer.compose(modifiedSpec, clientConfig))
           .thenReturn(modifiedSpec);
 
       final result = await client.execute(
@@ -554,7 +553,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -594,7 +593,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -635,7 +634,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -667,7 +666,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -716,7 +715,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -768,7 +767,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -809,7 +808,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor1, interceptor2],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -849,7 +848,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor1, interceptor2],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -905,7 +904,7 @@ void main() {
 
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         [interceptor1, interceptor2],
         mockRequestComposer,
         mockRequestBodyTransformer,
@@ -931,7 +930,7 @@ void main() {
     () async {
       final client = DioNetClient.test(
         mockDio,
-        defaultClientConfig,
+        clientConfig,
         const [],
         mockRequestComposer,
         mockRequestBodyTransformer,

@@ -8,7 +8,7 @@ export 'src/enums/http_method.dart';
 export 'src/enums/parse_target_type.dart';
 export 'src/enums/transport_error_type.dart';
 export 'src/models/api_response.dart';
-export 'src/models/default_client_config.dart';
+export 'src/models/client_config.dart';
 export 'src/models/file_source.dart';
 export 'src/models/multipart_field.dart';
 export 'src/models/multipart_file_part.dart';

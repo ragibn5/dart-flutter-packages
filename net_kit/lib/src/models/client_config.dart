@@ -1,4 +1,4 @@
-class DefaultClientConfig {
+class ClientConfig {
   /// The base URL.
   final String? baseUrl;
 
@@ -27,7 +27,7 @@ class DefaultClientConfig {
   /// Defaults to 5.
   final int maxRedirects;
 
-  const DefaultClientConfig({
+  const ClientConfig({
     this.baseUrl,
     this.sendTimeout,
     this.receiveTimeout,

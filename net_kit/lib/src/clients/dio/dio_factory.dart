@@ -1,18 +1,18 @@
 import 'package:dio/dio.dart';
-import 'package:net_kit/src/models/default_client_config.dart';
+import 'package:net_kit/src/models/client_config.dart';
 
 class DioFactory {
-  static Dio createDio(DefaultClientConfig config) {
+  static Dio createDio(ClientConfig clientConfig) {
     return Dio(
       BaseOptions(
-        baseUrl: config.baseUrl ?? '',
-        connectTimeout: config.connectionTimeout,
-        sendTimeout: config.sendTimeout,
-        receiveTimeout: config.receiveTimeout,
-        queryParameters: config.queryParameters,
-        headers: config.headers,
-        followRedirects: config.followRedirects,
-        maxRedirects: config.maxRedirects,
+        baseUrl: clientConfig.baseUrl ?? '',
+        connectTimeout: clientConfig.connectionTimeout,
+        sendTimeout: clientConfig.sendTimeout,
+        receiveTimeout: clientConfig.receiveTimeout,
+        queryParameters: clientConfig.queryParameters,
+        headers: clientConfig.headers,
+        followRedirects: clientConfig.followRedirects,
+        maxRedirects: clientConfig.maxRedirects,
       ),
     );
   }

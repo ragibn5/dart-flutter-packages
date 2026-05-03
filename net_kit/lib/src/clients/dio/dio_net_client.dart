@@ -33,7 +33,7 @@ class DioNetClient implements NetClient {
   );
 
   final Dio _dio;
-  final DefaultClientConfig _defaultClientConfig;
+  final ClientConfig _clientConfig;
   final List<NetKitInterceptor> _interceptors;
 
   final RequestComposer _requestComposer;
@@ -46,10 +46,10 @@ class DioNetClient implements NetClient {
   final ClientExceptionMapper _clientExceptionMapper;
 
   DioNetClient([
-    DefaultClientConfig config = const DefaultClientConfig(),
+    ClientConfig clientConfig = const ClientConfig(),
     List<NetKitInterceptor> interceptors = const [],
-  ])  : _dio = DioFactory.createDio(config),
-        _defaultClientConfig = config,
+  ])  : _dio = DioFactory.createDio(clientConfig),
+        _clientConfig = clientConfig,
         _interceptors = interceptors,
         _requestComposer = _defaultDioRequestComposer,
         _requestBodyTransformer = _defaultRequestBodyTransformer,
@@ -65,7 +65,7 @@ class DioNetClient implements NetClient {
   @visibleForTesting
   DioNetClient.test(
     Dio dio,
-    DefaultClientConfig defaultClientConfig,
+    ClientConfig clientConfig,
     List<NetKitInterceptor> interceptors,
     RequestComposer requestComposer,
     RequestBodyTransformer requestBodyTransformer,
@@ -76,7 +76,7 @@ class DioNetClient implements NetClient {
     SuccessfulResponseDataTransformer successfulResponseDataTransformer,
     ClientExceptionMapper clientExceptionMapper,
   )   : _dio = dio,
-        _defaultClientConfig = defaultClientConfig,
+        _clientConfig = clientConfig,
         _interceptors = interceptors,
         _requestComposer = requestComposer,
         _requestBodyTransformer = requestBodyTransformer,
@@ -97,7 +97,7 @@ class DioNetClient implements NetClient {
     RequestCanceller? requestCanceller,
     ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
   }) async {
-    var composedSpec = _requestComposer.compose(spec, _defaultClientConfig);
+    var composedSpec = _requestComposer.compose(spec, _clientConfig);
 
     final requestResult = await _processRequest(composedSpec);
     switch (requestResult) {
