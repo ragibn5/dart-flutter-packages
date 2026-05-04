@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 
 /// Transport-agnostic request cancellation handle.
-final class RequestCanceller {
+class RequestCanceller {
   Object? _reason;
   RequestSpec? _requestSpec;
   final _whenCancelCompleter = Completer<Object>();
