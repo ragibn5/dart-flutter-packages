@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:dio/dio.dart';
-import 'package:net_kit/src/clients/dio/dio_cancel_token_factory.dart';
+import 'package:net_kit/src/clients/dio/dio_cancel_token_builder.dart';
 import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/models/request_body.dart';
 import 'package:net_kit/src/models/request_spec.dart';
@@ -9,16 +9,16 @@ import 'package:net_kit/src/services/cancellation/request_canceller.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const sut = DioCancelTokenFactory();
+  final spec = RequestSpec(
+    pathOrUrl: '/users',
+    method: HttpMethod.POST,
+    body: const JsonBody({'name': 'Alice'}),
+  );
 
-  late RequestSpec spec;
+  late DioCancelTokenBuilder sut;
 
   setUp(() {
-    spec = RequestSpec(
-      pathOrUrl: '/users',
-      method: HttpMethod.POST,
-      body: const JsonBody({'name': 'Alice'}),
-    );
+    sut = const DioCancelTokenBuilder();
   });
 
   test(
