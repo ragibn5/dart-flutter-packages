@@ -2,7 +2,6 @@ import 'package:net_kit/net_kit.dart';
 
 /// An interface to compose a [RequestSpec] with the given client specific
 /// [ClientConfig].
-///
 abstract interface class RequestComposer {
   /// Builds a merged a [RequestSpec] from the given [RequestSpec] and
   /// [ClientConfig].
@@ -25,12 +24,28 @@ class DefaultRequestComposer implements RequestComposer {
       receiveTimeout: source.receiveTimeout ?? clientConfig.receiveTimeout,
       connectionTimeout:
           source.connectionTimeout ?? clientConfig.connectionTimeout,
-      queryParameters: (clientConfig.queryParameters ?? {})
-        ..addAll(source.queryParameters ?? {}),
-      headers: (clientConfig.headers ?? {})..addAll(source.headers ?? {}),
+      queryParameters: _mergeMaps(
+        clientConfig.queryParameters,
+        source.queryParameters,
+      ),
+      headers: _mergeMaps(
+        clientConfig.headers,
+        source.headers,
+      ),
       baseUrl: source.baseUrl ?? clientConfig.baseUrl,
       followRedirects: source.followRedirects ?? clientConfig.followRedirects,
       maxRedirects: source.maxRedirects ?? clientConfig.maxRedirects,
     );
+  }
+
+  Map<String, dynamic>? _mergeMaps(
+    Map<String, dynamic>? base,
+    Map<String, dynamic>? override,
+  ) {
+    if (base == null && override == null) return null;
+    return {
+      ...?base,
+      ...?override,
+    };
   }
 }
