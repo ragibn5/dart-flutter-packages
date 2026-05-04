@@ -1,206 +1,119 @@
 // ignore_for_file: lines_longer_than_80_chars, avoid_redundant_argument_values
 
 import 'package:dio/dio.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/src/clients/dio/dio_cancel_token_builder.dart';
+import 'package:net_kit/src/clients/dio/dio_request_body_transformer.dart';
 import 'package:net_kit/src/clients/dio/dio_request_options_builder.dart';
 import 'package:net_kit/src/enums/http_method.dart';
+import 'package:net_kit/src/models/request_body.dart';
 import 'package:net_kit/src/models/request_spec.dart';
+import 'package:net_kit/src/services/cancellation/request_canceller.dart';
+import 'package:net_kit/src/services/mappers/response_status_validator.dart';
 import 'package:test/test.dart';
 
-void main() {
-  const sut = DioRequestOptionsBuilder();
+class _MockResponseStatusValidator extends Mock
+    implements ResponseStatusValidator {}
 
-  late RequestSpec composedSpec;
+class _MockDioCancelTokenBuilder extends Mock
+    implements DioCancelTokenBuilder {}
+
+class _MockDioRequestBodyTransformer extends Mock
+    implements DioRequestBodyTransformer {}
+
+void main() {
+  const path = 'p';
+  const method = HttpMethod.GET;
+  const contentType = 'application/json';
+  const sendTimeout = Duration(seconds: 2);
+  const receiveTimeout = Duration(seconds: 3);
+  const connectionTimeout = Duration(seconds: 4);
+  const queryParameters = {'page': 1};
+  const baseUrl = 'https://example.com/api';
+  const headers = {'authorization': 'Bearer token'};
+  const followRedirects = true;
+  const maxRedirects = 10;
+  const requestBody = JsonBody({});
+  const validateStatus = true;
+  final dioCancelToken = CancelToken();
+  final requestCanceller = RequestCanceller();
+  final requestSpec = RequestSpec(
+    pathOrUrl: path,
+    method: method,
+    body: requestBody,
+    queryParameters: queryParameters,
+    headers: headers,
+    contentType: contentType,
+    baseUrl: baseUrl,
+    sendTimeout: sendTimeout,
+    receiveTimeout: receiveTimeout,
+    connectionTimeout: connectionTimeout,
+    followRedirects: followRedirects,
+    maxRedirects: maxRedirects,
+  );
+  void onSendProgress(int count, int total) {}
+  void onReceiveProgress(int count, int total) {}
+
+  late _MockResponseStatusValidator mockResponseStatusValidator;
+  late _MockDioCancelTokenBuilder mockDioCancelTokenBuilder;
+  late _MockDioRequestBodyTransformer mockDioRequestBodyTransformer;
+
+  late DioRequestOptionsBuilder sut;
+
+  setUpAll(() {
+    registerFallbackValue(requestBody);
+    registerFallbackValue(dioCancelToken);
+    registerFallbackValue(requestCanceller);
+  });
 
   setUp(() {
-    composedSpec = RequestSpec(
-      pathOrUrl: '/users',
-      method: HttpMethod.POST,
-      baseUrl: 'https://api.example.com',
-      body: null,
-      headers: const {'authorization': 'Bearer token'},
-      queryParameters: const {'page': 1},
-      contentType: Headers.jsonContentType,
-      sendTimeout: const Duration(seconds: 2),
-      receiveTimeout: const Duration(seconds: 3),
-      connectionTimeout: const Duration(seconds: 4),
-      followRedirects: false,
-      maxRedirects: 1,
-    );
-  });
+    mockResponseStatusValidator = _MockResponseStatusValidator();
+    mockDioCancelTokenBuilder = _MockDioCancelTokenBuilder();
+    mockDioRequestBodyTransformer = _MockDioRequestBodyTransformer();
 
-  test('build assigns path, method, and baseUrl', () {
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
+    sut = DioRequestOptionsBuilder(
+      mockResponseStatusValidator,
+      mockDioCancelTokenBuilder,
+      mockDioRequestBodyTransformer,
     );
 
-    expect(requestOptions.path, '/users');
-    expect(requestOptions.method, 'POST');
-    expect(requestOptions.baseUrl, 'https://api.example.com');
+    when(() => mockDioRequestBodyTransformer.transform(requestSpec.body))
+        .thenReturn(requestBody.data);
+    when(() => mockDioCancelTokenBuilder.create(requestSpec, requestCanceller))
+        .thenReturn(dioCancelToken);
+    when(() => mockResponseStatusValidator.validateStatus(any()))
+        .thenReturn(validateStatus);
   });
 
-  test('build assigns transformed body data', () {
-    const body = {'name': 'Alice'};
-
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: body,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.data, body);
-  });
-
-  test('build assigns null body when transformed body is null', () {
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.data, isNull);
-  });
-
-  test('build assigns resolved content type', () {
-    const contentType = 'application/vnd.custom+json';
-
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: contentType,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.contentType, contentType);
-  });
-
-  test('build assigns null content type when not resolved', () {
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.contentType, isNull);
-  });
-
-  test('build assigns cancelToken', () {
-    final cancelToken = CancelToken();
-
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: cancelToken,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.cancelToken, same(cancelToken));
-  });
-
-  test('build assigns null cancelToken', () {
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.cancelToken, isNull);
-  });
-
-  test('build assigns timeouts from composedSpec', () {
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.sendTimeout, const Duration(seconds: 2));
-    expect(requestOptions.receiveTimeout, const Duration(seconds: 3));
-    expect(requestOptions.connectTimeout, const Duration(seconds: 4));
-  });
-
-  test('build assigns headers and queryParameters from composedSpec', () {
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.headers['authorization'], 'Bearer token');
-    expect(requestOptions.queryParameters['page'], 1);
-  });
-
-  test('build assigns followRedirects and maxRedirects from composedSpec', () {
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.followRedirects, false);
-    expect(requestOptions.maxRedirects, 1);
-  });
-
-  test('build assigns progress listeners', () {
-    void onSendProgress(_, __) {}
-
-    void onReceiveProgress(_, __) {}
-
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
+  test('build creates a Dio request options with correct values', () {
+    final result = sut.build(
+      spec: requestSpec,
+      canceller: requestCanceller,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
 
-    expect(requestOptions.onSendProgress, same(onSendProgress));
-    expect(requestOptions.onReceiveProgress, same(onReceiveProgress));
-  });
-
-  test('build sets validateStatus to always return true', () {
-    final requestOptions = sut.build(
-      composedSpec: composedSpec,
-      transformedBody: null,
-      resolvedContentType: null,
-      cancelToken: null,
-      onSendProgress: null,
-      onReceiveProgress: null,
-    );
-
-    expect(requestOptions.validateStatus(200), isTrue);
-    expect(requestOptions.validateStatus(400), isTrue);
-    expect(requestOptions.validateStatus(500), isTrue);
-    expect(requestOptions.validateStatus(0), isTrue);
+    expect(result.path, requestSpec.pathOrUrl);
+    expect(result.data, requestBody.data);
+    expect(result.method, requestSpec.method.value);
+    expect(result.contentType, requestSpec.contentType);
+    expect(result.cancelToken, dioCancelToken);
+    expect(result.sendTimeout, requestSpec.sendTimeout);
+    expect(result.receiveTimeout, requestSpec.receiveTimeout);
+    expect(result.connectTimeout, requestSpec.connectionTimeout);
+    requestSpec.queryParameters?.forEach((key, value) {
+      expect(result.queryParameters.containsKey(key), isTrue);
+      expect(result.queryParameters[key], value);
+    });
+    requestSpec.headers?.forEach((key, value) {
+      expect(result.headers.containsKey(key), isTrue);
+      expect(result.headers[key], value);
+    });
+    expect(result.baseUrl, requestSpec.baseUrl);
+    expect(result.followRedirects, requestSpec.followRedirects);
+    expect(result.maxRedirects, requestSpec.maxRedirects);
+    expect(result.onSendProgress, onSendProgress);
+    expect(result.onReceiveProgress, onReceiveProgress);
+    expect(result.validateStatus(200), validateStatus);
   });
 }
