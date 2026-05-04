@@ -6,26 +6,26 @@ import 'package:net_kit/src/clients/dio/dio_request_options_builder.dart';
 import 'package:net_kit/src/services/adapters/network_request_adapter.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
-class DioAdapter implements NetworkRequestAdapter {
+class DioRequestAdapter implements NetworkRequestAdapter {
   static const _defaultResponseCode = 0;
 
   final Dio _dio;
   final DioExceptionMapper _dioExceptionMapper;
   final DioRequestOptionsBuilder _dioRequestOptionsBuilder;
 
-  DioAdapter(Dio dio)
+  DioRequestAdapter(Dio dio)
       : _dio = dio,
         _dioRequestOptionsBuilder = const DioRequestOptionsBuilder(),
         _dioExceptionMapper = const DioExceptionMapper();
 
   @visibleForTesting
-  DioAdapter.test(
+  DioRequestAdapter.test(
     Dio dio,
     DioExceptionMapper dioExceptionMapper,
     DioRequestOptionsBuilder dioRequestOptionsBuilder,
   ) : this._(dio, dioExceptionMapper, dioRequestOptionsBuilder);
 
-  DioAdapter._(
+  DioRequestAdapter._(
     this._dio,
     this._dioExceptionMapper,
     this._dioRequestOptionsBuilder,
@@ -34,9 +34,9 @@ class DioAdapter implements NetworkRequestAdapter {
   @override
   Future<Result<NetKitException, RawResponse>> performRequest({
     required RequestSpec spec,
+    RequestCanceller? requestCanceller,
     ProgressListener? onSendProgress,
     ProgressListener? onReceiveProgress,
-    RequestCanceller? requestCanceller,
   }) async {
     try {
       final response = await _dio.fetch<dynamic>(
