@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:net_kit/src/models/api_response.dart';
 import 'package:net_kit/src/models/client_config.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
@@ -63,9 +64,9 @@ class NetClient {
 
     final result = await _requestAdapter.performRequest(
       spec: composedSpec,
+      requestCanceller: requestCanceller,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
-      requestCanceller: requestCanceller,
     );
     return result.fold(
       onSuccess: (r) => _processResponse(r, responseClassifier),
@@ -147,4 +148,13 @@ class NetClient {
       requestSpec: responseContext.request,
     );
   }
+
+  @visibleForTesting
+  ClientConfig get clientConfig => _clientConfig;
+
+  @visibleForTesting
+  List<NetKitInterceptor> get interceptors => _interceptors;
+
+  @visibleForTesting
+  NetworkRequestAdapter get requestAdapter => _requestAdapter;
 }

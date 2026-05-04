@@ -5,12 +5,18 @@ import 'package:net_kit/src/models/client_config.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late DioFactory sut;
+
+  setUp(() {
+    sut = const DioFactory();
+  });
+
   test(
     'createDio assigns empty string if default config has null base url',
     () {
       const config = ClientConfig(baseUrl: null);
 
-      final dio = DioFactory.createDio(config);
+      final dio = sut.createDio(config);
 
       expect(dio.options.baseUrl, isEmpty);
     },
@@ -36,7 +42,7 @@ void main() {
       maxRedirects: maxRedirects,
     );
 
-    final dio = DioFactory.createDio(config);
+    final dio = sut.createDio(config);
 
     expect(dio.options.baseUrl, config.baseUrl);
     expect(dio.options.connectTimeout, config.connectionTimeout);

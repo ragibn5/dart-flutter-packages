@@ -1,32 +1,49 @@
+// ignore_for_file: avoid_redundant_argument_values
+
+import 'package:dio/dio.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/net_kit.dart';
+import 'package:net_kit/src/clients/dio/dio_factory.dart';
 import 'package:net_kit/src/clients/dio/dio_request_adapter.dart';
-import 'package:net_kit/src/clients/net_client.dart';
-import 'package:net_kit/src/clients/net_client_factory.dart';
-import 'package:net_kit/src/models/client_config.dart';
 import 'package:test/test.dart';
 
+class _MockDio extends Mock implements Dio {}
+
+class _MockDioFactory extends Mock implements DioFactory {}
+
 void main() {
-  test('Create returns a NetClient using default config', () {
-    final client = NetClientFactory.create();
+  const clientConfig = ClientConfig();
+  const interceptors = <NetKitInterceptor>[];
 
-    expect(client, isA<NetClient>());
-    expect(client, isA<DioAdapter>());
+  late _MockDio mockDio;
+  late _MockDioFactory mockDioFactory;
 
-    client.close();
+  late NetClientFactory sut;
+
+  setUp(() {
+    mockDio = _MockDio();
+    mockDioFactory = _MockDioFactory();
+
+    sut = NetClientFactory.test(mockDioFactory);
+
+    when(() => mockDioFactory.createDio(clientConfig)).thenReturn(mockDio);
   });
 
-  test('Create accepts an explicit ClientConfig', () {
-    final client = NetClientFactory.create(
-      const ClientConfig(
-        baseUrl: 'https://api.example.com',
-        connectionTimeout: Duration(seconds: 5),
-        sendTimeout: Duration(seconds: 3),
-        receiveTimeout: Duration(seconds: 4),
-        headers: {'authorization': 'Bearer token'},
-        queryParameters: {'locale': 'en'},
-      ),
-    );
+  test('Create returns a NetClient using proper values', () {
+    final client = sut.create(clientConfig, interceptors);
 
-    expect(client, isA<DioAdapter>());
+    verify(() => mockDioFactory.createDio(clientConfig)).called(1);
+    expect(
+      client,
+      isA<NetClient>()
+          .having((p) => p.clientConfig, 'clientConfig', same(clientConfig))
+          .having((p) => p.interceptors, 'interceptors', same(interceptors))
+          .having(
+            (p) => p.requestAdapter,
+            'requestAdapter',
+            isA<DioRequestAdapter>(),
+          ),
+    );
 
     client.close();
   });

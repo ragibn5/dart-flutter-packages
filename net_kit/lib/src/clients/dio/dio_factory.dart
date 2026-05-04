@@ -2,7 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:net_kit/src/models/client_config.dart';
 
 class DioFactory {
-  static Dio createDio(ClientConfig clientConfig) {
+  const DioFactory();
+
+  Dio createDio(ClientConfig clientConfig) {
     return Dio(
       BaseOptions(
         baseUrl: clientConfig.baseUrl ?? '',
