@@ -100,9 +100,11 @@ void main() {
 
     final formData = result as FormData;
 
+    // Fields
     expect(formData.fields, hasLength(1));
     expect(formData.fields.single.key, 'title');
     expect(formData.fields.single.value, 'avatar');
+    // File-1
     expect(formData.files, hasLength(2));
     expect(formData.files.first.key, 'bytes');
     expect(formData.files.first.value.filename, 'avatar.bin');
@@ -113,6 +115,7 @@ void main() {
     expect(formData.files.first.value.headers, {
       'x-file': ['bytes'],
     });
+    // File-2
     expect(formData.files.last.key, 'stream');
     expect(formData.files.last.value.filename, 'avatar.txt');
     expect(formData.files.last.value.length, 4);
