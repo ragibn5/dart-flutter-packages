@@ -1,4 +1,4 @@
-import 'package:net_kit/src/clients/dio/dio_net_client.dart';
+import 'package:net_kit/src/clients/dio/dio_request_adapter.dart';
 import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/clients/net_client_factory.dart';
 import 'package:net_kit/src/models/client_config.dart';
@@ -9,7 +9,7 @@ void main() {
     final client = NetClientFactory.create();
 
     expect(client, isA<NetClient>());
-    expect(client, isA<DioNetClient>());
+    expect(client, isA<DioAdapter>());
 
     client.close();
   });
@@ -26,7 +26,7 @@ void main() {
       ),
     );
 
-    expect(client, isA<DioNetClient>());
+    expect(client, isA<DioAdapter>());
 
     client.close();
   });
