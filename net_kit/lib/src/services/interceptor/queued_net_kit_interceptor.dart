@@ -1,22 +1,27 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 
-/// Serializes interceptor request hooks to prevent race conditions.
-///
-/// When multiple requests arrive concurrently, they are queued and processed
-/// one at a time in arrival order. This is useful for auth token refresh,
-/// rate limiting, and similar scenarios.
-///
-/// Responses and errors are NOT queued — they fire naturally as they arrive.
-abstract class QueuedNetKitInterceptor extends NetKitInterceptor {
-  final _queue = <_QueuedTask>[];
+class _Task<T, R> {
+  final T data;
+  final Completer<R> completer;
+
+  _Task(this.data, this.completer);
+}
+
+class _PhaseQueue<T, R> {
+  final Future<R> Function(T) processor;
+
+  final _queue = <_Task<T, R>>[];
+
   var _isProcessing = false;
 
-  @override
-  Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
-    final completer = Completer<RequestInterceptorResult>();
-    _queue.add(_QueuedTask(request, completer));
+  _PhaseQueue(this.processor);
+
+  Future<R> enqueue(T data) {
+    final completer = Completer<R>();
+    _queue.add(_Task(data, completer));
     _drain();
     return completer.future;
   }
@@ -30,10 +35,10 @@ abstract class QueuedNetKitInterceptor extends NetKitInterceptor {
   Future<void> _processNext() async {
     final task = _queue.removeAt(0);
     try {
-      final result = await super.onRequest(task.request);
+      final result = await processor(task.data);
       task.completer.complete(result);
-    } catch (e) {
-      task.completer.completeError(e);
+    } catch (e, st) {
+      task.completer.completeError(e, st);
     } finally {
       _isProcessing = false;
       _drain();
@@ -41,9 +46,54 @@ abstract class QueuedNetKitInterceptor extends NetKitInterceptor {
   }
 }
 
-class _QueuedTask {
-  final RequestSpec request;
-  final Completer<RequestInterceptorResult> completer;
+/// A base interceptor for work that must be handled in order.
+///
+/// Use this for interceptor logic that coordinates shared state across
+/// multiple in-flight calls, such as token refresh, request gating, or
+/// similar sequencing-sensitive flows.
+///
+/// ```dart
+/// class MyInterceptor extends QueuedNetKitInterceptor {
+///   @override
+///   Future<RequestInterceptorResult> handleRequest(RequestSpec spec) async {
+///     // attach token, etc.
+///   }
+/// }
+/// ```
+abstract class QueuedNetKitInterceptor extends NetKitInterceptor {
+  late final _requestQueue =
+      _PhaseQueue<RequestSpec, RequestInterceptorResult>(handleRequest);
 
-  _QueuedTask(this.request, this.completer);
+  late final _responseQueue =
+      _PhaseQueue<RawResponse, ResponseInterceptorResult>(handleResponse);
+
+  late final _errorQueue =
+      _PhaseQueue<NetKitException, ErrorInterceptorResult>(handleError);
+
+  @internal
+  @override
+  Future<RequestInterceptorResult> onRequest(RequestSpec request) =>
+      _requestQueue.enqueue(request);
+
+  @internal
+  @override
+  Future<ResponseInterceptorResult> onResponse(RawResponse response) =>
+      _responseQueue.enqueue(response);
+
+  @internal
+  @override
+  Future<ErrorInterceptorResult> onError(NetKitException error) =>
+      _errorQueue.enqueue(error);
+
+  /// Handles a queued request hook invocation.
+  Future<RequestInterceptorResult> handleRequest(RequestSpec request) =>
+      super.onRequest(request);
+
+  /// Handles a queued response hook invocation.
+  Future<ResponseInterceptorResult> handleResponse(RawResponse response) =>
+      super.onResponse(response);
+
+  /// Handles a queued error hook invocation.
+  Future<ErrorInterceptorResult> handleError(NetKitException error) =>
+      super.onError(error);
 }
