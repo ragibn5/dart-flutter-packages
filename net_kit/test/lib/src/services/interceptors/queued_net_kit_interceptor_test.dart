@@ -4,12 +4,10 @@ import 'package:net_kit/net_kit.dart';
 import 'package:test/test.dart';
 
 class _TestQueuedInterceptor extends QueuedNetKitInterceptor {
-  final Future<RequestInterceptorResult> Function(RequestSpec request)?
-      requestHandler;
-  final Future<ResponseInterceptorResult> Function(RawResponse response)?
+  final Future<RequestInterceptorResult> Function(RequestSpec)? requestHandler;
+  final Future<ResponseInterceptorResult> Function(RawResponse)?
       responseHandler;
-  final Future<ErrorInterceptorResult> Function(NetKitException error)?
-      errorHandler;
+  final Future<ErrorInterceptorResult> Function(NetKitException)? errorHandler;
 
   _TestQueuedInterceptor({
     this.requestHandler,
@@ -18,70 +16,58 @@ class _TestQueuedInterceptor extends QueuedNetKitInterceptor {
   });
 
   @override
-  Future<RequestInterceptorResult> handleRequest(RequestSpec request) async {
-    final handler = requestHandler;
-    if (handler != null) return handler(request);
-    return super.handleRequest(request);
-  }
+  Future<RequestInterceptorResult> handleRequest(RequestSpec request) =>
+      requestHandler?.call(request) ?? super.handleRequest(request);
 
   @override
-  Future<ResponseInterceptorResult> handleResponse(RawResponse response) async {
-    final handler = responseHandler;
-    if (handler != null) return handler(response);
-    return super.handleResponse(response);
-  }
+  Future<ResponseInterceptorResult> handleResponse(RawResponse response) =>
+      responseHandler?.call(response) ?? super.handleResponse(response);
 
   @override
-  Future<ErrorInterceptorResult> handleError(NetKitException error) async {
-    final handler = errorHandler;
-    if (handler != null) return handler(error);
-    return super.handleError(error);
-  }
+  Future<ErrorInterceptorResult> handleError(NetKitException error) =>
+      errorHandler?.call(error) ?? super.handleError(error);
 }
 
-void main() {
-  RequestSpec request(String path) {
-    return RequestSpec(pathOrUrl: path, method: HttpMethod.GET);
-  }
+RequestSpec _request(String path) =>
+    RequestSpec(pathOrUrl: path, method: HttpMethod.GET);
 
-  RawResponse response(String body) {
-    return RawResponse(
+RawResponse _response(String body) => RawResponse(
       statusCode: 200,
       rawResponseBody: body,
       responseHeaders: const {},
-      request: request('/source'),
+      request: _request('/source'),
     );
-  }
 
+/// Returns a gate to pause/resume the first item, and events to assert on.
+({Completer<void> gate, List<String> events}) _makeGate() =>
+    (gate: Completer<void>(), events: <String>[]);
+
+void main() {
   test('Processes requests in arrival order', () async {
-    final events = <String>[];
+    final (:gate, :events) = _makeGate();
     final firstStarted = Completer<void>();
-    final releaseFirst = Completer<void>();
 
     final sut = _TestQueuedInterceptor(
       requestHandler: (request) async {
         events.add('${request.pathOrUrl}-start');
         if (request.pathOrUrl == '/first') {
           firstStarted.complete();
-          await releaseFirst.future;
+          await gate.future;
         }
         events.add('${request.pathOrUrl}-end');
         return ContinueWithRequest(request);
       },
     );
 
-    final firstFuture = sut.onRequest(request('/first'));
+    final firstFuture = sut.onRequest(_request('/first'));
     await firstStarted.future;
 
-    final secondFuture = sut.onRequest(request('/second'));
+    final secondFuture = sut.onRequest(_request('/second'));
     await Future<void>.delayed(Duration.zero);
 
     expect(events, ['/first-start']);
-
-    releaseFirst.complete();
-
+    gate.complete();
     await Future.wait([firstFuture, secondFuture]);
-
     expect(
       events,
       ['/first-start', '/first-end', '/second-start', '/second-end'],
@@ -89,9 +75,8 @@ void main() {
   });
 
   test('Processes responses in arrival order', () async {
-    final events = <String>[];
+    final (:gate, :events) = _makeGate();
     final firstStarted = Completer<void>();
-    final releaseFirst = Completer<void>();
 
     final sut = _TestQueuedInterceptor(
       responseHandler: (response) async {
@@ -99,35 +84,28 @@ void main() {
         events.add('$marker-start');
         if (marker == 'first') {
           firstStarted.complete();
-          await releaseFirst.future;
+          await gate.future;
         }
         events.add('$marker-end');
         return ContinueWithResponse(response);
       },
     );
 
-    final firstFuture = sut.onResponse(response('first'));
+    final firstFuture = sut.onResponse(_response('first'));
     await firstStarted.future;
 
-    final secondFuture = sut.onResponse(response('second'));
+    final secondFuture = sut.onResponse(_response('second'));
     await Future<void>.delayed(Duration.zero);
 
     expect(events, ['first-start']);
-
-    releaseFirst.complete();
-
+    gate.complete();
     await Future.wait([firstFuture, secondFuture]);
-
-    expect(
-      events,
-      ['first-start', 'first-end', 'second-start', 'second-end'],
-    );
+    expect(events, ['first-start', 'first-end', 'second-start', 'second-end']);
   });
 
   test('Processes errors in arrival order', () async {
-    final events = <String>[];
+    final (:gate, :events) = _makeGate();
     final firstStarted = Completer<void>();
-    final releaseFirst = Completer<void>();
 
     final sut = _TestQueuedInterceptor(
       errorHandler: (error) async {
@@ -135,7 +113,7 @@ void main() {
         events.add('$marker-start');
         if (marker == 'first') {
           firstStarted.complete();
-          await releaseFirst.future;
+          await gate.future;
         }
         events.add('$marker-end');
         return ContinueWithError(error);
@@ -149,59 +127,49 @@ void main() {
     await Future<void>.delayed(Duration.zero);
 
     expect(events, ['first-start']);
-
-    releaseFirst.complete();
-
+    gate.complete();
     await Future.wait([firstFuture, secondFuture]);
-
-    expect(
-      events,
-      ['first-start', 'first-end', 'second-start', 'second-end'],
-    );
+    expect(events, ['first-start', 'first-end', 'second-start', 'second-end']);
   });
 
   test('Does not block one phase on another phase', () async {
-    final events = <String>[];
+    final requestGate = Completer<void>();
+    final responseGate = Completer<void>();
     final requestStarted = Completer<void>();
     final responseStarted = Completer<void>();
-    final releaseRequest = Completer<void>();
-    final releaseResponse = Completer<void>();
+    final events = <String>[];
 
     final sut = _TestQueuedInterceptor(
       requestHandler: (request) async {
         events.add('request-start');
         requestStarted.complete();
-        await releaseRequest.future;
+        await requestGate.future;
         events.add('request-end');
         return ContinueWithRequest(request);
       },
       responseHandler: (response) async {
         events.add('response-start');
         responseStarted.complete();
-        await releaseResponse.future;
+        await responseGate.future;
         events.add('response-end');
         return ContinueWithResponse(response);
       },
     );
 
-    final requestFuture = sut.onRequest(request('/first'));
+    final requestFuture = sut.onRequest(_request('/first'));
     await requestStarted.future;
 
-    final responseFuture = sut.onResponse(response('first'));
+    final responseFuture = sut.onResponse(_response('first'));
     await responseStarted.future;
 
     expect(events, ['request-start', 'response-start']);
 
-    releaseRequest.complete();
-    releaseResponse.complete();
-
+    requestGate.complete();
+    responseGate.complete();
     await Future.wait([requestFuture, responseFuture]);
-
-    expect(events, [
-      'request-start',
-      'response-start',
-      'request-end',
-      'response-end',
-    ]);
+    expect(
+      events,
+      ['request-start', 'response-start', 'request-end', 'response-end'],
+    );
   });
 }
