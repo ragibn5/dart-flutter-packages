@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:net_kit/src/clients/dio/dio_factory.dart';
 import 'package:net_kit/src/clients/dio/dio_request_adapter.dart';
+import 'package:net_kit/src/clients/net_client_impl.dart';
 import 'package:test/test.dart';
 
 class _MockDio extends Mock implements Dio {}
@@ -35,7 +36,7 @@ void main() {
     verify(() => mockDioFactory.createDio(clientConfig)).called(1);
     expect(
       client,
-      isA<NetClient>()
+      isA<NetClientImpl>()
           .having((p) => p.clientConfig, 'clientConfig', same(clientConfig))
           .having((p) => p.interceptors, 'interceptors', same(interceptors))
           .having(

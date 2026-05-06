@@ -2,6 +2,7 @@
 
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
+import 'package:net_kit/src/clients/net_client_impl.dart';
 import 'package:net_kit/src/services/adapters/network_request_adapter.dart';
 import 'package:net_kit/src/services/composer/request_composer.dart';
 import 'package:test/test.dart';
@@ -64,7 +65,7 @@ void main() {
     mockInterceptor = _MockNetKitInterceptor();
     mockResponseClassifier = _MockResponseClassifier();
 
-    sut = NetClient(
+    sut = NetClientImpl(
       clientConfig: clientConfig,
       interceptors: [mockInterceptor],
       requestAdapter: mockRequestAdapter,
@@ -392,7 +393,7 @@ void main() {
     when(() => interceptor2.onError(any()))
         .thenAnswer((_) async => const ContinueWithError(netKitException));
 
-    final multiInterceptorSut = NetClient(
+    final multiInterceptorSut = NetClientImpl(
       clientConfig: clientConfig,
       interceptors: [mockInterceptor, interceptor2],
       requestAdapter: mockRequestAdapter,
