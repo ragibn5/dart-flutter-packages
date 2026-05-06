@@ -1,48 +1,7 @@
 import 'package:net_kit/net_kit.dart';
 
-class User {
-  final int id;
-  final String name;
-
-  const User({
-    required this.id,
-    required this.name,
-  });
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'] as int,
-      name: json['name'] as String,
-    );
-  }
-}
-
-class ApiError {
-  final String message;
-
-  const ApiError(this.message);
-
-  factory ApiError.fromJson(Map<String, dynamic> json) {
-    return ApiError(json['message'] as String? ?? 'Unknown error');
-  }
-}
-
-class UserCodec implements ResponseDataCodec<User, ApiError> {
-  const UserCodec();
-
-  @override
-  User decodeData(dynamic raw) {
-    return User.fromJson(raw as Map<String, dynamic>);
-  }
-
-  @override
-  ApiError decodeErrorData(dynamic raw) {
-    return ApiError.fromJson(raw as Map<String, dynamic>);
-  }
-}
-
 Future<void> main() async {
-  final client = NetClientFactory.create(
+  final client = NetClientFactory().create(
     const ClientConfig(
       baseUrl: 'https://example.com/api',
       connectionTimeout: Duration(seconds: 5),
@@ -60,27 +19,16 @@ Future<void> main() async {
     receiveTimeout: const Duration(seconds: 2),
   );
 
-  final result = await client.execute<User, ApiError>(
-    spec: request,
-    codec: const UserCodec(),
-  );
+  final result = await client.execute(spec: request);
 
   result.fold(
     onSuccess: (response) {
-      if (response.data.isSuccess) {
-        final user = response.data.resultOrNull!;
-        print('User: ${user.name}');
-      } else {
-        final apiError = response.data.errorOrNull!;
-        print('Domain error: ${apiError.message}');
-      }
+      print('Success: ${response.data}');
     },
     onError: (error) {
       switch (error) {
         case TransportException(type: final type):
           print('Transport error: $type');
-        case ParseException():
-          print('Response parsing failed');
         case UnexpectedException(message: final message):
           print('Unexpected error: $message');
         case CancellationException():
