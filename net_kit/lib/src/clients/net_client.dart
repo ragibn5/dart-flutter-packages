@@ -15,7 +15,6 @@ import 'package:net_kit/src/services/interceptors/net_kit_interceptor.dart';
 import 'package:net_kit/src/services/interceptors/request_interceptor_result.dart';
 import 'package:net_kit/src/services/interceptors/response_interceptor_result.dart';
 import 'package:net_kit/src/services/mappers/response_classifier.dart';
-import 'package:net_kit/src/services/resolver/request_content_type_resolver.dart';
 import 'package:net_kit/src/types/api_call_result.dart';
 import 'package:net_kit/src/types/progress_listener.dart';
 
@@ -25,20 +24,16 @@ class NetClient {
   final NetworkRequestAdapter _requestAdapter;
 
   final RequestComposer _requestComposer;
-  final RequestContentTypeResolver _requestBodyContentTypeResolver;
 
   NetClient({
     required ClientConfig clientConfig,
     required List<NetKitInterceptor> interceptors,
     required NetworkRequestAdapter requestAdapter,
     RequestComposer requestComposer = const DefaultRequestComposer(),
-    RequestContentTypeResolver requestContentTypeResolver =
-        const DefaultRequestContentTypeResolver(),
   })  : _clientConfig = clientConfig,
         _interceptors = interceptors,
         _requestAdapter = requestAdapter,
-        _requestComposer = requestComposer,
-        _requestBodyContentTypeResolver = requestContentTypeResolver;
+        _requestComposer = requestComposer;
 
   /// Executes the given [spec] and returns a typed [ApiCallResult].
   Future<ApiCallResult> execute({
@@ -48,9 +43,7 @@ class NetClient {
     RequestCanceller? requestCanceller,
     ResponseClassifier responseClassifier = const DefaultResponseClassifier(),
   }) async {
-    var composedSpec = _requestComposer.compose(spec, _clientConfig).copyWith(
-          contentType: _requestBodyContentTypeResolver.resolve(spec.body),
-        );
+    var composedSpec = _requestComposer.compose(spec, _clientConfig);
 
     final requestResult = await _processRequest(composedSpec);
     switch (requestResult) {

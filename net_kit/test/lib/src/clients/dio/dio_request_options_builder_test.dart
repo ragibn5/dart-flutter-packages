@@ -24,7 +24,6 @@ class _MockDioRequestBodyTransformer extends Mock
 void main() {
   const path = 'p';
   const method = HttpMethod.GET;
-  const contentType = 'application/json';
   const sendTimeout = Duration(seconds: 2);
   const receiveTimeout = Duration(seconds: 3);
   const connectionTimeout = Duration(seconds: 4);
@@ -43,7 +42,6 @@ void main() {
     body: requestBody,
     queryParameters: queryParameters,
     headers: headers,
-    contentType: contentType,
     baseUrl: baseUrl,
     sendTimeout: sendTimeout,
     receiveTimeout: receiveTimeout,
@@ -96,7 +94,7 @@ void main() {
     expect(result.path, requestSpec.pathOrUrl);
     expect(result.data, requestBody.data);
     expect(result.method, requestSpec.method.value);
-    expect(result.contentType, requestSpec.contentType);
+    expect(result.contentType, requestSpec.body?.contentType);
     expect(result.cancelToken, dioCancelToken);
     expect(result.sendTimeout, requestSpec.sendTimeout);
     expect(result.receiveTimeout, requestSpec.receiveTimeout);

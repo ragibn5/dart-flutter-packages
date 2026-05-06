@@ -21,11 +21,6 @@ class RequestSpec {
   /// Additional headers to merge with the client-level headers.
   final Map<String, dynamic>? headers;
 
-  /// Explicit content type for this request body.
-  ///
-  /// If null, it may be inferred from the [body] field above.
-  final String? contentType;
-
   /// The base URL.
   final String? baseUrl;
 
@@ -50,7 +45,6 @@ class RequestSpec {
     this.body,
     this.queryParameters,
     this.headers,
-    this.contentType,
     this.baseUrl,
     this.sendTimeout,
     this.receiveTimeout,
@@ -65,7 +59,6 @@ class RequestSpec {
     RequestBody? body,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
-    String? contentType,
     String? baseUrl,
     Duration? sendTimeout,
     Duration? receiveTimeout,
@@ -79,7 +72,6 @@ class RequestSpec {
       body: body ?? this.body,
       queryParameters: queryParameters ?? this.queryParameters,
       headers: headers ?? this.headers,
-      contentType: contentType ?? this.contentType,
       baseUrl: baseUrl ?? this.baseUrl,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,

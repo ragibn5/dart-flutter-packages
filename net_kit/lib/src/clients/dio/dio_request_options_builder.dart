@@ -27,7 +27,7 @@ class DioRequestOptionsBuilder {
       path: spec.pathOrUrl,
       data: _requestBodyTransformer.transform(spec.body),
       method: spec.method.value,
-      contentType: spec.contentType,
+      contentType: spec.body?.contentType,
       cancelToken: _cancelTokenBuilder.create(spec, canceller),
       sendTimeout: spec.sendTimeout,
       receiveTimeout: spec.receiveTimeout,

@@ -4,16 +4,12 @@ import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:net_kit/src/services/adapters/network_request_adapter.dart';
 import 'package:net_kit/src/services/composer/request_composer.dart';
-import 'package:net_kit/src/services/resolver/request_content_type_resolver.dart';
 import 'package:test/test.dart';
 
 class _MockNetworkRequestAdapter extends Mock
     implements NetworkRequestAdapter {}
 
 class _MockRequestComposer extends Mock implements RequestComposer {}
-
-class _MockRequestContentTypeResolver extends Mock
-    implements RequestContentTypeResolver {}
 
 class _MockNetKitInterceptor extends Mock implements NetKitInterceptor {}
 
@@ -50,7 +46,6 @@ void main() {
 
   late _MockNetworkRequestAdapter mockRequestAdapter;
   late _MockRequestComposer mockRequestComposer;
-  late _MockRequestContentTypeResolver mockContentTypeResolver;
   late _MockNetKitInterceptor mockInterceptor;
   late _MockResponseClassifier mockResponseClassifier;
 
@@ -66,7 +61,6 @@ void main() {
   setUp(() {
     mockRequestAdapter = _MockNetworkRequestAdapter();
     mockRequestComposer = _MockRequestComposer();
-    mockContentTypeResolver = _MockRequestContentTypeResolver();
     mockInterceptor = _MockNetKitInterceptor();
     mockResponseClassifier = _MockResponseClassifier();
 
@@ -75,12 +69,10 @@ void main() {
       interceptors: [mockInterceptor],
       requestAdapter: mockRequestAdapter,
       requestComposer: mockRequestComposer,
-      requestContentTypeResolver: mockContentTypeResolver,
     );
 
     when(() => mockRequestComposer.compose(any(), any()))
         .thenReturn(composedSpec);
-    when(() => mockContentTypeResolver.resolve(any())).thenReturn(null);
     when(() => mockInterceptor.onRequest(any()))
         .thenAnswer((_) async => ContinueWithRequest(spec));
     when(() => mockInterceptor.onResponse(any())).thenAnswer(
@@ -126,23 +118,6 @@ void main() {
       verify(() => mockRequestComposer.compose(spec, clientConfig)).called(1);
     },
   );
-
-  test('execute calls contentTypeResolver.resolve with body', () async {
-    final specWithBody = RequestSpec(
-      pathOrUrl: '/users',
-      method: HttpMethod.POST,
-      body: const JsonBody({'name': 'Alice'}),
-    );
-    when(() => mockRequestComposer.compose(any(), any()))
-        .thenReturn(specWithBody);
-
-    await sut.execute(
-      spec: specWithBody,
-      responseClassifier: mockResponseClassifier,
-    );
-
-    verify(() => mockContentTypeResolver.resolve(specWithBody.body)).called(1);
-  });
 
   test(
     'execute returns error when request interceptor returns RejectRequest',
@@ -422,7 +397,6 @@ void main() {
       interceptors: [mockInterceptor, interceptor2],
       requestAdapter: mockRequestAdapter,
       requestComposer: mockRequestComposer,
-      requestContentTypeResolver: mockContentTypeResolver,
     );
 
     await multiInterceptorSut.execute(
