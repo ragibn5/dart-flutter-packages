@@ -1,7 +1,7 @@
 // ignore_for_file: non_constant_identifier_names, lines_longer_than_80_chars
 
-import 'package:app_template/features/app/infrastructure/factories/app_config_factory.dart';
-import 'package:app_template/features/app/infrastructure/factories/fallback_locale_selector.dart';
+import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
+import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
 import 'package:app_template/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
