@@ -5,10 +5,10 @@ class AppConfig {
   final String restorationScopeId;
 
   /// The design size of the app.
-  /// This is used to calculate the font size.
   final Size designSize;
 
   /// The default theme mode.
+  ///
   /// It may be used before we load it from the settings/persistent-storage.
   final ThemeMode defaultThemeMode;
 
@@ -19,6 +19,7 @@ class AppConfig {
   final ThemeData darkThemeData;
 
   /// The default locale.
+  ///
   /// It may be used before we load it from the settings/persistent-storage.
   /// Must be one of the supported locales specified by [supportedLocales].
   final Locale defaultLocale;
