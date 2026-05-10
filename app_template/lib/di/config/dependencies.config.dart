@@ -26,6 +26,10 @@ import 'package:app_template/features/app/infrastructure/models/build_metadata.d
     as _i143;
 import 'package:app_template/features/app/infrastructure/models/flavor_config.dart'
     as _i821;
+import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart'
+    as _i803;
+import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart'
+    as _i291;
 import 'package:app_template/features/app/presentation/bloc/app_bloc.dart'
     as _i511;
 import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart'
@@ -154,6 +158,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(
       () => appModule.getGlobalScaffoldMessengerState(),
     );
+    gh.singleton<_i291.FallbackLocaleSelector>(
+      () => const _i291.FallbackLocaleSelector(),
+    );
     gh.singleton<_i178.AppLocaleResolver>(
       () => settingsModule.getAppLocaleResolver(),
     );
@@ -183,6 +190,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<
       _i875.DataDomainConverter<_i801.SettingsDTO, _i78.AppSettings>
     >(() => _i677.SettingsMapper());
+    gh.singleton<_i803.AppConfigFactory>(
+      () => _i803.AppConfigFactory(
+        gh<_i655.PackageInfo>(),
+        gh<_i291.FallbackLocaleSelector>(),
+      ),
+    );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getExpFlavorConfig(),
       registerFor: {_exp},
