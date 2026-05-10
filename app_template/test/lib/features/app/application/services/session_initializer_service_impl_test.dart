@@ -53,7 +53,10 @@ void main() {
       () => mockAnalyticsService.setSessionData(any(), enabled: true),
     ).thenAnswer((_) async {});
     when(
-      () => mockCrashlyticsService.setSessionData(any(), enabled: true),
+      () => mockCrashlyticsService.setSessionData(
+        any(),
+        collectionEnabled: true,
+      ),
     ).thenAnswer((_) async => authData);
   });
 
@@ -68,8 +71,10 @@ void main() {
       () => mockAnalyticsService.setSessionData(authData.userId, enabled: true),
     );
     verify(
-      () =>
-          mockCrashlyticsService.setSessionData(authData.userId, enabled: true),
+      () => mockCrashlyticsService.setSessionData(
+        authData.userId,
+        collectionEnabled: true,
+      ),
     );
   });
 
@@ -84,8 +89,10 @@ void main() {
       () => mockAnalyticsService.setSessionData(anonymousUserId, enabled: true),
     );
     verify(
-      () =>
-          mockCrashlyticsService.setSessionData(anonymousUserId, enabled: true),
+      () => mockCrashlyticsService.setSessionData(
+        anonymousUserId,
+        collectionEnabled: true,
+      ),
     );
   });
 }

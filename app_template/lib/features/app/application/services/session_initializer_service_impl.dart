@@ -53,7 +53,7 @@ class SessionInitializerServiceImpl implements SessionInitializerService {
 
     await _crashlyticsService.setSessionData(
       authData != null ? authData.userId : _anonymousUserId,
-      enabled: true,
+      collectionEnabled: true,
     );
   }
 }

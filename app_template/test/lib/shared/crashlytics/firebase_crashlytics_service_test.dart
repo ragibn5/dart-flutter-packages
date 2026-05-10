@@ -85,7 +85,10 @@ void main() {
   test(
     '`setSessionData` should set user Id and analytics collection enabled status',
     () async {
-      await sut.setSessionData(userId, enabled: connectionEnabled);
+      await sut.setSessionData(
+        userId,
+        collectionEnabled: connectionEnabled,
+      );
 
       verify(() => mockFirebaseCrashlytics.setUserIdentifier(userId)).called(1);
       verify(

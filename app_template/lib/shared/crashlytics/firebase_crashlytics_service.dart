@@ -25,9 +25,12 @@ class FirebaseCrashlyticsService implements CrashlyticsService {
   }
 
   @override
-  Future<void> setSessionData(String userId, {required bool enabled}) async {
+  Future<void> setSessionData(
+    String userId, {
+    required bool collectionEnabled,
+  }) async {
     await _crashlytics.setUserIdentifier(userId);
-    await _crashlytics.setCrashlyticsCollectionEnabled(enabled);
+    await _crashlytics.setCrashlyticsCollectionEnabled(collectionEnabled);
   }
 
   @override
