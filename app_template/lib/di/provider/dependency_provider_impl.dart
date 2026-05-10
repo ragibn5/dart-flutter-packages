@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 
+@visibleForTesting
 typedef ConfigureDependencies = Future<GetIt> Function(GetIt, Environment?);
 
 class DependencyProviderImpl implements DependencyProvider {
@@ -25,18 +26,18 @@ class DependencyProviderImpl implements DependencyProvider {
 
   bool _isInitialized = false;
 
-  DependencyProviderImpl._(
-    this._registrar,
-    this._configuratorFunc,
-    this._isInitialized,
-  );
-
   @visibleForTesting
   DependencyProviderImpl.test(
     GetIt registrar,
     ConfigureDependencies configuratorFunc, {
     bool isInitialized = false,
   }) : this._(registrar, configuratorFunc, isInitialized);
+
+  DependencyProviderImpl._(
+    this._registrar,
+    this._configuratorFunc,
+    this._isInitialized,
+  );
 
   @override
   T get<T extends Object>({String? name}) =>
