@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:app_template/di/provider/dependency_provider.dart';
-import 'package:app_template/features/app/infrastructure/models/startup_config.dart';
+import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
+import 'package:app_template/features/app/infrastructure/services/firebase_options_resolver.dart';
 import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
@@ -13,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-Future<void> runFlavoredApp({required StartupConfig startupConfig}) async {
+Future<void> runFlavoredApp({required AppFlavor flavor}) async {
   await runZonedGuarded(
     () async {
       final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -23,10 +24,12 @@ Future<void> runFlavoredApp({required StartupConfig startupConfig}) async {
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
       // Set up infra services
-      await Firebase.initializeApp(options: startupConfig.firebaseOptions);
+      await Firebase.initializeApp(
+        options: const FirebaseOptionsResolver().getForFlavor(flavor),
+      );
 
       // Set up dependencies
-      await di.initialize(startupConfig.flavor);
+      await di.initialize(flavor);
 
       // Run the app
       runApp(
