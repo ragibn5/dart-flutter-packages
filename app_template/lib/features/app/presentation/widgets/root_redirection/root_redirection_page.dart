@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 /// If it is NOT intended to be shown, make sure your redirection logic is
 /// exhaustive and bypasses navigation to this page.
 @RoutePage()
-class RootRedirectionScreen extends StatelessWidget {
-  const RootRedirectionScreen({super.key});
+class RootRedirectionPage extends StatelessWidget {
+  const RootRedirectionPage({super.key});
 
   @override
   Widget build(BuildContext context) {

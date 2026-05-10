@@ -6,6 +6,7 @@ import 'package:app_template/features/app/infrastructure/services/app_config_fac
 import 'package:app_template/features/app/infrastructure/services/firebase_options_resolver.dart';
 import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root.dart';
+import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/router/app_router.dart';
 import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
@@ -23,13 +24,32 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
       // Present the splash screen while we do app initialization.
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-      // Set up infra services
-      await Firebase.initializeApp(
-        options: const FirebaseOptionsResolver().getForFlavor(flavor),
-      );
+      try {
+        // Set up infra services
+        await Firebase.initializeApp(
+          options: const FirebaseOptionsResolver().getForFlavor(flavor),
+        );
 
-      // Set up dependencies
-      await di.initialize(flavor);
+        // Set up dependencies
+        await di.initialize(flavor);
+      } catch (e, st) {
+        // Run the app with fallback error page
+        runApp(
+          MaterialApp(
+            home: StartupErrorPage(
+              errorTitle: 'Startup error',
+              errorDescription: e.toString(),
+              stackTrace: st,
+            ),
+          ),
+        );
+
+        // Remove splash
+        FlutterNativeSplash.remove();
+
+        // We really can't do anything else!
+        return;
+      }
 
       // Run the app
       runApp(
@@ -47,7 +67,7 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
         ),
       );
 
-      // Remove the splash screen.
+      // Remove splash - we are in our app!
       FlutterNativeSplash.remove();
     },
     (error, stackTrace) {

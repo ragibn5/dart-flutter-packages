@@ -62,7 +62,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         stackTrace: st,
       );
 
-      emit(AppInitializationError());
+      emit(
+        AppInitializationError(
+          errorTitle: 'Error while initializing the app',
+          errorDescription: e.toString(),
+          stackTrace: st,
+        ),
+      );
     }
   }
 

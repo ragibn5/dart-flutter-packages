@@ -1,17 +1,14 @@
 import 'package:app_template/features/app/infrastructure/models/app_config.dart';
 import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
+import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
+import 'package:app_template/features/app/presentation/widgets/startup_loader/startup_loader_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/generated/assets/colors.gen.dart';
 import 'package:app_template/generated/l10n.dart';
 import 'package:app_template/router/app_router.dart';
-import 'package:app_template/shared/loader_page/common_loader_page.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-part 'startup_error_page.dart';
-part 'startup_loader_page.dart';
 
 /// The root widget of the app.
 ///
@@ -125,11 +122,23 @@ class _StateAwareRootPage extends StatelessWidget {
     final scopedState = state;
     switch (scopedState) {
       case AppInitializationInitial() || AppInitializationInProgress():
-        return const _StartupLoaderPage();
+        return const StartupLoaderPage();
       case AppInitializationError():
-        return const _StartupErrorPage();
+        return StartupErrorPage(
+          errorTitle: scopedState.errorTitle,
+          errorDescription: scopedState.errorDescription,
+          stackTrace: scopedState.stackTrace,
+          onRetry: () =>
+              context.read<AppBloc>().add(AppInitializationRequested()),
+        );
       case AppInitializationSuccess():
-        return child ?? const _StartupErrorPage();
+        return child ??
+            StartupErrorPage(
+              errorTitle: 'Internal error',
+              errorDescription: 'No initial route or widget was found',
+              onRetry: () =>
+                  context.read<AppBloc>().add(AppInitializationRequested()),
+            );
     }
   }
 }
