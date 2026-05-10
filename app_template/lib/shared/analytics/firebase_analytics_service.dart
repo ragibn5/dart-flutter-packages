@@ -28,11 +28,6 @@ class FirebaseAnalyticsService implements AnalyticsService {
   }
 
   @override
-  Future<void> setUserProperty({required String name, required String value}) {
-    return _firebaseAnalytics.setUserProperty(name: name, value: value);
-  }
-
-  @override
   Future<void> logEvent(String name, [Map<String, Object>? params]) {
     return _firebaseAnalytics.logEvent(name: name, parameters: params);
   }
