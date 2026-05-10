@@ -544,13 +544,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  generator_core:
-    dependency: transitive
-    description:
-      path: "../generator_core"
-      relative: true
-    source: path
-    version: "0.0.1"
   get_it:
     dependency: "direct main"
     description:
@@ -703,20 +696,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  json_parser_annotations:
-    dependency: transitive
-    description:
-      path: "../json_parser/json_parser_annotations"
-      relative: true
-    source: path
-    version: "0.0.1"
-  json_parser_generator:
-    dependency: "direct dev"
-    description:
-      path: "../json_parser/json_parser_generator"
-      relative: true
-    source: path
-    version: "0.0.1"
   json_serializable:
     dependency: "direct dev"
     description:
