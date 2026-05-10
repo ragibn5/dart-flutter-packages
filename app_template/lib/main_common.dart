@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:app_template/di/provider/dependency_provider.dart';
-import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/models/startup_config.dart';
+import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
@@ -22,8 +22,10 @@ Future<void> runFlavoredApp({required StartupConfig startupConfig}) async {
       // Present the splash screen while we do app initialization.
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-      // Set up core services
+      // Set up infra services
       await Firebase.initializeApp(options: startupConfig.firebaseOptions);
+
+      // Set up dependencies
       await di.initialize(startupConfig.flavor);
 
       // Run the app
