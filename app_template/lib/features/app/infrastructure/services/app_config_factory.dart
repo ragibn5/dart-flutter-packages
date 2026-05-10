@@ -1,5 +1,5 @@
-import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
 import 'package:app_template/features/app/infrastructure/models/app_config.dart';
+import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
 import 'package:app_template/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
