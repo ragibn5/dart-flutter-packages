@@ -5,6 +5,6 @@ class _StartupLoaderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const CommonLoaderScreen();
+    return const Scaffold(body: CommonLoaderScreen());
   }
 }

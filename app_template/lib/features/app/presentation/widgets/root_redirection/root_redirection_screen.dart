@@ -1,4 +1,4 @@
-import 'package:app_template/features/app/presentation/widgets/common_loader_screen.dart';
+import 'package:app_template/shared/loader_page/common_loader_page.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +14,6 @@ class RootRedirectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const CommonLoaderScreen();
+    return const Scaffold(body: CommonLoaderScreen());
   }
 }

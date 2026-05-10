@@ -1,10 +1,10 @@
 import 'package:app_template/features/app/infrastructure/models/app_config.dart';
 import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
-import 'package:app_template/features/app/presentation/widgets/common_loader_screen.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/generated/assets/colors.gen.dart';
 import 'package:app_template/generated/l10n.dart';
 import 'package:app_template/router/app_router.dart';
+import 'package:app_template/shared/loader_page/common_loader_page.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -9,7 +9,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:app_template/features/app/presentation/widgets/root_redirection_screen.dart'
+import 'package:app_template/features/app/presentation/widgets/root_redirection/root_redirection_screen.dart'
     as _i3;
 import 'package:app_template/features/auth/presentation/screens/login_screen.dart'
     as _i2;

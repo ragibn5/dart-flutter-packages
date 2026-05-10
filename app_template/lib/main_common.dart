@@ -5,7 +5,7 @@ import 'package:app_template/features/app/infrastructure/models/app_flavor.dart'
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/firebase_options_resolver.dart';
 import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
-import 'package:app_template/features/app/presentation/widgets/app_root.dart';
+import 'package:app_template/features/app/presentation/widgets/app_root/app_root.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/router/app_router.dart';
 import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
