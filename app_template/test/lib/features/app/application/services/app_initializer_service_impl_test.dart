@@ -1,30 +1,42 @@
-// ignore_for_file: lines_longer_than_80_chars
-
-import 'package:app_template/core/contracts/initializable.dart';
+import 'package:app_template/core/infrastructure/storage/database/sqlite_db.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service_impl.dart';
+import 'package:app_template/shared/analytics/analytics_service.dart';
+import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockInitializable extends Mock implements Initializable {}
+class _MockCrashlyticsService extends Mock implements CrashlyticsService {}
+
+class _MockAnalyticsService extends Mock implements AnalyticsService {}
+
+class _MockSQLiteDb extends Mock implements SQLiteDb {}
 
 void main() {
-  const size = 100;
-
-  late List<_MockInitializable> mockInitializables;
+  late _MockCrashlyticsService mockCrashlytics;
+  late _MockAnalyticsService mockAnalytics;
+  late _MockSQLiteDb mockDatabase;
 
   late AppInitializerServiceImpl sut;
 
   setUp(() {
-    // Create 'size' number of mocks dynamically
-    mockInitializables = List.generate(size, (_) => _MockInitializable());
+    mockCrashlytics = _MockCrashlyticsService();
+    mockAnalytics = _MockAnalyticsService();
+    mockDatabase = _MockSQLiteDb();
 
-    sut = AppInitializerServiceImpl(mockInitializables);
+    sut = AppInitializerServiceImpl(
+      mockCrashlytics,
+      mockAnalytics,
+      mockDatabase,
+    );
   });
 
-  test('Should initialize all initializables', () async {
+  test('Should initialize all services in order', () async {
     await sut.initialize();
-    for (final mock in mockInitializables) {
-      verify(mock.initialize).called(1);
-    }
+
+    verifyInOrder([
+      () => mockCrashlytics.initialize(),
+      () => mockAnalytics.initialize(),
+      () => mockDatabase.initialize(),
+    ]);
   });
 }

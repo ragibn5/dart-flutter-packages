@@ -115,11 +115,11 @@ abstract class AppModule {
     CrashlyticsService crashlyticsService,
     SQLiteDb appDatabase,
   ) {
-    return AppInitializerServiceImpl([
+    return AppInitializerServiceImpl(
       crashlyticsService,
       analyticsService,
       appDatabase,
-    ]);
+    );
   }
 
   @singleton
