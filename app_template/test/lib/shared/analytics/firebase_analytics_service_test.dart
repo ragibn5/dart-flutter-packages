@@ -50,7 +50,7 @@ void main() {
     () async {
       await firebaseAnalyticsService.setSessionData(
         userId,
-        enabled: connectionEnabled,
+        collectionEnabled: connectionEnabled,
       );
 
       verify(() => mockFirebaseAnalytics.setUserId(id: userId)).called(1);

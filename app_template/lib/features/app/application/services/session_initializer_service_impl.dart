@@ -48,7 +48,7 @@ class SessionInitializerServiceImpl implements SessionInitializerService {
 
     await _analyticsService.setSessionData(
       authData != null ? authData.userId : _anonymousUserId,
-      enabled: true,
+      collectionEnabled: true,
     );
 
     await _crashlyticsService.setSessionData(
