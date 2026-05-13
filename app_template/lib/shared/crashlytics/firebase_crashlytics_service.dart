@@ -34,11 +34,6 @@ class FirebaseCrashlyticsService implements CrashlyticsService {
   }
 
   @override
-  Future<void> log(String message) {
-    return _crashlytics.log(message);
-  }
-
-  @override
   Future<void> recordError(
     dynamic exception,
     StackTrace? stackTrace, {
@@ -53,13 +48,5 @@ class FirebaseCrashlyticsService implements CrashlyticsService {
       printDetails: printDetails,
       fatal: fatal,
     );
-  }
-
-  @override
-  Future<void> recordFlutterError(
-    FlutterErrorDetails flutterError, {
-    bool fatal = false,
-  }) {
-    return _crashlytics.recordFlutterError(flutterError, fatal: fatal);
   }
 }
