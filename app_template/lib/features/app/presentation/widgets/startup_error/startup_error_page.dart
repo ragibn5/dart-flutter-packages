@@ -29,9 +29,9 @@ class StartupErrorPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Center(
             child: Column(
               spacing: 8,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -43,6 +43,9 @@ class StartupErrorPage extends StatelessWidget {
                 ),
                 Text(
                   errorTitle.toUpperCase(),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.redAccent,
@@ -53,7 +56,6 @@ class StartupErrorPage extends StatelessWidget {
                   child: Text(
                     errorDescription.nullOnEmptyOrBlank ??
                         'Please contact support.',
-                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
