@@ -3,6 +3,7 @@ import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_loader/startup_loader_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
+import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:app_template/generated/l10n.dart';
 import 'package:app_template/router/app_router.dart';
 import 'package:auto_route/auto_route.dart';
@@ -125,17 +126,18 @@ class _StateAwareRootPage extends StatelessWidget {
         return const StartupLoaderPage();
       case AppInitializationError():
         return StartupErrorPage(
-          errorTitle: scopedState.errorTitle,
-          errorDescription: scopedState.errorDescription,
-          stackTrace: scopedState.stackTrace,
+          errorReport: scopedState.errorReport,
           onRetry: () =>
               context.read<AppBloc>().add(AppInitializationRequested()),
         );
       case AppInitializationSuccess():
         return child ??
             StartupErrorPage(
-              errorTitle: 'Internal error',
-              errorDescription: 'No initial route or widget was found',
+              errorReport: ErrorReport(
+                source: '$_StateAwareRootPage:$build',
+                description: 'No initial route or widget was found',
+                stackTrace: StackTrace.current,
+              ),
               onRetry: () =>
                   context.read<AppBloc>().add(AppInitializationRequested()),
             );

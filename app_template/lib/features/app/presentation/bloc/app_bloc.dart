@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app_template/features/app/application/services/app_initializer_service.dart';
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
+import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:app_template/features/settings/domain/services/settings_service.dart';
@@ -64,9 +65,11 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
       emit(
         AppInitializationError(
-          errorTitle: 'Error while initializing the app',
-          errorDescription: e.toString(),
-          stackTrace: st,
+          errorReport: ErrorReport(
+            source: '$AppBloc:$_handleAppInitialization',
+            description: e.toString(),
+            stackTrace: st,
+          ),
         ),
       );
     }

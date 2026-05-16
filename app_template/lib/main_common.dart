@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_template/core/models/api_error.dart';
 import 'package:app_template/di/provider/dependency_provider.dart';
 import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
@@ -8,6 +9,7 @@ import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
+import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:app_template/router/app_router.dart';
 import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,6 +26,7 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
       // Present the splash screen while we do app initialization.
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+      // Core app environment setup
       try {
         // Set up infra services
         await Firebase.initializeApp(
@@ -37,9 +40,11 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
         runApp(
           MaterialApp(
             home: StartupErrorPage(
-              errorTitle: 'Startup error',
-              errorDescription: e.toString(),
-              stackTrace: st,
+              errorReport: ErrorReport(
+                source: '$runFlavoredApp',
+                description: e.toString(),
+                stackTrace: st,
+              ),
             ),
           ),
         );

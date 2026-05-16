@@ -14,18 +14,14 @@ final class AppInitializationInProgress extends AppState {
 }
 
 final class AppInitializationError extends AppState {
-  final String errorTitle;
-  final String? errorDescription;
-  final StackTrace? stackTrace;
+  final ErrorReport errorReport;
 
   AppInitializationError({
-    required this.errorTitle,
-    this.errorDescription,
-    this.stackTrace,
+    required this.errorReport,
   });
 
   @override
-  List<Object?> get props => [errorDescription, stackTrace];
+  List<Object?> get props => [errorReport];
 }
 
 final class AppInitializationSuccess extends AppState {
