@@ -14,9 +14,9 @@ sealed class Result<E, D> {
 
   bool get isSuccess;
 
-  E? get errorOrNull;
+  E get errorOrThrow;
 
-  D? get resultOrNull;
+  D get resultOrThrow;
 }
 
 final class _ErrorResult<E, D> extends Result<E, D> {
@@ -39,10 +39,10 @@ final class _ErrorResult<E, D> extends Result<E, D> {
   bool get isSuccess => false;
 
   @override
-  E get errorOrNull => _error;
+  E get errorOrThrow => _error;
 
   @override
-  D? get resultOrNull => null;
+  D get resultOrThrow => throw StateError('Not in requested state');
 }
 
 final class _SuccessResult<E, D> extends Result<E, D> {
@@ -65,8 +65,8 @@ final class _SuccessResult<E, D> extends Result<E, D> {
   bool get isSuccess => true;
 
   @override
-  E? get errorOrNull => null;
+  E get errorOrThrow => throw StateError('Not in requested state');
 
   @override
-  D get resultOrNull => _data;
+  D get resultOrThrow => _data;
 }

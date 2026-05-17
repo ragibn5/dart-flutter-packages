@@ -106,11 +106,11 @@ void main() {
       result,
       isA<Result<NetKitException, NetKitResponse>>()
           .having((p) => p.isSuccess, 'isSuccess', true)
-          .having((p) => p.resultOrNull, 'resultOrNull', isNotNull),
+          .having((p) => p.resultOrThrow, 'resultOrNull', isNotNull),
     );
-    expect(result.resultOrNull!.isError, false);
-    expect(result.resultOrNull!.statusCode, 200);
-    expect(result.resultOrNull!.data, {'id': 1});
+    expect(result.resultOrThrow!.isError, false);
+    expect(result.resultOrThrow!.statusCode, 200);
+    expect(result.resultOrThrow!.data, {'id': 1});
   });
 
   test(
@@ -141,7 +141,7 @@ void main() {
         result,
         isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrNull, 'errorOrNull', rejectError),
+            .having((p) => p.errorOrThrow, 'errorOrNull', rejectError),
       );
       verifyNever(
         () => mockRequestAdapter.performRequest(
@@ -169,7 +169,7 @@ void main() {
         result,
         isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isSuccess, 'isSuccess', true)
-            .having((p) => p.resultOrNull!.statusCode, 'statusCode', 200),
+            .having((p) => p.resultOrThrow!.statusCode, 'statusCode', 200),
       );
       verifyNever(() => mockRequestAdapter.performRequest(
             spec: any(named: 'spec'),
@@ -220,7 +220,7 @@ void main() {
         result,
         isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrNull, 'errorOrNull', rejectError),
+            .having((p) => p.errorOrThrow, 'errorOrNull', rejectError),
       );
     },
   );
@@ -263,8 +263,8 @@ void main() {
         responseClassifier: mockResponseClassifier,
       );
 
-      expect(result.resultOrNull!.statusCode, 201);
-      expect(result.resultOrNull!.data, {'id': 2, 'created': true});
+      expect(result.resultOrThrow!.statusCode, 201);
+      expect(result.resultOrThrow!.data, {'id': 2, 'created': true});
     },
   );
 
@@ -287,7 +287,7 @@ void main() {
       result,
       isA<Result<NetKitException, NetKitResponse>>()
           .having((p) => p.isError, 'isError', true)
-          .having((p) => p.errorOrNull, 'errorOrNull', netKitException),
+          .having((p) => p.errorOrThrow, 'errorOrNull', netKitException),
     );
   });
 
@@ -318,7 +318,7 @@ void main() {
         result,
         isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrNull, 'errorOrNull', rejectedError),
+            .having((p) => p.errorOrThrow, 'errorOrNull', rejectedError),
       );
     },
   );
@@ -377,7 +377,7 @@ void main() {
         result,
         isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrNull, 'errorOrNull', modifiedError),
+            .having((p) => p.errorOrThrow, 'errorOrNull', modifiedError),
       );
     },
   );
@@ -390,7 +390,7 @@ void main() {
       responseClassifier: mockResponseClassifier,
     );
 
-    expect(result.resultOrNull!.isError, true);
+    expect(result.resultOrThrow!.isError, true);
     verify(() => mockResponseClassifier.isError(rawResponse))
         .called(greaterThan(0));
   });
@@ -434,8 +434,8 @@ void main() {
 
     final result = await sut.execute(spec: spec);
 
-    expect(result.resultOrNull!.isError, true);
-    expect(result.resultOrNull!.statusCode, 404);
+    expect(result.resultOrThrow!.isError, true);
+    expect(result.resultOrThrow!.statusCode, 404);
   });
 
   test('close calls requestAdapter.close', () {
