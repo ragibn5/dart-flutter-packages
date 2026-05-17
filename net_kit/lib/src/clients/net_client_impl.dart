@@ -118,15 +118,15 @@ class NetClientImpl implements NetClient {
   }
 
   NetKitResponse _buildResult(
-    RawResponse responseContext,
+    RawResponse rawResponse,
     ResponseClassifier responseClassifier,
   ) {
     return NetKitResponse(
-      isError: responseClassifier.isError(responseContext),
-      statusCode: responseContext.statusCode,
-      data: responseContext.rawResponseBody,
-      headers: responseContext.responseHeaders,
-      requestSpec: responseContext.request,
+      isError: responseClassifier.isError(rawResponse),
+      statusCode: rawResponse.statusCode,
+      data: rawResponse.rawResponseBody,
+      headers: rawResponse.responseHeaders,
+      requestSpec: rawResponse.request,
     );
   }
 
