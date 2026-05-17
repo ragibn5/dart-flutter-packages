@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/services/settings_service.dart';
-import 'package:dio/dio.dart';
+import 'package:net_kit/net_kit.dart';
 
 class MetadataHeaderKeys {
   static const APP_SCOPE = 'app-scope';
@@ -18,27 +18,23 @@ class MetadataHeaderKeys {
   static const APP_VERSION_CODE = 'app-version-code';
 }
 
-class MetadataAdderInterceptor extends Interceptor {
+class MetadataAdderInterceptor extends NetKitInterceptor {
   final BuildMetadata _buildMetadata;
   final SettingsService _settingsService;
 
   MetadataAdderInterceptor(this._buildMetadata, this._settingsService);
 
   @override
-  Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
+  Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
     final locale = await _settingsService.getEffectiveLocale();
-
-    options.headers.addAll(
-      <String, String>{}
-        ..addAll(_buildLocaleHeaders(locale))
-        ..addAll(_buildUserAgentHeaders(_buildMetadata))
-        ..addAll(_buildAppMetadataHeaders(_buildMetadata)),
+    return ContinueWithRequest(
+      request.copyWith(
+        headers: request.headers
+          ?..addAll(_buildLocaleHeaders(locale))
+          ..addAll(_buildUserAgentHeaders(_buildMetadata))
+          ..addAll(_buildAppMetadataHeaders(_buildMetadata)),
+      ),
     );
-
-    handler.next(options);
   }
 
   Map<String, String> _buildLocaleHeaders(AppLocale locale) {

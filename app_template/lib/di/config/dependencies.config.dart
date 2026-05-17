@@ -116,11 +116,11 @@ import 'package:app_template/shared/logger/app_logger.dart' as _i1054;
 import 'package:app_template/shared/snacker/scaffold_messenger_based_snacker.dart'
     as _i916;
 import 'package:app_template/shared/snacker/snacker.dart' as _i638;
-import 'package:dio/dio.dart' as _i361;
 import 'package:dlogger/dlogger.dart' as _i975;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:net_kit/net_kit.dart' as _i535;
 import 'package:package_info_plus/package_info_plus.dart' as _i655;
 
 const String _stage = 'stage';
@@ -272,12 +272,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i257.UserDataDataSource>(
       () => _i785.UserDataDataSourceImpl(gh<_i998.SQLiteDb>()),
     );
-    gh.singleton<_i156.RemoteAuthDataSource>(
-      () => _i752.RemoteAuthDataSourceImpl(
-        gh<_i120.AppServerTokenRefreshApiClient>(),
-      ),
-    );
-    gh.singleton<_i361.Dio>(
+    gh.singleton<_i535.NetClient>(
       () => sharedModule.getAppServerPublicApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
@@ -285,6 +280,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1054.AppLogger>(),
       ),
       instanceName: 'APP_SERVER_PUBLIC_API_CLIENT',
+    );
+    gh.singleton<_i156.RemoteAuthDataSource>(
+      () => _i752.RemoteAuthDataSourceImpl(
+        gh<_i120.AppServerTokenRefreshApiClient>(),
+      ),
     );
     gh.singleton<_i731.AuthDataRepository>(
       () => _i16.AuthDataRepositoryImpl(
@@ -311,7 +311,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i125.CrashlyticsService>(),
       ),
     );
-    gh.singleton<_i361.Dio>(
+    gh.singleton<_i535.NetClient>(
       () => sharedModule.getAppServerPrivateApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),

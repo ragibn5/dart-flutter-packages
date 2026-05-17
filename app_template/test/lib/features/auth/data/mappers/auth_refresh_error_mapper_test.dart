@@ -25,7 +25,7 @@ void main() {
         .fold((ae) => expect(ae, isNotNull), (ne) {}, (se) {});
   });
 
-  test('If error is `$NetworkError`, return as is', () {
+  test('If error is `$TransportError`, return as is', () {
     final error = ApiError<ServerError<ServerMessage>>.fromNetworkError(
       const ConnectionTimeout(message: 'Test'),
     );
@@ -49,7 +49,7 @@ void main() {
     );
     mapper.convertDataToDomain(error).fold(
       (ae) => fail('Should not be of type $AppError'),
-      (ne) => fail('Should not be of type $NetworkError'),
+      (ne) => fail('Should not be of type $TransportError'),
       (se) {
         expect(se, isA<InvalidRefreshToken>());
       },
@@ -66,7 +66,7 @@ void main() {
     );
     mapper.convertDataToDomain(error).fold(
       (ae) => fail('Should not be of type $AppError'),
-      (ne) => fail('Should not be of type $NetworkError'),
+      (ne) => fail('Should not be of type $TransportError'),
       (se) {
         expect(se, isA<InvalidAuthStateForRefresh>());
       },

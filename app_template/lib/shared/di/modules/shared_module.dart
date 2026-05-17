@@ -6,13 +6,11 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
-import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_error_mapper.dart';
 import 'package:app_template/features/settings/domain/services/settings_service.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
 import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:app_template/shared/logger/app_logger_id.dart';
 import 'package:app_template/shared/logger/app_logger_impl.dart';
-import 'package:app_template/shared/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:app_template/shared/storage/database/app_database.dart';
@@ -20,10 +18,10 @@ import 'package:app_template/shared/storage/database/models/db_connection_data.d
 import 'package:app_template/shared/storage/database/models/db_initialization_scripts.dart';
 import 'package:app_template/shared/storage/database/models/db_script.dart';
 import 'package:app_template/shared/storage/preference/shared_preferences_store.dart';
-import 'package:dio/dio.dart';
 import 'package:dlogger/dlogger.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
+import 'package:net_kit/net_kit.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -97,28 +95,27 @@ abstract class SharedModule {
 
   @singleton
   @Named(APP_SERVER_PUBLIC_API_CLIENT)
-  Dio getAppServerPublicApiClient(
+  NetClient getAppServerPublicApiClient(
     FlavorConfig flavorConfig,
     BuildMetadata buildMetadata,
-    SettingsService settingService,
+    SettingsService settingsService,
     AppLogger logger,
   ) {
-    return Dio(
-        BaseOptions(
-          baseUrl: flavorConfig.baseUrl,
-          contentType: Headers.jsonContentType,
-          connectTimeout: const Duration(seconds: 10),
-        ),
-      )
-      ..interceptors.addAll([
-        MetadataAdderInterceptor(buildMetadata, settingService),
+    return NetClientFactory().create(
+      clientConfig: ClientConfig(
+        baseUrl: flavorConfig.baseUrl,
+        connectionTimeout: const Duration(seconds: 10),
+      ),
+      interceptors: [
+        MetadataAdderInterceptor(buildMetadata, settingsService),
         LoggerInterceptor(logger),
-      ]);
+      ],
+    );
   }
 
   @singleton
   @Named(APP_SERVER_PRIVATE_API_CLIENT)
-  Dio getAppServerPrivateApiClient(
+  NetClient getAppServerPrivateApiClient(
     FlavorConfig flavorConfig,
     BuildMetadata buildMetadata,
     AppLogger logger,
@@ -126,21 +123,17 @@ abstract class SharedModule {
     SettingsService settingsService,
     AppServerTokenRefreshApiClient tokenRefreshApiClient,
   ) {
-    final dio = Dio(
-      BaseOptions(
+    return NetClientFactory().create(
+      clientConfig: ClientConfig(
         baseUrl: flavorConfig.baseUrl,
-        contentType: Headers.jsonContentType,
-        connectTimeout: const Duration(seconds: 10),
+        connectionTimeout: const Duration(seconds: 10),
       ),
+      interceptors: [
+        MetadataAdderInterceptor(buildMetadata, settingsService),
+        // AuthInterceptor here
+        LoggerInterceptor(logger),
+      ],
     );
-
-    dio.interceptors.addAll([
-      MetadataAdderInterceptor(buildMetadata, settingsService),
-      AuthInterceptor(dio, authDataService),
-      LoggerInterceptor(logger),
-    ]);
-
-    return dio;
   }
 
   AppServerTokenRefreshApiClient getAppServerTokenRefresherApiClient(
@@ -149,22 +142,17 @@ abstract class SharedModule {
     AppLogger logger,
     SettingsService settingsService,
   ) {
-    final dio = Dio(
-      BaseOptions(
+    final client = NetClientFactory().create(
+      clientConfig: ClientConfig(
         baseUrl: flavorConfig.baseUrl,
-        contentType: Headers.jsonContentType,
-        connectTimeout: const Duration(seconds: 10),
+        connectionTimeout: const Duration(seconds: 10),
       ),
+      interceptors: [
+        MetadataAdderInterceptor(buildMetadata, settingsService),
+        LoggerInterceptor(logger),
+      ],
     );
 
-    dio.interceptors.addAll([
-      MetadataAdderInterceptor(buildMetadata, settingsService),
-      LoggerInterceptor(logger),
-    ]);
-
-    return AppServerTokenRefreshApiClientImpl(
-      dio,
-      AppServerTokenRefreshApiErrorMapper(),
-    );
+    return AppServerTokenRefreshApiClientImpl(client);
   }
 }

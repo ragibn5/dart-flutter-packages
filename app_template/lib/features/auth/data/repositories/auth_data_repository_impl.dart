@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/result.dart';
+import 'package:app_template/core/models/either.dart';
 import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart';
 import 'package:app_template/features/auth/data/mappers/auth_refresh_error_mapper.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
@@ -81,20 +81,18 @@ class AuthDataRepositoryImpl implements AuthDataRepository {
   }
 
   @override
-  Future<Result<ApiError<AuthDataRefreshError>, AuthData>>
+  Future<Either<ApiError, Either<AuthDataRefreshError, AuthData>>>
   refreshCurrentAuthData(AuthData authData) async {
-    final result = await _remoteAuthDataSource.getRefreshedAuthData(
-      TokenRefreshRequest(refreshToken: authData.refreshToken),
-    );
-
+    final request = TokenRefreshRequest(refreshToken: authData.refreshToken);
+    final result = await _remoteAuthDataSource.getRefreshedAuthData(request);
     return result.fold(
-      onSuccess: (d) async {
-        final domainModel = _authDataMapper.convertDataToDomain(d);
-        await setCurrentAuthData(domainModel);
-        return Result.success(domainModel);
-      },
-      onFailure: (e) async =>
-          Result.failure(_authRefreshErrorMapper.convertDataToDomain(e)),
+      onLeft: Left.new,
+      onRight: (r) => Right(
+        r.fold(
+          onLeft: (l) => Left(_authRefreshErrorMapper.convertDataToDomain(l)),
+          onRight: (r) => Right(_authDataMapper.convertDataToDomain(r)),
+        ),
+      ),
     );
   }
 

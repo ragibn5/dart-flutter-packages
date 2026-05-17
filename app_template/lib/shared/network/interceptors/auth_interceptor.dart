@@ -1,18 +1,18 @@
 import 'dart:io';
 
-import 'package:app_template/core/infrastructure/network/interceptors/dio_base_auth_interceptor.dart';
+import 'package:app_template/core/infrastructure/network/interceptors/base_auth_interceptor.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:dio/dio.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:net_kit/net_kit.dart';
 
 /// Interceptor to handle authentication request/response/error.
-class AuthInterceptor extends DioBaseAuthInterceptor<AuthData> {
+class AuthInterceptor extends BaseAuthInterceptor<AuthData> {
   /// {@template field_target_client}
   /// The client where this interceptor is being attached to.
   /// This is required to perform retry requests.
   /// {@endtemplate}
-  final Dio _targetClient;
+  final NetClient _targetClient;
 
   /// {@template field_auth_data_service}
   /// From where we can read, update and refresh the auth data.
@@ -32,17 +32,12 @@ class AuthInterceptor extends DioBaseAuthInterceptor<AuthData> {
   }
 
   @override
-  bool didServerReportAccessTokenExpiration(DioException error) {
-    final errorResponse = error.response;
-    if (errorResponse == null) {
+  bool didServerReportAccessTokenExpiration(RawResponse responses) {
+    if (responses.statusCode != HttpStatus.unauthorized) {
       return false;
     }
 
-    if (errorResponse.statusCode != HttpStatus.unauthorized) {
-      return false;
-    }
-
-    final data = errorResponse.data;
+    final data = responses.rawResponseBody;
     if (data is! Map<String, dynamic>) {
       return false;
     }
@@ -55,26 +50,26 @@ class AuthInterceptor extends DioBaseAuthInterceptor<AuthData> {
   }
 
   @override
-  bool shouldRefreshAuthData(
-    RequestOptions requestOptions,
-    AuthData currentAuthData,
-  ) {
-    final requestToken = _getRequestToken(requestOptions);
+  bool shouldRefreshAuthData(RequestSpec request, AuthData currentAuthData) {
+    final requestToken = _getRequestToken(request);
     return requestToken == null || requestToken == currentAuthData.accessToken;
   }
 
   @override
   Future<AuthData?> requestAuthDataRefresh(AuthData oldAuthData) async {
     final response = await _authDataService.refreshCurrentAuthData();
-    return response.fold(onSuccess: (r) => r, onFailure: (e) => null);
+    return response.fold(
+      onLeft: (e) => null,
+      onRight: (r) => r.fold(onLeft: (l) => null, onRight: (r) => r),
+    );
   }
 
   @override
-  Future<Response<dynamic>> retryRequest(
-    RequestOptions options,
+  Future<ApiCallResult> retryRequest(
+    RequestSpec request,
     AuthData refreshedAuthData,
   ) {
-    return _targetClient.fetch(options);
+    return _targetClient.execute(spec: request);
   }
 
   @override
@@ -89,9 +84,8 @@ class AuthInterceptor extends DioBaseAuthInterceptor<AuthData> {
   /// but there can be prefixes before the actual token (eg. 'Bearer'),
   /// hence, we return the first valid token we find. Will return null
   /// if no valid tokens were found.
-  String? _getRequestToken(RequestOptions requestOptions) {
-    final requestToken =
-        requestOptions.headers[HttpHeaders.authorizationHeader];
+  String? _getRequestToken(RequestSpec request) {
+    final requestToken = request.headers?[HttpHeaders.authorizationHeader];
 
     if (requestToken == null) {
       return null;

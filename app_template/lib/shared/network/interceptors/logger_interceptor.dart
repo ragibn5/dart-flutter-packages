@@ -1,9 +1,8 @@
 import 'package:app_template/shared/logger/app_logger.dart';
-import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
-import 'package:string_extensions/string_extensions.dart';
+import 'package:net_kit/net_kit.dart';
 
-class LoggerInterceptor extends Interceptor {
+class LoggerInterceptor extends NetKitInterceptor {
   @visibleForTesting
   static const TAG = 'LoggerInterceptor';
 
@@ -12,67 +11,39 @@ class LoggerInterceptor extends Interceptor {
   LoggerInterceptor(this._logger);
 
   @override
-  Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
+  Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
     _logger.logInfo(
       tag: TAG,
-      message: 'Network request [${options.baseUrl}${options.path}]',
-      extras: {
-        'request_body': options.data,
-        'request_header': options.headers,
-        'query_parameters': options.queryParameters,
-      },
+      message: 'Network request: [${request.uri}]',
+      extras: request.toMap(),
     );
 
-    handler.next(options);
+    return super.onRequest(request);
   }
 
   @override
-  Future<void> onResponse(
-    Response<dynamic> response,
-    ResponseInterceptorHandler handler,
-  ) async {
-    final requestOptions = response.requestOptions;
-    final absPath = '${requestOptions.baseUrl}${requestOptions.path}';
+  Future<ResponseInterceptorResult> onResponse(RawResponse response) {
+    final request = response.request;
     _logger.logInfo(
       tag: TAG,
-      message: 'Network response [$absPath]',
-      extras: {
-        'response_body': response.data,
-        'response_header': response.headers,
-      },
+      message: 'Network response [${request.uri}]',
+      extras: response.toMap(),
     );
 
-    handler.next(response);
+    return super.onResponse(response);
   }
 
   @override
-  Future<void> onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
-    final requestOptions = err.requestOptions;
-    final absPath = '${requestOptions.baseUrl}${requestOptions.path}';
+  Future<ErrorInterceptorResult> onError(NetKitException error) {
+    final request = error.request;
     _logger.logError(
       tag: TAG,
-      message:
-          'Network error [${absPath.isEmptyOrBlank ? "Path N/A" : absPath}]',
-      stackTrace: err.stackTrace,
-      extras: {
-        'request_method': err.requestOptions.method,
-        'error_type': err.type.name,
-        'error_message': err.message ?? '[N/A]',
-        'request_body': err.requestOptions.data ?? '[N/A]',
-        'request_header': err.requestOptions.headers,
-        'request_params': err.requestOptions.queryParameters,
-        'response_code': err.response?.statusCode,
-        'response_body': err.response?.data ?? '[N/A]',
-        'response_header': err.response?.headers ?? '[N/A]',
-      },
+      message: 'Network error [${request.uri}]',
+      error: error.cause,
+      stackTrace: error.stackTrace,
+      extras: error.toMap(),
     );
 
-    handler.next(err);
+    return super.onError(error);
   }
 }

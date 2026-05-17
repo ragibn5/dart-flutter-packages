@@ -1,7 +1,7 @@
-import 'package:app_template/core/models/api_error.dart';
 import 'package:app_template/core/models/base_auth_data.dart';
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
+import 'package:net_kit/net_kit.dart';
 
 /// A base [Dio] interceptor that handles authenticated requests and
 /// automatic token refresh.
@@ -12,8 +12,8 @@ import 'package:meta/meta.dart';
 /// - Refreshes auth data when needed
 /// - Retries failed requests transparently
 /// - Clears auth data and triggers logout when refresh fails
-abstract class DioBaseAuthInterceptor<AuthDataTye extends BaseAuthData>
-    extends QueuedInterceptor {
+abstract class BaseAuthInterceptor<AuthDataTye extends BaseAuthData>
+    extends QueuedNetKitInterceptor {
   /// Get the current auth data.
   @visibleForOverriding
   Future<AuthDataTye?> getAuthData();
@@ -22,7 +22,7 @@ abstract class DioBaseAuthInterceptor<AuthDataTye extends BaseAuthData>
 
   /// Determine whether the server reported an access token expiration.
   @visibleForOverriding
-  bool didServerReportAccessTokenExpiration(DioException error);
+  bool didServerReportAccessTokenExpiration(RawResponse response);
 
   /// Determine whether we need to refresh the auth data for this request.
   ///
@@ -30,10 +30,7 @@ abstract class DioBaseAuthInterceptor<AuthDataTye extends BaseAuthData>
   /// The auth data can be refreshed by a previous call to [onError] method.
   /// If that is the case, we can re-run the request with the new auth data.
   @visibleForOverriding
-  bool shouldRefreshAuthData(
-    RequestOptions requestOptions,
-    AuthDataTye currentAuthData,
-  );
+  bool shouldRefreshAuthData(RequestSpec request, AuthDataTye currentAuthData);
 
   /// A callback through where the interceptor requests auth data refresh.
   ///
@@ -46,8 +43,8 @@ abstract class DioBaseAuthInterceptor<AuthDataTye extends BaseAuthData>
 
   /// A callback through where the interceptor retries a request.
   @visibleForOverriding
-  Future<Response<dynamic>> retryRequest(
-    RequestOptions options,
+  Future<ApiCallResult> retryRequest(
+    RequestSpec request,
     AuthDataTye refreshedAuthData,
   );
 
@@ -70,37 +67,26 @@ abstract class DioBaseAuthInterceptor<AuthDataTye extends BaseAuthData>
   /// with a [DioException] of type [DioExceptionType.cancel], having
   /// the original [RequestOptions] that initiated the request and the
   /// reason/error of type [CancelledDueToAuthDataUnavailability].
-  @mustCallSuper
   @override
-  Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
+  Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
     final authData = await getAuthData();
     if (authData == null) {
-      final uri = options.uri.toString();
-      final method = options.method.toUpperCase();
-      handler.reject(
-        DioException.requestCancelled(
-          requestOptions: options,
-          reason: CancelledDueToAuthDataUnavailability(
-            exception: StateError('Auth data unavailable'),
-            stackTrace: StackTrace.current,
-            message:
-                'Cancelling `$method` request to `$uri`: '
-                'Failed to add auth header(s), auth data unavailable.',
-          ),
+      return RejectRequest(
+        CancellationException(
+          source: '$BaseAuthInterceptor:$onRequest',
+          message:
+              'Cancelling `${request.method}` request to `${request.uri}`: '
+              'Failed to add auth header(s), auth data unavailable.',
+          request: request,
         ),
       );
-
-      return;
     }
 
     buildAuthorizationHeaders(authData).forEach((k, v) {
-      options.headers[k] = v;
+      request.headers?[k] = v;
     });
 
-    handler.next(options);
+    return ContinueWithRequest(request);
   }
 
   /// Handles authentication-related request failures.
@@ -112,18 +98,17 @@ abstract class DioBaseAuthInterceptor<AuthDataTye extends BaseAuthData>
   /// 4. Attempt token refresh
   /// 5. Retry request on success
   /// 6. Logout on refresh failure
-  @mustCallSuper
   @override
-  Future<void> onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+  Future<ResponseInterceptorResult> onResponse(RawResponse response) async {
     // If the server did not report access token expiration,
     // propagate the error to next interceptor and return from here.
-    if (!didServerReportAccessTokenExpiration(err)) {
-      handler.next(err);
-      return;
+    if (!didServerReportAccessTokenExpiration(response)) {
+      return ContinueWithResponse(response);
     }
+
+    final request = response.request;
+    final method = request.method;
+    final uri = request.uri;
 
     // Check if we have a valid auth data.
     // If not, reject the request with a [DioException] of type
@@ -131,32 +116,42 @@ abstract class DioBaseAuthInterceptor<AuthDataTye extends BaseAuthData>
     // that initiated the request and the reason/error of type
     // [CancelledDueToAuthDataUnavailability].
     final currentAuthData = await getAuthData();
-    final requestOptions = err.requestOptions;
-    final uri = requestOptions.uri.toString();
-    final method = requestOptions.method.toUpperCase();
     if (currentAuthData == null) {
-      handler.reject(
-        DioException.requestCancelled(
-          requestOptions: requestOptions,
-          reason: CancelledDueToAuthDataUnavailability(
-            exception: err.error,
-            stackTrace: err.stackTrace,
-            message:
-                'Cancelling `$method` request to `$uri`: '
-                'Failed to request auth data refresh, auth data unavailable.',
-          ),
+      return RejectResponse(
+        CancellationException(
+          source: '$BaseAuthInterceptor:$onRequest',
+          message:
+              'Cancelling `$method` request to `$uri`: '
+              'Failed to request auth data refresh, auth data unavailable.',
+          request: request,
         ),
       );
-
-      return;
     }
 
     // Check the current auth data to see if it needs to be refreshed.
     // It may already have been refreshed, and in that case, we can resolve
     // the request with a retry.
-    if (!shouldRefreshAuthData(err.requestOptions, currentAuthData)) {
-      handler.resolve(await retryRequest(err.requestOptions, currentAuthData));
-      return;
+    if (!shouldRefreshAuthData(request, currentAuthData)) {
+      final response = await retryRequest(request, currentAuthData);
+      return response.fold(
+        onError: (e) => RejectResponse(
+          CancellationException(
+            source: '$BaseAuthInterceptor:$onRequest',
+            message:
+                'Cancelling `$method` request to `$uri`: '
+                'Failed to request auth data refresh, auth data unavailable.',
+            request: request,
+          ),
+        ),
+        onSuccess: (d) => ResolveResponse(
+          RawResponse(
+            statusCode: d.statusCode,
+            rawResponseBody: d.data,
+            responseHeaders: d.headers,
+            request: d.requestSpec,
+          ),
+        ),
+      );
     }
 
     // Attempt to refresh the auth data.
@@ -166,21 +161,36 @@ abstract class DioBaseAuthInterceptor<AuthDataTye extends BaseAuthData>
     // [CancelledDueToAuthDataRefreshFailure].
     final refreshedAuthData = await requestAuthDataRefresh(currentAuthData);
     if (refreshedAuthData == null) {
-      handler.reject(
-        DioException.requestCancelled(
-          requestOptions: requestOptions,
-          reason: CancelledDueToAuthDataRefreshFailure(
-            exception: err.error,
-            stackTrace: err.stackTrace,
-            message:
-                'Cancelling `$method` request to `$uri`: '
-                'Could not refresh auth data.',
-          ),
+      return RejectResponse(
+        CancellationException(
+          source: '$BaseAuthInterceptor:$onRequest',
+          message:
+              'Cancelling `$method` request to `$uri`: '
+              'Could not refresh auth data.',
+          request: request,
         ),
       );
-      return;
     }
 
-    handler.resolve(await retryRequest(err.requestOptions, refreshedAuthData));
+    final retryResponse = await retryRequest(request, refreshedAuthData);
+    return retryResponse.fold(
+      onError: (e) => RejectResponse(
+        CancellationException(
+          source: '$BaseAuthInterceptor:$onRequest',
+          message:
+              'Cancelling `$method` request to `$uri`: '
+              'Failed to retry with refreshed auth data.',
+          request: request,
+        ),
+      ),
+      onSuccess: (d) => ResolveResponse(
+        RawResponse(
+          statusCode: d.statusCode,
+          rawResponseBody: d.data,
+          responseHeaders: d.headers,
+          request: d.requestSpec,
+        ),
+      ),
+    );
   }
 }
