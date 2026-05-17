@@ -18,7 +18,7 @@ class NetKitResponse {
   /// The request spec that was sent to the server.
   final RequestSpec requestSpec;
 
-  NetKitResponse({
+  const NetKitResponse({
     required this.isError,
     required this.statusCode,
     required this.data,

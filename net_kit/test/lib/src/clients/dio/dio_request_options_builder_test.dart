@@ -36,7 +36,7 @@ void main() {
   const validateStatus = true;
   final dioCancelToken = CancelToken();
   final requestCanceller = RequestCanceller();
-  final requestSpec = RequestSpec(
+  const requestSpec = RequestSpec(
     pathOrUrl: path,
     method: method,
     body: requestBody,

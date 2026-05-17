@@ -13,7 +13,7 @@ class RawResponse {
   /// The original request.
   final RequestSpec request;
 
-  RawResponse({
+  const RawResponse({
     required this.statusCode,
     required this.rawResponseBody,
     required this.responseHeaders,

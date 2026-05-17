@@ -34,13 +34,13 @@ void main() {
   test(
     'Source values take precedence over client config for simple fields',
     () {
-      final source = RequestSpec(
+      const source = RequestSpec(
         pathOrUrl: testPath,
         method: HttpMethod.GET,
         baseUrl: sourceBaseUrl,
         sendTimeout: timeout60s,
         receiveTimeout: timeout60s,
-        connectionTimeout: const Duration(seconds: 20),
+        connectionTimeout: Duration(seconds: 20),
         followRedirects: false,
         maxRedirects: 10,
       );
@@ -57,7 +57,7 @@ void main() {
   );
 
   test('Client config values used when source values are null', () {
-    final source = RequestSpec(
+    const source = RequestSpec(
       pathOrUrl: testPath,
       method: HttpMethod.GET,
     );
@@ -79,7 +79,7 @@ void main() {
         'Authorization': clientToken,
         'X-Client-Only': 'client-value',
       });
-      final source = RequestSpec(
+      const source = RequestSpec(
         pathOrUrl: testPath,
         method: HttpMethod.GET,
         headers: {
@@ -105,7 +105,7 @@ void main() {
         'clientParam': 'clientValue',
         'clientOnlyParam': 'clientOnlyValue',
       });
-      final source = RequestSpec(
+      const source = RequestSpec(
         pathOrUrl: testPath,
         method: HttpMethod.GET,
         queryParameters: {
@@ -126,7 +126,7 @@ void main() {
 
   test('Null source and config values default to null except booleans', () {
     const emptyConfig = ClientConfig();
-    final source = RequestSpec(pathOrUrl: testPath, method: HttpMethod.GET);
+    const source = RequestSpec(pathOrUrl: testPath, method: HttpMethod.GET);
 
     final result = sut.compose(source, emptyConfig);
 
@@ -141,7 +141,7 @@ void main() {
   });
 
   test('Source empty maps inherit client config maps', () {
-    final source = RequestSpec(
+    const source = RequestSpec(
       pathOrUrl: testPath,
       method: HttpMethod.GET,
       headers: {},
@@ -155,7 +155,7 @@ void main() {
   });
 
   test('Source overrides and merges with client config simultaneously', () {
-    final source = RequestSpec(
+    const source = RequestSpec(
       pathOrUrl: complexPath,
       method: HttpMethod.POST,
       baseUrl: overrideBaseUrl,

@@ -9,14 +9,14 @@ Future<void> main() async {
     ),
   );
 
-  final request = RequestSpec(
+  const request = RequestSpec(
     pathOrUrl: '/users',
     method: HttpMethod.POST,
-    body: const JsonBody({
+    body: JsonBody({
       'name': 'Ragib',
     }),
-    sendTimeout: const Duration(seconds: 2),
-    receiveTimeout: const Duration(seconds: 2),
+    sendTimeout: Duration(seconds: 2),
+    receiveTimeout: Duration(seconds: 2),
   );
 
   final result = await client.execute(spec: request);

@@ -39,7 +39,7 @@ class RequestSpec {
   /// Maximum number of redirects to follow.
   final int? maxRedirects;
 
-  RequestSpec({
+  const RequestSpec({
     required this.pathOrUrl,
     required this.method,
     this.body,

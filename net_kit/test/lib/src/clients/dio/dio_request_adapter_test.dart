@@ -33,12 +33,12 @@ void main() {
     data: data,
   );
   final requestCanceller = RequestCanceller();
-  final spec = RequestSpec(
+  const spec = RequestSpec(
     pathOrUrl: path,
     method: HttpMethod.POST,
-    body: const JsonBody({'name': 'Alice'}),
-    queryParameters: const {'page': 1},
-    headers: const {'authorization': 'Bearer token'},
+    body: JsonBody({'name': 'Alice'}),
+    queryParameters: {'page': 1},
+    headers: {'authorization': 'Bearer token'},
     followRedirects: false,
     maxRedirects: 1,
   );

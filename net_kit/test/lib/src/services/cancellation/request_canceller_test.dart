@@ -72,15 +72,15 @@ void main() {
   });
 
   test('Binds requestSpec only once', () {
-    final firstSpec = RequestSpec(
+    const firstSpec = RequestSpec(
       pathOrUrl: '/users/42',
       method: HttpMethod.GET,
-      body: const JsonBody({}),
+      body: JsonBody({}),
     );
-    final secondSpec = RequestSpec(
+    const secondSpec = RequestSpec(
       pathOrUrl: '/users/99',
       method: HttpMethod.POST,
-      body: const JsonBody({'payload': 'value'}),
+      body: JsonBody({'payload': 'value'}),
     );
 
     sut.bindRequestSpec(firstSpec);
