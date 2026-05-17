@@ -1,6 +1,6 @@
 import 'package:net_kit/src/models/request_spec.dart';
 
-class ApiResponse {
+class NetKitResponse {
   /// Whether the response is an error.
   ///
   /// This is decided by the response classifier.
@@ -18,7 +18,7 @@ class ApiResponse {
   /// The request spec that was sent to the server.
   final RequestSpec requestSpec;
 
-  ApiResponse({
+  NetKitResponse({
     required this.isError,
     required this.statusCode,
     required this.data,

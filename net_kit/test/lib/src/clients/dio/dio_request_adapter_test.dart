@@ -21,7 +21,7 @@ void main() {
   const rawHeaders = <String, List<String>>{
     'content-type': ['application/json'],
   };
-  const transportExpType = TransportErrorType.CONNECTION_ERROR;
+  const transportExpType = TransportExceptionType.CONNECTION_ERROR;
   final errorCause = Object();
   final stackTrace = StackTrace.current;
   final dioHeaders = Headers.fromMap(rawHeaders);
@@ -33,11 +33,6 @@ void main() {
     data: data,
   );
   final requestCanceller = RequestCanceller();
-  final netKitException = TransportException(
-    transportExpType,
-    cause: errorCause,
-    stackTrace: stackTrace,
-  );
   final spec = RequestSpec(
     pathOrUrl: path,
     method: HttpMethod.POST,
@@ -47,6 +42,12 @@ void main() {
     followRedirects: false,
     maxRedirects: 1,
   );
+  final netKitException = TransportException(
+    type: transportExpType,
+    request: spec,
+    cause: errorCause,
+    stackTrace: stackTrace,
+  );
   void sendListener(int count, int total) {}
   void receiveListener(int count, int total) {}
 
@@ -55,6 +56,10 @@ void main() {
   late _MockDioRequestOptionsBuilder mockDioRequestOptionsBuilder;
 
   late DioRequestAdapter sut;
+
+  setUpAll(() {
+    registerFallbackValue(spec);
+  });
 
   setUp(() {
     mockDio = _MockDio();
@@ -79,7 +84,8 @@ void main() {
         .thenAnswer((_) async => rawResponse);
     when(
       () => mockDioExceptionMapper.mapException(
-        errorCause,
+        request: any(named: 'request'),
+        exception: errorCause,
         stackTrace: stackTrace,
       ),
     ).thenReturn(netKitException);

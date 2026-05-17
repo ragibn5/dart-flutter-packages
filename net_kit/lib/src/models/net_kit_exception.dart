@@ -1,10 +1,14 @@
 import 'package:net_kit/src/clients/net_client.dart';
-import 'package:net_kit/src/enums/transport_error_type.dart';
+import 'package:net_kit/src/enums/transport_exception_type.dart';
+import 'package:net_kit/src/models/request_spec.dart';
 
 /// The base exception returned by [NetClient] when it encounters any error.
 ///
 /// See its subtypes for more details.
 sealed class NetKitException {
+  /// The original request.
+  final RequestSpec request;
+
   /// The underlying cause of this exception.
   ///
   /// **Warning**:
@@ -21,38 +25,48 @@ sealed class NetKitException {
   /// API and should never be used for control flow.
   final StackTrace? stackTrace;
 
-  const NetKitException(this.cause, this.stackTrace);
+  const NetKitException({
+    required this.request,
+    this.cause,
+    this.stackTrace,
+  });
 }
 
 /// A network failure.
 final class TransportException extends NetKitException {
   /// The type of network failure.
-  final TransportErrorType type;
+  final TransportExceptionType type;
 
-  const TransportException(
-    this.type, {
-    Object? cause,
-    StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
+  const TransportException({
+    required this.type,
+    required super.request,
+    super.cause,
+    super.stackTrace,
+  });
 
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'TransportException {type: $type, cause: $cause, stackTrace: $stackTrace}';
+    return 'TransportException {request: $request, type: $type, cause: $cause, stackTrace: $stackTrace}';
   }
 }
 
 /// A failure indicating explicit request cancellation.
 final class CancellationException extends NetKitException {
+  /// An identifier of the cancellation source.
+  final String source;
+
   const CancellationException({
-    Object? cause,
-    StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
+    required this.source,
+    required super.request,
+    super.cause,
+    super.stackTrace,
+  });
 
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'CancellationException {cause: $cause, stackTrace: $stackTrace}';
+    return 'CancellationException {request: $request, source: $source, cause: $cause, stackTrace: $stackTrace}';
   }
 }
 
@@ -63,15 +77,16 @@ final class UnexpectedException extends NetKitException {
   /// This should not be used for control flow.
   final String message;
 
-  const UnexpectedException(
-    this.message, {
-    Object? cause,
-    StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
+  const UnexpectedException({
+    required this.message,
+    required super.request,
+    super.cause,
+    super.stackTrace,
+  });
 
   @override
   String toString() {
     // ignore: lines_longer_than_80_chars
-    return 'UnexpectedException {message: $message, cause: $cause, stackTrace: $stackTrace}';
+    return 'UnexpectedException {request: $request, message: $message, cause: $cause, stackTrace: $stackTrace}';
   }
 }

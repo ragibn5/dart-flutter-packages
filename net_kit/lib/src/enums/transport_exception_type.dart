@@ -1,4 +1,4 @@
-enum TransportErrorType {
+enum TransportExceptionType {
   CONNECTION_TIMEOUT,
   SEND_TIMEOUT,
   RECEIVE_TIMEOUT,

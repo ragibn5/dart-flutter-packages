@@ -1,14 +1,18 @@
 import 'package:dio/dio.dart';
-import 'package:net_kit/src/enums/transport_error_type.dart';
-import 'package:net_kit/src/models/net_kit_exception.dart';
+import 'package:net_kit/net_kit.dart';
 
 class DioExceptionMapper {
   const DioExceptionMapper();
 
-  NetKitException mapException(Object exception, {StackTrace? stackTrace}) {
+  NetKitException mapException({
+    required RequestSpec request,
+    required Object exception,
+    StackTrace? stackTrace,
+  }) {
     if (exception is! DioException) {
       return UnexpectedException(
-        'Received unknown exception',
+        message: 'Received unknown exception',
+        request: request,
         cause: exception,
         stackTrace: stackTrace,
       );
@@ -16,37 +20,46 @@ class DioExceptionMapper {
 
     return switch (exception.type) {
       DioExceptionType.connectionTimeout => TransportException(
-          TransportErrorType.CONNECTION_TIMEOUT,
+          type: TransportExceptionType.CONNECTION_TIMEOUT,
+          request: request,
           cause: exception.error,
           stackTrace: exception.stackTrace,
         ),
       DioExceptionType.sendTimeout => TransportException(
-          TransportErrorType.SEND_TIMEOUT,
+          type: TransportExceptionType.SEND_TIMEOUT,
+          request: request,
           cause: exception.error,
           stackTrace: exception.stackTrace,
         ),
       DioExceptionType.receiveTimeout => TransportException(
-          TransportErrorType.RECEIVE_TIMEOUT,
+          type: TransportExceptionType.RECEIVE_TIMEOUT,
+          request: request,
           cause: exception.error,
           stackTrace: exception.stackTrace,
         ),
       DioExceptionType.badCertificate => TransportException(
-          TransportErrorType.BAD_CERTIFICATE,
+          type: TransportExceptionType.BAD_CERTIFICATE,
+          request: request,
           cause: exception.error,
           stackTrace: exception.stackTrace,
         ),
       DioExceptionType.connectionError => TransportException(
-          TransportErrorType.CONNECTION_ERROR,
+          type: TransportExceptionType.CONNECTION_ERROR,
+          request: request,
           cause: exception.error,
           stackTrace: exception.stackTrace,
         ),
       DioExceptionType.cancel => CancellationException(
+          source: 'client_exception_mapper',
+          request: request,
           cause: exception.error,
           stackTrace: exception.stackTrace,
         ),
       _ => UnexpectedException(
-          // ignore: lines_longer_than_80_chars
-          'Client threw unknown exception (${exception.type.name}): ${exception.message}',
+          message:
+              // ignore: lines_longer_than_80_chars
+              'Client threw unknown exception (${exception.type.name}): ${exception.message}',
+          request: request,
           cause: exception.error,
           stackTrace: exception.stackTrace,
         ),

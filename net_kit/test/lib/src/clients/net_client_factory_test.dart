@@ -31,7 +31,10 @@ void main() {
   });
 
   test('Create returns a NetClient using proper values', () {
-    final client = sut.create(clientConfig, interceptors);
+    final client = sut.create(
+      clientConfig: clientConfig,
+      interceptors: interceptors,
+    );
 
     verify(() => mockDioFactory.createDio(clientConfig)).called(1);
     expect(

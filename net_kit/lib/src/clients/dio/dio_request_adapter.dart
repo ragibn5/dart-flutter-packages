@@ -58,7 +58,11 @@ class DioRequestAdapter implements NetworkRequestAdapter {
       );
     } catch (e, st) {
       return Result.error(
-        _dioExceptionMapper.mapException(e, stackTrace: st),
+        _dioExceptionMapper.mapException(
+          request: spec,
+          exception: e,
+          stackTrace: st,
+        ),
       );
     }
   }

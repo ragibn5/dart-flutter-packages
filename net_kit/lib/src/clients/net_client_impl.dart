@@ -117,11 +117,11 @@ class NetClientImpl implements NetClient {
     return Result.error(currentError);
   }
 
-  ApiResponse _buildResult(
+  NetKitResponse _buildResult(
     RawResponse responseContext,
     ResponseClassifier responseClassifier,
   ) {
-    return ApiResponse(
+    return NetKitResponse(
       isError: responseClassifier.isError(responseContext),
       statusCode: responseContext.statusCode,
       data: responseContext.rawResponseBody,

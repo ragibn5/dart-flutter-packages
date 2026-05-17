@@ -17,10 +17,10 @@ final class NetClientFactory {
 
   const NetClientFactory._(this._dioFactory);
 
-  NetClient create([
+  NetClient create({
     ClientConfig clientConfig = const ClientConfig(),
     List<NetKitInterceptor> interceptors = const [],
-  ]) {
+  }) {
     return NetClientImpl(
       clientConfig: clientConfig,
       interceptors: interceptors,

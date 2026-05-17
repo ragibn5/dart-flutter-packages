@@ -18,13 +18,15 @@ class _MockResponseClassifier extends Mock implements ResponseClassifier {}
 
 void main() {
   const clientConfig = ClientConfig(baseUrl: 'https://api.example.com');
-  const netKitException =
-      TransportException(TransportErrorType.CONNECTION_ERROR);
   final spec = RequestSpec(pathOrUrl: '/users', method: HttpMethod.GET);
   final composedSpec = RequestSpec(
     pathOrUrl: 'https://api.example.com/users',
     method: HttpMethod.GET,
     baseUrl: 'https://api.example.com',
+  );
+  final netKitException = TransportException(
+    type: TransportExceptionType.CONNECTION_ERROR,
+    request: composedSpec,
   );
   final rawResponse = RawResponse(
     statusCode: 200,
@@ -80,7 +82,7 @@ void main() {
         (invocation) async => ContinueWithResponse(
             invocation.positionalArguments.first as RawResponse));
     when(() => mockInterceptor.onError(any()))
-        .thenAnswer((_) async => const ContinueWithError(netKitException));
+        .thenAnswer((_) async => ContinueWithError(netKitException));
     when(() => mockResponseClassifier.isError(any())).thenReturn(false);
     when(
       () => mockRequestAdapter.performRequest(
@@ -102,7 +104,7 @@ void main() {
 
     expect(
       result,
-      isA<Result<NetKitException, ApiResponse>>()
+      isA<Result<NetKitException, NetKitResponse>>()
           .having((p) => p.isSuccess, 'isSuccess', true)
           .having((p) => p.resultOrNull, 'resultOrNull', isNotNull),
     );
@@ -123,10 +125,12 @@ void main() {
   test(
     'execute returns error when request interceptor returns RejectRequest',
     () async {
-      const rejectError =
-          TransportException(TransportErrorType.BAD_CERTIFICATE);
+      final rejectError = TransportException(
+        type: TransportExceptionType.BAD_CERTIFICATE,
+        request: composedSpec,
+      );
       when(() => mockInterceptor.onRequest(any()))
-          .thenAnswer((_) async => const RejectRequest(rejectError));
+          .thenAnswer((_) async => RejectRequest(rejectError));
 
       final result = await sut.execute(
         spec: spec,
@@ -135,7 +139,7 @@ void main() {
 
       expect(
         result,
-        isA<Result<NetKitException, ApiResponse>>()
+        isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isError, 'isError', true)
             .having((p) => p.errorOrNull, 'errorOrNull', rejectError),
       );
@@ -163,7 +167,7 @@ void main() {
 
       expect(
         result,
-        isA<Result<NetKitException, ApiResponse>>()
+        isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isSuccess, 'isSuccess', true)
             .having((p) => p.resultOrNull!.statusCode, 'statusCode', 200),
       );
@@ -200,10 +204,12 @@ void main() {
   test(
     'execute returns error when response interceptor returns RejectResponse',
     () async {
-      const rejectError =
-          TransportException(TransportErrorType.BAD_CERTIFICATE);
+      final rejectError = TransportException(
+        type: TransportExceptionType.BAD_CERTIFICATE,
+        request: composedSpec,
+      );
       when(() => mockInterceptor.onResponse(any()))
-          .thenAnswer((_) async => const RejectResponse(rejectError));
+          .thenAnswer((_) async => RejectResponse(rejectError));
 
       final result = await sut.execute(
         spec: spec,
@@ -212,7 +218,7 @@ void main() {
 
       expect(
         result,
-        isA<Result<NetKitException, ApiResponse>>()
+        isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isError, 'isError', true)
             .having((p) => p.errorOrNull, 'errorOrNull', rejectError),
       );
@@ -232,7 +238,7 @@ void main() {
 
       expect(
         result,
-        isA<Result<NetKitException, ApiResponse>>()
+        isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isSuccess, 'isSuccess', true),
       );
     },
@@ -279,7 +285,7 @@ void main() {
 
     expect(
       result,
-      isA<Result<NetKitException, ApiResponse>>()
+      isA<Result<NetKitException, NetKitResponse>>()
           .having((p) => p.isError, 'isError', true)
           .having((p) => p.errorOrNull, 'errorOrNull', netKitException),
     );
@@ -288,8 +294,10 @@ void main() {
   test(
     'execute returns error when error interceptor returns RejectError',
     () async {
-      const rejectedError =
-          TransportException(TransportErrorType.BAD_CERTIFICATE);
+      final rejectedError = TransportException(
+        type: TransportExceptionType.BAD_CERTIFICATE,
+        request: composedSpec,
+      );
       when(() => mockRequestAdapter.performRequest(
             spec: any(named: 'spec'),
             onSendProgress: any(named: 'onSendProgress'),
@@ -299,7 +307,7 @@ void main() {
         (_) async => Result.error(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
-          .thenAnswer((_) async => const RejectError(rejectedError));
+          .thenAnswer((_) async => RejectError(rejectedError));
 
       final result = await sut.execute(
         spec: spec,
@@ -308,7 +316,7 @@ void main() {
 
       expect(
         result,
-        isA<Result<NetKitException, ApiResponse>>()
+        isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isError, 'isError', true)
             .having((p) => p.errorOrNull, 'errorOrNull', rejectedError),
       );
@@ -336,7 +344,7 @@ void main() {
 
       expect(
         result,
-        isA<Result<NetKitException, ApiResponse>>()
+        isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isSuccess, 'isSuccess', true),
       );
     },
@@ -345,7 +353,10 @@ void main() {
   test(
     'execute passes modified error when interceptor returns ContinueWithError',
     () async {
-      const modifiedError = TransportException(TransportErrorType.SEND_TIMEOUT);
+      final modifiedError = TransportException(
+        type: TransportExceptionType.SEND_TIMEOUT,
+        request: composedSpec,
+      );
       when(() => mockRequestAdapter.performRequest(
             spec: any(named: 'spec'),
             onSendProgress: any(named: 'onSendProgress'),
@@ -355,7 +366,7 @@ void main() {
         (_) async => Result.error(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
-          .thenAnswer((_) async => const ContinueWithError(modifiedError));
+          .thenAnswer((_) async => ContinueWithError(modifiedError));
 
       final result = await sut.execute(
         spec: spec,
@@ -364,7 +375,7 @@ void main() {
 
       expect(
         result,
-        isA<Result<NetKitException, ApiResponse>>()
+        isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isError, 'isError', true)
             .having((p) => p.errorOrNull, 'errorOrNull', modifiedError),
       );
@@ -391,7 +402,7 @@ void main() {
     when(() => interceptor2.onResponse(any()))
         .thenAnswer((_) async => ContinueWithResponse(rawResponse));
     when(() => interceptor2.onError(any()))
-        .thenAnswer((_) async => const ContinueWithError(netKitException));
+        .thenAnswer((_) async => ContinueWithError(netKitException));
 
     final multiInterceptorSut = NetClientImpl(
       clientConfig: clientConfig,

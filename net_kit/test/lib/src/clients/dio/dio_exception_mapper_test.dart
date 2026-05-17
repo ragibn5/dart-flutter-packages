@@ -3,8 +3,10 @@
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/src/clients/dio/dio_exception_mapper.dart';
-import 'package:net_kit/src/enums/transport_error_type.dart';
+import 'package:net_kit/src/enums/http_method.dart';
+import 'package:net_kit/src/enums/transport_exception_type.dart';
 import 'package:net_kit/src/models/net_kit_exception.dart';
+import 'package:net_kit/src/models/request_spec.dart';
 import 'package:test/test.dart';
 
 class _MockRequestOptions extends Mock implements RequestOptions {}
@@ -14,14 +16,21 @@ void main() {
 
   late DioExceptionMapper sut;
 
-  void verifyTransportExceptionPath(
-    DioException exception,
+  final requestSpec = RequestSpec(
+    pathOrUrl: '/test',
+    method: HttpMethod.GET,
+  );
+
+  void verifyTransportExceptionPath({
+    required DioException exception,
+    required RequestSpec request,
     Object? expectedInnerCause,
     StackTrace? expectedStackTrace,
-    TransportErrorType expectedType,
-  ) {
+    required TransportExceptionType expectedType,
+  }) {
     final result = sut.mapException(
-      exception,
+      request: request,
+      exception: exception,
       stackTrace: expectedStackTrace,
     );
 
@@ -29,6 +38,7 @@ void main() {
       result,
       isA<TransportException>()
           .having((p) => p.type, 'type', expectedType)
+          .having((p) => p.request, 'request', request)
           .having((p) => p.cause, 'cause', expectedInnerCause)
           .having((p) => p.stackTrace, 'stackTrace', expectedStackTrace),
     );
@@ -45,11 +55,16 @@ void main() {
       stackTrace: st,
     );
 
-    final result = sut.mapException(dioException, stackTrace: st);
+    final result = sut.mapException(
+      request: requestSpec,
+      exception: dioException,
+      stackTrace: st,
+    );
 
     expect(
       result,
       isA<UnexpectedException>()
+          .having((p) => p.request, 'request', requestSpec)
           .having(
             (p) => p.message,
             'message',
@@ -74,11 +89,16 @@ void main() {
       final st = StackTrace.current;
       final cause = Exception('invalid-exception');
 
-      final result = sut.mapException(cause, stackTrace: st);
+      final result = sut.mapException(
+        request: requestSpec,
+        exception: cause,
+        stackTrace: st,
+      );
 
       expect(
         result,
         isA<UnexpectedException>()
+            .having((p) => p.request, 'request', requestSpec)
             .having((p) => p.message, 'message', 'Received unknown exception')
             .having((p) => p.cause, 'cause', cause)
             .having((p) => p.stackTrace, 'stackTrace', st),
@@ -94,12 +114,21 @@ void main() {
       final matchingDioToNetworkExceptionTypes = [
         (
           DioExceptionType.connectionTimeout,
-          TransportErrorType.CONNECTION_TIMEOUT
+          TransportExceptionType.CONNECTION_TIMEOUT
         ),
-        (DioExceptionType.sendTimeout, TransportErrorType.SEND_TIMEOUT),
-        (DioExceptionType.receiveTimeout, TransportErrorType.RECEIVE_TIMEOUT),
-        (DioExceptionType.badCertificate, TransportErrorType.BAD_CERTIFICATE),
-        (DioExceptionType.connectionError, TransportErrorType.CONNECTION_ERROR),
+        (DioExceptionType.sendTimeout, TransportExceptionType.SEND_TIMEOUT),
+        (
+          DioExceptionType.receiveTimeout,
+          TransportExceptionType.RECEIVE_TIMEOUT
+        ),
+        (
+          DioExceptionType.badCertificate,
+          TransportExceptionType.BAD_CERTIFICATE
+        ),
+        (
+          DioExceptionType.connectionError,
+          TransportExceptionType.CONNECTION_ERROR
+        ),
       ];
       for (final type in matchingDioToNetworkExceptionTypes) {
         final dioException = DioException(
@@ -110,10 +139,11 @@ void main() {
         );
 
         verifyTransportExceptionPath(
-          dioException,
-          innerCause,
-          st,
-          type.$2,
+          exception: dioException,
+          request: requestSpec,
+          expectedInnerCause: innerCause,
+          expectedStackTrace: st,
+          expectedType: type.$2,
         );
       }
     },
@@ -131,11 +161,17 @@ void main() {
         stackTrace: st,
       );
 
-      final result = sut.mapException(dioException, stackTrace: st);
+      final result = sut.mapException(
+        request: requestSpec,
+        exception: dioException,
+        stackTrace: st,
+      );
 
       expect(
         result,
         isA<CancellationException>()
+            .having((p) => p.source, 'source', 'client_exception_mapper')
+            .having((p) => p.request, 'request', requestSpec)
             .having((p) => p.cause, 'cause', innerCause)
             .having((p) => p.stackTrace, 'stackTrace', st),
       );
@@ -156,11 +192,16 @@ void main() {
         message: msg,
       );
 
-      final result = sut.mapException(dioException, stackTrace: st);
+      final result = sut.mapException(
+        request: requestSpec,
+        exception: dioException,
+        stackTrace: st,
+      );
 
       expect(
         result,
         isA<UnexpectedException>()
+            .having((p) => p.request, 'request', requestSpec)
             .having(
               (p) => p.message,
               'message',

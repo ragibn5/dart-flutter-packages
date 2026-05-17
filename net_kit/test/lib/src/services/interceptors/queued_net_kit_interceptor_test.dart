@@ -120,10 +120,16 @@ void main() {
       },
     );
 
-    final firstFuture = sut.onError(const UnexpectedException('first'));
+    final firstFuture = sut.onError(UnexpectedException(
+      message: 'first',
+      request: _request('/first'),
+    ));
     await firstStarted.future;
 
-    final secondFuture = sut.onError(const UnexpectedException('second'));
+    final secondFuture = sut.onError(UnexpectedException(
+      message: 'second',
+      request: _request('/second'),
+    ));
     await Future<void>.delayed(Duration.zero);
 
     expect(events, ['first-start']);
