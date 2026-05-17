@@ -6,7 +6,7 @@ class RawResponse implements Mappable {
   final int statusCode;
 
   /// The raw response body before decoding.
-  final dynamic rawResponseBody;
+  final Object? rawResponseBody;
 
   /// The response headers.
   final Map<String, List<String>> responseHeaders;
