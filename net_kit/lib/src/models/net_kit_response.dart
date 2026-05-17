@@ -1,6 +1,7 @@
+import 'package:net_kit/src/contracts/mappable.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 
-class NetKitResponse {
+class NetKitResponse implements Mappable {
   /// Whether the response is an error.
   ///
   /// This is decided by the response classifier.
@@ -25,4 +26,15 @@ class NetKitResponse {
     required this.headers,
     required this.requestSpec,
   });
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'isError': isError,
+      'statusCode': statusCode,
+      'data': data,
+      'headers': headers,
+      'requestSpec': requestSpec.toMap(),
+    };
+  }
 }

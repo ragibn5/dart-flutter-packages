@@ -1,11 +1,12 @@
 import 'package:net_kit/src/clients/net_client.dart';
+import 'package:net_kit/src/contracts/mappable.dart';
 import 'package:net_kit/src/enums/transport_exception_type.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 
 /// The base exception returned by [NetClient] when it encounters any error.
 ///
 /// See its subtypes for more details.
-sealed class NetKitException {
+sealed class NetKitException implements Mappable {
   /// The original request.
   final RequestSpec request;
 
@@ -46,8 +47,12 @@ final class TransportException extends NetKitException {
 
   @override
   String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'TransportException {request: $request, type: $type, cause: $cause, stackTrace: $stackTrace}';
+    return 'TransportException {request: $request, type: $type}';
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {'type': type, 'request': request.toMap()};
   }
 }
 
@@ -65,8 +70,12 @@ final class CancellationException extends NetKitException {
 
   @override
   String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'CancellationException {request: $request, source: $source, cause: $cause, stackTrace: $stackTrace}';
+    return 'CancellationException {request: $request, source: $source}';
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {'source': source, 'request': request.toMap()};
   }
 }
 
@@ -86,7 +95,11 @@ final class UnexpectedException extends NetKitException {
 
   @override
   String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'UnexpectedException {request: $request, message: $message, cause: $cause, stackTrace: $stackTrace}';
+    return 'UnexpectedException {request: $request, message: $message}';
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {'message': message, 'request': request.toMap()};
   }
 }

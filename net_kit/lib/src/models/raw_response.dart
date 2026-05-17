@@ -1,6 +1,7 @@
+import 'package:net_kit/src/contracts/mappable.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 
-class RawResponse {
+class RawResponse implements Mappable {
   /// The status code from the server side.
   final int statusCode;
 
@@ -19,4 +20,14 @@ class RawResponse {
     required this.responseHeaders,
     required this.request,
   });
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'statusCode': statusCode,
+      'rawResponseBody': rawResponseBody,
+      'responseHeaders': responseHeaders,
+      'request': request.toMap(),
+    };
+  }
 }

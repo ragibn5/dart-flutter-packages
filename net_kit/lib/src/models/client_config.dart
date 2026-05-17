@@ -1,4 +1,6 @@
-class ClientConfig {
+import 'package:net_kit/src/contracts/mappable.dart';
+
+class ClientConfig implements Mappable {
   /// The base URL.
   final String? baseUrl;
 
@@ -37,4 +39,18 @@ class ClientConfig {
     this.followRedirects = true,
     this.maxRedirects = 5,
   });
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'baseUrl': baseUrl,
+      'sendTimeout': sendTimeout,
+      'receiveTimeout': receiveTimeout,
+      'connectionTimeout': connectionTimeout,
+      'queryParameters': queryParameters,
+      'headers': headers,
+      'followRedirects': followRedirects,
+      'maxRedirects': maxRedirects,
+    };
+  }
 }

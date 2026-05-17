@@ -1,9 +1,10 @@
 // ignore_for_file: avoid_init_to_null
 
+import 'package:net_kit/src/contracts/mappable.dart';
 import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/models/request_body.dart';
 
-class RequestSpec {
+class RequestSpec implements Mappable {
   /// The endpoint path, relative to the base URL.
   final String pathOrUrl;
 
@@ -79,5 +80,22 @@ class RequestSpec {
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
     );
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'pathOrUrl': pathOrUrl,
+      'method': method,
+      'body': body?.toMap(),
+      'queryParameters': queryParameters,
+      'headers': headers,
+      'baseUrl': baseUrl,
+      'sendTimeout': sendTimeout,
+      'receiveTimeout': receiveTimeout,
+      'connectionTimeout': connectionTimeout,
+      'followRedirects': followRedirects,
+      'maxRedirects': maxRedirects,
+    };
   }
 }
