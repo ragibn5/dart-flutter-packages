@@ -51,6 +51,7 @@ class DioExceptionMapper {
         ),
       DioExceptionType.cancel => CancellationException(
           source: 'client_exception_mapper',
+          message: 'Cancelling on request from the underlying client',
           request: request,
           cause: exception.error,
           stackTrace: exception.stackTrace,

@@ -61,8 +61,12 @@ final class CancellationException extends NetKitException {
   /// An identifier of the cancellation source.
   final String source;
 
+  /// An message to clarify the reason of the cancellation.
+  final String message;
+
   const CancellationException({
     required this.source,
+    required this.message,
     required super.request,
     super.cause,
     super.stackTrace,
