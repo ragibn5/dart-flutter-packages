@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:net_kit/src/clients/dio/dio_factory.dart';
 import 'package:net_kit/src/clients/dio/dio_request_adapter.dart';
+import 'package:net_kit/src/clients/interceptor_pipeline.dart';
 import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/clients/net_client_impl.dart';
 import 'package:net_kit/src/models/client_config.dart';
@@ -23,7 +24,7 @@ final class NetClientFactory {
   }) {
     return NetClientImpl(
       clientConfig: clientConfig,
-      interceptors: interceptors,
+      interceptorPipeline: InterceptorPipeline(interceptors: interceptors),
       requestAdapter: DioRequestAdapter(_dioFactory.createDio(clientConfig)),
     );
   }

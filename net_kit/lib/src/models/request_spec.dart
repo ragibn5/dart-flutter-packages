@@ -3,7 +3,6 @@
 import 'package:net_kit/src/contracts/mappable.dart';
 import 'package:net_kit/src/enums/http_method.dart';
 import 'package:net_kit/src/models/request_body.dart';
-import 'package:net_kit/src/services/composer/request_composer.dart';
 
 class RequestSpec implements Mappable {
   /// The endpoint path, relative to the base URL.
@@ -93,9 +92,6 @@ class RequestSpec implements Mappable {
   Uri get uri {
     final base = baseUrl;
     final qp = queryParameters;
-
-
-    DefaultRequestComposer r;
 
     Map<String, String>? resolvedQp;
     if (qp != null && qp.isNotEmpty) {

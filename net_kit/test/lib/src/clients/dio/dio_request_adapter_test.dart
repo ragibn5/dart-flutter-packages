@@ -128,13 +128,13 @@ void main() {
           isA<Result<NetKitException, RawResponse>>()
               .having((p) => p.isError, 'isError', false)
               .having((p) => p.resultOrThrow, 'resultOrNull', isNotNull)
-              .having((p) => p.resultOrThrow!.statusCode, 'statusCode',
+              .having((p) => p.resultOrThrow.statusCode, 'statusCode',
                   rawResponse.statusCode)
-              .having((p) => p.resultOrThrow!.responseHeaders, 'responseHeaders',
+              .having((p) => p.resultOrThrow.responseHeaders, 'responseHeaders',
                   rawResponse.headers.map)
-              .having((p) => p.resultOrThrow!.rawResponseBody, 'rawResponseBody',
+              .having((p) => p.resultOrThrow.rawResponseBody, 'rawResponseBody',
                   rawResponse.data)
-              .having((p) => p.resultOrThrow!.request, 'request', spec));
+              .having((p) => p.resultOrThrow.request, 'request', spec));
     },
   );
 
@@ -156,8 +156,8 @@ void main() {
         isA<Result<NetKitException, RawResponse>>()
             .having((p) => p.isError, 'isError', true)
             .having((p) => p.errorOrThrow, 'errorOrNull', netKitException)
-            .having((p) => p.errorOrThrow!.cause, 'cause', errorCause)
-            .having((p) => p.errorOrThrow!.stackTrace, 'stackTrace', stackTrace),
+            .having((p) => p.errorOrThrow.cause, 'cause', errorCause)
+            .having((p) => p.errorOrThrow.stackTrace, 'stackTrace', stackTrace),
       );
     },
   );

@@ -69,7 +69,7 @@ void main() {
 
     sut = NetClientImpl(
       clientConfig: clientConfig,
-      interceptors: [mockInterceptor],
+      interceptorPipeline: InterceptorPipeline(interceptors: [mockInterceptor]),
       requestAdapter: mockRequestAdapter,
       requestComposer: mockRequestComposer,
     );
@@ -108,9 +108,9 @@ void main() {
           .having((p) => p.isSuccess, 'isSuccess', true)
           .having((p) => p.resultOrThrow, 'resultOrNull', isNotNull),
     );
-    expect(result.resultOrThrow!.isError, false);
-    expect(result.resultOrThrow!.statusCode, 200);
-    expect(result.resultOrThrow!.data, {'id': 1});
+    expect(result.resultOrThrow.isError, false);
+    expect(result.resultOrThrow.statusCode, 200);
+    expect(result.resultOrThrow.data, {'id': 1});
   });
 
   test(
@@ -169,7 +169,7 @@ void main() {
         result,
         isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isSuccess, 'isSuccess', true)
-            .having((p) => p.resultOrThrow!.statusCode, 'statusCode', 200),
+            .having((p) => p.resultOrThrow.statusCode, 'statusCode', 200),
       );
       verifyNever(() => mockRequestAdapter.performRequest(
             spec: any(named: 'spec'),
@@ -228,8 +228,8 @@ void main() {
   test(
     'execute returns success when response interceptor returns ShortResponseWithFinalResponse',
     () async {
-      when(() => mockInterceptor.onResponse(any()))
-          .thenAnswer((_) async => const ShortResponseWithFinalResponse(rawResponse));
+      when(() => mockInterceptor.onResponse(any())).thenAnswer(
+          (_) async => const ShortResponseWithFinalResponse(rawResponse));
 
       final result = await sut.execute(
         spec: spec,
@@ -263,8 +263,8 @@ void main() {
         responseClassifier: mockResponseClassifier,
       );
 
-      expect(result.resultOrThrow!.statusCode, 201);
-      expect(result.resultOrThrow!.data, {'id': 2, 'created': true});
+      expect(result.resultOrThrow.statusCode, 201);
+      expect(result.resultOrThrow.data, {'id': 2, 'created': true});
     },
   );
 
@@ -306,8 +306,8 @@ void main() {
           )).thenAnswer(
         (_) async => Result.error(netKitException),
       );
-      when(() => mockInterceptor.onError(any()))
-          .thenAnswer((_) async => const ShortErrorWithFinalError(rejectedError));
+      when(() => mockInterceptor.onError(any())).thenAnswer(
+          (_) async => const ShortErrorWithFinalError(rejectedError));
 
       final result = await sut.execute(
         spec: spec,
@@ -390,7 +390,7 @@ void main() {
       responseClassifier: mockResponseClassifier,
     );
 
-    expect(result.resultOrThrow!.isError, true);
+    expect(result.resultOrThrow.isError, true);
     verify(() => mockResponseClassifier.isError(rawResponse))
         .called(greaterThan(0));
   });
@@ -406,7 +406,8 @@ void main() {
 
     final multiInterceptorSut = NetClientImpl(
       clientConfig: clientConfig,
-      interceptors: [mockInterceptor, interceptor2],
+      interceptorPipeline:
+          InterceptorPipeline(interceptors: [mockInterceptor, interceptor2]),
       requestAdapter: mockRequestAdapter,
       requestComposer: mockRequestComposer,
     );
@@ -434,8 +435,8 @@ void main() {
 
     final result = await sut.execute(spec: spec);
 
-    expect(result.resultOrThrow!.isError, true);
-    expect(result.resultOrThrow!.statusCode, 404);
+    expect(result.resultOrThrow.isError, true);
+    expect(result.resultOrThrow.statusCode, 404);
   });
 
   test('close calls requestAdapter.close', () {
@@ -444,5 +445,58 @@ void main() {
     sut.close();
 
     verify(() => mockRequestAdapter.close()).called(1);
+  });
+
+  test('Added interceptor runs during execute', () async {
+    final interceptor2 = _MockNetKitInterceptor();
+    when(() => interceptor2.onRequest(any()))
+        .thenAnswer((_) async => const ContinueWithRequest(spec));
+    when(() => interceptor2.onResponse(any()))
+        .thenAnswer((_) async => const ContinueWithResponse(rawResponse));
+    when(() => interceptor2.onError(any()))
+        .thenAnswer((_) async => const ContinueWithError(netKitException));
+
+    sut.interceptors.add(interceptor2);
+
+    await sut.execute(spec: spec, responseClassifier: mockResponseClassifier);
+
+    verify(() => mockInterceptor.onRequest(any())).called(greaterThan(0));
+    verify(() => interceptor2.onRequest(any())).called(greaterThan(0));
+  });
+
+  test('Removed interceptor does not run during execute', () async {
+    sut.interceptors.remove(mockInterceptor);
+
+    when(
+      () => mockRequestAdapter.performRequest(
+        spec: any(named: 'spec'),
+        onSendProgress: any(named: 'onSendProgress'),
+        onReceiveProgress: any(named: 'onReceiveProgress'),
+        requestCanceller: any(named: 'requestCanceller'),
+      ),
+    ).thenAnswer((_) async => Result.success(rawResponse));
+
+    await sut.execute(spec: spec, responseClassifier: mockResponseClassifier);
+
+    verifyNever(() => mockInterceptor.onRequest(any()));
+    verifyNever(() => mockInterceptor.onResponse(any()));
+  });
+
+  test('Cleared interceptors do not run during execute', () async {
+    sut.interceptors.clear();
+
+    when(
+      () => mockRequestAdapter.performRequest(
+        spec: any(named: 'spec'),
+        onSendProgress: any(named: 'onSendProgress'),
+        onReceiveProgress: any(named: 'onReceiveProgress'),
+        requestCanceller: any(named: 'requestCanceller'),
+      ),
+    ).thenAnswer((_) async => Result.success(rawResponse));
+
+    await sut.execute(spec: spec, responseClassifier: mockResponseClassifier);
+
+    verifyNever(() => mockInterceptor.onRequest(any()));
+    verifyNever(() => mockInterceptor.onResponse(any()));
   });
 }

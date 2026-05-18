@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:net_kit/src/clients/interceptor_pipeline.dart';
 import 'package:net_kit/src/models/request_spec.dart';
 import 'package:net_kit/src/services/cancellation/request_canceller.dart';
 import 'package:net_kit/src/services/mappers/response_classifier.dart';
@@ -18,4 +19,7 @@ abstract interface class NetClient {
 
   /// Closes the client and frees its resources.
   void close();
+
+  /// The pipeline of interceptors attached to this client.
+  InterceptorPipeline get interceptors;
 }

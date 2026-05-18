@@ -8,18 +8,18 @@ import 'package:net_kit/src/types/progress_listener.dart';
 
 class NetClientImpl implements NetClient {
   final ClientConfig _clientConfig;
-  final List<NetKitInterceptor> _interceptors;
+  final InterceptorPipeline _interceptorPipeline;
   final NetworkRequestAdapter _requestAdapter;
 
   final RequestComposer _requestComposer;
 
   NetClientImpl({
     required ClientConfig clientConfig,
-    required List<NetKitInterceptor> interceptors,
+    required InterceptorPipeline interceptorPipeline,
     required NetworkRequestAdapter requestAdapter,
     RequestComposer requestComposer = const DefaultRequestComposer(),
   })  : _clientConfig = clientConfig,
-        _interceptors = interceptors,
+        _interceptorPipeline = interceptorPipeline,
         _requestAdapter = requestAdapter,
         _requestComposer = requestComposer;
 
@@ -58,10 +58,13 @@ class NetClientImpl implements NetClient {
   @override
   void close() => _requestAdapter.close();
 
+  @override
+  InterceptorPipeline get interceptors => _interceptorPipeline;
+
   Future<RequestInterceptorResult> _processRequest(RequestSpec spec) async {
     var currentSpec = spec;
 
-    for (final interceptor in _interceptors) {
+    for (final interceptor in _interceptorPipeline.snapshot()) {
       final result = await interceptor.onRequest(currentSpec);
       switch (result) {
         case ContinueWithRequest(:final request):
@@ -80,7 +83,7 @@ class NetClientImpl implements NetClient {
   ) async {
     var ctx = rawResponse;
 
-    for (final interceptor in _interceptors) {
+    for (final interceptor in _interceptorPipeline.snapshot()) {
       final result = await interceptor.onResponse(ctx);
       switch (result) {
         case ContinueWithResponse(:final response):
@@ -102,7 +105,7 @@ class NetClientImpl implements NetClient {
   ) async {
     var currentError = error;
 
-    for (final interceptor in _interceptors) {
+    for (final interceptor in _interceptorPipeline.snapshot()) {
       final result = await interceptor.onError(currentError);
       switch (result) {
         case ContinueWithError(:final error):
@@ -132,9 +135,6 @@ class NetClientImpl implements NetClient {
 
   @visibleForTesting
   ClientConfig get clientConfig => _clientConfig;
-
-  @visibleForTesting
-  List<NetKitInterceptor> get interceptors => _interceptors;
 
   @visibleForTesting
   NetworkRequestAdapter get requestAdapter => _requestAdapter;

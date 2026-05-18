@@ -12,9 +12,10 @@ class _MockDio extends Mock implements Dio {}
 
 class _MockDioFactory extends Mock implements DioFactory {}
 
+class _FakeInterceptor extends NetKitInterceptor {}
+
 void main() {
   const clientConfig = ClientConfig();
-  const interceptors = <NetKitInterceptor>[];
 
   late _MockDio mockDio;
   late _MockDioFactory mockDioFactory;
@@ -31,9 +32,10 @@ void main() {
   });
 
   test('Create returns a NetClient using proper values', () {
+    final interceptor = _FakeInterceptor();
     final client = sut.create(
       clientConfig: clientConfig,
-      interceptors: interceptors,
+      interceptors: [interceptor],
     );
 
     verify(() => mockDioFactory.createDio(clientConfig)).called(1);
@@ -41,11 +43,15 @@ void main() {
       client,
       isA<NetClientImpl>()
           .having((p) => p.clientConfig, 'clientConfig', same(clientConfig))
-          .having((p) => p.interceptors, 'interceptors', same(interceptors))
           .having(
             (p) => p.requestAdapter,
             'requestAdapter',
             isA<DioRequestAdapter>(),
+          )
+          .having(
+            (p) => p.interceptors.snapshot(),
+            'interceptors',
+            allOf(hasLength(1), contains(interceptor)),
           ),
     );
 

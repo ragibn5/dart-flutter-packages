@@ -2,6 +2,7 @@
 /// Import this file to use the package in your project.
 library;
 
+export 'src/clients/interceptor_pipeline.dart';
 export 'src/clients/net_client.dart';
 export 'src/clients/net_client_factory.dart';
 export 'src/enums/http_method.dart';

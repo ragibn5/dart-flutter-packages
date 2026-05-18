@@ -80,6 +80,7 @@ void main() {
 
     final sut = _TestQueuedInterceptor(
       responseHandler: (response) async {
+        // ignore: cast_nullable_to_non_nullable
         final marker = response.rawResponseBody as String;
         events.add('$marker-start');
         if (marker == 'first') {
