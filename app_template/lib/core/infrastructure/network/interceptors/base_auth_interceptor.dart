@@ -1,9 +1,8 @@
 import 'package:app_template/core/models/base_auth_data.dart';
-import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 
-/// A base [Dio] interceptor that handles authenticated requests and
+/// A base interceptor that handles authenticated requests and
 /// automatic token refresh.
 ///
 /// This interceptor:
@@ -63,15 +62,13 @@ abstract class BaseAuthInterceptor<AuthDataTye extends BaseAuthData>
   /// Intercepts outgoing requests and injects authorization headers
   /// defined by [buildAuthorizationHeaders].
   ///
-  /// If auth data is unavailable, the request is rejected immediately
-  /// with a [DioException] of type [DioExceptionType.cancel], having
-  /// the original [RequestOptions] that initiated the request and the
-  /// reason/error of type [CancelledDueToAuthDataUnavailability].
+  /// If auth data is unavailable, the request is rejected with a
+  /// [CancellationException].
   @override
   Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
     final authData = await getAuthData();
     if (authData == null) {
-      return RejectRequest(
+      return ShortRequestWithError(
         CancellationException(
           source: '$BaseAuthInterceptor:$onRequest',
           message:
@@ -111,18 +108,15 @@ abstract class BaseAuthInterceptor<AuthDataTye extends BaseAuthData>
     final uri = request.uri;
 
     // Check if we have a valid auth data.
-    // If not, reject the request with a [DioException] of type
-    // [DioExceptionType.cancel] having the original [RequestOptions]
-    // that initiated the request and the reason/error of type
-    // [CancelledDueToAuthDataUnavailability].
+    // If not, reject the request with a [CancellationException].
     final currentAuthData = await getAuthData();
     if (currentAuthData == null) {
-      return RejectResponse(
+      return ShortResponseWithError(
         CancellationException(
-          source: '$BaseAuthInterceptor:$onRequest',
+          source: '$BaseAuthInterceptor:$onResponse',
           message:
               'Cancelling `$method` request to `$uri`: '
-              'Failed to request auth data refresh, auth data unavailable.',
+              'Failed to request auth data refresh (auth data unavailable).',
           request: request,
         ),
       );
@@ -134,16 +128,16 @@ abstract class BaseAuthInterceptor<AuthDataTye extends BaseAuthData>
     if (!shouldRefreshAuthData(request, currentAuthData)) {
       final response = await retryRequest(request, currentAuthData);
       return response.fold(
-        onError: (e) => RejectResponse(
+        onError: (e) => ShortResponseWithError(
           CancellationException(
-            source: '$BaseAuthInterceptor:$onRequest',
+            source: '$BaseAuthInterceptor:$onResponse',
             message:
                 'Cancelling `$method` request to `$uri`: '
-                'Failed to request auth data refresh, auth data unavailable.',
+                'Request retry failed with possibly refreshed auth data.',
             request: request,
           ),
         ),
-        onSuccess: (d) => ResolveResponse(
+        onSuccess: (d) => ShortResponseWithFinalResponse(
           RawResponse(
             statusCode: d.statusCode,
             rawResponseBody: d.data,
@@ -155,15 +149,12 @@ abstract class BaseAuthInterceptor<AuthDataTye extends BaseAuthData>
     }
 
     // Attempt to refresh the auth data.
-    // If failed, reject the request with a [DioException] of type
-    // [DioExceptionType.cancel] having the original [RequestOptions]
-    // that initiated the request and the reason/error of type
-    // [CancelledDueToAuthDataRefreshFailure].
+    // If failed, reject the request with a [CancellationException].
     final refreshedAuthData = await requestAuthDataRefresh(currentAuthData);
     if (refreshedAuthData == null) {
-      return RejectResponse(
+      return ShortResponseWithError(
         CancellationException(
-          source: '$BaseAuthInterceptor:$onRequest',
+          source: '$BaseAuthInterceptor:$onResponse',
           message:
               'Cancelling `$method` request to `$uri`: '
               'Could not refresh auth data.',
@@ -174,16 +165,16 @@ abstract class BaseAuthInterceptor<AuthDataTye extends BaseAuthData>
 
     final retryResponse = await retryRequest(request, refreshedAuthData);
     return retryResponse.fold(
-      onError: (e) => RejectResponse(
+      onError: (e) => ShortResponseWithError(
         CancellationException(
-          source: '$BaseAuthInterceptor:$onRequest',
+          source: '$BaseAuthInterceptor:$onResponse',
           message:
               'Cancelling `$method` request to `$uri`: '
               'Failed to retry with refreshed auth data.',
           request: request,
         ),
       ),
-      onSuccess: (d) => ResolveResponse(
+      onSuccess: (d) => ShortResponseWithFinalResponse(
         RawResponse(
           statusCode: d.statusCode,
           rawResponseBody: d.data,
