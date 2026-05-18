@@ -7,28 +7,18 @@ import 'package:app_template/features/app/infrastructure/models/build_metadata.d
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/services/settings_service.dart';
 import 'package:app_template/shared/network/interceptors/metadata_adder_interceptor.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/net_kit.dart';
 
 class _MockSettingsService extends Mock implements SettingsService {}
-
-class _MockRequestInterceptorHandler extends Mock
-    implements RequestInterceptorHandler {}
 
 void main() {
   const effectiveLocale = AppLocale.EN;
 
-  late _MockRequestInterceptorHandler handler;
   late _MockSettingsService settingsService;
-
   late MetadataAdderInterceptor interceptor;
 
-  final requestOptions = RequestOptions(
-    baseUrl: 'https://abc.com',
-    path: '/ping',
-    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  );
   final buildMetadata = BuildMetadata(
     scope: 'flutter',
     platform: Platform.operatingSystem,
@@ -55,14 +45,8 @@ void main() {
     };
   }
 
-  setUpAll(() {
-    registerFallbackValue(requestOptions);
-  });
-
   setUp(() {
-    handler = _MockRequestInterceptorHandler();
     settingsService = _MockSettingsService();
-
     interceptor = MetadataAdderInterceptor(buildMetadata, settingsService);
 
     when(
@@ -73,11 +57,22 @@ void main() {
   test(
     'attaches locale, user-agent, app metadata headers, and then proceeds',
     () async {
-      await interceptor.onRequest(requestOptions, handler);
+      const request = RequestSpec(
+        pathOrUrl: '/ping',
+        baseUrl: 'https://abc.com',
+        method: HttpMethod.GET,
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final result = await interceptor.onRequest(request);
+
+      expect(result, isA<ContinueWithRequest>());
+      final modifiedRequest = (result as ContinueWithRequest).request;
+      final headers = modifiedRequest.headers;
 
       // Locale
       expect(
-        requestOptions.headers[HttpHeaders.acceptLanguageHeader],
+        headers?[HttpHeaders.acceptLanguageHeader],
         Locale.fromSubtags(
           languageCode: effectiveLocale.languageCode,
           scriptCode: effectiveLocale.scriptCode,
@@ -87,7 +82,7 @@ void main() {
 
       // User agent
       expect(
-        requestOptions.headers[HttpHeaders.userAgentHeader],
+        headers?[HttpHeaders.userAgentHeader],
         '${buildMetadata.packageName}/${buildMetadata.versionName}'
         ' (${buildMetadata.platform}; ${buildMetadata.runtime}; ${buildMetadata.flavor})',
       );
@@ -96,14 +91,17 @@ void main() {
       final expectedHeaders = expectedMetadataHeaders(buildMetadata);
       for (final entry in expectedHeaders.entries) {
         expect(
-          requestOptions.headers,
+          headers,
           containsPair(entry.key, entry.value),
           reason: 'Missing or incorrect metadata header: ${entry.key}',
         );
       }
 
-      // Verify that the handler was called
-      verify(() => handler.next(requestOptions)).called(1);
+      // Original headers should still be there
+      expect(
+        headers?[HttpHeaders.contentTypeHeader],
+        'application/json',
+      );
     },
   );
 }

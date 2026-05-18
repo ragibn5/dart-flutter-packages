@@ -4,60 +4,39 @@ import 'dart:io';
 
 import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:app_template/shared/network/interceptors/logger_interceptor.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/net_kit.dart';
 
 class _MockAppLogger extends Mock implements AppLogger {}
 
-class _MockRequestInterceptorHandler extends Mock
-    implements RequestInterceptorHandler {}
-
-class _MockResponseInterceptorHandler extends Mock
-    implements ResponseInterceptorHandler {}
-
-class _MockErrorInterceptorHandler extends Mock
-    implements ErrorInterceptorHandler {}
-
 void main() {
-  final requestOptions = RequestOptions(
+  const requestSpec = RequestSpec(
+    pathOrUrl: '/ping',
     baseUrl: 'https://abc.com',
-    path: '/ping',
-    data: {'1': 1, 's': 'a-string'},
+    method: HttpMethod.GET,
+    body: JsonBody({'1': 1, 's': 'a-string'}),
     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     queryParameters: {'1': 1},
   );
-  final response = Response<dynamic>(
-    requestOptions: requestOptions,
-    data: {'i': 100, 's': 'another-string'},
+  const rawResponse = RawResponse(
     statusCode: HttpStatus.ok,
-    headers: Headers()..add(HttpHeaders.contentTypeHeader, 'application/json'),
+    rawResponseBody: {'i': 100, 's': 'another-string'},
+    responseHeaders: {
+      HttpHeaders.contentTypeHeader: ['application/json'],
+    },
+    request: requestSpec,
   );
-  final exception = DioException(
-    type: DioExceptionType.badResponse,
-    requestOptions: requestOptions,
-    response: response,
+  const exception = TransportException(
+    type: TransportExceptionType.CONNECTION_ERROR,
+    request: requestSpec,
   );
 
   late _MockAppLogger mockAppLogger;
-  late _MockRequestInterceptorHandler mockRequestInterceptorHandler;
-  late _MockResponseInterceptorHandler mockResponseInterceptorHandler;
-  late _MockErrorInterceptorHandler mockErrorInterceptorHandler;
-
   late LoggerInterceptor loggerInterceptor;
-
-  setUpAll(() {
-    registerFallbackValue(requestOptions);
-    registerFallbackValue(response);
-    registerFallbackValue(exception);
-  });
 
   setUp(() {
     mockAppLogger = _MockAppLogger();
-
-    mockRequestInterceptorHandler = _MockRequestInterceptorHandler();
-    mockResponseInterceptorHandler = _MockResponseInterceptorHandler();
-    mockErrorInterceptorHandler = _MockErrorInterceptorHandler();
 
     loggerInterceptor = LoggerInterceptor(mockAppLogger);
 
@@ -89,62 +68,57 @@ void main() {
         extras: any(named: 'extras'),
       ),
     ).thenAnswer((_) => {});
-
-    when(
-      () => mockRequestInterceptorHandler.next(requestOptions),
-    ).thenAnswer((_) {});
-    when(
-      () => mockResponseInterceptorHandler.next(response),
-    ).thenAnswer((_) {});
-    when(() => mockErrorInterceptorHandler.next(exception)).thenAnswer((_) {});
   });
 
   test(
     'Should log on request and propagate the request to next interceptor',
-    () {
-      loggerInterceptor.onRequest(
-        requestOptions,
-        mockRequestInterceptorHandler,
-      );
+    () async {
+      final result = await loggerInterceptor.onRequest(requestSpec);
 
-      verifyInOrder([
+      expect(result, isA<ContinueWithRequest>());
+
+      verify(
         () => mockAppLogger.logInfo(
           tag: LoggerInterceptor.TAG,
           message: any(named: 'message'),
           extras: any(named: 'extras'),
         ),
-        () => mockRequestInterceptorHandler.next(requestOptions),
-      ]);
+      );
     },
   );
 
   test(
     'Should log on response and propagate the response to next interceptor',
-    () {
-      loggerInterceptor.onResponse(response, mockResponseInterceptorHandler);
+    () async {
+      final result = await loggerInterceptor.onResponse(rawResponse);
 
-      verifyInOrder([
+      expect(result, isA<ContinueWithResponse>());
+
+      verify(
         () => mockAppLogger.logInfo(
           tag: LoggerInterceptor.TAG,
           message: any(named: 'message'),
           extras: any(named: 'extras'),
         ),
-        () => mockResponseInterceptorHandler.next(response),
-      ]);
+      );
     },
   );
 
-  test('Should log on error and propagate the error to next interceptor', () {
-    loggerInterceptor.onError(exception, mockErrorInterceptorHandler);
+  test(
+    'Should log on error and propagate the error to next interceptor',
+    () async {
+      final result = await loggerInterceptor.onError(exception);
 
-    verifyInOrder([
-      () => mockAppLogger.logError(
-        tag: LoggerInterceptor.TAG,
-        message: any(named: 'message'),
-        stackTrace: any(named: 'stackTrace'),
-        extras: any(named: 'extras'),
-      ),
-      () => mockErrorInterceptorHandler.next(exception),
-    ]);
-  });
+      expect(result, isA<ContinueWithError>());
+
+      verify(
+        () => mockAppLogger.logError(
+          tag: LoggerInterceptor.TAG,
+          message: any(named: 'message'),
+          stackTrace: any(named: 'stackTrace'),
+          extras: any(named: 'extras'),
+        ),
+      );
+    },
+  );
 }
