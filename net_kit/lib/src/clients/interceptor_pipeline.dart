@@ -13,6 +13,10 @@ final class InterceptorPipeline {
   /// Appends [interceptor] to the end of the chain.
   void add(NetKitInterceptor interceptor) => _interceptors.add(interceptor);
 
+  /// Appends all [interceptors] to the end of the chain, in given order.
+  void addAll(Iterable<NetKitInterceptor> interceptors) =>
+      _interceptors.addAll(interceptors);
+
   /// Removes the first occurrence of [interceptor].
   /// Returns `true` if the interceptor was found and removed.
   bool remove(NetKitInterceptor interceptor) =>

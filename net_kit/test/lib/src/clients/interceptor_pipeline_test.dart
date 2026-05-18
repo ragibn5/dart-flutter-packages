@@ -71,4 +71,15 @@ void main() {
     expect(pipeline.snapshot(), contains(a));
     expect(pipeline.length, 1);
   });
+
+  test('AddAll appends multiple interceptors in order', () {
+    final a = _FakeInterceptor();
+    final b = _FakeInterceptor();
+    final pipeline = InterceptorPipeline();
+
+    pipeline.addAll([a, b]);
+
+    expect(pipeline.snapshot(), orderedEquals([a, b]));
+    expect(pipeline.length, 2);
+  });
 }
