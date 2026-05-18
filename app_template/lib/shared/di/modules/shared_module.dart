@@ -109,9 +109,10 @@ abstract class SharedModule {
       ),
     );
 
-    client.interceptors
-      ..add(MetadataAdderInterceptor(buildMetadata, settingsService))
-      ..add(LoggerInterceptor(logger));
+    client.interceptors.addAll([
+      MetadataAdderInterceptor(buildMetadata, settingsService),
+      LoggerInterceptor(logger),
+    ]);
 
     return client;
   }
@@ -133,10 +134,11 @@ abstract class SharedModule {
       ),
     );
 
-    client.interceptors
-      ..add(MetadataAdderInterceptor(buildMetadata, settingsService))
-      ..add(AuthInterceptor(client, authDataService))
-      ..add(LoggerInterceptor(logger));
+    client.interceptors.addAll([
+      MetadataAdderInterceptor(buildMetadata, settingsService),
+      AuthInterceptor(client, authDataService),
+      LoggerInterceptor(logger),
+    ]);
 
     return client;
   }
@@ -154,9 +156,10 @@ abstract class SharedModule {
       ),
     );
 
-    client.interceptors
-      ..add(MetadataAdderInterceptor(buildMetadata, settingsService))
-      ..add(LoggerInterceptor(logger));
+    client.interceptors.addAll([
+      MetadataAdderInterceptor(buildMetadata, settingsService),
+      LoggerInterceptor(logger),
+    ]);
 
     return AppServerTokenRefreshApiClientImpl(client);
   }
