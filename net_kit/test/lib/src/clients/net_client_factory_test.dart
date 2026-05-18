@@ -12,8 +12,6 @@ class _MockDio extends Mock implements Dio {}
 
 class _MockDioFactory extends Mock implements DioFactory {}
 
-class _FakeInterceptor extends NetKitInterceptor {}
-
 void main() {
   const clientConfig = ClientConfig();
 
@@ -32,11 +30,7 @@ void main() {
   });
 
   test('Create returns a NetClient using proper values', () {
-    final interceptor = _FakeInterceptor();
-    final client = sut.create(
-      clientConfig: clientConfig,
-      interceptors: [interceptor],
-    );
+    final client = sut.create(clientConfig);
 
     verify(() => mockDioFactory.createDio(clientConfig)).called(1);
     expect(
@@ -51,9 +45,10 @@ void main() {
           .having(
             (p) => p.interceptors.snapshot(),
             'interceptors',
-            allOf(hasLength(1), contains(interceptor)),
+            hasLength(0),
           ),
     );
+    expect(client.interceptors.isEmpty, isTrue);
 
     client.close();
   });

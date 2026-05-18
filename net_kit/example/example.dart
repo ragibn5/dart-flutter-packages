@@ -2,7 +2,7 @@ import 'package:net_kit/net_kit.dart';
 
 Future<void> main() async {
   final client = NetClientFactory().create(
-    clientConfig: const ClientConfig(
+    const ClientConfig(
       baseUrl: 'https://example.com/api',
       connectionTimeout: Duration(seconds: 5),
       receiveTimeout: Duration(seconds: 5),

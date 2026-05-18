@@ -5,7 +5,6 @@ import 'package:net_kit/src/clients/interceptor_pipeline.dart';
 import 'package:net_kit/src/clients/net_client.dart';
 import 'package:net_kit/src/clients/net_client_impl.dart';
 import 'package:net_kit/src/models/client_config.dart';
-import 'package:net_kit/src/services/interceptors/net_kit_interceptor.dart';
 
 /// Public construction entry point for [NetClient] implementations.
 final class NetClientFactory {
@@ -18,13 +17,10 @@ final class NetClientFactory {
 
   const NetClientFactory._(this._dioFactory);
 
-  NetClient create({
-    ClientConfig clientConfig = const ClientConfig(),
-    List<NetKitInterceptor> interceptors = const [],
-  }) {
+  NetClient create([ClientConfig clientConfig = const ClientConfig()]) {
     return NetClientImpl(
       clientConfig: clientConfig,
-      interceptorPipeline: InterceptorPipeline(interceptors: interceptors),
+      interceptorPipeline: InterceptorPipeline(),
       requestAdapter: DioRequestAdapter(_dioFactory.createDio(clientConfig)),
     );
   }
