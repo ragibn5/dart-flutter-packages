@@ -123,14 +123,14 @@ void main() {
   );
 
   test(
-    'execute returns error when request interceptor returns RejectRequest',
+    'execute returns error when request interceptor returns ShortRequestWithError',
     () async {
       const rejectError = TransportException(
         type: TransportExceptionType.BAD_CERTIFICATE,
         request: composedSpec,
       );
       when(() => mockInterceptor.onRequest(any()))
-          .thenAnswer((_) async => const RejectRequest(rejectError));
+          .thenAnswer((_) async => const ShortRequestWithError(rejectError));
 
       final result = await sut.execute(
         spec: spec,
@@ -155,10 +155,10 @@ void main() {
   );
 
   test(
-    'execute returns success when request interceptor returns ResolveRequest',
+    'execute returns success when request interceptor returns ShortRequestWithResponse',
     () async {
       when(() => mockInterceptor.onRequest(any()))
-          .thenAnswer((_) async => const ResolveRequest(rawResponse));
+          .thenAnswer((_) async => const ShortRequestWithResponse(rawResponse));
 
       final result = await sut.execute(
         spec: spec,
@@ -202,14 +202,14 @@ void main() {
   );
 
   test(
-    'execute returns error when response interceptor returns RejectResponse',
+    'execute returns error when response interceptor returns ShortResponseWithError',
     () async {
       const rejectError = TransportException(
         type: TransportExceptionType.BAD_CERTIFICATE,
         request: composedSpec,
       );
       when(() => mockInterceptor.onResponse(any()))
-          .thenAnswer((_) async => const RejectResponse(rejectError));
+          .thenAnswer((_) async => const ShortResponseWithError(rejectError));
 
       final result = await sut.execute(
         spec: spec,
@@ -226,10 +226,10 @@ void main() {
   );
 
   test(
-    'execute returns success when response interceptor returns ResolveResponse',
+    'execute returns success when response interceptor returns ShortResponseWithFinalResponse',
     () async {
       when(() => mockInterceptor.onResponse(any()))
-          .thenAnswer((_) async => const ResolveResponse(rawResponse));
+          .thenAnswer((_) async => const ShortResponseWithFinalResponse(rawResponse));
 
       final result = await sut.execute(
         spec: spec,
@@ -292,7 +292,7 @@ void main() {
   });
 
   test(
-    'execute returns error when error interceptor returns RejectError',
+    'execute returns error when error interceptor returns ShortErrorWithFinalError',
     () async {
       const rejectedError = TransportException(
         type: TransportExceptionType.BAD_CERTIFICATE,
@@ -307,7 +307,7 @@ void main() {
         (_) async => Result.error(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
-          .thenAnswer((_) async => const RejectError(rejectedError));
+          .thenAnswer((_) async => const ShortErrorWithFinalError(rejectedError));
 
       final result = await sut.execute(
         spec: spec,
@@ -324,7 +324,7 @@ void main() {
   );
 
   test(
-    'execute returns success when error interceptor returns RecoverError',
+    'execute returns success when error interceptor returns ShortErrorWithResponse',
     () async {
       when(() => mockRequestAdapter.performRequest(
             spec: any(named: 'spec'),
@@ -335,7 +335,7 @@ void main() {
         (_) async => Result.error(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
-          .thenAnswer((_) async => const RecoverError(rawResponse));
+          .thenAnswer((_) async => const ShortErrorWithResponse(rawResponse));
 
       final result = await sut.execute(
         spec: spec,

@@ -5,23 +5,25 @@ sealed class ErrorInterceptorResult {
   const ErrorInterceptorResult();
 }
 
-/// Pass through or replace the error, continuing to the next interceptor.
+/// Continues the interceptor chain with the (possibly replaced) error.
 final class ContinueWithError extends ErrorInterceptorResult {
   final NetKitException error;
 
   const ContinueWithError(this.error);
 }
 
-/// Short-circuit with this error, skipping remaining interceptors.
-final class RejectError extends ErrorInterceptorResult {
+/// Short-circuits the chain, returning this error immediately.
+/// Remaining interceptors are skipped.
+final class ShortErrorWithFinalError extends ErrorInterceptorResult {
   final NetKitException error;
 
-  const RejectError(this.error);
+  const ShortErrorWithFinalError(this.error);
 }
 
-/// Recover from the error and treat it as a successful response.
-final class RecoverError extends ErrorInterceptorResult {
+/// Short-circuits the chain, recovering from the error and returning a
+/// successful response instead. Remaining interceptors are skipped.
+final class ShortErrorWithResponse extends ErrorInterceptorResult {
   final RawResponse response;
 
-  const RecoverError(this.response);
+  const ShortErrorWithResponse(this.response);
 }

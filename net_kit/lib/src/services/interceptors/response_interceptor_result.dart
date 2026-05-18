@@ -5,23 +5,25 @@ sealed class ResponseInterceptorResult {
   const ResponseInterceptorResult();
 }
 
-/// Continue the pipeline with the (possibly modified) response.
+/// Continues the interceptor chain with the (possibly modified) response.
 final class ContinueWithResponse extends ResponseInterceptorResult {
   final RawResponse response;
 
   const ContinueWithResponse(this.response);
 }
 
-/// Reject the response and return an error instead.
-final class RejectResponse extends ResponseInterceptorResult {
+/// Short-circuits the chain, returning an error instead of the response.
+/// Remaining interceptors are skipped.
+final class ShortResponseWithError extends ResponseInterceptorResult {
   final NetKitException error;
 
-  const RejectResponse(this.error);
+  const ShortResponseWithError(this.error);
 }
 
-/// Short-circuit with this response, skipping remaining interceptors.
-final class ResolveResponse extends ResponseInterceptorResult {
+/// Short-circuits the chain, returning this response immediately.
+/// Remaining interceptors are skipped.
+final class ShortResponseWithFinalResponse extends ResponseInterceptorResult {
   final RawResponse response;
 
-  const ResolveResponse(this.response);
+  const ShortResponseWithFinalResponse(this.response);
 }

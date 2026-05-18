@@ -37,9 +37,9 @@ class NetClientImpl implements NetClient {
     switch (requestResult) {
       case ContinueWithRequest(:final request):
         composedSpec = request;
-      case RejectRequest(:final error):
+      case ShortRequestWithError(:final error):
         return Result.error(error);
-      case ResolveRequest(:final response):
+      case ShortRequestWithResponse(:final response):
         return Result.success(_buildResult(response, responseClassifier));
     }
 
@@ -85,9 +85,9 @@ class NetClientImpl implements NetClient {
       switch (result) {
         case ContinueWithResponse(:final response):
           ctx = response;
-        case RejectResponse(:final error):
+        case ShortResponseWithError(:final error):
           return Result.error(error);
-        case ResolveResponse(:final response):
+        case ShortResponseWithFinalResponse(:final response):
           return Result.success(_buildResult(response, responseClassifier));
       }
     }
@@ -107,9 +107,9 @@ class NetClientImpl implements NetClient {
       switch (result) {
         case ContinueWithError(:final error):
           currentError = error;
-        case RejectError(:final error):
+        case ShortErrorWithFinalError(:final error):
           return Result.error(error);
-        case RecoverError(:final response):
+        case ShortErrorWithResponse(:final response):
           return Result.success(_buildResult(response, responseClassifier));
       }
     }
