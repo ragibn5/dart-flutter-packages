@@ -11,6 +11,7 @@ import 'package:app_template/features/user_data/infrastructure/database/user_dat
 import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:app_template/shared/logger/app_logger_id.dart';
 import 'package:app_template/shared/logger/app_logger_impl.dart';
+import 'package:app_template/shared/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:app_template/shared/storage/database/app_database.dart';
@@ -101,16 +102,18 @@ abstract class SharedModule {
     SettingsService settingsService,
     AppLogger logger,
   ) {
-    return NetClientFactory().create(
-      clientConfig: ClientConfig(
+    final client = NetClientFactory().create(
+      ClientConfig(
         baseUrl: flavorConfig.baseUrl,
         connectionTimeout: const Duration(seconds: 10),
       ),
-      interceptors: [
-        MetadataAdderInterceptor(buildMetadata, settingsService),
-        LoggerInterceptor(logger),
-      ],
     );
+
+    client.interceptors
+      ..add(MetadataAdderInterceptor(buildMetadata, settingsService))
+      ..add(LoggerInterceptor(logger));
+
+    return client;
   }
 
   @singleton
@@ -123,17 +126,19 @@ abstract class SharedModule {
     SettingsService settingsService,
     AppServerTokenRefreshApiClient tokenRefreshApiClient,
   ) {
-    return NetClientFactory().create(
-      clientConfig: ClientConfig(
+    final client = NetClientFactory().create(
+      ClientConfig(
         baseUrl: flavorConfig.baseUrl,
         connectionTimeout: const Duration(seconds: 10),
       ),
-      interceptors: [
-        MetadataAdderInterceptor(buildMetadata, settingsService),
-        // AuthInterceptor here
-        LoggerInterceptor(logger),
-      ],
     );
+
+    client.interceptors
+      ..add(MetadataAdderInterceptor(buildMetadata, settingsService))
+      ..add(AuthInterceptor(client, authDataService))
+      ..add(LoggerInterceptor(logger));
+
+    return client;
   }
 
   AppServerTokenRefreshApiClient getAppServerTokenRefresherApiClient(
@@ -143,15 +148,15 @@ abstract class SharedModule {
     SettingsService settingsService,
   ) {
     final client = NetClientFactory().create(
-      clientConfig: ClientConfig(
+      ClientConfig(
         baseUrl: flavorConfig.baseUrl,
         connectionTimeout: const Duration(seconds: 10),
       ),
-      interceptors: [
-        MetadataAdderInterceptor(buildMetadata, settingsService),
-        LoggerInterceptor(logger),
-      ],
     );
+
+    client.interceptors
+      ..add(MetadataAdderInterceptor(buildMetadata, settingsService))
+      ..add(LoggerInterceptor(logger));
 
     return AppServerTokenRefreshApiClientImpl(client);
   }
