@@ -45,6 +45,20 @@ final class TransportException extends NetKitException {
     super.stackTrace,
   });
 
+  TransportException copyWith({
+    TransportExceptionType? type,
+    RequestSpec? request,
+    Object? cause,
+    StackTrace? stackTrace,
+  }) {
+    return TransportException(
+      type: type ?? this.type,
+      request: request ?? this.request,
+      cause: cause ?? this.cause,
+      stackTrace: stackTrace ?? this.stackTrace,
+    );
+  }
+
   @override
   String toString() {
     return 'TransportException {request: $request, type: $type}';
@@ -72,6 +86,22 @@ final class CancellationException extends NetKitException {
     super.stackTrace,
   });
 
+  CancellationException copyWith({
+    String? source,
+    String? message,
+    RequestSpec? request,
+    Object? cause,
+    StackTrace? stackTrace,
+  }) {
+    return CancellationException(
+      source: source ?? this.source,
+      message: message ?? this.message,
+      request: request ?? this.request,
+      cause: cause ?? this.cause,
+      stackTrace: stackTrace ?? this.stackTrace,
+    );
+  }
+
   @override
   String toString() {
     return 'CancellationException {request: $request, source: $source}';
@@ -96,6 +126,20 @@ final class UnexpectedException extends NetKitException {
     super.cause,
     super.stackTrace,
   });
+
+  UnexpectedException copyWith({
+    String? message,
+    RequestSpec? request,
+    Object? cause,
+    StackTrace? stackTrace,
+  }) {
+    return UnexpectedException(
+      message: message ?? this.message,
+      request: request ?? this.request,
+      cause: cause ?? this.cause,
+      stackTrace: stackTrace ?? this.stackTrace,
+    );
+  }
 
   @override
   String toString() {
