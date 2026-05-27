@@ -16,7 +16,7 @@ void main() {
 
   late DioExceptionMapper sut;
 
-  const requestSpec = RequestSpec(
+  final requestSpec = RequestSpec(
     pathOrUrl: '/test',
     method: HttpMethod.GET,
   );

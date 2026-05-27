@@ -36,7 +36,7 @@ void main() {
   const validateStatus = true;
   final dioCancelToken = CancelToken();
   final requestCanceller = RequestCanceller();
-  const requestSpec = RequestSpec(
+  final requestSpec = RequestSpec(
     pathOrUrl: path,
     method: method,
     body: requestBody,
@@ -99,11 +99,11 @@ void main() {
     expect(result.sendTimeout, requestSpec.sendTimeout);
     expect(result.receiveTimeout, requestSpec.receiveTimeout);
     expect(result.connectTimeout, requestSpec.connectionTimeout);
-    requestSpec.queryParameters?.forEach((key, value) {
+    requestSpec.queryParameters.forEach((key, value) {
       expect(result.queryParameters.containsKey(key), isTrue);
       expect(result.queryParameters[key], value);
     });
-    requestSpec.headers?.forEach((key, value) {
+    requestSpec.headers.forEach((key, value) {
       expect(result.headers.containsKey(key), isTrue);
       expect(result.headers[key], value);
     });

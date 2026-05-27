@@ -18,17 +18,17 @@ class _MockResponseClassifier extends Mock implements ResponseClassifier {}
 
 void main() {
   const clientConfig = ClientConfig(baseUrl: 'https://api.example.com');
-  const spec = RequestSpec(pathOrUrl: '/users', method: HttpMethod.GET);
-  const composedSpec = RequestSpec(
+  final spec = RequestSpec(pathOrUrl: '/users', method: HttpMethod.GET);
+  final composedSpec = RequestSpec(
     pathOrUrl: 'https://api.example.com/users',
     method: HttpMethod.GET,
     baseUrl: 'https://api.example.com',
   );
-  const netKitException = TransportException(
+  final netKitException = TransportException(
     type: TransportExceptionType.CONNECTION_ERROR,
     request: composedSpec,
   );
-  const rawResponse = RawResponse(
+  final rawResponse = RawResponse(
     statusCode: 200,
     request: composedSpec,
     rawResponseBody: {'id': 1},
@@ -36,7 +36,7 @@ void main() {
       'content-type': ['application/json']
     },
   );
-  const errorResponse = RawResponse(
+  final errorResponse = RawResponse(
     statusCode: 404,
     request: composedSpec,
     rawResponseBody: {'error': 'Not found'},
@@ -77,12 +77,12 @@ void main() {
     when(() => mockRequestComposer.compose(any(), any()))
         .thenReturn(composedSpec);
     when(() => mockInterceptor.onRequest(any()))
-        .thenAnswer((_) async => const ContinueWithRequest(spec));
+        .thenAnswer((_) async => ContinueWithRequest(spec));
     when(() => mockInterceptor.onResponse(any())).thenAnswer(
         (invocation) async => ContinueWithResponse(
             invocation.positionalArguments.first as RawResponse));
     when(() => mockInterceptor.onError(any()))
-        .thenAnswer((_) async => const ContinueWithError(netKitException));
+        .thenAnswer((_) async => ContinueWithError(netKitException));
     when(() => mockResponseClassifier.isError(any())).thenReturn(false);
     when(
       () => mockRequestAdapter.performRequest(
@@ -125,12 +125,12 @@ void main() {
   test(
     'execute returns error when request interceptor returns ShortRequestWithError',
     () async {
-      const rejectError = TransportException(
+      final rejectError = TransportException(
         type: TransportExceptionType.BAD_CERTIFICATE,
         request: composedSpec,
       );
       when(() => mockInterceptor.onRequest(any()))
-          .thenAnswer((_) async => const ShortRequestWithError(rejectError));
+          .thenAnswer((_) async => ShortRequestWithError(rejectError));
 
       final result = await sut.execute(
         spec: spec,
@@ -158,7 +158,7 @@ void main() {
     'execute returns success when request interceptor returns ShortRequestWithResponse',
     () async {
       when(() => mockInterceptor.onRequest(any()))
-          .thenAnswer((_) async => const ShortRequestWithResponse(rawResponse));
+          .thenAnswer((_) async => ShortRequestWithResponse(rawResponse));
 
       final result = await sut.execute(
         spec: spec,
@@ -204,12 +204,12 @@ void main() {
   test(
     'execute returns error when response interceptor returns ShortResponseWithError',
     () async {
-      const rejectError = TransportException(
+      final rejectError = TransportException(
         type: TransportExceptionType.BAD_CERTIFICATE,
         request: composedSpec,
       );
       when(() => mockInterceptor.onResponse(any()))
-          .thenAnswer((_) async => const ShortResponseWithError(rejectError));
+          .thenAnswer((_) async => ShortResponseWithError(rejectError));
 
       final result = await sut.execute(
         spec: spec,
@@ -228,8 +228,8 @@ void main() {
   test(
     'execute returns success when response interceptor returns ShortResponseWithFinalResponse',
     () async {
-      when(() => mockInterceptor.onResponse(any())).thenAnswer(
-          (_) async => const ShortResponseWithFinalResponse(rawResponse));
+      when(() => mockInterceptor.onResponse(any()))
+          .thenAnswer((_) async => ShortResponseWithFinalResponse(rawResponse));
 
       final result = await sut.execute(
         spec: spec,
@@ -247,7 +247,7 @@ void main() {
   test(
     'execute passes modified response when interceptor returns ContinueWithResponse',
     () async {
-      const modifiedResponse = RawResponse(
+      final modifiedResponse = RawResponse(
         statusCode: 201,
         rawResponseBody: {'id': 2, 'created': true},
         responseHeaders: {
@@ -255,8 +255,8 @@ void main() {
         },
         request: composedSpec,
       );
-      when(() => mockInterceptor.onResponse(any())).thenAnswer(
-          (_) async => const ContinueWithResponse(modifiedResponse));
+      when(() => mockInterceptor.onResponse(any()))
+          .thenAnswer((_) async => ContinueWithResponse(modifiedResponse));
 
       final result = await sut.execute(
         spec: spec,
@@ -294,7 +294,7 @@ void main() {
   test(
     'execute returns error when error interceptor returns ShortErrorWithFinalError',
     () async {
-      const rejectedError = TransportException(
+      final rejectedError = TransportException(
         type: TransportExceptionType.BAD_CERTIFICATE,
         request: composedSpec,
       );
@@ -306,8 +306,8 @@ void main() {
           )).thenAnswer(
         (_) async => Result.error(netKitException),
       );
-      when(() => mockInterceptor.onError(any())).thenAnswer(
-          (_) async => const ShortErrorWithFinalError(rejectedError));
+      when(() => mockInterceptor.onError(any()))
+          .thenAnswer((_) async => ShortErrorWithFinalError(rejectedError));
 
       final result = await sut.execute(
         spec: spec,
@@ -335,7 +335,7 @@ void main() {
         (_) async => Result.error(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
-          .thenAnswer((_) async => const ShortErrorWithResponse(rawResponse));
+          .thenAnswer((_) async => ShortErrorWithResponse(rawResponse));
 
       final result = await sut.execute(
         spec: spec,
@@ -353,7 +353,7 @@ void main() {
   test(
     'execute passes modified error when interceptor returns ContinueWithError',
     () async {
-      const modifiedError = TransportException(
+      final modifiedError = TransportException(
         type: TransportExceptionType.SEND_TIMEOUT,
         request: composedSpec,
       );
@@ -366,7 +366,7 @@ void main() {
         (_) async => Result.error(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
-          .thenAnswer((_) async => const ContinueWithError(modifiedError));
+          .thenAnswer((_) async => ContinueWithError(modifiedError));
 
       final result = await sut.execute(
         spec: spec,
@@ -398,11 +398,11 @@ void main() {
   test('execute handles multiple interceptors in order', () async {
     final interceptor2 = _MockNetKitInterceptor();
     when(() => interceptor2.onRequest(any()))
-        .thenAnswer((_) async => const ContinueWithRequest(spec));
+        .thenAnswer((_) async => ContinueWithRequest(spec));
     when(() => interceptor2.onResponse(any()))
-        .thenAnswer((_) async => const ContinueWithResponse(rawResponse));
+        .thenAnswer((_) async => ContinueWithResponse(rawResponse));
     when(() => interceptor2.onError(any()))
-        .thenAnswer((_) async => const ContinueWithError(netKitException));
+        .thenAnswer((_) async => ContinueWithError(netKitException));
 
     final multiInterceptorSut = NetClientImpl(
       clientConfig: clientConfig,
@@ -450,11 +450,11 @@ void main() {
   test('Added interceptor runs during execute', () async {
     final interceptor2 = _MockNetKitInterceptor();
     when(() => interceptor2.onRequest(any()))
-        .thenAnswer((_) async => const ContinueWithRequest(spec));
+        .thenAnswer((_) async => ContinueWithRequest(spec));
     when(() => interceptor2.onResponse(any()))
-        .thenAnswer((_) async => const ContinueWithResponse(rawResponse));
+        .thenAnswer((_) async => ContinueWithResponse(rawResponse));
     when(() => interceptor2.onError(any()))
-        .thenAnswer((_) async => const ContinueWithError(netKitException));
+        .thenAnswer((_) async => ContinueWithError(netKitException));
 
     sut.interceptors.add(interceptor2);
 

@@ -8,14 +8,14 @@ import 'package:test/test.dart';
 void main() {
   const sut = DefaultResponseClassifier();
 
-  const request = RequestSpec(
+  final request = RequestSpec(
     pathOrUrl: '/users',
     method: HttpMethod.GET,
-    body: JsonBody({}),
+    body: const JsonBody({}),
   );
 
   test('Status code below 400 returns false', () {
-    const response = RawResponse(
+    final response = RawResponse(
       statusCode: 399,
       responseHeaders: {},
       rawResponseBody: null,
@@ -26,7 +26,7 @@ void main() {
   });
 
   test('Status code 400 or above returns true', () {
-    const response = RawResponse(
+    final response = RawResponse(
       statusCode: 400,
       responseHeaders: {},
       rawResponseBody: null,
@@ -37,7 +37,7 @@ void main() {
   });
 
   test('Status code 0 returns false', () {
-    const response = RawResponse(
+    final response = RawResponse(
       statusCode: 0,
       responseHeaders: {},
       rawResponseBody: null,

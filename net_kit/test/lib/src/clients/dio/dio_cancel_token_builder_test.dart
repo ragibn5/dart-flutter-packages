@@ -9,10 +9,10 @@ import 'package:net_kit/src/services/cancellation/request_canceller.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const spec = RequestSpec(
+  final spec = RequestSpec(
     pathOrUrl: '/users',
     method: HttpMethod.POST,
-    body: JsonBody({'name': 'Alice'}),
+    body: const JsonBody({'name': 'Alice'}),
   );
 
   late DioCancelTokenBuilder sut;

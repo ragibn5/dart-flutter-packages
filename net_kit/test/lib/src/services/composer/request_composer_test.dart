@@ -34,13 +34,13 @@ void main() {
   test(
     'Source values take precedence over client config for simple fields',
     () {
-      const source = RequestSpec(
+      final source = RequestSpec(
         pathOrUrl: testPath,
         method: HttpMethod.GET,
         baseUrl: sourceBaseUrl,
         sendTimeout: timeout60s,
         receiveTimeout: timeout60s,
-        connectionTimeout: Duration(seconds: 20),
+        connectionTimeout: const Duration(seconds: 20),
         followRedirects: false,
         maxRedirects: 10,
       );
@@ -57,7 +57,7 @@ void main() {
   );
 
   test('Client config values used when source values are null', () {
-    const source = RequestSpec(
+    final source = RequestSpec(
       pathOrUrl: testPath,
       method: HttpMethod.GET,
     );
@@ -79,7 +79,7 @@ void main() {
         'Authorization': clientToken,
         'X-Client-Only': 'client-value',
       });
-      const source = RequestSpec(
+      final source = RequestSpec(
         pathOrUrl: testPath,
         method: HttpMethod.GET,
         headers: {
@@ -105,7 +105,7 @@ void main() {
         'clientParam': 'clientValue',
         'clientOnlyParam': 'clientOnlyValue',
       });
-      const source = RequestSpec(
+      final source = RequestSpec(
         pathOrUrl: testPath,
         method: HttpMethod.GET,
         queryParameters: {
@@ -124,9 +124,9 @@ void main() {
     },
   );
 
-  test('Null source and config values default to null except booleans', () {
+  test('Null source and config values default to empty maps and nulls', () {
     const emptyConfig = ClientConfig();
-    const source = RequestSpec(pathOrUrl: testPath, method: HttpMethod.GET);
+    final source = RequestSpec(pathOrUrl: testPath, method: HttpMethod.GET);
 
     final result = sut.compose(source, emptyConfig);
 
@@ -134,14 +134,14 @@ void main() {
     expect(result.sendTimeout, null);
     expect(result.receiveTimeout, null);
     expect(result.connectionTimeout, null);
-    expect(result.headers, null);
-    expect(result.queryParameters, null);
+    expect(result.headers, <String, dynamic>{});
+    expect(result.queryParameters, <String, dynamic>{});
     expect(result.followRedirects, true);
     expect(result.maxRedirects, 5);
   });
 
   test('Source empty maps inherit client config maps', () {
-    const source = RequestSpec(
+    final source = RequestSpec(
       pathOrUrl: testPath,
       method: HttpMethod.GET,
       headers: {},
@@ -155,7 +155,7 @@ void main() {
   });
 
   test('Source overrides and merges with client config simultaneously', () {
-    const source = RequestSpec(
+    final source = RequestSpec(
       pathOrUrl: complexPath,
       method: HttpMethod.POST,
       baseUrl: overrideBaseUrl,

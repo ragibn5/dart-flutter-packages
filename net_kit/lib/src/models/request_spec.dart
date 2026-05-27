@@ -11,16 +11,16 @@ class RequestSpec implements Mappable {
   /// The HTTP method to use for this request.
   final HttpMethod method;
 
+  /// Request specific query params.
+  final Map<String, dynamic> queryParameters;
+
+  /// Request specific headers.
+  final Map<String, dynamic> headers;
+
   /// The request body to send.
   ///
   /// NOTE: Pass `null` for requests with no body.
   final RequestBody? body;
-
-  /// Optional query parameters appended to the URL.
-  final Map<String, dynamic>? queryParameters;
-
-  /// Additional headers to merge with the client-level headers.
-  final Map<String, dynamic>? headers;
 
   /// The base URL.
   final String? baseUrl;
@@ -40,19 +40,52 @@ class RequestSpec implements Mappable {
   /// Maximum number of redirects to follow.
   final int? maxRedirects;
 
-  const RequestSpec({
+  RequestSpec({
     required this.pathOrUrl,
     required this.method,
+    Map<String, dynamic> queryParameters = const {},
+    Map<String, dynamic> headers = const {},
     this.body,
-    this.queryParameters,
-    this.headers,
     this.baseUrl,
     this.sendTimeout,
     this.receiveTimeout,
     this.connectionTimeout,
     this.followRedirects,
     this.maxRedirects,
-  });
+  })  : queryParameters = Map.of(queryParameters),
+        headers = Map.of(headers);
+
+  /// A uri constructed by combining [baseUrl], [pathOrUrl],
+  /// and [queryParameters].
+  ///
+  /// **Note:**
+  /// The actual api call execution may not use this to deduce the url it hits.
+  /// So, use it for logging, debugging, and display purposes, but not for app
+  /// flow, or anything important.
+  Uri get uri {
+    final base = baseUrl;
+    final qp = queryParameters;
+
+    Map<String, String>? resolvedQp;
+    if (qp.isNotEmpty) {
+      resolvedQp = qp.map((k, v) => MapEntry(k, '$v'));
+    }
+
+    if (base == null) {
+      return Uri.parse(pathOrUrl).replace(queryParameters: resolvedQp);
+    }
+
+    final parsed = Uri.parse(pathOrUrl);
+    if (parsed.hasScheme) {
+      return parsed.replace(queryParameters: resolvedQp);
+    }
+
+    final prefix = base.endsWith('/') ? base : '$base/';
+    final path = pathOrUrl.startsWith('/') ? pathOrUrl.substring(1) : pathOrUrl;
+    return Uri.parse('$prefix$path')
+        .replace(queryParameters: resolvedQp)
+        .normalizePath();
+  }
 
   RequestSpec copyWith({
     String? pathOrUrl,
@@ -80,38 +113,6 @@ class RequestSpec implements Mappable {
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
     );
-  }
-
-  /// A uri constructed by combining [baseUrl], [pathOrUrl],
-  /// and [queryParameters].
-  ///
-  /// **Note:**
-  /// The actual api call execution may not use this to deduce the url it hits.
-  /// So, use it for logging, debugging, and display purposes, but not for app
-  /// flow, or anything important.
-  Uri get uri {
-    final base = baseUrl;
-    final qp = queryParameters;
-
-    Map<String, String>? resolvedQp;
-    if (qp != null && qp.isNotEmpty) {
-      resolvedQp = qp.map((k, v) => MapEntry(k, '$v'));
-    }
-
-    if (base == null) {
-      return Uri.parse(pathOrUrl).replace(queryParameters: resolvedQp);
-    }
-
-    final parsed = Uri.parse(pathOrUrl);
-    if (parsed.hasScheme) {
-      return parsed.replace(queryParameters: resolvedQp);
-    }
-
-    final prefix = base.endsWith('/') ? base : '$base/';
-    final path = pathOrUrl.startsWith('/') ? pathOrUrl.substring(1) : pathOrUrl;
-    return Uri.parse('$prefix$path')
-        .replace(queryParameters: resolvedQp)
-        .normalizePath();
   }
 
   @override

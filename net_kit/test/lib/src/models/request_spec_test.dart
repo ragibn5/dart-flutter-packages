@@ -4,12 +4,12 @@ import 'package:test/test.dart';
 void main() {
   group('uri', () {
     test('Returns pathOrUrl as-is when no baseUrl is given', () {
-      const spec = RequestSpec(pathOrUrl: '/users', method: HttpMethod.GET);
+      final spec = RequestSpec(pathOrUrl: '/users', method: HttpMethod.GET);
       expect(spec.uri.toString(), '/users');
     });
 
     test('Appends query parameters when no baseUrl is given', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: '/users',
         method: HttpMethod.GET,
         queryParameters: {'role': 'admin'},
@@ -18,7 +18,7 @@ void main() {
     });
 
     test('Joins baseUrl with relative path', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: '/users',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com',
@@ -27,7 +27,7 @@ void main() {
     });
 
     test('Handles baseUrl with trailing slash', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: 'users',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com/',
@@ -38,7 +38,7 @@ void main() {
     test(
       'Handles path with leading slash and baseUrl without trailing slash',
       () {
-        const spec = RequestSpec(
+        final spec = RequestSpec(
           pathOrUrl: '/users',
           method: HttpMethod.GET,
           baseUrl: 'https://api.example.com',
@@ -48,7 +48,7 @@ void main() {
     );
 
     test('Includes query parameters in the constructed URL', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: '/users',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com',
@@ -61,7 +61,7 @@ void main() {
     });
 
     test('Uses pathOrUrl as-is when it already has a scheme', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: 'https://other.com/users',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com',
@@ -70,7 +70,7 @@ void main() {
     });
 
     test('Appends query params to a full URL', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: 'https://other.com/users',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com',
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('Coerces non-string query param values to strings', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: '/search',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com',
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('Ignores empty query parameters map', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: '/users',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com',
@@ -106,7 +106,7 @@ void main() {
     });
 
     test('Ignores null query parameters', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: '/users',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com',
@@ -115,7 +115,7 @@ void main() {
     });
 
     test('Normalizes dot segments in the path', () {
-      const spec = RequestSpec(
+      final spec = RequestSpec(
         pathOrUrl: '/users/../users',
         method: HttpMethod.GET,
         baseUrl: 'https://api.example.com',
