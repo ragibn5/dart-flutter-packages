@@ -13,6 +13,16 @@ final class RawBody extends RequestBody {
 
   const RawBody(this.data, {required super.contentType});
 
+  RawBody copyWith({
+    RawData? data,
+    String? contentType,
+  }) {
+    return RawBody(
+      data ?? this.data,
+      contentType: contentType ?? this.contentType,
+    );
+  }
+
   @override
   Map<String, dynamic> toMap() {
     return {'data': data.toMap()};
@@ -24,6 +34,16 @@ final class JsonBody extends RequestBody {
 
   const JsonBody(this.data, {super.contentType = 'application/json'});
 
+  JsonBody copyWith({
+    Map<String, dynamic>? data,
+    String? contentType,
+  }) {
+    return JsonBody(
+      data ?? this.data,
+      contentType: contentType ?? this.contentType,
+    );
+  }
+
   @override
   Map<String, dynamic> toMap() {
     return {'data': data};
@@ -33,10 +53,20 @@ final class JsonBody extends RequestBody {
 final class FormUrlEncodedBody extends RequestBody {
   final Map<String, String> fields;
 
-  const FormUrlEncodedBody({
-    this.fields = const {},
+  const FormUrlEncodedBody(
+    this.fields, {
     super.contentType = 'application/x-www-form-urlencoded',
   });
+
+  FormUrlEncodedBody copyWith({
+    Map<String, String>? fields,
+    String? contentType,
+  }) {
+    return FormUrlEncodedBody(
+      fields ?? this.fields,
+      contentType: contentType ?? this.contentType,
+    );
+  }
 
   @override
   Map<String, dynamic> toMap() {
@@ -48,11 +78,23 @@ final class MultipartBody extends RequestBody {
   final Map<String, String> fields;
   final List<MultipartFilePart> files;
 
-  const MultipartBody({
-    this.fields = const {},
-    this.files = const [],
+  const MultipartBody(
+    this.fields,
+    this.files, {
     super.contentType = 'multipart/form-data',
   });
+
+  MultipartBody copyWith({
+    Map<String, String>? fields,
+    List<MultipartFilePart>? files,
+    String? contentType,
+  }) {
+    return MultipartBody(
+      fields ?? this.fields,
+      files ?? this.files,
+      contentType: contentType ?? this.contentType,
+    );
+  }
 
   @override
   Map<String, dynamic> toMap() {

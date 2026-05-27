@@ -68,7 +68,7 @@ void main() {
 
   test('FormUrlEncoded bodies are transformed to the original fields', () {
     final result = sut.transform(
-      const FormUrlEncodedBody(fields: {'name': 'net_kit'}),
+      const FormUrlEncodedBody({'name': 'net_kit'}),
     );
 
     expect(result, {'name': 'net_kit'});
@@ -78,8 +78,8 @@ void main() {
     final streamController = StreamController<List<int>>();
     final result = sut.transform(
       MultipartBody(
-        fields: const {'title': 'avatar'},
-        files: [
+        const {'title': 'avatar'},
+        [
           const MultipartFilePart(
             fieldName: 'bytes',
             fileName: 'avatar.bin',

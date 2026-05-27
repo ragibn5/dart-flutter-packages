@@ -18,6 +18,22 @@ final class MultipartFilePart implements Mappable {
     this.headers,
   });
 
+  MultipartFilePart copyWith({
+    String? fieldName,
+    String? fileName,
+    FileSource? source,
+    String? contentType,
+    Map<String, String>? headers,
+  }) {
+    return MultipartFilePart(
+      fieldName: fieldName ?? this.fieldName,
+      fileName: fileName ?? this.fileName,
+      source: source ?? this.source,
+      contentType: contentType ?? this.contentType,
+      headers: headers ?? this.headers,
+    );
+  }
+
   @override
   Map<String, dynamic> toMap() {
     return {
