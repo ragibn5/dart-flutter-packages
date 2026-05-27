@@ -21,6 +21,20 @@ class RawResponse implements Mappable {
     required this.request,
   });
 
+  RawResponse copyWith({
+    int? statusCode,
+    Object? rawResponseBody,
+    Map<String, List<String>>? responseHeaders,
+    RequestSpec? request,
+  }) {
+    return RawResponse(
+      statusCode: statusCode ?? this.statusCode,
+      rawResponseBody: rawResponseBody ?? this.rawResponseBody,
+      responseHeaders: responseHeaders ?? this.responseHeaders,
+      request: request ?? this.request,
+    );
+  }
+
   @override
   Map<String, dynamic> toMap() {
     return {
