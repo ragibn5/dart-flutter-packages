@@ -1,10 +1,9 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/result.dart';
+import 'package:app_template/core/models/either.dart';
 import 'package:app_template/core/models/server_message.dart';
 import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart';
 import 'package:app_template/features/auth/data/mappers/auth_refresh_error_mapper.dart';
@@ -29,23 +28,6 @@ class _MockLocalAuthDataDataSource extends Mock
 class _MockRemoteAuthDataDataSource extends Mock
     implements RemoteAuthDataSource {}
 
-class _MockAuthDataStreamController extends Mock
-    implements StreamController<AuthData?> {}
-
-class _MockAuthDataStream extends Mock implements Stream<AuthData?> {}
-
-extension _AuthDataDTOToEntity on AuthDataDTO {
-  AuthData toEntity() {
-    return AuthData(
-      userId: userId,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      accessTokenExpiry: accessTokenExpiry,
-      refreshTokenExpiry: refreshTokenExpiry,
-    );
-  }
-}
-
 void main() {
   const tokenRefreshRequest = TokenRefreshRequest(refreshToken: 'refreshToken');
 
@@ -63,32 +45,28 @@ void main() {
     accessTokenExpiry: DateTime.now(),
     refreshTokenExpiry: DateTime.now(),
   );
-  final authData = authDataDTO.toEntity();
-  final refreshedAuthData = refreshedAuthDataDTO.toEntity();
-  final succeededAuthRefreshResult =
-      Result<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.success(
-        refreshedAuthDataDTO,
-      );
-  final authRefreshDataError = ApiError.fromServerError(
-    const ServerError(
-      statusCode: HttpStatus.unauthorized,
-      errorResponse: ServerMessage(code: 'refresh_token_expired'),
-    ),
+  final authData = AuthData(
+    userId: authDataDTO.userId,
+    accessToken: authDataDTO.accessToken,
+    refreshToken: authDataDTO.refreshToken,
+    accessTokenExpiry: authDataDTO.accessTokenExpiry,
+    refreshTokenExpiry: authDataDTO.refreshTokenExpiry,
   );
-  final authRefreshDomainError = ApiError.fromServerError(
-    InvalidRefreshToken(),
+  final refreshedAuthData = AuthData(
+    userId: refreshedAuthDataDTO.userId,
+    accessToken: refreshedAuthDataDTO.accessToken,
+    refreshToken: refreshedAuthDataDTO.refreshToken,
+    accessTokenExpiry: refreshedAuthDataDTO.accessTokenExpiry,
+    refreshTokenExpiry: refreshedAuthDataDTO.refreshTokenExpiry,
   );
-  final failedAuthRefreshResult =
-      Result<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.failure(
-        authRefreshDataError,
-      );
+  const serverMessage = ServerMessage(code: 'refresh_token_expired');
+  final authRefreshDomainError = InvalidRefreshToken();
 
-  late _MockAuthDataMapper mockAuthDataMapper;
-  late _MockAuthDataRefreshErrorMapper mockAuthDataRefreshErrorMapper;
-  late _MockAuthDataStreamController mockAuthDataStreamController;
-  late _MockLocalAuthDataDataSource mockLocalAuthDataSource;
-  late _MockRemoteAuthDataDataSource mockRemoteAuthDataSource;
-  late _MockAuthDataStream mockAuthDataStream;
+  late AuthDataMapper mockAuthDataMapper;
+  late AuthRefreshErrorMapper mockAuthDataRefreshErrorMapper;
+  late StreamController<AuthData?> authDataStreamController;
+  late LocalAuthDataSource mockLocalAuthDataSource;
+  late RemoteAuthDataSource mockRemoteAuthDataSource;
 
   late AuthDataRepositoryImpl sut;
 
@@ -96,21 +74,20 @@ void main() {
     registerFallbackValue(authData);
     registerFallbackValue(authDataDTO);
     registerFallbackValue(tokenRefreshRequest);
-    registerFallbackValue(authRefreshDataError);
+    registerFallbackValue(serverMessage);
   });
 
   setUp(() {
     mockAuthDataMapper = _MockAuthDataMapper();
     mockAuthDataRefreshErrorMapper = _MockAuthDataRefreshErrorMapper();
-    mockAuthDataStreamController = _MockAuthDataStreamController();
+    authDataStreamController = StreamController.broadcast();
     mockLocalAuthDataSource = _MockLocalAuthDataDataSource();
     mockRemoteAuthDataSource = _MockRemoteAuthDataDataSource();
-    mockAuthDataStream = _MockAuthDataStream();
 
     sut = AuthDataRepositoryImpl.test(
       mockAuthDataMapper,
       mockAuthDataRefreshErrorMapper,
-      mockAuthDataStreamController,
+      authDataStreamController,
       mockLocalAuthDataSource,
       mockRemoteAuthDataSource,
     );
@@ -128,9 +105,7 @@ void main() {
       () => mockAuthDataMapper.convertDomainToData(refreshedAuthData),
     ).thenAnswer((_) => refreshedAuthDataDTO);
     when(
-      () => mockAuthDataRefreshErrorMapper.convertDataToDomain(
-        authRefreshDataError,
-      ),
+      () => mockAuthDataRefreshErrorMapper.convertDataToDomain(serverMessage),
     ).thenAnswer((_) => authRefreshDomainError);
     when(
       () => mockLocalAuthDataSource.getCurrentAuthData(),
@@ -138,15 +113,6 @@ void main() {
     when(
       () => mockLocalAuthDataSource.setCurrentAuthData(any()),
     ).thenAnswer((_) async {});
-    when(
-      () => mockAuthDataStreamController.stream,
-    ).thenAnswer((_) => mockAuthDataStream);
-    when(
-      () => mockAuthDataStreamController.add(any()),
-    ).thenAnswer((_) async {});
-    when(
-      () => mockAuthDataStreamController.close(),
-    ).thenAnswer((_) async => {});
   });
 
   tearDown(() {
@@ -188,12 +154,10 @@ void main() {
   test(
     'setCurrentAuthData(null) should add to the auth data stream and call AuthDataSource.setCurrentAuthData with null',
     () async {
-      // When NULL
       await sut.setCurrentAuthData(null);
 
-      verify(() => mockAuthDataStreamController.add(null)).called(1);
-      verifyNever(() => mockAuthDataMapper.convertDomainToData(authData));
       verify(() => mockLocalAuthDataSource.setCurrentAuthData(null)).called(1);
+      verifyNever(() => mockAuthDataMapper.convertDomainToData(authData));
     },
   );
 
@@ -202,7 +166,6 @@ void main() {
     () async {
       await sut.setCurrentAuthData(authData);
 
-      verify(() => mockAuthDataStreamController.add(authData)).called(1);
       verify(() => mockAuthDataMapper.convertDomainToData(authData)).called(1);
       verify(
         () => mockLocalAuthDataSource.setCurrentAuthData(authDataDTO),
@@ -211,11 +174,11 @@ void main() {
   );
 
   test(
-    'refreshCurrentAuthData success, emits, persists, and returns refreshed domain auth data',
+    'refreshCurrentAuthData success, persists and returns refreshed domain auth data',
     () async {
       when(
         () => mockRemoteAuthDataSource.getRefreshedAuthData(any()),
-      ).thenAnswer((_) async => succeededAuthRefreshResult);
+      ).thenAnswer((_) async => Right(Right(refreshedAuthDataDTO)));
 
       final result = await sut.refreshCurrentAuthData(authData);
 
@@ -231,17 +194,22 @@ void main() {
         () => mockAuthDataMapper.convertDataToDomain(refreshedAuthDataDTO),
       ).called(1);
 
-      // Side effects
+      // Persistence side effects
       verify(
-        () => mockAuthDataStreamController.add(refreshedAuthData),
+        () => mockAuthDataMapper.convertDomainToData(refreshedAuthData),
       ).called(1);
       verify(
         () => mockLocalAuthDataSource.setCurrentAuthData(refreshedAuthDataDTO),
       ).called(1);
 
       // Return
-      expect(result.isSuccess, true);
-      expect(result.dataOrNull, refreshedAuthData);
+      result.fold(
+        onLeft: (_) => fail('Expected success'),
+        onRight: (inner) => inner.fold(
+          onLeft: (_) => fail('Expected success'),
+          onRight: (data) => expect(data, refreshedAuthData),
+        ),
+      );
     },
   );
 
@@ -250,7 +218,10 @@ void main() {
     () async {
       when(
         () => mockRemoteAuthDataSource.getRefreshedAuthData(any()),
-      ).thenAnswer((_) async => failedAuthRefreshResult);
+      ).thenAnswer((_) async => Left(const UnexpectedError(
+        cause: 'error',
+        stackTrace: StackTrace.empty,
+      )));
 
       final result = await sut.refreshCurrentAuthData(authData);
 
@@ -261,26 +232,56 @@ void main() {
         ),
       ).called(1);
 
-      // Mapping
-      verify(
+      // No side effects on transport error
+      verifyNever(
         () => mockAuthDataRefreshErrorMapper.convertDataToDomain(any()),
-      ).called(1);
+      );
 
       // Return
-      expect(result.isError, true);
-      expect(result.errorOrNull, authRefreshDomainError);
+      result.fold(
+        onLeft: (error) => expect(error, isA<UnexpectedError>()),
+        onRight: (_) => fail('Expected failure'),
+      );
+    },
+  );
+
+  test(
+    'On server error, refreshCurrentAuthData should map to domain error',
+    () async {
+      when(
+        () => mockRemoteAuthDataSource.getRefreshedAuthData(any()),
+      ).thenAnswer((_) async => Right(Left(serverMessage)));
+
+      final result = await sut.refreshCurrentAuthData(authData);
+
+      // Error mapping
+      verify(
+        () => mockAuthDataRefreshErrorMapper.convertDataToDomain(serverMessage),
+      ).called(1);
+
+      // No success side effects
+      verifyNever(() => mockAuthDataMapper.convertDataToDomain(any()));
+
+      // Return
+      result.fold(
+        onLeft: (_) => fail('Expected a server error result'),
+        onRight: (inner) => inner.fold(
+          onLeft: (error) => expect(error, isA<InvalidRefreshToken>()),
+          onRight: (_) => fail('Expected server error'),
+        ),
+      );
     },
   );
 
   test('getAuthDataStream should return the auth data stream', () async {
     final result = sut.getAuthDataStream();
 
-    expect(result, mockAuthDataStream);
+    expect(result, authDataStreamController.stream);
   });
 
   test('Dispose should close the auth data stream', () async {
     sut.dispose();
 
-    verify(() => mockAuthDataStreamController.close()).called(1);
+    expect(authDataStreamController.isClosed, true);
   });
 }

@@ -87,10 +87,14 @@ class AuthDataRepositoryImpl implements AuthDataRepository {
     final result = await _remoteAuthDataSource.getRefreshedAuthData(request);
     return result.fold(
       onLeft: Left.new,
-      onRight: (r) => Right(
-        r.fold(
+      onRight: (r) async => Right(
+        await r.fold(
           onLeft: (l) => Left(_authRefreshErrorMapper.convertDataToDomain(l)),
-          onRight: (r) => Right(_authDataMapper.convertDataToDomain(r)),
+          onRight: (r) async {
+            final authData = _authDataMapper.convertDataToDomain(r);
+            await setCurrentAuthData(authData);
+            return Right(authData);
+          },
         ),
       ),
     );
