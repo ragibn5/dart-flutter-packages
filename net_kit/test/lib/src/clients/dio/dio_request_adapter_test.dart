@@ -139,6 +139,23 @@ void main() {
   );
 
   test(
+    'performRequest defensively copies response headers',
+    () async {
+      final result = await sut.performRequest(
+        spec: spec,
+        requestCanceller: requestCanceller,
+        onSendProgress: sendListener,
+        onReceiveProgress: receiveListener,
+      );
+
+      final modelResponse = result.resultOrThrow;
+      final dioMap = rawResponse.headers.map;
+
+      expect(identical(modelResponse.responseHeaders, dioMap), isFalse);
+    },
+  );
+
+  test(
     'performRequest returns NetKitException returned by DioExceptionMapper',
     () async {
       when(() => mockDio.fetch<dynamic>(requestOptions))

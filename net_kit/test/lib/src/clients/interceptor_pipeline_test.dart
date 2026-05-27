@@ -72,6 +72,26 @@ void main() {
     expect(pipeline.length, 1);
   });
 
+  test('Constructor defensively copies interceptors list', () {
+    final a = _FakeInterceptor();
+    final input = [a];
+    final pipeline = InterceptorPipeline(interceptors: input);
+
+    expect(identical(pipeline.snapshot(), input), isFalse);
+  });
+
+  test('Mutating input list after construction does not affect pipeline', () {
+    final a = _FakeInterceptor();
+    final b = _FakeInterceptor();
+    final input = [a, b];
+    final pipeline = InterceptorPipeline(interceptors: input);
+
+    input.clear();
+
+    expect(pipeline.snapshot(), orderedEquals([a, b]));
+    expect(pipeline.length, 2);
+  });
+
   test('AddAll appends multiple interceptors in order', () {
     final a = _FakeInterceptor();
     final b = _FakeInterceptor();
