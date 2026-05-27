@@ -51,7 +51,7 @@ class DioRequestAdapter implements NetworkRequestAdapter {
       return Result.success(
         RawResponse(
           statusCode: response.statusCode ?? _defaultResponseCode,
-          responseHeaders: response.headers.map,
+          responseHeaders: Map.of(response.headers.map),
           rawResponseBody: response.data,
           request: spec,
         ),
