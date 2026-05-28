@@ -4,31 +4,18 @@
 import 'dart:io';
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/result.dart';
+import 'package:app_template/core/models/either.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
-import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/shared/network/interceptors/auth_interceptor.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/net_kit.dart';
 
-class _MockDio extends Mock implements Dio {}
+class _MockNetClient extends Mock implements NetClient {}
 
 class _MockAuthDataService extends Mock implements AuthDataService {}
-
-class _MockRequestInterceptorHandler extends Mock
-    implements RequestInterceptorHandler {}
-
-class _MockErrorInterceptorHandler extends Mock
-    implements ErrorInterceptorHandler {}
-
-class _FakeRequestOptions extends Fake implements RequestOptions {}
-
-class _FakeDioException extends Fake implements DioException {}
-
-class _FakeResponse extends Fake implements Response<dynamic> {}
 
 void main() {
   const userId = 'userId';
@@ -36,21 +23,19 @@ void main() {
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.2DPnF-zMjAka6iaq_JE-Tq1ir4d-OALNh-k96HRVLiY';
   const newAccessToken =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTYxNjIzOTAyMn0.BtpKXeC14PNaSjwp-ZvgcNZYoM9cd5UZp9C_86q-MCk';
-  const refreshToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MjAxNjIzOTAyMn0.BcjQmLA8URPyxBh8LR0wt45-bWd9Fy1bfpWyn2ctix8';
   final accessTokenExpiry = DateTime.now().add(const Duration(days: 1));
   final refreshTokenExpiry = accessTokenExpiry.add(const Duration(days: 1));
   final authData = AuthData(
     userId: userId,
     accessToken: accessToken,
-    refreshToken: refreshToken,
+    refreshToken: accessToken,
     accessTokenExpiry: accessTokenExpiry,
     refreshTokenExpiry: refreshTokenExpiry,
   );
   final newAuthData = AuthData(
     userId: userId,
     accessToken: newAccessToken,
-    refreshToken: refreshToken,
+    refreshToken: accessToken,
     accessTokenExpiry: accessTokenExpiry,
     refreshTokenExpiry: refreshTokenExpiry,
   );
@@ -58,37 +43,31 @@ void main() {
     refreshToken: authData.refreshToken,
   );
 
-  late Map<String, String> emptyHeaders;
-  late RequestOptions emptyRequestOptions;
-  late Map<String, String> authedHeaders;
-  late RequestOptions authedRequestOptions;
-
-  late _MockDio mockClient;
+  late RequestSpec authedRequest;
+  late RequestSpec emptyRequest;
+  late _MockNetClient mockClient;
   late _MockAuthDataService mockAuthDataService;
-  late _MockRequestInterceptorHandler mockRequestHandler;
-  late _MockErrorInterceptorHandler mockErrorHandler;
 
   late AuthInterceptor sut;
 
   setUpAll(() {
     registerFallbackValue(tokenRefreshRequest);
-    registerFallbackValue(_FakeRequestOptions());
-    registerFallbackValue(_FakeDioException());
-    registerFallbackValue(_FakeResponse());
+    registerFallbackValue(RequestSpec(pathOrUrl: '', method: HttpMethod.GET));
   });
 
   setUp(() {
-    mockClient = _MockDio();
+    mockClient = _MockNetClient();
     mockAuthDataService = _MockAuthDataService();
-    mockRequestHandler = _MockRequestInterceptorHandler();
-    mockErrorHandler = _MockErrorInterceptorHandler();
 
-    emptyHeaders = {};
-    emptyRequestOptions = RequestOptions(path: '/test', headers: emptyHeaders);
-    authedHeaders = {HttpHeaders.authorizationHeader: 'Bearer $accessToken'};
-    authedRequestOptions = RequestOptions(
-      path: '/test',
-      headers: authedHeaders,
+    emptyRequest = RequestSpec(
+      pathOrUrl: '/test',
+      method: HttpMethod.GET,
+      headers: {},
+    );
+    authedRequest = RequestSpec(
+      pathOrUrl: '/test',
+      method: HttpMethod.GET,
+      headers: {HttpHeaders.authorizationHeader: 'Bearer $accessToken'},
     );
 
     sut = AuthInterceptor(mockClient, mockAuthDataService);
@@ -98,169 +77,139 @@ void main() {
     ).thenAnswer((_) async => authData);
     when(
       () => mockAuthDataService.refreshCurrentAuthData(),
-    ).thenAnswer((_) async => Result.success(authData));
-    when(
-      () => mockClient.fetch<dynamic>(any()),
-    ).thenAnswer((_) async => Response(requestOptions: authedRequestOptions));
+    ).thenAnswer((_) async => Right(Right(authData)));
+    when(() => mockClient.execute(spec: any(named: 'spec'))).thenAnswer(
+      (_) async => Result.success(
+        NetKitResponse(
+          isError: false,
+          statusCode: HttpStatus.ok,
+          data: null,
+          headers: {},
+          requestSpec: authedRequest,
+        ),
+      ),
+    );
   });
 
-  test(
-    'If authenticated, `onRequest` should inject authorization headers and proceed with the request',
-    () async {
-      await sut.onRequest(emptyRequestOptions, mockRequestHandler);
+  group('onRequest', () {
+    test('injects authorization headers when authenticated', () async {
+      final result = await sut.onRequest(emptyRequest);
 
-      expect(emptyRequestOptions.headers, isNotEmpty);
+      expect(result, isA<ContinueWithRequest>());
       expect(
-        emptyRequestOptions.headers,
-        containsPair(HttpHeaders.authorizationHeader, 'Bearer $accessToken'),
+        emptyRequest.headers[HttpHeaders.authorizationHeader],
+        'Bearer $accessToken',
       );
-      verify(() => mockRequestHandler.next(emptyRequestOptions)).called(1);
-    },
-  );
+    });
 
-  test(
-    'If not authenticated, `onRequest` should not inject authorization headers and should reject the request with a `DioException` of type `DioExceptionType.cancel`',
-    () async {
+    test('rejects request when auth data is unavailable', () async {
       when(
         () => mockAuthDataService.getCurrentAuthData(),
       ).thenAnswer((_) async => null);
 
-      await sut.onRequest(emptyRequestOptions, mockRequestHandler);
+      final result = await sut.onRequest(emptyRequest);
 
-      expect(emptyRequestOptions.headers, isEmpty);
-
-      final verification = verify(
-        () => mockRequestHandler.reject(captureAny()),
+      expect(result, isA<ShortRequestWithError>());
+      expect(
+        (result as ShortRequestWithError).error,
+        isA<CancellationException>(),
       );
-      final exception = verification.captured.single as DioException;
+    });
+  });
 
-      verification.called(1);
-      expect(exception.requestOptions, emptyRequestOptions);
-      expect(exception.type, DioExceptionType.cancel);
-      expect(exception.error, isA<CancelledDueToAuthDataUnavailability>());
-    },
-  );
-
-  test(
-    'Should propagate error to next interceptor if it is not an authorization error',
-    () async {
-      final exception = DioException(
-        requestOptions: authedRequestOptions,
-        response: Response(
-          requestOptions: authedRequestOptions,
+  group('onResponse', () {
+    test(
+      'passes through when server did not report token expiration',
+      () async {
+        final response = RawResponse(
           statusCode: HttpStatus.badRequest,
-        ),
-      );
+          rawResponseBody: null,
+          responseHeaders: {},
+          request: authedRequest,
+        );
 
-      await sut.onError(exception, mockErrorHandler);
+        final result = await sut.onResponse(response);
 
-      verify(() => mockErrorHandler.next(exception)).called(1);
-    },
-  );
+        expect(result, isA<ContinueWithResponse>());
+      },
+    );
 
-  test(
-    'Should reject the request with a `DioException` of type `DioExceptionType.cancel` if auth data is no longer available by the time we are in `onError`',
-    () async {
-      final dioException = DioException(
-        requestOptions: authedRequestOptions,
-        response: Response(
-          requestOptions: authedRequestOptions,
-          statusCode: HttpStatus.unauthorized,
-          data: {'error_id': 'access_token_expired'},
-        ),
-      );
-
+    test('rejects when auth data is unavailable on 401', () async {
       when(
         () => mockAuthDataService.getCurrentAuthData(),
       ).thenAnswer((_) async => null);
 
-      await sut.onError(dioException, mockErrorHandler);
+      final response = RawResponse(
+        statusCode: HttpStatus.unauthorized,
+        rawResponseBody: {'error_id': 'access_token_expired'},
+        responseHeaders: {},
+        request: authedRequest,
+      );
 
-      final verification = verify(() => mockErrorHandler.reject(captureAny()));
-      final customException = verification.captured.single as DioException;
+      final result = await sut.onResponse(response);
 
-      verification.called(1);
-      expect(customException.requestOptions, authedRequestOptions);
-      expect(customException.type, DioExceptionType.cancel);
+      expect(result, isA<ShortResponseWithError>());
       expect(
-        customException.error,
-        isA<CancelledDueToAuthDataUnavailability>(),
+        (result as ShortResponseWithError).error,
+        isA<CancellationException>(),
       );
-    },
-  );
+    });
 
-  test(
-    'Should resolve the request if auth data has already been refreshed by previously queued requests',
-    () async {
-      final dioException = DioException(
-        requestOptions: authedRequestOptions,
-        response: Response(
-          requestOptions: authedRequestOptions,
-          statusCode: HttpStatus.unauthorized,
-          data: {'error_id': 'access_token_expired'},
-        ),
-      );
-
+    test('retries request when auth data was already refreshed', () async {
       when(
         () => mockAuthDataService.getCurrentAuthData(),
       ).thenAnswer((_) async => newAuthData);
 
-      await sut.onError(dioException, mockErrorHandler);
-
-      verify(() => mockErrorHandler.resolve(any())).called(1);
-      verify(() => mockClient.fetch<dynamic>(any())).called(1);
-    },
-  );
-
-  test(
-    'If expired, should try to refresh auth data, and on success, resolve the request with a retry.',
-    () async {
-      final dioException = DioException(
-        requestOptions: authedRequestOptions,
-        response: Response(
-          requestOptions: authedRequestOptions,
-          statusCode: HttpStatus.unauthorized,
-          data: {'error_id': 'access_token_expired'},
-        ),
+      final response = RawResponse(
+        statusCode: HttpStatus.unauthorized,
+        rawResponseBody: {'error_id': 'access_token_expired'},
+        responseHeaders: {},
+        request: authedRequest,
       );
 
-      await sut.onError(dioException, mockErrorHandler);
+      final result = await sut.onResponse(response);
 
-      verify(() => mockErrorHandler.resolve(any())).called(1);
-      verify(() => mockClient.fetch<dynamic>(any())).called(1);
-    },
-  );
+      expect(result, isA<ShortResponseWithFinalResponse>());
+      verify(() => mockClient.execute(spec: any(named: 'spec'))).called(1);
+    });
 
-  test(
-    'If expired, should try to refresh auth data, and on failure, should reject the request with a `DioException` of type `DioExceptionType.cancel`',
-    () async {
-      final dioException = DioException(
-        requestOptions: authedRequestOptions,
-        response: Response(
-          requestOptions: authedRequestOptions,
-          statusCode: HttpStatus.unauthorized,
-          data: {'error_id': 'access_token_expired'},
-        ),
+    test('refreshes and retries on success', () async {
+      when(
+        () => mockAuthDataService.refreshCurrentAuthData(),
+      ).thenAnswer((_) async => Right(Right(newAuthData)));
+
+      final response = RawResponse(
+        statusCode: HttpStatus.unauthorized,
+        rawResponseBody: {'error_id': 'access_token_expired'},
+        responseHeaders: {},
+        request: authedRequest,
       );
 
-      when(() => mockAuthDataService.refreshCurrentAuthData()).thenAnswer(
-        (_) async => Result.failure(
-          ApiError.fromServerError(InvalidAuthStateForRefresh()),
-        ),
+      final result = await sut.onResponse(response);
+
+      expect(result, isA<ShortResponseWithFinalResponse>());
+      verify(() => mockClient.execute(spec: any(named: 'spec'))).called(1);
+    });
+
+    test('rejects when refresh fails', () async {
+      when(
+        () => mockAuthDataService.refreshCurrentAuthData(),
+      ).thenAnswer((_) async => Left(const CancellationError(source: 'test')));
+
+      final response = RawResponse(
+        statusCode: HttpStatus.unauthorized,
+        rawResponseBody: {'error_id': 'access_token_expired'},
+        responseHeaders: {},
+        request: authedRequest,
       );
 
-      await sut.onError(dioException, mockErrorHandler);
+      final result = await sut.onResponse(response);
 
-      final verification = verify(() => mockErrorHandler.reject(captureAny()));
-      final customException = verification.captured.single as DioException;
-
-      verification.called(1);
-      expect(customException.requestOptions, authedRequestOptions);
-      expect(customException.type, DioExceptionType.cancel);
+      expect(result, isA<ShortResponseWithError>());
       expect(
-        customException.error,
-        isA<CancelledDueToAuthDataRefreshFailure>(),
+        (result as ShortResponseWithError).error,
+        isA<CancellationException>(),
       );
-    },
-  );
+    });
+  });
 }

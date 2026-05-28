@@ -11,7 +11,7 @@ class StartupErrorReporterBloc
     on<SendErrorReport>((event, emit) async {
       emit(StartupErrorReporterStateSending());
 
-      await Future.delayed(Duration(seconds: 3));
+      await Future<void>.delayed(const Duration(seconds: 3));
 
       emit(StartupErrorReporterStateReported());
     });

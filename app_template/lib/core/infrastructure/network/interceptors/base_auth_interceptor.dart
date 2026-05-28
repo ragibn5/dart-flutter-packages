@@ -80,7 +80,7 @@ abstract class BaseAuthInterceptor<AuthDataTye extends BaseAuthData>
     }
 
     buildAuthorizationHeaders(authData).forEach((k, v) {
-      request.headers?[k] = v;
+      request.headers[k] = v;
     });
 
     return ContinueWithRequest(request);

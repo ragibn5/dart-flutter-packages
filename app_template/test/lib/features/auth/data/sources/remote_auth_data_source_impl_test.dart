@@ -1,8 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/result.dart';
-import 'package:app_template/core/models/server_message.dart';
+import 'package:app_template/core/models/api_response.dart';
+import 'package:app_template/core/models/either.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/data/sources/remote_auth_data_source_impl.dart';
@@ -15,7 +14,6 @@ class _MockAppServerTokenRefreshApiClient extends Mock
 
 void main() {
   const tokenRefreshRequest = TokenRefreshRequest(refreshToken: 'refreshToken');
-
   final authDataDTO = AuthDataDTO(
     userId: 'userId',
     accessToken: 'accessToken',
@@ -23,17 +21,15 @@ void main() {
     accessTokenExpiry: DateTime.now(),
     refreshTokenExpiry: DateTime.now(),
   );
-  final clientResponse =
-      Result<ApiError<ServerError<ServerMessage>>, AuthDataDTO>.success(
-        authDataDTO,
-      );
+  final clientResponse = Right(
+    Success(data: authDataDTO, statusCode: 200, headers: null),
+  );
 
   late _MockAppServerTokenRefreshApiClient mockApiClient;
 
   late RemoteAuthDataSourceImpl sut;
 
   setUpAll(() {
-    registerFallbackValue(authDataDTO);
     registerFallbackValue(tokenRefreshRequest);
   });
 
@@ -53,8 +49,10 @@ void main() {
       final result = await sut.getRefreshedAuthData(tokenRefreshRequest);
 
       verify(() => mockApiClient.request(tokenRefreshRequest)).called(1);
-      expect(result.isSuccess, true);
-      expect(result.dataOrNull, authDataDTO);
+      expect(result.isRight, true);
+      final innerEither = result.rightOrThrow;
+      expect(innerEither.isRight, true);
+      expect(innerEither.rightOrThrow, authDataDTO);
     },
   );
 }

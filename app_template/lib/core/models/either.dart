@@ -10,6 +10,32 @@ sealed class Either<L, R> {
       ),
     };
   }
+
+  bool get isLeft => this is Left<L>;
+
+  bool get isRight => this is Right<R>;
+
+  L get leftOrThrow {
+    final self = this;
+    return switch (self) {
+      Left<L>() => self.l,
+      Right<R>() => throw StateError('Expected Left, but was Right(${self.r})'),
+      _ => throw StateError(
+        'Invalid state: should have been either ${Left<L>}, or ${Right<R>}',
+      ),
+    };
+  }
+
+  R get rightOrThrow {
+    final self = this;
+    return switch (self) {
+      Right<R>() => self.r,
+      Left<L>() => throw StateError('Expected Right, but was Left(${self.l})'),
+      _ => throw StateError(
+        'Invalid state: should have been either ${Left<L>}, or ${Right<R>}',
+      ),
+    };
+  }
 }
 
 final class Left<L> extends Either<L, Never> {

@@ -30,7 +30,7 @@ class MetadataAdderInterceptor extends NetKitInterceptor {
     return ContinueWithRequest(
       request.copyWith(
         headers: request.headers
-          ?..addAll(_buildLocaleHeaders(locale))
+          ..addAll(_buildLocaleHeaders(locale))
           ..addAll(_buildUserAgentHeaders(_buildMetadata))
           ..addAll(_buildAppMetadataHeaders(_buildMetadata)),
       ),

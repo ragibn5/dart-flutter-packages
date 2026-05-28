@@ -11,15 +11,15 @@ import 'package:net_kit/net_kit.dart';
 class _MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
-  const requestSpec = RequestSpec(
+  final requestSpec = RequestSpec(
     pathOrUrl: '/ping',
     baseUrl: 'https://abc.com',
     method: HttpMethod.GET,
-    body: JsonBody({'1': 1, 's': 'a-string'}),
+    body: const JsonBody({'1': 1, 's': 'a-string'}),
     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     queryParameters: {'1': 1},
   );
-  const rawResponse = RawResponse(
+  final rawResponse = RawResponse(
     statusCode: HttpStatus.ok,
     rawResponseBody: {'i': 100, 's': 'another-string'},
     responseHeaders: {
@@ -27,7 +27,7 @@ void main() {
     },
     request: requestSpec,
   );
-  const exception = TransportException(
+  final exception = TransportException(
     type: TransportExceptionType.CONNECTION_ERROR,
     request: requestSpec,
   );

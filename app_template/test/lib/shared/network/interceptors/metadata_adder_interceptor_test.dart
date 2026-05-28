@@ -57,7 +57,7 @@ void main() {
   test(
     'attaches locale, user-agent, app metadata headers, and then proceeds',
     () async {
-      const request = RequestSpec(
+      final request = RequestSpec(
         pathOrUrl: '/ping',
         baseUrl: 'https://abc.com',
         method: HttpMethod.GET,
@@ -72,7 +72,7 @@ void main() {
 
       // Locale
       expect(
-        headers?[HttpHeaders.acceptLanguageHeader],
+        headers[HttpHeaders.acceptLanguageHeader],
         Locale.fromSubtags(
           languageCode: effectiveLocale.languageCode,
           scriptCode: effectiveLocale.scriptCode,
@@ -82,7 +82,7 @@ void main() {
 
       // User agent
       expect(
-        headers?[HttpHeaders.userAgentHeader],
+        headers[HttpHeaders.userAgentHeader],
         '${buildMetadata.packageName}/${buildMetadata.versionName}'
         ' (${buildMetadata.platform}; ${buildMetadata.runtime}; ${buildMetadata.flavor})',
       );
@@ -98,10 +98,7 @@ void main() {
       }
 
       // Original headers should still be there
-      expect(
-        headers?[HttpHeaders.contentTypeHeader],
-        'application/json',
-      );
+      expect(headers[HttpHeaders.contentTypeHeader], 'application/json');
     },
   );
 }

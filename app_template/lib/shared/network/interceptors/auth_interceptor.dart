@@ -85,7 +85,7 @@ class AuthInterceptor extends BaseAuthInterceptor<AuthData> {
   /// hence, we return the first valid token we find. Will return null
   /// if no valid tokens were found.
   String? _getRequestToken(RequestSpec request) {
-    final requestToken = request.headers?[HttpHeaders.authorizationHeader];
+    final requestToken = request.headers[HttpHeaders.authorizationHeader];
 
     if (requestToken == null) {
       return null;
