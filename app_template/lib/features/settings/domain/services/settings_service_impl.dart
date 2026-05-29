@@ -31,6 +31,20 @@ class SettingsServiceImpl implements SettingsService {
   }
 
   @override
+  Future<void> setLocale(AppLocale locale) async {
+    final persistedSettings = await _settingsRepository.getCurrentSettings();
+    await _settingsRepository.setCurrentSettings(
+      persistedSettings.copyWith(locale: locale),
+    );
+  }
+
+  @override
+  Stream<AppLocale> watchLocale() => _settingsRepository
+      .getSettingsStream()
+      .map((e) => e.locale ?? _resolvePlatformLocale(AppLocale.EN))
+      .distinct();
+
+  @override
   Future<AppThemeMode> getEffectiveThemeMode() async {
     final persistedSettings = await _settingsRepository.getCurrentSettings();
     if (persistedSettings.themeMode != null) {
@@ -41,26 +55,12 @@ class SettingsServiceImpl implements SettingsService {
   }
 
   @override
-  Future<void> setLocale(AppLocale locale) async {
-    final persistedSettings = await _settingsRepository.getCurrentSettings();
-    await _settingsRepository.setCurrentSettings(
-      persistedSettings.copyWith(locale: locale),
-    );
-  }
-
-  @override
   Future<void> setThemeMode(AppThemeMode themeMode) async {
     final persistedSettings = await _settingsRepository.getCurrentSettings();
     await _settingsRepository.setCurrentSettings(
       persistedSettings.copyWith(themeMode: themeMode),
     );
   }
-
-  @override
-  Stream<AppLocale> watchLocale() => _settingsRepository
-      .getSettingsStream()
-      .map((e) => e.locale ?? _resolvePlatformLocale(AppLocale.EN))
-      .distinct();
 
   @override
   Stream<AppThemeMode> watchThemeMode() => _settingsRepository
