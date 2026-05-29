@@ -56,11 +56,11 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       await _appInitializerService.initialize();
       await _sessionInitializerService.initialize();
 
-      emit(await _buildNewAppInitializationSuccessState());
-
       add(_LocaleChangeListenerInitRequested());
       add(_ThemeModeChangeListenerInitRequested());
       add(_SessionChangeListenerInitRequested());
+
+      emit(await _buildNewAppInitializationSuccessState());
     } catch (e, st) {
       _logger.logError(
         tag: '$AppBloc',
