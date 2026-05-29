@@ -61,10 +61,10 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
           create: (context) =>
               di.get<AppBloc>()..add(AppInitializationRequested()),
           child: AppRoot(
-            router: di.get<AppRouter>(),
+            appRouter: di.get<AppRouter>(),
             authDataService: di.get<AuthDataService>(),
             scaffoldMessengerKey: di.get<GlobalKey<ScaffoldMessengerState>>(),
-            platformConfig: di.get<AppConfigFactory>().create(
+            appConfig: di.get<AppConfigFactory>().create(
               platformDispatcher,
             ),
           ),
@@ -76,8 +76,7 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
     },
     (error, stackTrace) {
       // We are using optional getter, as the dependencies may not
-      // be initialized if something went wrong prior to the dependency
-      // initialization.
+      // be initialized if something went wrong prior to bootstrapping.
       di.getOrNull<CrashlyticsService>()?.recordError(
         error,
         stackTrace,

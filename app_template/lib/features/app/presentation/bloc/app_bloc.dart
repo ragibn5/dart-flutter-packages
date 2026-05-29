@@ -31,16 +31,22 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     this._appInitializerService,
     this._sessionInitializerService,
   ) : super(AppInitializationInitial()) {
-    on<AppInitializationRequested>(_handleAppInitialization);
-    on<SystemLocaleChanged>(_handleSystemLocaleChanged);
-    on<SystemBrightnessModeChanged>(_handleSystemBrightnessModeChanged);
-    on<_SessionDataRefreshRequested>(_handleSessionDataRefresh);
-    on<_ListenSessionChangeRequested>(_handleSessionChangeListenerStart);
-    on<_ListenLocaleChangeRequested>(_handleLocaleChangeListenerStart);
-    on<_ListenThemeModeChangeRequested>(_handleThemeModeChangeListenerStart);
+    on<AppInitializationRequested>(_handleAppInitializationRequest);
+    on<SystemLocaleChanged>(_handleSystemLocaleChangeRequest);
+    on<SystemBrightnessModeChanged>(_handleSystemBrightnessModeChangeRequest);
+    on<_SessionDataRefreshRequested>(_handleSessionDataRefreshRequest);
+    on<_LocaleChangeListenerInitRequested>(
+      _handleLocaleChangeListenerInitRequest,
+    );
+    on<_ThemeModeChangeListenerInitRequested>(
+      _handleThemeModeChangeListenerInitRequest,
+    );
+    on<_SessionChangeListenerInitRequested>(
+      _handleSessionChangeListenerInitRequest,
+    );
   }
 
-  Future<void> _handleAppInitialization(
+  Future<void> _handleAppInitializationRequest(
     AppInitializationRequested event,
     Emitter<AppState> emit,
   ) async {
@@ -52,9 +58,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
       emit(await _buildNewAppInitializationSuccessState());
 
-      add(_ListenLocaleChangeRequested());
-      add(_ListenThemeModeChangeRequested());
-      add(_ListenSessionChangeRequested());
+      add(_LocaleChangeListenerInitRequested());
+      add(_ThemeModeChangeListenerInitRequested());
+      add(_SessionChangeListenerInitRequested());
     } catch (e, st) {
       _logger.logError(
         tag: '$AppBloc',
@@ -66,7 +72,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       emit(
         AppInitializationError(
           errorReport: ErrorReport(
-            source: '$AppBloc:$_handleAppInitialization',
+            source: '$AppBloc:$_handleAppInitializationRequest',
             description: e.toString(),
             stackTrace: st,
           ),
@@ -75,41 +81,29 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     }
   }
 
-  FutureOr<void> _handleSystemLocaleChanged(
+  FutureOr<void> _handleSystemLocaleChangeRequest(
     SystemLocaleChanged event,
     Emitter<AppState> emit,
   ) async {
     // TODO
   }
 
-  FutureOr<void> _handleSystemBrightnessModeChanged(
+  FutureOr<void> _handleSystemBrightnessModeChangeRequest(
     SystemBrightnessModeChanged event,
     Emitter<AppState> emit,
   ) {
     // TODO
   }
 
-  FutureOr<void> _handleSessionDataRefresh(
+  FutureOr<void> _handleSessionDataRefreshRequest(
     _SessionDataRefreshRequested event,
     Emitter<AppState> emit,
   ) {
     return _sessionInitializerService.initialize();
   }
 
-  FutureOr<void> _handleSessionChangeListenerStart(
-    _ListenSessionChangeRequested event,
-    Emitter<AppState> emit,
-  ) {
-    return emit.onEach(
-      _authDataService.watchAuthData(),
-      onData: (data) {
-        add(_SessionDataRefreshRequested());
-      },
-    );
-  }
-
-  FutureOr<void> _handleLocaleChangeListenerStart(
-    _ListenLocaleChangeRequested event,
+  FutureOr<void> _handleLocaleChangeListenerInitRequest(
+    _LocaleChangeListenerInitRequested event,
     Emitter<AppState> emit,
   ) {
     return emit.onEach(
@@ -125,8 +119,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     );
   }
 
-  FutureOr<void> _handleThemeModeChangeListenerStart(
-    _ListenThemeModeChangeRequested event,
+  FutureOr<void> _handleThemeModeChangeListenerInitRequest(
+    _ThemeModeChangeListenerInitRequested event,
     Emitter<AppState> emit,
   ) {
     return emit.onEach(
@@ -138,6 +132,18 @@ class AppBloc extends Bloc<AppEvent, AppState> {
             themeMode: _transformAppThemeMode(data),
           ),
         );
+      },
+    );
+  }
+
+  FutureOr<void> _handleSessionChangeListenerInitRequest(
+    _SessionChangeListenerInitRequested event,
+    Emitter<AppState> emit,
+  ) {
+    return emit.onEach(
+      _authDataService.watchAuthData(),
+      onData: (data) {
+        add(_SessionDataRefreshRequested());
       },
     );
   }

@@ -15,24 +15,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 ///
 /// This widget is omni present, as long as the app is running.
 class AppRoot extends StatefulWidget {
+  /// The app config used to load the app.
+  final AppConfig appConfig;
+
   /// The router to use.
-  final AppRouter router;
+  final AppRouter appRouter;
 
   /// The AuthDataService to set up the router config.
   final AuthDataService authDataService;
 
-  /// The platform config used to load the app.
-  final AppConfig platformConfig;
-
   /// Global scaffold messenger key.
-  /// This is used to present snacks and dialogs from anywhere within the app.
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const AppRoot({
     super.key,
-    required this.router,
+    required this.appConfig,
+    required this.appRouter,
     required this.authDataService,
-    required this.platformConfig,
     required this.scaffoldMessengerKey,
   });
 
@@ -57,20 +56,20 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return BlocBuilder<AppBloc, AppState>(
       builder: (_, state) => ScreenUtilInit(
-        designSize: widget.platformConfig.designSize,
+        designSize: widget.appConfig.designSize,
         builder: (_, child) => MaterialApp.router(
-          restorationScopeId: widget.platformConfig.restorationScopeId,
+          restorationScopeId: widget.appConfig.restorationScopeId,
           scaffoldMessengerKey: widget.scaffoldMessengerKey,
-          localizationsDelegates: widget.platformConfig.localizationDelegates,
-          supportedLocales: widget.platformConfig.supportedLocales,
-          locale: _extractLocale(state, widget.platformConfig),
-          theme: widget.platformConfig.lightThemeData,
-          darkTheme: widget.platformConfig.darkThemeData,
-          themeMode: _extractThemeMode(state, widget.platformConfig),
+          localizationsDelegates: widget.appConfig.localizationDelegates,
+          supportedLocales: widget.appConfig.supportedLocales,
+          locale: _extractLocale(state, widget.appConfig),
+          theme: widget.appConfig.lightThemeData,
+          darkTheme: widget.appConfig.darkThemeData,
+          themeMode: _extractThemeMode(state, widget.appConfig),
           onGenerateTitle: (context) => S.of(context).appTitle,
           routerConfig: _buildRouterConfig(),
           builder: (_, child) => _StateAwareRootPage(
-            platformConfig: widget.platformConfig,
+            appConfig: widget.appConfig,
             state: state,
             child: child,
           ),
@@ -85,8 +84,14 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     context.read<AppBloc>().add(SystemBrightnessModeChanged());
   }
 
+  @override
+  void didChangeLocales(List<Locale>? locales) {
+    super.didChangeLocales(locales);
+    context.read<AppBloc>().add(SystemLocaleChanged());
+  }
+
   RouterConfig<Object>? _buildRouterConfig() {
-    return widget.router.config(
+    return widget.appRouter.config(
       reevaluateListenable: ReevaluateListenable.stream(
         widget.authDataService.watchAuthData(),
       ),
@@ -107,13 +112,13 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
 }
 
 class _StateAwareRootPage extends StatelessWidget {
-  final AppConfig platformConfig;
+  final AppConfig appConfig;
   final AppState state;
   final Widget? child;
 
   const _StateAwareRootPage({
     super.key,
-    required this.platformConfig,
+    required this.appConfig,
     required this.state,
     this.child,
   });

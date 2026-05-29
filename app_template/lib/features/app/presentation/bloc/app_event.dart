@@ -11,8 +11,8 @@ final class SystemBrightnessModeChanged extends AppEvent {}
 
 final class _SessionDataRefreshRequested extends AppEvent {}
 
-final class _ListenSessionChangeRequested extends AppEvent {}
+final class _LocaleChangeListenerInitRequested extends AppEvent {}
 
-final class _ListenLocaleChangeRequested extends AppEvent {}
+final class _ThemeModeChangeListenerInitRequested extends AppEvent {}
 
-final class _ListenThemeModeChangeRequested extends AppEvent {}
+final class _SessionChangeListenerInitRequested extends AppEvent {}
