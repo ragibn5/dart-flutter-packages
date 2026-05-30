@@ -16,21 +16,22 @@ final class AppInitializationInProgress extends AppState {
 final class AppInitializationError extends AppState {
   final ErrorReport errorReport;
 
-  AppInitializationError({
-    required this.errorReport,
-  });
+  AppInitializationError({required this.errorReport});
 
   @override
   List<Object?> get props => [errorReport];
 }
 
 final class AppInitializationSuccess extends AppState {
-  final Locale locale;
-  final ThemeMode themeMode;
+  final AppLocale locale;
+  final AppThemeMode themeMode;
 
   AppInitializationSuccess({required this.locale, required this.themeMode});
 
-  AppInitializationSuccess copyWith({Locale? locale, ThemeMode? themeMode}) {
+  AppInitializationSuccess copyWith({
+    AppLocale? locale,
+    AppThemeMode? themeMode,
+  }) {
     return AppInitializationSuccess(
       locale: locale ?? this.locale,
       themeMode: themeMode ?? this.themeMode,

@@ -8,8 +8,8 @@ import 'package:app_template/features/settings/domain/models/app_theme_mode.dart
 import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:meta/meta.dart';
 
 part 'app_event.dart';
 part 'app_state.dart';
@@ -42,12 +42,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
         emit(
           AppInitializationSuccess(
-            locale: _transformAppLocale(
-              await _settingsService.getEffectiveLocale(),
-            ),
-            themeMode: _transformAppThemeMode(
-              await _settingsService.getEffectiveThemeMode(),
-            ),
+            locale: await _settingsService.getEffectiveLocale(),
+            themeMode: await _settingsService.getEffectiveThemeMode(),
           ),
         );
       } catch (e, st) {
@@ -77,7 +73,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       }
 
       final effectiveLocale = await _settingsService.getEffectiveLocale();
-      emit(currentState.copyWith(locale: _transformAppLocale(effectiveLocale)));
+      emit(currentState.copyWith(locale: effectiveLocale));
     });
 
     on<SystemBrightnessModeChanged>((event, emit) async {
@@ -87,11 +83,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       }
 
       final effectiveThemeMode = await _settingsService.getEffectiveThemeMode();
-      emit(
-        currentState.copyWith(
-          themeMode: _transformAppThemeMode(effectiveThemeMode),
-        ),
-      );
+      emit(currentState.copyWith(themeMode: effectiveThemeMode));
     });
 
     on<_SessionDataRefreshRequested>((event, emit) {
@@ -101,13 +93,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     on<_LocaleChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
         _settingsService.watchLocale(),
-        onData: (data) {
+        onData: (newLocale) {
           final currentState = state;
           if (currentState is! AppInitializationSuccess) {
             return;
           }
 
-          emit(currentState.copyWith(locale: _transformAppLocale(data)));
+          emit(currentState.copyWith(locale: newLocale));
         },
       );
     });
@@ -115,13 +107,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     on<_ThemeModeChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
         _settingsService.watchThemeMode(),
-        onData: (data) {
+        onData: (newThemeMode) {
           final currentState = state;
           if (currentState is! AppInitializationSuccess) {
             return;
           }
 
-          emit(currentState.copyWith(themeMode: _transformAppThemeMode(data)));
+          emit(currentState.copyWith(themeMode: newThemeMode));
         },
       );
     });
@@ -134,21 +126,5 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         },
       );
     });
-  }
-
-  Locale _transformAppLocale(AppLocale data) {
-    return Locale.fromSubtags(
-      languageCode: data.languageCode,
-      scriptCode: data.scriptCode,
-      countryCode: data.countryCode,
-    );
-  }
-
-  ThemeMode _transformAppThemeMode(AppThemeMode data) {
-    return switch (data) {
-      AppThemeMode.LIGHT => ThemeMode.light,
-      AppThemeMode.DARK => ThemeMode.dark,
-      AppThemeMode.SYSTEM => ThemeMode.system,
-    };
   }
 }

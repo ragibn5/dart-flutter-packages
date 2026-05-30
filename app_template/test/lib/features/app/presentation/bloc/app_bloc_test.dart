@@ -12,7 +12,6 @@ import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -108,8 +107,8 @@ void main() {
     expect: () => [
       isA<AppInitializationInProgress>(),
       isA<AppInitializationSuccess>()
-          .having((s) => s.locale, 'locale', const Locale('en'))
-          .having((s) => s.themeMode, 'themeMode', ThemeMode.light),
+          .having((s) => s.locale, 'locale', AppLocale.EN)
+          .having((s) => s.themeMode, 'themeMode', AppThemeMode.LIGHT),
     ],
     verify: (_) async {
       verify(() => appInitializerService.initialize()).called(1);
@@ -191,7 +190,7 @@ void main() {
       isA<AppInitializationSuccess>().having(
         (s) => s.locale,
         'locale',
-        const Locale('ar'),
+        AppLocale.AR,
       ),
     ],
   );
@@ -213,7 +212,7 @@ void main() {
       isA<AppInitializationSuccess>().having(
         (s) => s.themeMode,
         'themeMode',
-        ThemeMode.dark,
+        AppThemeMode.DARK,
       ),
     ],
   );
