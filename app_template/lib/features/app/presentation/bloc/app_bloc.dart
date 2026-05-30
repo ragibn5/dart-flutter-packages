@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:app_template/features/app/application/services/app_initializer_service.dart';
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
@@ -31,146 +29,111 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     this._appInitializerService,
     this._sessionInitializerService,
   ) : super(AppInitializationInitial()) {
-    on<AppInitializationRequested>(_handleAppInitializationRequest);
-    on<SystemLocaleChanged>(_handleSystemLocaleChangeRequest);
-    on<SystemBrightnessModeChanged>(_handleSystemBrightnessModeChangeRequest);
-    on<_SessionDataRefreshRequested>(_handleSessionDataRefreshRequest);
-    on<_LocaleChangeListenerInitRequested>(
-      _handleLocaleChangeListenerInitRequest,
-    );
-    on<_ThemeModeChangeListenerInitRequested>(
-      _handleThemeModeChangeListenerInitRequest,
-    );
-    on<_SessionChangeListenerInitRequested>(
-      _handleSessionChangeListenerInitRequest,
-    );
-  }
+    on<AppInitializationRequested>((event, emit) async {
+      emit(AppInitializationInProgress());
 
-  Future<void> _handleAppInitializationRequest(
-    AppInitializationRequested event,
-    Emitter<AppState> emit,
-  ) async {
-    emit(AppInitializationInProgress());
+      try {
+        await _appInitializerService.initialize();
+        await _sessionInitializerService.initialize();
 
-    try {
-      await _appInitializerService.initialize();
-      await _sessionInitializerService.initialize();
+        add(_LocaleChangeListenerInitRequested());
+        add(_ThemeModeChangeListenerInitRequested());
+        add(_SessionChangeListenerInitRequested());
 
-      add(_LocaleChangeListenerInitRequested());
-      add(_ThemeModeChangeListenerInitRequested());
-      add(_SessionChangeListenerInitRequested());
+        emit(
+          AppInitializationSuccess(
+            locale: _transformAppLocale(
+              await _settingsService.getEffectiveLocale(),
+            ),
+            themeMode: _transformAppThemeMode(
+              await _settingsService.getEffectiveThemeMode(),
+            ),
+          ),
+        );
+      } catch (e, st) {
+        _logger.logError(
+          tag: '$AppBloc',
+          message: 'Error while initializing the app',
+          error: e,
+          stackTrace: st,
+        );
 
+        emit(
+          AppInitializationError(
+            errorReport: ErrorReport(
+              source: '$AppBloc:${on<AppInitializationRequested>}',
+              description: e.toString(),
+              stackTrace: st,
+            ),
+          ),
+        );
+      }
+    });
+
+    on<SystemLocaleChanged>((event, emit) async {
+      final currentState = state;
+      if (currentState is! AppInitializationSuccess) {
+        return;
+      }
+
+      final effectiveLocale = await _settingsService.getEffectiveLocale();
+      emit(currentState.copyWith(locale: _transformAppLocale(effectiveLocale)));
+    });
+
+    on<SystemBrightnessModeChanged>((event, emit) async {
+      final currentState = state;
+      if (currentState is! AppInitializationSuccess) {
+        return;
+      }
+
+      final effectiveThemeMode = await _settingsService.getEffectiveThemeMode();
       emit(
-        AppInitializationSuccess(
-          locale: _transformAppLocale(
-            await _settingsService.getEffectiveLocale(),
-          ),
-          themeMode: _transformAppThemeMode(
-            await _settingsService.getEffectiveThemeMode(),
-          ),
+        currentState.copyWith(
+          themeMode: _transformAppThemeMode(effectiveThemeMode),
         ),
       );
-    } catch (e, st) {
-      _logger.logError(
-        tag: '$AppBloc',
-        message: 'Error while initializing the app',
-        error: e,
-        stackTrace: st,
+    });
+
+    on<_SessionDataRefreshRequested>((event, emit) {
+      return _sessionInitializerService.initialize();
+    });
+
+    on<_LocaleChangeListenerInitRequested>((event, emit) {
+      return emit.onEach(
+        _settingsService.watchLocale(),
+        onData: (data) {
+          final currentState = state;
+          if (currentState is! AppInitializationSuccess) {
+            return;
+          }
+
+          emit(currentState.copyWith(locale: _transformAppLocale(data)));
+        },
       );
+    });
 
-      emit(
-        AppInitializationError(
-          errorReport: ErrorReport(
-            source: '$AppBloc:$_handleAppInitializationRequest',
-            description: e.toString(),
-            stackTrace: st,
-          ),
-        ),
+    on<_ThemeModeChangeListenerInitRequested>((event, emit) {
+      return emit.onEach(
+        _settingsService.watchThemeMode(),
+        onData: (data) {
+          final currentState = state;
+          if (currentState is! AppInitializationSuccess) {
+            return;
+          }
+
+          emit(currentState.copyWith(themeMode: _transformAppThemeMode(data)));
+        },
       );
-    }
-  }
+    });
 
-  FutureOr<void> _handleSystemLocaleChangeRequest(
-    SystemLocaleChanged event,
-    Emitter<AppState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is! AppInitializationSuccess) {
-      return;
-    }
-
-    final effectiveLocale = await _settingsService.getEffectiveLocale();
-    emit(currentState.copyWith(locale: _transformAppLocale(effectiveLocale)));
-  }
-
-  FutureOr<void> _handleSystemBrightnessModeChangeRequest(
-    SystemBrightnessModeChanged event,
-    Emitter<AppState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is! AppInitializationSuccess) {
-      return;
-    }
-
-    final effectiveThemeMode = await _settingsService.getEffectiveThemeMode();
-    emit(
-      currentState.copyWith(
-        themeMode: _transformAppThemeMode(effectiveThemeMode),
-      ),
-    );
-  }
-
-  FutureOr<void> _handleSessionDataRefreshRequest(
-    _SessionDataRefreshRequested event,
-    Emitter<AppState> emit,
-  ) {
-    return _sessionInitializerService.initialize();
-  }
-
-  FutureOr<void> _handleLocaleChangeListenerInitRequest(
-    _LocaleChangeListenerInitRequested event,
-    Emitter<AppState> emit,
-  ) {
-    return emit.onEach(
-      _settingsService.watchLocale(),
-      onData: (data) {
-        final currentState = state;
-        if (currentState is! AppInitializationSuccess) {
-          return;
-        }
-
-        emit(currentState.copyWith(locale: _transformAppLocale(data)));
-      },
-    );
-  }
-
-  FutureOr<void> _handleThemeModeChangeListenerInitRequest(
-    _ThemeModeChangeListenerInitRequested event,
-    Emitter<AppState> emit,
-  ) {
-    return emit.onEach(
-      _settingsService.watchThemeMode(),
-      onData: (data) {
-        final currentState = state;
-        if (currentState is! AppInitializationSuccess) {
-          return;
-        }
-
-        emit(currentState.copyWith(themeMode: _transformAppThemeMode(data)));
-      },
-    );
-  }
-
-  FutureOr<void> _handleSessionChangeListenerInitRequest(
-    _SessionChangeListenerInitRequested event,
-    Emitter<AppState> emit,
-  ) {
-    return emit.onEach(
-      _authDataService.watchAuthData(),
-      onData: (data) {
-        add(_SessionDataRefreshRequested());
-      },
-    );
+    on<_SessionChangeListenerInitRequested>((event, emit) {
+      return emit.onEach(
+        _authDataService.watchAuthData(),
+        onData: (data) {
+          add(_SessionDataRefreshRequested());
+        },
+      );
+    });
   }
 
   Locale _transformAppLocale(AppLocale data) {
