@@ -16,10 +16,11 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   SettingsDataSourceImpl(this._preferenceStore);
 
   @override
-  Future<SettingsDTO> getCurrentSettings() async {
+  Future<SettingsDTO?> getCurrentSettings() async {
     final settingJson = await _preferenceStore.getString(preferenceKey);
+
     if (settingJson == null) {
-      return const SettingsDTO();
+      return null;
     }
 
     return SettingsDTO.fromJson(
