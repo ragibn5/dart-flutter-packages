@@ -94,25 +94,27 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     SystemLocaleChanged event,
     Emitter<AppState> emit,
   ) async {
-    if (state is! AppInitializationSuccess) return;
+    final currentState = state;
+    if (currentState is! AppInitializationSuccess) {
+      return;
+    }
 
     final effectiveLocale = await _settingsService.getEffectiveLocale();
-    emit(
-      (state as AppInitializationSuccess).copyWith(
-        locale: _transformAppLocale(effectiveLocale),
-      ),
-    );
+    emit(currentState.copyWith(locale: _transformAppLocale(effectiveLocale)));
   }
 
   FutureOr<void> _handleSystemBrightnessModeChangeRequest(
     SystemBrightnessModeChanged event,
     Emitter<AppState> emit,
   ) async {
-    if (state is! AppInitializationSuccess) return;
+    final currentState = state;
+    if (currentState is! AppInitializationSuccess) {
+      return;
+    }
 
     final effectiveThemeMode = await _settingsService.getEffectiveThemeMode();
     emit(
-      (state as AppInitializationSuccess).copyWith(
+      currentState.copyWith(
         themeMode: _transformAppThemeMode(effectiveThemeMode),
       ),
     );
@@ -132,12 +134,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     return emit.onEach(
       _settingsService.watchLocale(),
       onData: (data) {
-        if (state is! AppInitializationSuccess) return;
-        emit(
-          (state as AppInitializationSuccess).copyWith(
-            locale: _transformAppLocale(data),
-          ),
-        );
+        final currentState = state;
+        if (currentState is! AppInitializationSuccess) {
+          return;
+        }
+
+        emit(currentState.copyWith(locale: _transformAppLocale(data)));
       },
     );
   }
@@ -149,12 +151,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     return emit.onEach(
       _settingsService.watchThemeMode(),
       onData: (data) {
-        if (state is! AppInitializationSuccess) return;
-        emit(
-          (state as AppInitializationSuccess).copyWith(
-            themeMode: _transformAppThemeMode(data),
-          ),
-        );
+        final currentState = state;
+        if (currentState is! AppInitializationSuccess) {
+          return;
+        }
+
+        emit(currentState.copyWith(themeMode: _transformAppThemeMode(data)));
       },
     );
   }
