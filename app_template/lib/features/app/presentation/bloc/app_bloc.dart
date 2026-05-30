@@ -4,9 +4,9 @@ import 'package:app_template/features/app/application/services/app_initializer_s
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/models/error_report.dart';
+import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
-import 'package:app_template/features/settings/domain/services/settings_service.dart';
 import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';

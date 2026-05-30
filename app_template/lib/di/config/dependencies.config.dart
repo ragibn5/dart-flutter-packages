@@ -54,6 +54,12 @@ import 'package:app_template/features/auth/domain/services/auth_data_service.dar
     as _i374;
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client.dart'
     as _i120;
+import 'package:app_template/features/settings/application/services/app_locale_resolver.dart'
+    as _i178;
+import 'package:app_template/features/settings/application/services/platform_settings_provider.dart'
+    as _i898;
+import 'package:app_template/features/settings/application/services/settings_service.dart'
+    as _i178;
 import 'package:app_template/features/settings/data/mappers/settings_mapper.dart'
     as _i677;
 import 'package:app_template/features/settings/data/models/settings_dto.dart'
@@ -70,12 +76,6 @@ import 'package:app_template/features/settings/domain/models/app_settings.dart'
     as _i78;
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart'
     as _i612;
-import 'package:app_template/features/settings/domain/services/app_locale_resolver.dart'
-    as _i178;
-import 'package:app_template/features/settings/domain/services/platform_settings_provider.dart'
-    as _i898;
-import 'package:app_template/features/settings/domain/services/settings_service.dart'
-    as _i178;
 import 'package:app_template/features/settings/infrastructures/services/platform_settings_provider_impl.dart'
     as _i423;
 import 'package:app_template/features/user_data/data/mappers/user_data_mapper.dart'

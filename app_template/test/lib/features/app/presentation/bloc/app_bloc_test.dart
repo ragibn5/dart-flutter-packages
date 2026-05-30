@@ -7,9 +7,9 @@ import 'package:app_template/features/app/application/services/session_initializ
 import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
+import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
-import 'package:app_template/features/settings/domain/services/settings_service.dart';
 import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
