@@ -60,7 +60,16 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       add(_ThemeModeChangeListenerInitRequested());
       add(_SessionChangeListenerInitRequested());
 
-      emit(await _buildNewAppInitializationSuccessState());
+      emit(
+        AppInitializationSuccess(
+          locale: _transformAppLocale(
+            await _settingsService.getEffectiveLocale(),
+          ),
+          themeMode: _transformAppThemeMode(
+            await _settingsService.getEffectiveThemeMode(),
+          ),
+        ),
+      );
     } catch (e, st) {
       _logger.logError(
         tag: '$AppBloc',
@@ -85,14 +94,28 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     SystemLocaleChanged event,
     Emitter<AppState> emit,
   ) async {
-    // TODO
+    if (state is! AppInitializationSuccess) return;
+
+    final effectiveLocale = await _settingsService.getEffectiveLocale();
+    emit(
+      (state as AppInitializationSuccess).copyWith(
+        locale: _transformAppLocale(effectiveLocale),
+      ),
+    );
   }
 
   FutureOr<void> _handleSystemBrightnessModeChangeRequest(
     SystemBrightnessModeChanged event,
     Emitter<AppState> emit,
-  ) {
-    // TODO
+  ) async {
+    if (state is! AppInitializationSuccess) return;
+
+    final effectiveThemeMode = await _settingsService.getEffectiveThemeMode();
+    emit(
+      (state as AppInitializationSuccess).copyWith(
+        themeMode: _transformAppThemeMode(effectiveThemeMode),
+      ),
+    );
   }
 
   FutureOr<void> _handleSessionDataRefreshRequest(
@@ -145,16 +168,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       onData: (data) {
         add(_SessionDataRefreshRequested());
       },
-    );
-  }
-
-  Future<AppInitializationSuccess>
-  _buildNewAppInitializationSuccessState() async {
-    return AppInitializationSuccess(
-      locale: _transformAppLocale(await _settingsService.getEffectiveLocale()),
-      themeMode: _transformAppThemeMode(
-        await _settingsService.getEffectiveThemeMode(),
-      ),
     );
   }
 
