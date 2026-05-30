@@ -86,10 +86,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       emit(currentState.copyWith(themeMode: effectiveThemeMode));
     });
 
-    on<_SessionDataRefreshRequested>((event, emit) {
-      return _sessionInitializerService.initialize();
-    });
-
     on<_LocaleChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
         _settingsService.watchLocale(),
@@ -125,6 +121,10 @@ class AppBloc extends Bloc<AppEvent, AppState> {
           add(_SessionDataRefreshRequested());
         },
       );
+    });
+
+    on<_SessionDataRefreshRequested>((event, emit) {
+      return _sessionInitializerService.initialize();
     });
   }
 }
