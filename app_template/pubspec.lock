@@ -112,6 +112,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.2.0"
+  bloc_lint:
+    dependency: "direct dev"
+    description:
+      name: bloc_lint
+      sha256: "48d141f67552cc83703d5735f27ae9c549e4705b543e053eab77fa6cfa44ccf4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.7"
   bloc_test:
     dependency: "direct dev"
     description:
@@ -996,6 +1004,14 @@ packages:
     description:
       name: pub_semver
       sha256: "5bfcf68ca79ef689f8990d1160781b4bad40a3bd5e5218ad4076ddb7f4081585"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
+  pubspec_lock_parse:
+    dependency: transitive
+    description:
+      name: pubspec_lock_parse
+      sha256: "020cb470287124c936c30ebfc2f927b287f275b7bf7fc2ab11577e592c017764"
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"

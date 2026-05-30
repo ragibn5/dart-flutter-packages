@@ -10,7 +10,9 @@
 # Analyzers
 # Uncomment the one to use (and comment the one to disable, only one can be used)
 #include: package:flutter_lints/flutter.yaml
-include: package:very_good_analysis/analysis_options.yaml
+include:
+  - package:very_good_analysis/analysis_options.yaml
+  - package:bloc_lint/recommended.yaml
 
 plugins:
   clean_arch_lint:
