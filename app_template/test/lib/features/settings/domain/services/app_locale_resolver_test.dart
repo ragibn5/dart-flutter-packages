@@ -2,21 +2,21 @@
 
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/locale_components.dart';
-import 'package:app_template/features/settings/domain/services/app_locale_resolver_impl.dart';
+import 'package:app_template/features/settings/domain/services/app_locale_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 void main() {
   const localeComponents = LocaleComponents(languageCode: 'en');
 
-  late AppLocaleResolverImpl appLocaleResolver;
+  late AppLocaleResolver appLocaleResolver;
 
   setUpAll(() {
     registerFallbackValue(localeComponents);
   });
 
   setUp(() {
-    appLocaleResolver = AppLocaleResolverImpl();
+    appLocaleResolver = AppLocaleResolver();
   });
 
   test(
