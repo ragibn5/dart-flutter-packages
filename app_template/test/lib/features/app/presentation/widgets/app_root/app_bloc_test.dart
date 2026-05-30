@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:app_template/features/app/application/services/app_initializer_service.dart';
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
-import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
+import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
@@ -38,7 +38,7 @@ void main() {
   late StreamController<AppThemeMode> themeController;
   late StreamController<AuthData?> authController;
 
-  late AppBloc bloc;
+  late AppRootBloc bloc;
 
   setUpAll(() {
     registerFallbackValue(AppLocale.EN);
@@ -56,7 +56,7 @@ void main() {
     themeController = StreamController.broadcast();
     authController = StreamController.broadcast();
 
-    bloc = AppBloc(
+    bloc = AppRootBloc(
       logger,
       authDataService,
       appPreferenceService,
@@ -99,7 +99,7 @@ void main() {
     await themeController.close();
     await authController.close();
   });
-  blocTest<AppBloc, AppState>(
+  blocTest<AppRootBloc, AppRootState>(
     'emits [InProgress -> Success] on AppInitializationRequested',
     build: () => bloc,
     act: (bloc) => bloc.add(AppInitializationRequested()),
@@ -116,7 +116,7 @@ void main() {
     },
   );
 
-  blocTest<AppBloc, AppState>(
+  blocTest<AppRootBloc, AppRootState>(
     'starts listening for global events on AppInitializationRequested',
     build: () => bloc,
     act: (bloc) => bloc.add(AppInitializationRequested()),
@@ -128,7 +128,7 @@ void main() {
     },
   );
 
-  blocTest<AppBloc, AppState>(
+  blocTest<AppRootBloc, AppRootState>(
     'emits AppInitializationError when app initializer throws',
     build: () {
       when(
@@ -144,7 +144,7 @@ void main() {
     ],
   );
 
-  blocTest<AppBloc, AppState>(
+  blocTest<AppRootBloc, AppRootState>(
     're-initializes session when auth stream emits new value',
     build: () {
       when(
@@ -173,7 +173,7 @@ void main() {
     },
   );
 
-  blocTest<AppBloc, AppState>(
+  blocTest<AppRootBloc, AppRootState>(
     'updates locale when locale stream emits a value after init success',
     build: () => bloc,
     act: (bloc) async {
@@ -195,7 +195,7 @@ void main() {
     ],
   );
 
-  blocTest<AppBloc, AppState>(
+  blocTest<AppRootBloc, AppRootState>(
     'updates theme when theme stream emits a value after init success',
     build: () => bloc,
     act: (bloc) async {

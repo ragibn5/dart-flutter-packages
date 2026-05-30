@@ -1,5 +1,5 @@
 import 'package:app_template/features/app/infrastructure/models/app_config.dart';
-import 'package:app_template/features/app/presentation/bloc/app_bloc.dart';
+import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_loader/startup_loader_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
@@ -55,7 +55,7 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppBloc, AppState>(
+    return BlocBuilder<AppRootBloc, AppRootState>(
       builder: (_, state) => ScreenUtilInit(
         designSize: widget.appConfig.designSize,
         builder: (_, child) => MaterialApp.router(
@@ -82,13 +82,13 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
   @override
   Future<void> didChangePlatformBrightness() async {
     super.didChangePlatformBrightness();
-    context.read<AppBloc>().add(SystemBrightnessModeChanged());
+    context.read<AppRootBloc>().add(SystemBrightnessModeChanged());
   }
 
   @override
   void didChangeLocales(List<Locale>? locales) {
     super.didChangeLocales(locales);
-    context.read<AppBloc>().add(SystemLocaleChanged());
+    context.read<AppRootBloc>().add(SystemLocaleChanged());
   }
 
   RouterConfig<Object>? _buildRouterConfig() {
@@ -99,7 +99,7 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     );
   }
 
-  Locale _extractLocale(AppState state, AppConfig platformConfig) {
+  Locale _extractLocale(AppRootState state, AppConfig platformConfig) {
     if (state is! AppInitializationSuccess) {
       return platformConfig.defaultLocale;
     }
@@ -111,7 +111,7 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     );
   }
 
-  ThemeMode _extractThemeMode(AppState state, AppConfig platformConfig) {
+  ThemeMode _extractThemeMode(AppRootState state, AppConfig platformConfig) {
     if (state is! AppInitializationSuccess) {
       return platformConfig.defaultThemeMode;
     }
@@ -126,7 +126,7 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
 
 class _StateAwareRootPage extends StatelessWidget {
   final AppConfig appConfig;
-  final AppState state;
+  final AppRootState state;
   final Widget? child;
 
   const _StateAwareRootPage({
@@ -146,7 +146,7 @@ class _StateAwareRootPage extends StatelessWidget {
         return StartupErrorPage(
           errorReport: scopedState.errorReport,
           onRetry: () =>
-              context.read<AppBloc>().add(AppInitializationRequested()),
+              context.read<AppRootBloc>().add(AppInitializationRequested()),
         );
       case AppInitializationSuccess():
         return child ??
@@ -157,7 +157,7 @@ class _StateAwareRootPage extends StatelessWidget {
                 stackTrace: StackTrace.current,
               ),
               onRetry: () =>
-                  context.read<AppBloc>().add(AppInitializationRequested()),
+                  context.read<AppRootBloc>().add(AppInitializationRequested()),
             );
     }
   }

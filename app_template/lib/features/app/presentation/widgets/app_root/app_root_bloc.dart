@@ -11,18 +11,18 @@ import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 
-part 'app_event.dart';
-part 'app_state.dart';
+part 'app_root_event.dart';
+part 'app_root_state.dart';
 
 @singleton
-class AppBloc extends Bloc<AppEvent, AppState> {
+class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AppLogger _logger;
   final AuthDataService _authDataService;
   final SettingsService _settingsService;
   final AppInitializerService _appInitializerService;
   final SessionInitializerService _sessionInitializerService;
 
-  AppBloc(
+  AppRootBloc(
     this._logger,
     this._authDataService,
     this._settingsService,
@@ -48,7 +48,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         );
       } catch (e, st) {
         _logger.logError(
-          tag: '$AppBloc',
+          tag: '$AppRootBloc',
           message: 'Error while initializing the app',
           error: e,
           stackTrace: st,
@@ -57,7 +57,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         emit(
           AppInitializationError(
             errorReport: ErrorReport(
-              source: '$AppBloc:${on<AppInitializationRequested>}',
+              source: '$AppRootBloc:${on<AppInitializationRequested>}',
               description: e.toString(),
               stackTrace: st,
             ),

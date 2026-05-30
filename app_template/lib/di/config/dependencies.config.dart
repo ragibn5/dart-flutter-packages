@@ -30,7 +30,7 @@ import 'package:app_template/features/app/infrastructure/services/app_config_fac
     as _i803;
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart'
     as _i291;
-import 'package:app_template/features/app/presentation/bloc/app_bloc.dart'
+import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart'
     as _i511;
 import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart'
     as _i907;
@@ -332,8 +332,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i374.AuthDataService>(),
       ),
     );
-    gh.singleton<_i511.AppBloc>(
-      () => _i511.AppBloc(
+    gh.singleton<_i511.AppRootBloc>(
+      () => _i511.AppRootBloc(
         gh<_i1054.AppLogger>(),
         gh<_i374.AuthDataService>(),
         gh<_i178.SettingsService>(),
