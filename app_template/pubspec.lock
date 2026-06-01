@@ -648,6 +648,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.1"
+  initializable:
+    dependency: "direct main"
+    description:
+      path: "packages/initializable"
+      relative: true
+    source: path
+    version: "0.0.0"
   injectable:
     dependency: "direct main"
     description:

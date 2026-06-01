@@ -1,4 +1,4 @@
-import 'package:app_template/core/services/initializer_pipeline.dart';
+import 'package:initializable/initializable.dart';
 
 abstract class AppInitializerService extends InitializerPipeline {
   AppInitializerService(super.initializables);

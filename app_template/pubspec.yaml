@@ -52,7 +52,10 @@ dependencies:
   equatable: ^2.0.8
   path_provider: ^2.1.5
 
-  # Others (In-house)
+  # App-private packages
+  initializable:
+    path: packages/initializable
+  # In-house packages
   string_extensions:
     path: ../string_extensions
   datetime_utils:

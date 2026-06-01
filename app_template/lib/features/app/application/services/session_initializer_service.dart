@@ -1,3 +1,3 @@
-import 'package:app_template/core/contracts/initializable.dart';
+import 'package:initializable/initializable.dart';
 
 abstract interface class SessionInitializerService implements Initializable {}
