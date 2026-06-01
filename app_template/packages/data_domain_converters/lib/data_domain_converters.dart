@@ -1,4 +1,4 @@
-/// Collection of reusable data-to-domain and domain-to-data converter contracts.
+/// Collection of reusable data-domain converter contracts.
 library;
 
 export 'src/data_domain_converter.dart';

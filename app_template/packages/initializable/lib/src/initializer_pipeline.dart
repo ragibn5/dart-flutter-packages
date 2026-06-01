@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'initializable.dart';
+import 'package:initializable/src/initializable.dart';
 
 abstract class InitializerPipeline implements Initializable {
   final List<Initializable> _initializables;

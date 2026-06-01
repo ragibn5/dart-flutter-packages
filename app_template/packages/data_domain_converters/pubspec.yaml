@@ -1,5 +1,5 @@
 name: data_domain_converters
-description: Collection of reusable data-to-domain and domain-to-data converter contracts.
+description: Collection of reusable data-domain converter contracts.
 
 publish_to: none
 
