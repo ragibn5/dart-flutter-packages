@@ -6,9 +6,7 @@ import 'package:app_template/core/converters/data_domain_converter.dart';
 import 'package:app_template/features/settings/data/models/settings_dto.dart';
 import 'package:app_template/features/settings/data/repositories/settings_repository_impl.dart';
 import 'package:app_template/features/settings/data/sources/settings_data_source.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_settings.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -21,15 +19,9 @@ class _MockSettingsStreamController extends Mock
 class _MockSettingsDataSource extends Mock implements SettingsDataSource {}
 
 void main() {
-  const settingsDto = SettingsDTO(
-    locale: AppLocale.EN,
-    themeMode: AppThemeMode.LIGHT,
-  );
+  const settingsDto = SettingsDTO(locale: .EN, themeMode: .LIGHT);
 
-  const settings = AppSettings(
-    locale: AppLocale.EN,
-    themeMode: AppThemeMode.LIGHT,
-  );
+  const settings = AppSettings(locale: .EN, themeMode: .LIGHT);
 
   late _MockSettingsConverter mockSettingsConverter;
   late _MockSettingsStreamController mockSettingsStreamController;

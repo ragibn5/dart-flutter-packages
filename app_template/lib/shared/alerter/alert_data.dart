@@ -23,7 +23,7 @@ class AlertData<T> {
       title: title,
       message: message,
       actions: actions,
-      alertType: AlertType.INFO,
+      alertType: .INFO,
     );
   }
 
@@ -36,7 +36,7 @@ class AlertData<T> {
       title: title,
       message: message,
       actions: actions,
-      alertType: AlertType.SUCCESS,
+      alertType: .SUCCESS,
     );
   }
 
@@ -49,7 +49,7 @@ class AlertData<T> {
       title: title,
       message: message,
       actions: actions,
-      alertType: AlertType.WARNING,
+      alertType: .WARNING,
     );
   }
 
@@ -62,7 +62,7 @@ class AlertData<T> {
       title: title,
       message: message,
       actions: actions,
-      alertType: AlertType.ERROR,
+      alertType: .ERROR,
     );
   }
 
@@ -75,7 +75,7 @@ class AlertData<T> {
       title: title,
       message: message,
       actions: actions,
-      alertType: AlertType.PROMPT,
+      alertType: .PROMPT,
     );
   }
 }

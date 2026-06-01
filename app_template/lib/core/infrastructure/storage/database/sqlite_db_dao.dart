@@ -50,7 +50,7 @@ abstract interface class SQLiteDbDao {
     String tableName,
     List<Map<String, Object?>> entities, {
     int chunkSize = 16,
-    DataConflictAlgorithm conflictAlgorithm = DataConflictAlgorithm.REPLACE,
+    DataConflictAlgorithm conflictAlgorithm = .REPLACE,
   });
 
   /// Deletes entities by their IDs and returns the number of deleted entities.

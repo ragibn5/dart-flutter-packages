@@ -1,6 +1,5 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/shared/logger/app_log_level.dart';
 import 'package:app_template/shared/logger/app_log_policy_controller_impl.dart';
 import 'package:app_template/shared/logger/app_logger_id.dart';
 import 'package:dlogger/dlogger.dart';
@@ -21,13 +20,13 @@ void main() {
   });
 
   test('blockLevel delegates to library controller', () {
-    appController.blockLevel(AppLogLevel.INFO);
+    appController.blockLevel(.INFO);
 
     verify(() => mockController.addBlockedLevel(LogLevel.INFO)).called(1);
   });
 
   test('unblockLevel delegates to library controller', () {
-    appController.unblockLevel(AppLogLevel.ERROR);
+    appController.unblockLevel(.ERROR);
 
     verify(() => mockController.removeBlockedLevel(LogLevel.ERROR)).called(1);
   });

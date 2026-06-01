@@ -43,7 +43,7 @@ class SqfLiteDbDaoImpl implements SQLiteDbDao {
     String tableName,
     List<Map<String, Object?>> items, {
     int chunkSize = 16,
-    DataConflictAlgorithm conflictAlgorithm = DataConflictAlgorithm.REPLACE,
+    DataConflictAlgorithm conflictAlgorithm = .REPLACE,
   }) async {
     if (items.isEmpty) {
       return 0;
@@ -174,11 +174,11 @@ class SqfLiteDbDaoImpl implements SQLiteDbDao {
     DataConflictAlgorithm conflictAlgorithm,
   ) {
     return switch (conflictAlgorithm) {
-      DataConflictAlgorithm.ROLLBACK => ConflictAlgorithm.rollback,
-      DataConflictAlgorithm.ABORT => ConflictAlgorithm.abort,
-      DataConflictAlgorithm.FAIL => ConflictAlgorithm.fail,
-      DataConflictAlgorithm.IGNORE => ConflictAlgorithm.ignore,
-      DataConflictAlgorithm.REPLACE => ConflictAlgorithm.replace,
+      .ROLLBACK => ConflictAlgorithm.rollback,
+      .ABORT => ConflictAlgorithm.abort,
+      .FAIL => ConflictAlgorithm.fail,
+      .IGNORE => ConflictAlgorithm.ignore,
+      .REPLACE => ConflictAlgorithm.replace,
     };
   }
 }

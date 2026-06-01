@@ -22,7 +22,7 @@ class SnackData {
     return SnackData._(
       message: message,
       duration: duration,
-      snackType: SnackType.INFO,
+      snackType: .INFO,
       textAlignment: textAlignment,
     );
   }
@@ -35,7 +35,7 @@ class SnackData {
     return SnackData._(
       message: message,
       duration: duration,
-      snackType: SnackType.SUCCESS,
+      snackType: .SUCCESS,
       textAlignment: textAlignment,
     );
   }
@@ -48,7 +48,7 @@ class SnackData {
     return SnackData._(
       message: message,
       duration: duration,
-      snackType: SnackType.WARNING,
+      snackType: .WARNING,
       textAlignment: textAlignment,
     );
   }
@@ -61,7 +61,7 @@ class SnackData {
     return SnackData._(
       message: message,
       duration: duration,
-      snackType: SnackType.ERROR,
+      snackType: .ERROR,
       textAlignment: textAlignment,
     );
   }

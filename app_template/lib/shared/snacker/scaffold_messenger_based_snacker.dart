@@ -36,13 +36,13 @@ class ScaffoldMessengerBasedSnacker implements Snacker {
 
   Color _getBackgroundColor(SnackType type) {
     switch (type) {
-      case SnackType.INFO:
+      case .INFO:
         return AppColors.snackBgInfo;
-      case SnackType.SUCCESS:
+      case .SUCCESS:
         return AppColors.snackBgSuccess;
-      case SnackType.WARNING:
+      case .WARNING:
         return AppColors.snackBgWarning;
-      case SnackType.ERROR:
+      case .ERROR:
         return AppColors.snackBgError;
     }
   }

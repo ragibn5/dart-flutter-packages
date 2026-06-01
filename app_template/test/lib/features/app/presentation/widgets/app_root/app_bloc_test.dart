@@ -75,10 +75,10 @@ void main() {
 
     when(
       () => appPreferenceService.getEffectiveLocale(),
-    ).thenAnswer((_) async => AppLocale.EN);
+    ).thenAnswer((_) async => .EN);
     when(
       () => appPreferenceService.getEffectiveThemeMode(),
-    ).thenAnswer((_) async => AppThemeMode.LIGHT);
+    ).thenAnswer((_) async => .LIGHT);
 
     when(
       () => appPreferenceService.watchLocale(),
@@ -181,7 +181,7 @@ void main() {
       await Future<dynamic>.delayed(const Duration(milliseconds: 50));
 
       // emit new locale
-      localeController.add(AppLocale.AR);
+      localeController.add(.AR);
     },
     wait: const Duration(milliseconds: 100),
     expect: () => [
@@ -203,7 +203,7 @@ void main() {
       await Future<dynamic>.delayed(const Duration(milliseconds: 50));
 
       // emit new theme
-      themeController.add(AppThemeMode.DARK);
+      themeController.add(.DARK);
     },
     wait: const Duration(milliseconds: 100),
     expect: () => [

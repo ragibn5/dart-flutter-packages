@@ -4,7 +4,6 @@ import 'package:app_template/features/app/presentation/widgets/startup_error/sta
 import 'package:app_template/features/app/presentation/widgets/startup_loader/startup_loader_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/models/error_report.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:app_template/generated/l10n.dart';
 import 'package:app_template/router/app_router.dart';
 import 'package:auto_route/auto_route.dart';
@@ -117,9 +116,9 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     }
 
     return switch (state.themeMode) {
-      AppThemeMode.LIGHT => ThemeMode.light,
-      AppThemeMode.DARK => ThemeMode.dark,
-      AppThemeMode.SYSTEM => ThemeMode.system,
+      .LIGHT => ThemeMode.light,
+      .DARK => ThemeMode.dark,
+      .SYSTEM => ThemeMode.system,
     };
   }
 }

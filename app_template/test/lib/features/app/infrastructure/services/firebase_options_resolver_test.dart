@@ -6,7 +6,6 @@ import 'package:app_template/features/app/infrastructure/config/firebase/firebas
     as prod_firebase_options;
 import 'package:app_template/features/app/infrastructure/config/firebase/firebase_options_stage.dart'
     as stage_firebase_options;
-import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/services/firebase_options_resolver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,28 +25,28 @@ void main() {
 
   test('getForFlavor returns dev FirebaseOptions for AppFlavor.DEV', () {
     expect(
-      sut.getForFlavor(AppFlavor.DEV),
+      sut.getForFlavor(.DEV),
       dev_firebase_options.DefaultFirebaseOptions.android,
     );
   });
 
   test('getForFlavor returns exp FirebaseOptions for AppFlavor.EXP', () {
     expect(
-      sut.getForFlavor(AppFlavor.EXP),
+      sut.getForFlavor(.EXP),
       exp_firebase_options.DefaultFirebaseOptions.android,
     );
   });
 
   test('getForFlavor returns stage FirebaseOptions for AppFlavor.STAGE', () {
     expect(
-      sut.getForFlavor(AppFlavor.STAGE),
+      sut.getForFlavor(.STAGE),
       stage_firebase_options.DefaultFirebaseOptions.android,
     );
   });
 
   test('getForFlavor returns prod FirebaseOptions for AppFlavor.PROD', () {
     expect(
-      sut.getForFlavor(AppFlavor.PROD),
+      sut.getForFlavor(.PROD),
       prod_firebase_options.DefaultFirebaseOptions.android,
     );
   });
