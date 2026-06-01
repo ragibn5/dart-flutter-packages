@@ -311,6 +311,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  data_domain_converters:
+    dependency: "direct main"
+    description:
+      path: "packages/data_domain_converters"
+      relative: true
+    source: path
+    version: "0.0.0"
   datetime_utils:
     dependency: "direct main"
     description:

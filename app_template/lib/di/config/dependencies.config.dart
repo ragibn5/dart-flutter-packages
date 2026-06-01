@@ -8,9 +8,6 @@
 // ignore_for_file: type=lint
 // coverage:ignore-file
 
-// ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:app_template/core/converters/data_domain_converter.dart'
-    as _i875;
 import 'package:app_template/core/infrastructure/storage/database/sqlite_db.dart'
     as _i998;
 import 'package:app_template/core/infrastructure/storage/preference/preference_store.dart'
@@ -116,6 +113,8 @@ import 'package:app_template/shared/logger/app_logger.dart' as _i1054;
 import 'package:app_template/shared/snacker/scaffold_messenger_based_snacker.dart'
     as _i916;
 import 'package:app_template/shared/snacker/snacker.dart' as _i638;
+// ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:data_domain_converters/data_domain_converters.dart' as _i875;
 import 'package:dlogger/dlogger.dart' as _i975;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;

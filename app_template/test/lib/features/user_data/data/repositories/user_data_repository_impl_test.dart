@@ -1,10 +1,10 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/core/converters/data_domain_converter.dart';
 import 'package:app_template/features/user_data/data/models/user_data_dto.dart';
 import 'package:app_template/features/user_data/data/repositories/user_data_repository_impl.dart';
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart';
 import 'package:app_template/features/user_data/domain/models/user_data.dart';
+import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

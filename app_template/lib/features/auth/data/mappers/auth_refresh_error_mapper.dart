@@ -1,6 +1,6 @@
-import 'package:app_template/core/converters/data_to_domain_converter.dart';
 import 'package:app_template/core/models/server_message.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
+import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable

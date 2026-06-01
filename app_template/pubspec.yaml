@@ -57,6 +57,8 @@ dependencies:
     path: packages/initializable
   disposable:
     path: packages/disposable
+  data_domain_converters:
+    path: packages/data_domain_converters
   # In-house packages
   string_extensions:
     path: ../string_extensions
