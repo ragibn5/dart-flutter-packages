@@ -5,23 +5,15 @@ import 'dart:convert';
 import 'package:app_template/core/infrastructure/storage/preference/preference_store.dart';
 import 'package:app_template/features/settings/data/models/settings_dto.dart';
 import 'package:app_template/features/settings/data/sources/settings_data_source_impl.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_settings.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockPreferenceStore extends Mock implements PreferenceStore {}
 
 void main() {
-  const settingsDto = SettingsDTO(
-    locale: AppLocale.EN,
-    themeMode: AppThemeMode.LIGHT,
-  );
-  const settings = AppSettings(
-    locale: AppLocale.EN,
-    themeMode: AppThemeMode.LIGHT,
-  );
+  const settingsDto = SettingsDTO(locale: .EN, themeMode: .LIGHT);
+  const settings = AppSettings(locale: .EN, themeMode: .LIGHT);
   final encodedSettingsDto = jsonEncode(settingsDto.toJson());
 
   late _MockPreferenceStore mockPreferenceStore;

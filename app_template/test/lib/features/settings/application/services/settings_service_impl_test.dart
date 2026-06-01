@@ -82,7 +82,7 @@ void main() {
     () async {
       when(
         () => mockSettingsRepository.getCurrentSettings(),
-      ).thenAnswer((_) async => const AppSettings(locale: AppLocale.EN));
+      ).thenAnswer((_) async => const AppSettings(locale: .EN));
 
       final result = await sut.getEffectiveLocale();
       expect(result, AppLocale.EN);
@@ -106,7 +106,7 @@ void main() {
       ).thenAnswer((_) => localeComponents);
       when(
         () => mockAppLocaleResolver.resolveLocale(localeComponents),
-      ).thenAnswer((_) => AppLocale.AR);
+      ).thenAnswer((_) => .AR);
 
       final result = await sut.getEffectiveLocale();
       expect(result, AppLocale.AR);
@@ -126,7 +126,7 @@ void main() {
       ).thenAnswer((_) => localeComponents);
       when(
         () => mockAppLocaleResolver.resolveLocale(localeComponents),
-      ).thenAnswer((_) => AppLocale.EN);
+      ).thenAnswer((_) => .EN);
 
       final result = await sut.getEffectiveLocale();
       expect(result, AppLocale.EN);
@@ -136,9 +136,9 @@ void main() {
   test(
     'If a theme-mode setting is persisted, `getEffectiveThemeMode` returns that.',
     () async {
-      when(() => mockSettingsRepository.getCurrentSettings()).thenAnswer(
-        (_) async => const AppSettings(themeMode: AppThemeMode.DARK),
-      );
+      when(
+        () => mockSettingsRepository.getCurrentSettings(),
+      ).thenAnswer((_) async => const AppSettings(themeMode: .DARK));
 
       final result = await sut.getEffectiveThemeMode();
       expect(result, AppThemeMode.DARK);
@@ -160,22 +160,16 @@ void main() {
   test(
     '`setLocale` should persist given local settings while keeping other unchanged',
     () async {
-      const appSettings = AppSettings(
-        locale: AppLocale.EN,
-        themeMode: AppThemeMode.DARK,
-      );
+      const appSettings = AppSettings(locale: .EN, themeMode: .DARK);
 
       when(
         () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => appSettings);
 
-      await sut.setLocale(AppLocale.AR);
+      await sut.setLocale(.AR);
       verify(
         () => mockSettingsRepository.setCurrentSettings(
-          appSettings.copyWith(
-            locale: AppLocale.AR,
-            themeMode: AppThemeMode.DARK,
-          ),
+          appSettings.copyWith(locale: .AR, themeMode: .DARK),
         ),
       );
     },
@@ -184,22 +178,16 @@ void main() {
   test(
     '`setThemeMode` should persist given theme-mode settings while keeping other unchanged',
     () async {
-      const appSettings = AppSettings(
-        locale: AppLocale.AR,
-        themeMode: AppThemeMode.LIGHT,
-      );
+      const appSettings = AppSettings(locale: .AR, themeMode: .LIGHT);
 
       when(
         () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => appSettings);
 
-      await sut.setThemeMode(AppThemeMode.DARK);
+      await sut.setThemeMode(.DARK);
       verify(
         () => mockSettingsRepository.setCurrentSettings(
-          appSettings.copyWith(
-            locale: AppLocale.AR,
-            themeMode: AppThemeMode.DARK,
-          ),
+          appSettings.copyWith(locale: .AR, themeMode: .DARK),
         ),
       );
     },
@@ -207,27 +195,24 @@ void main() {
 
   test('Stream obtained from `watchLocale` emit correct values', () async {
     await testLocaleStream(
-      const AppSettings(locale: AppLocale.AR),
+      const AppSettings(locale: .AR),
       LocaleComponents(languageCode: AppLocale.EN.languageCode),
-      AppLocale.AR,
+      .AR,
     );
     await testLocaleStream(
       const AppSettings(),
       LocaleComponents(languageCode: AppLocale.AR.languageCode),
-      AppLocale.AR,
+      .AR,
     );
     await testLocaleStream(
       const AppSettings(),
       const LocaleComponents(languageCode: 'fr'),
-      AppLocale.EN,
+      .EN,
     );
   });
 
   test('Stream obtained from `watchThemeMode` emit correct values', () async {
-    await testThemeModeStream(const AppSettings(), AppThemeMode.SYSTEM);
-    await testThemeModeStream(
-      const AppSettings(themeMode: AppThemeMode.DARK),
-      AppThemeMode.DARK,
-    );
+    await testThemeModeStream(const AppSettings(), .SYSTEM);
+    await testThemeModeStream(const AppSettings(themeMode: .DARK), .DARK);
   });
 }

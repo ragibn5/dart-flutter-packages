@@ -58,19 +58,15 @@ class NetKitExceptionTransformer {
     TransportExceptionType netKitTransportErrorType,
   ) {
     return switch (netKitTransportErrorType) {
-      TransportExceptionType.CONNECTION_TIMEOUT =>
-        TransportErrorType.CONNECTION_TIMEOUT,
+      .CONNECTION_TIMEOUT => .CONNECTION_TIMEOUT,
 
-      TransportExceptionType.SEND_TIMEOUT => TransportErrorType.SEND_TIMEOUT,
+      .SEND_TIMEOUT => .SEND_TIMEOUT,
 
-      TransportExceptionType.RECEIVE_TIMEOUT =>
-        TransportErrorType.RECEIVE_TIMEOUT,
+      .RECEIVE_TIMEOUT => .RECEIVE_TIMEOUT,
 
-      TransportExceptionType.CONNECTION_ERROR =>
-        TransportErrorType.CONNECTION_ERROR,
+      .CONNECTION_ERROR => .CONNECTION_ERROR,
 
-      TransportExceptionType.BAD_CERTIFICATE =>
-        TransportErrorType.BAD_CERTIFICATE,
+      .BAD_CERTIFICATE => .BAD_CERTIFICATE,
     };
   }
 }

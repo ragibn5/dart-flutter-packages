@@ -34,13 +34,13 @@ class AppLogPolicyControllerImpl implements AppLogPolicyController {
 
   LogLevel _toExternalLogLevel(AppLogLevel level) {
     switch (level) {
-      case AppLogLevel.DEBUG:
+      case .DEBUG:
         return LogLevel.DEBUG;
-      case AppLogLevel.INFO:
+      case .INFO:
         return LogLevel.INFO;
-      case AppLogLevel.WARNING:
+      case .WARNING:
         return LogLevel.WARNING;
-      case AppLogLevel.ERROR:
+      case .ERROR:
         return LogLevel.ERROR;
     }
   }

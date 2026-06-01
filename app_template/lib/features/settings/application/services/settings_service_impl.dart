@@ -27,7 +27,7 @@ class SettingsServiceImpl implements SettingsService {
       return persistedSettings.locale!;
     }
 
-    return _resolvePlatformLocale(AppLocale.EN);
+    return _resolvePlatformLocale(.EN);
   }
 
   @override
@@ -41,7 +41,7 @@ class SettingsServiceImpl implements SettingsService {
   @override
   Stream<AppLocale> watchLocale() => _settingsRepository
       .getSettingsStream()
-      .map((e) => e.locale ?? _resolvePlatformLocale(AppLocale.EN))
+      .map((e) => e.locale ?? _resolvePlatformLocale(.EN))
       .distinct();
 
   @override
@@ -51,7 +51,7 @@ class SettingsServiceImpl implements SettingsService {
       return persistedSettings.themeMode!;
     }
 
-    return AppThemeMode.SYSTEM;
+    return .SYSTEM;
   }
 
   @override
@@ -65,11 +65,11 @@ class SettingsServiceImpl implements SettingsService {
   @override
   Stream<AppThemeMode> watchThemeMode() => _settingsRepository
       .getSettingsStream()
-      .map((settings) => settings.themeMode ?? AppThemeMode.SYSTEM)
+      .map((settings) => settings.themeMode ?? .SYSTEM)
       .distinct();
 
   AppLocale _resolvePlatformLocale(AppLocale defaultValue) {
     final platformLocale = _platformSettingsProvider.getSystemaLocale();
-    return _appLocaleResolver.resolveLocale(platformLocale) ?? AppLocale.EN;
+    return _appLocaleResolver.resolveLocale(platformLocale) ?? .EN;
   }
 }

@@ -14,14 +14,10 @@ class FirebaseOptionsResolver {
 
   FirebaseOptions getForFlavor(AppFlavor flavor) {
     return switch (flavor) {
-      AppFlavor.DEV =>
-        dev_firebase_options.DefaultFirebaseOptions.currentPlatform,
-      AppFlavor.EXP =>
-        exp_firebase_options.DefaultFirebaseOptions.currentPlatform,
-      AppFlavor.STAGE =>
-        stage_firebase_options.DefaultFirebaseOptions.currentPlatform,
-      AppFlavor.PROD =>
-        prod_firebase_options.DefaultFirebaseOptions.currentPlatform,
+      .DEV => dev_firebase_options.DefaultFirebaseOptions.currentPlatform,
+      .EXP => exp_firebase_options.DefaultFirebaseOptions.currentPlatform,
+      .STAGE => stage_firebase_options.DefaultFirebaseOptions.currentPlatform,
+      .PROD => prod_firebase_options.DefaultFirebaseOptions.currentPlatform,
     };
   }
 }

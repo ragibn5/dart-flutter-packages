@@ -61,15 +61,15 @@ class RouterNavigatorBasedAlerter implements Alerter {
   @visibleForOverriding
   Widget buildAlertIcon(AlertType type) {
     switch (type) {
-      case AlertType.INFO:
+      case .INFO:
         return const Icon(Icons.info);
-      case AlertType.SUCCESS:
+      case .SUCCESS:
         return const Icon(Icons.check_circle);
-      case AlertType.WARNING:
+      case .WARNING:
         return const Icon(Icons.warning);
-      case AlertType.ERROR:
+      case .ERROR:
         return const Icon(Icons.error);
-      case AlertType.PROMPT:
+      case .PROMPT:
         return const Icon(Icons.question_mark_rounded);
     }
   }

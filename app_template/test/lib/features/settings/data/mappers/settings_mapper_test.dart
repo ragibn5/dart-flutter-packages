@@ -2,21 +2,13 @@
 
 import 'package:app_template/features/settings/data/mappers/settings_mapper.dart';
 import 'package:app_template/features/settings/data/models/settings_dto.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_settings.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const settingsDto = SettingsDTO(
-    locale: AppLocale.EN,
-    themeMode: AppThemeMode.LIGHT,
-  );
+  const settingsDto = SettingsDTO(locale: .EN, themeMode: .LIGHT);
 
-  const settings = AppSettings(
-    locale: AppLocale.EN,
-    themeMode: AppThemeMode.LIGHT,
-  );
+  const settings = AppSettings(locale: .EN, themeMode: .LIGHT);
 
   late SettingsMapper settingsMapper;
 
