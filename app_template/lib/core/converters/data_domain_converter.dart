@@ -1,5 +1,7 @@
-abstract interface class DataDomainConverter<DataModel, DomainModel> {
-  DomainModel convertDataToDomain(DataModel dataModel);
+import 'package:app_template/core/converters/data_to_domain_converter.dart';
+import 'package:app_template/core/converters/domain_to_data_converter.dart';
 
-  DataModel convertDomainToData(DomainModel domainModel);
-}
+abstract interface class DataDomainConverter<DataModel, DomainModel>
+    implements
+        DataToDomainConverter<DataModel, DomainModel>,
+        DomainToDataConverter<DataModel, DomainModel> {}
