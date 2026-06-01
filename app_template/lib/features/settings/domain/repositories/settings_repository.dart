@@ -1,5 +1,5 @@
-import 'package:app_template/core/contracts/disposable.dart';
 import 'package:app_template/features/settings/domain/models/app_settings.dart';
+import 'package:disposable/disposable.dart';
 
 abstract interface class SettingsRepository implements Disposable {
   /// Get the current app settings.

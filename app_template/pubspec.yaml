@@ -55,6 +55,8 @@ dependencies:
   # App-private packages
   initializable:
     path: packages/initializable
+  disposable:
+    path: packages/disposable
   # In-house packages
   string_extensions:
     path: ../string_extensions

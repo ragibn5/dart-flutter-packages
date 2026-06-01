@@ -1,0 +1,10 @@
+name: disposable
+description: Collection of reusable disposition contracts and services.
+
+publish_to: none
+
+environment:
+  sdk: ^3.0.6
+
+dev_dependencies:
+  test: ^1.25.5
