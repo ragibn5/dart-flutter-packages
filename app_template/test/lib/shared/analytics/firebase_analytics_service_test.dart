@@ -10,8 +10,6 @@ class _MockFirebaseAnalytics extends Mock implements FirebaseAnalytics {}
 void main() {
   const userId = 'userId123';
   const connectionEnabled = true;
-  const userPropName = 'age';
-  const userPropValue = '30';
   const eventName = 'flavor_config';
   const eventValue = {'name': 'dev', 'brightness': 'light', 'locale': 'en-US'};
 
@@ -50,7 +48,7 @@ void main() {
     () async {
       await firebaseAnalyticsService.setSessionData(
         userId,
-        enabled: connectionEnabled,
+        collectionEnabled: connectionEnabled,
       );
 
       verify(() => mockFirebaseAnalytics.setUserId(id: userId)).called(1);
@@ -61,20 +59,6 @@ void main() {
       ).called(1);
     },
   );
-
-  test('`setUserProperty` should set correct user properties', () async {
-    await firebaseAnalyticsService.setUserProperty(
-      name: userPropName,
-      value: userPropValue,
-    );
-
-    verify(
-      () => mockFirebaseAnalytics.setUserProperty(
-        name: userPropName,
-        value: userPropValue,
-      ),
-    ).called(1);
-  });
 
   test('`logEvent` should log correct event with correct value', () async {
     await firebaseAnalyticsService.logEvent(eventName, eventValue);

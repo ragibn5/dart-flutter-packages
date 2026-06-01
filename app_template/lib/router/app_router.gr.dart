@@ -9,7 +9,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:app_template/features/app/presentation/widgets/root_redirection_screen.dart'
+import 'package:app_template/features/app/presentation/widgets/root_redirection/root_redirection_page.dart'
     as _i3;
 import 'package:app_template/features/auth/presentation/screens/login_screen.dart'
     as _i2;
@@ -50,7 +50,7 @@ class LoginRoute extends _i4.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i3.RootRedirectionScreen]
+/// [_i3.RootRedirectionPage]
 class RootRedirectionRoute extends _i4.PageRouteInfo<void> {
   const RootRedirectionRoute({List<_i4.PageRouteInfo>? children})
     : super(RootRedirectionRoute.name, initialChildren: children);
@@ -60,7 +60,7 @@ class RootRedirectionRoute extends _i4.PageRouteInfo<void> {
   static _i4.PageInfo page = _i4.PageInfo(
     name,
     builder: (data) {
-      return const _i3.RootRedirectionScreen();
+      return const _i3.RootRedirectionPage();
     },
   );
 }

@@ -12,7 +12,6 @@ class _MockFirebaseCrashlytics extends Mock implements FirebaseCrashlytics {}
 void main() {
   const userId = 'userId123';
   const connectionEnabled = true;
-  const logMessage = 'Sample log message';
   const reason = 'Testing reason';
   const printDetails = true;
   const fatal = false;
@@ -85,7 +84,7 @@ void main() {
   test(
     '`setSessionData` should set user Id and analytics collection enabled status',
     () async {
-      await sut.setSessionData(userId, enabled: connectionEnabled);
+      await sut.setSessionData(userId, collectionEnabled: connectionEnabled);
 
       verify(() => mockFirebaseCrashlytics.setUserIdentifier(userId)).called(1);
       verify(
@@ -95,12 +94,6 @@ void main() {
       ).called(1);
     },
   );
-
-  test('`log` should call FirebaseCrashlytics.log with same data', () async {
-    await sut.log(logMessage);
-
-    verify(() => mockFirebaseCrashlytics.log(logMessage)).called(1);
-  });
 
   test(
     '`recordError` should call FirebaseCrashlytics.recordError with appropriate data',
@@ -119,20 +112,6 @@ void main() {
           st,
           reason: reason,
           printDetails: printDetails,
-          fatal: fatal,
-        ),
-      ).called(1);
-    },
-  );
-
-  test(
-    '`recordFlutterError` should call FirebaseCrashlytics.recordFlutterError with appropriate data',
-    () async {
-      await sut.recordFlutterError(flutterError, fatal: fatal);
-
-      verify(
-        () => mockFirebaseCrashlytics.recordFlutterError(
-          flutterError,
           fatal: fatal,
         ),
       ).called(1);

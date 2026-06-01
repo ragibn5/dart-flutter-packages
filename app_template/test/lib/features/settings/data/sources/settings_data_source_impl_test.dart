@@ -18,12 +18,11 @@ void main() {
     locale: AppLocale.EN,
     themeMode: AppThemeMode.LIGHT,
   );
-  final encodedSettingsDto = jsonEncode(settingsDto.toJson());
-
   const settings = AppSettings(
     locale: AppLocale.EN,
     themeMode: AppThemeMode.LIGHT,
   );
+  final encodedSettingsDto = jsonEncode(settingsDto.toJson());
 
   late _MockPreferenceStore mockPreferenceStore;
 
@@ -49,10 +48,24 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
-  test('`getCurrentSettings` should return correct dto', () async {
+  test(
+    '`getCurrentSettings` should return null if data is not persisted',
+    () async {
+      when(
+        () => mockPreferenceStore.getString(any()),
+      ).thenAnswer((_) async => null);
+
+      final result = await settingsDataSourceImpl.getCurrentSettings();
+
+      expect(result, isNull);
+    },
+  );
+
+  test('`getCurrentSettings` should return correct dto if persisted', () async {
     final result = await settingsDataSourceImpl.getCurrentSettings();
-    expect(result.locale, settingsDto.locale);
-    expect(result.themeMode, settingsDto.themeMode);
+
+    expect(result?.locale, settingsDto.locale);
+    expect(result?.themeMode, settingsDto.themeMode);
     verify(
       () => mockPreferenceStore.getString(SettingsDataSourceImpl.preferenceKey),
     ).called(1);

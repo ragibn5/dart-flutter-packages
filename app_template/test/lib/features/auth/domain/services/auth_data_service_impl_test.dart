@@ -1,6 +1,5 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/core/models/api_error.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
@@ -74,16 +73,10 @@ void main() {
       ).thenAnswer((_) async => null);
 
       final result = await sut.refreshCurrentAuthData();
-      result.fold(
-        onSuccess: (d) {
-          fail('Should not success');
-        },
-        onFailure: (e) {
-          expect(e, isA<ApiError<AuthDataRefreshError>>());
-          expect(e.isServerError, true);
-          expect(e.serverErrorOrNull, isA<InvalidAuthStateForRefresh>());
-        },
-      );
+      expect(result.isRight, true);
+      final innerEither = result.rightOrThrow;
+      expect(innerEither.isLeft, true);
+      expect(innerEither.leftOrThrow, isA<InvalidAuthStateForRefresh>());
     },
   );
 }

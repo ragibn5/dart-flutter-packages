@@ -35,6 +35,10 @@ class SettingsRepositoryImpl implements SettingsRepository {
   @override
   Future<AppSettings> getCurrentSettings() async {
     final settingsDTO = await _settingsDataSource.getCurrentSettings();
+    if(settingsDTO == null) {
+      return const AppSettings();
+    }
+
     return _settingsMapper.convertDataToDomain(settingsDTO);
   }
 

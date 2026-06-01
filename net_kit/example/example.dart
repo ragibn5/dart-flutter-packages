@@ -1,101 +1,32 @@
 import 'package:net_kit/net_kit.dart';
 
-class User {
-  final int id;
-  final String name;
-
-  const User({
-    required this.id,
-    required this.name,
-  });
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'] as int,
-      name: json['name'] as String,
-    );
-  }
-}
-
-class ApiError {
-  final String message;
-
-  const ApiError(this.message);
-
-  factory ApiError.fromJson(Map<String, dynamic> json) {
-    return ApiError(json['message'] as String? ?? 'Unknown error');
-  }
-}
-
-class UserCodec implements RequestCodec<Object?, User, ApiError> {
-  const UserCodec();
-
-  @override
-  Object? encodeBody(Object? body) => body;
-
-  @override
-  User decodeResponse(dynamic raw) {
-    return User.fromJson(raw as Map<String, dynamic>);
-  }
-
-  @override
-  ApiError decodeError(dynamic raw) {
-    return ApiError.fromJson(raw as Map<String, dynamic>);
-  }
-}
-
 Future<void> main() async {
-  final dio = Dio(
-    BaseOptions(
+  final client = NetClientFactory().create(
+    const ClientConfig(
       baseUrl: 'https://example.com/api',
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 5),
+      connectionTimeout: Duration(seconds: 5),
+      receiveTimeout: Duration(seconds: 5),
     ),
   );
 
-  // Ignore this block
-  dio.interceptors.add(
-    InterceptorsWrapper(
-      onRequest: (options, handler) {
-        handler.resolve(
-          Response<dynamic>(
-            requestOptions: options,
-            statusCode: 200,
-            data: const {
-              'id': 1,
-              'name': 'Ragib',
-            },
-          ),
-        );
-      },
-    ),
+  final request = RequestSpec(
+    pathOrUrl: '/users',
+    method: HttpMethod.POST,
+    body: const JsonBody({'name': 'Ragib'}),
+    sendTimeout: const Duration(seconds: 2),
+    receiveTimeout: const Duration(seconds: 2),
   );
 
-  final netKit = NetKit(dio);
-
-  final request = RequestSpec<Object?, User, ApiError>(
-    path: '/users/1',
-    method: HttpMethod.GET,
-    body: null,
-    codec: const UserCodec(),
-  );
-
-  final result = await netKit.execute(request);
+  final result = await client.execute(spec: request);
 
   result.fold(
-    onSuccess: (user) {
-      print('User: ${user.name}');
+    onSuccess: (response) {
+      print('Success: ${response.data}');
     },
     onError: (error) {
       switch (error) {
-        case DomainException<ApiError>(error: final apiError):
-          print('API error: ${apiError.message}');
-        case DomainException():
-          print('API error');
-        case NetworkException(type: final type):
-          print('Network error: $type');
-        case ParseException():
-          print('Response parsing failed');
+        case TransportException(type: final type):
+          print('Transport error: $type');
         case UnexpectedException(message: final message):
           print('Unexpected error: $message');
         case CancellationException():

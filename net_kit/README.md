@@ -18,242 +18,77 @@ dependencies:
 
 ## Get started
 
-### 1. Create your response and error models
+### 1. Create the client
 
 ```dart
-class User {
-  final int id;
-  final String name;
-
-  const User({
-    required this.id,
-    required this.name,
-  });
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'] as int,
-      name: json['name'] as String,
-    );
-  }
-}
-
-class ApiError {
-  final String message;
-
-  const ApiError(this.message);
-
-  factory ApiError.fromJson(Map<String, dynamic> json) {
-    return ApiError(json['message'] as String? ?? 'Unknown error');
-  }
-}
-```
-
-If you already have these, you may skip this step.
-
-### 2. Implement a `RequestCodec`
-
-`RequestCodec<Req, Res, Err>` tells `NetKit` how to:
-
-- Encode the request body
-- Decode the success body into `Res`
-- Decode the error body into `Err`
-
-```dart
-class UserCodec implements RequestCodec<Object?, User, ApiError> {
-  const UserCodec();
-
-  @override
-  Object? encodeBody(Object? body) => body;
-
-  @override
-  User decodeResponse(dynamic raw) {
-    return User.fromJson(raw as Map<String, dynamic>);
-  }
-
-  @override
-  ApiError decodeError(dynamic raw) {
-    return ApiError.fromJson(raw as Map<String, dynamic>);
-  }
-}
-```
-
-### 3. Create and configure `Dio`
-
-```dart
-
-final dio = Dio(
-  BaseOptions(
+final client = NetClientFactory.create(
+  const ClientConfig(
     baseUrl: 'https://your-api.example.com',
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 5),
+    connectionTimeout: Duration(seconds: 5),
+    receiveTimeout: Duration(seconds: 5),
   ),
 );
 ```
 
-Configure interceptors, headers, auth, retries, or logging on `dio` exactly as you normally would.
+### 2. Build a `RequestSpec`
 
-### 4. Create `NetKit`
-
-```dart
-
-final netKit = NetKit(dio);
-```
-
-### 5. Build a `RequestSpec`
-
-`RequestSpec<Req, Res, Err>` describes one request:
+`RequestSpec` describes a request, for example:
 
 ```dart
-
-final request = RequestSpec<Object?, User, ApiError>(
-  path: '/users/1',
-  method: HttpMethod.GET,
-  body: null,
-  codec: const UserCodec(),
-);
-```
-
-Example with query parameters and headers:
-
-```dart
-
-final request = RequestSpec<Map<String, dynamic>, User, ApiError>(
-  path: '/users',
+final request = RequestSpec(
+  pathOrUrl: '/users',
   method: HttpMethod.POST,
-  body: const {'name': 'Ragib'},
-  codec: const UserCodec(),
+  body: const JsonBody({'name': 'Ragib'}),
   queryParameters: const {'include': 'profile'},
   headers: const {'x-request-id': 'abc-123'},
+  sendTimeout: const Duration(seconds: 3),
+  receiveTimeout: const Duration(seconds: 3),
 );
 ```
 
-### 6. Execute the request
+#### Note
+
+The content type is automatically inferred for the following body types, and can also be provided
+explicitly if you want to override the default ones.
+
+- `JsonBody` → `application/json`
+- `FormUrlEncodedBody` → `application/x-www-form-urlencoded`
+- `MultipartBody` → `multipart/form-data`
+
+But for `RawBody`, the content type **must be provided explicitly**, as raw data may represent different
+types of data.
+
+### 3. Execute and handle the request
+
+`execute(...)` returns:
+
+- `Result.error(...)` contains infrastructure failures as `NetKitException`.
+  See `NetKitException` and its subtypes for more details.
+- `Result.success(ApiResponse(...))` contains the response data.
+  See the `ApiResponse` type for more details.
+
+For example:
 
 ```dart
 void main() async {
-  final result = await netKit.execute(request, null, null, null);
-}
-```
+  // Execute
+  final result = await client.execute(spec: request);
 
-Arguments after `request` are:
-
-- `CancelToken? cancelToken`
-- `ProgressCallback? onSendProgress`
-- `ProgressCallback? onReceiveProgress`
-
-Example with a cancel token:
-
-```dart
-void main() async {
-  final cancelToken = CancelToken();
-  final result = await netKit.execute(request, cancelToken, null, null);
-}
-```
-
-### 7. Handle the result
-
-On success, you get your decoded `Res`.
-On failure, you get a `NetKitException`.
-
-```dart
-void main() async {
+  // Handle response as needed
   result.fold(
-    onSuccess: (user) {
-      print(user.name);
+    onSuccess: (response) {
+      print('Success: ${response.data}');
     },
     onError: (error) {
       switch (error) {
-        case DomainException<ApiError>(error: final apiError):
-          print('API error: ${apiError.message}');
-        case DomainException():
-          print('API error');
-        case NetworkException(type: final type):
-          print('Network error: $type');
-        case ParseException():
-          print('Parsing failed');
+        case TransportException(type: final type):
+          print('Transport/Network error: $type');
         case UnexpectedException(message: final message):
           print('Unexpected error: $message');
         case CancellationException():
           print('Cancelled');
-        case ApplicationException():
-          print('Application error');
       }
     },
-  );
-}
-```
-
-## Error Model
-
-`NetKit.execute(...)` returns:
-
-```dart
-Result<NetKitException, Res>
-```
-
-Possible error types:
-
-- `DomainException<Err>`
-  The server responded with an error body, and `decodeError(...)` succeeded.
-- `NetworkException`
-  Dio reported a transport-level failure such as timeout, certificate issue, or
-  connection failure.
-- `ParseException`
-  Encoding or decoding failed.
-- `CancellationException`
-  The request was cancelled.
-- `UnexpectedException`
-  An uncategorized failure occurred.
-
-## Custom Error Classification
-
-By default, responses with `statusCode >= 400` are treated as errors.
-
-If your backend uses something else, provide a custom `ResponseClassifier` in
-the request spec.
-
-Example: an API that always returns `200` and uses `success: false` in the
-response body.
-
-```dart
-class ApiResponseClassifier implements ResponseClassifier {
-  const ApiResponseClassifier();
-
-  @override
-  bool isError(Response<dynamic> response) {
-    final body = response.data as Map<String, dynamic>?;
-    return body?['success'] != true;
-  }
-}
-
-final request = RequestSpec<Object?, User, ApiError>(
-  path: '/users/1',
-  method: HttpMethod.GET,
-  body: null,
-  codec: const UserCodec(),
-  responseClassifier: const ApiResponseClassifier(),
-);
-```
-
-## Raw Methods
-
-Use these when you want direct `dio` behavior without codec-based decoding:
-
-- `executeRaw`
-- `executeRawWithOptions`
-- `download`
-- `downloadUri`
-- `close`
-
-Example:
-
-```dart
-void main() async {
-  final response = await
-  netKit.executeRaw(
-    '/files/report.pdf'
-    , options: Options(method: 'GET'),
   );
 }
 ```

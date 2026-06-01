@@ -1,27 +1,22 @@
-// ignore_for_file: lines_longer_than_80_char
-// ignore_for_file: avoid_redundant_argument_values
+// ignore_for_file: lines_longer_than_80_chars
 
 import 'package:app_template/core/models/api_error.dart';
+import 'package:app_template/core/models/api_response.dart';
 import 'package:app_template/core/models/server_message.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
-import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_error_mapper.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:net_kit/net_kit.dart';
 
-class _MockDio extends Mock implements Dio {}
-
-class _MockDioFeatureApiErrorMapper extends Mock
-    implements AppServerTokenRefreshApiErrorMapper {}
+class _MockNetClient extends Mock implements NetClient {}
 
 void main() {
   const path = AppServerTokenRefreshApiClientImpl.path;
   const tokenRefreshRequest = TokenRefreshRequest(refreshToken: 'refreshToken');
 
   final now = DateTime.now().toUtc();
-  final options = Options(method: 'GET');
   final sampleAuthData = AuthDataDTO(
     userId: 'userId',
     accessToken: 'new_access_token',
@@ -29,114 +24,130 @@ void main() {
     accessTokenExpiry: now.add(const Duration(days: 1)),
     refreshTokenExpiry: now.add(const Duration(days: 2)),
   );
+  const sampleServerMessage = ServerMessage(code: 'error', message: 'Error');
 
-  late _MockDio mockDio;
-  late _MockDioFeatureApiErrorMapper mockErrorMapper;
-
+  late _MockNetClient mockNetClient;
   late AppServerTokenRefreshApiClientImpl sut;
 
   setUpAll(() {
-    registerFallbackValue(options);
-    registerFallbackValue(tokenRefreshRequest);
-    registerFallbackValue(StackTrace.empty);
+    registerFallbackValue(RequestSpec(pathOrUrl: '', method: HttpMethod.GET));
+    registerFallbackValue(const DefaultResponseClassifier());
   });
 
   setUp(() {
-    mockDio = _MockDio();
-    mockErrorMapper = _MockDioFeatureApiErrorMapper();
-
-    sut = AppServerTokenRefreshApiClientImpl(mockDio, mockErrorMapper);
+    mockNetClient = _MockNetClient();
+    sut = AppServerTokenRefreshApiClientImpl(mockNetClient);
   });
 
   test('createRequest returns request model with proper values', () {
     final result = sut.createRequest(tokenRefreshRequest);
 
     expect(result.pathOrUrl, path);
-    expect(result.data, tokenRefreshRequest.toJson());
-    expect(result.options?.method?.toUpperCase(), 'GET');
+    expect(result.method, HttpMethod.GET);
+    expect(result.body, isA<JsonBody>());
+    final body = result.body! as JsonBody;
+    expect(body.data, tokenRefreshRequest.toJson());
   });
 
-  test('decodeResponse returns AuthDataDTO from response data', () {
-    final result = sut.decodeResponse(sampleAuthData.toJson());
+  test('decodeResponse returns AuthDataDTO from non-error response', () {
+    final response = NetKitResponse(
+      isError: false,
+      statusCode: 200,
+      data: sampleAuthData.toJson(),
+      headers: {},
+      requestSpec: RequestSpec(pathOrUrl: '', method: HttpMethod.GET),
+    );
 
-    expect(result, isA<AuthDataDTO>());
-    expect(result, sampleAuthData);
+    final result = sut.decodeResponse(response);
+
+    expect(result, isA<Success<AuthDataDTO>>());
+    expect((result as Success).data, sampleAuthData);
   });
 
-  test('request returns success when API call succeeds', () async {
+  test('decodeResponse returns Failure from error response', () {
+    final response = NetKitResponse(
+      isError: true,
+      statusCode: 400,
+      data: sampleServerMessage.toJson(),
+      headers: {},
+      requestSpec: RequestSpec(pathOrUrl: '', method: HttpMethod.GET),
+    );
+
+    final result = sut.decodeResponse(response);
+
+    expect(result, isA<Failure<ServerMessage>>());
+    expect((result as Failure).error, sampleServerMessage);
+  });
+
+  test(
+    'request returns Right with AuthDataDTO when API call succeeds',
+    () async {
+      final netKitResponse = NetKitResponse(
+        isError: false,
+        statusCode: 200,
+        data: sampleAuthData.toJson(),
+        headers: {},
+        requestSpec: RequestSpec(pathOrUrl: '', method: HttpMethod.GET),
+      );
+
+      when(
+        () => mockNetClient.execute(
+          spec: any(named: 'spec'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+          requestCanceller: any(named: 'requestCanceller'),
+          responseClassifier: any(named: 'responseClassifier'),
+        ),
+      ).thenAnswer((_) async => Result.success(netKitResponse));
+
+      final result = await sut.request(tokenRefreshRequest);
+
+      expect(result.isRight, true);
+      final apiResponse = result.rightOrThrow;
+      expect(apiResponse, isA<Success<AuthDataDTO>>());
+      expect((apiResponse as Success).data, sampleAuthData);
+
+      verify(
+        () => mockNetClient.execute(
+          spec: any(named: 'spec'),
+          onSendProgress: any(named: 'onSendProgress'),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+          requestCanceller: any(named: 'requestCanceller'),
+          responseClassifier: any(named: 'responseClassifier'),
+        ),
+      ).called(1);
+    },
+  );
+
+  test('request returns Left with ApiError when API call throws', () async {
+    final exception = TransportException(
+      type: TransportExceptionType.CONNECTION_ERROR,
+      request: RequestSpec(pathOrUrl: '', method: HttpMethod.GET),
+    );
+
     when(
-      () => mockDio.request<dynamic>(
-        any(),
-        data: any(named: 'data'),
-        queryParameters: any(named: 'queryParameters'),
-        cancelToken: any(named: 'cancelToken'),
+      () => mockNetClient.execute(
+        spec: any(named: 'spec'),
         onSendProgress: any(named: 'onSendProgress'),
         onReceiveProgress: any(named: 'onReceiveProgress'),
+        requestCanceller: any(named: 'requestCanceller'),
+        responseClassifier: any(named: 'responseClassifier'),
       ),
-    ).thenAnswer(
-      (_) async => Response(
-        data: sampleAuthData.toJson(),
-        requestOptions: RequestOptions(path: path),
-        statusCode: 200,
-      ),
-    );
+    ).thenAnswer((_) async => Result.error(exception));
 
     final result = await sut.request(tokenRefreshRequest);
 
-    expect(result.isSuccess, true);
-    result.fold(
-      onSuccess: (data) {
-        expect(data, isA<AuthDataDTO>());
-        expect(data, sampleAuthData);
-      },
-      onFailure: (_) => fail('Expected success'),
-    );
+    expect(result.isLeft, true);
+    expect(result.leftOrThrow, isA<TransportError>());
 
     verify(
-      () => mockDio.request<dynamic>(
-        path,
-        data: tokenRefreshRequest.toJson(),
-        queryParameters: null,
-        cancelToken: null,
-        onSendProgress: null,
-        onReceiveProgress: null,
-      ),
-    ).called(1);
-  });
-
-  test('request returns failure when API call throws exception', () async {
-    final exception = DioException(
-      requestOptions: RequestOptions(path: path),
-      type: DioExceptionType.connectionTimeout,
-    );
-    final mappedError = ApiError<ServerError<ServerMessage>>.fromNetworkError(
-      const ConnectionTimeout(message: 'Connection timeout'),
-    );
-
-    when(
-      () => mockDio.request<dynamic>(
-        any(),
-        data: any(named: 'data'),
-        queryParameters: any(named: 'queryParameters'),
-        cancelToken: any(named: 'cancelToken'),
+      () => mockNetClient.execute(
+        spec: any(named: 'spec'),
         onSendProgress: any(named: 'onSendProgress'),
         onReceiveProgress: any(named: 'onReceiveProgress'),
+        requestCanceller: any(named: 'requestCanceller'),
+        responseClassifier: any(named: 'responseClassifier'),
       ),
-    ).thenThrow(exception);
-
-    when(() => mockErrorMapper.mapError(any(), any())).thenReturn(mappedError);
-
-    final result = await sut.request(tokenRefreshRequest);
-
-    expect(result.isError, true);
-    result.fold(
-      onSuccess: (_) => fail('Expected failure'),
-      onFailure: (error) {
-        expect(error, mappedError);
-        expect(error.isNetworkError, true);
-      },
-    );
-
-    verify(() => mockErrorMapper.mapError(exception, any())).called(1);
+    ).called(1);
   });
 }

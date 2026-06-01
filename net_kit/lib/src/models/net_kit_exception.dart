@@ -1,112 +1,153 @@
-import 'package:net_kit/src/enums/network_exception_type.dart';
-import 'package:net_kit/src/enums/parse_target_type.dart';
-import 'package:net_kit/src/net_kit.dart';
+import 'package:net_kit/src/clients/net_client.dart';
+import 'package:net_kit/src/contracts/mappable.dart';
+import 'package:net_kit/src/enums/transport_exception_type.dart';
+import 'package:net_kit/src/models/request_spec.dart';
 
-/// The base exception type that [NetKit.execute] returns when it
-/// encounters any error, either from the underlying client, or while
-/// processing the request and/or response.
+/// The base exception returned by [NetClient] when it encounters any error.
 ///
 /// See its subtypes for more details.
-sealed class NetKitException {
-  /// The cause of the exception.
+sealed class NetKitException implements Mappable {
+  /// The original request.
+  final RequestSpec request;
+
+  /// The underlying cause of this exception.
+  ///
+  /// **Warning**:
+  /// This value can be transport or runtime specific, and may come
+  /// from the underlying HTTP client. This is not a part of the stable
+  /// API and should never be used for control flow.
   final Object? cause;
 
-  /// The stack trace of the exception.
+  /// Stack trace associated with this failure.
+  ///
+  /// **Warning**:
+  /// This value can be transport or runtime specific, and may come
+  /// from the underlying HTTP client. This is not a part of the stable
+  /// API and should never be used for control flow.
   final StackTrace? stackTrace;
 
-  const NetKitException(this.cause, this.stackTrace);
-}
-
-/// A failure indicating an domain specific error returned by the server.
-final class DomainException<Err> extends NetKitException {
-  /// The decoded, domain-typed error from the server.
-  final Err error;
-
-  const DomainException(
-    this.error, {
-    Object? cause,
-    StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
-
-  @override
-  String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'DomainException{error: $error, cause: $cause, stackTrace: $stackTrace}';
-  }
+  const NetKitException({
+    required this.request,
+    this.cause,
+    this.stackTrace,
+  });
 }
 
 /// A network failure.
-final class NetworkException extends NetKitException {
+final class TransportException extends NetKitException {
   /// The type of network failure.
-  final NetworkExceptionType type;
+  final TransportExceptionType type;
 
-  const NetworkException(
-    this.type, {
+  const TransportException({
+    required this.type,
+    required super.request,
+    super.cause,
+    super.stackTrace,
+  });
+
+  TransportException copyWith({
+    TransportExceptionType? type,
+    RequestSpec? request,
     Object? cause,
     StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
-
-  @override
-  String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'NetworkException{type: $type, cause: $cause, stackTrace: $stackTrace}';
+  }) {
+    return TransportException(
+      type: type ?? this.type,
+      request: request ?? this.request,
+      cause: cause ?? this.cause,
+      stackTrace: stackTrace ?? this.stackTrace,
+    );
   }
-}
-
-/// A failure indicating an application-level-specific error.
-sealed class ApplicationException extends NetKitException {
-  const ApplicationException(super.cause, super.stackTrace);
-}
-
-/// A failure indicating encode/decode data (request, response, error response etc.).
-final class ParseException extends ApplicationException {
-  /// The type of target that we were failed to encode/decode.
-  final ParseTargetType targetType;
-
-  /// The data data that failed to decode.
-  final dynamic data;
-
-  const ParseException({
-    required this.targetType,
-    required this.data,
-    Object? cause,
-    StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
 
   @override
   String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'ParseException {targetType: $targetType, data: $data, cause: $cause, stackTrace: $stackTrace}';
+    return 'TransportException {request: $request, type: $type}';
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {'type': type, 'request': request.toMap()};
   }
 }
 
 /// A failure indicating explicit request cancellation.
-final class CancellationException extends ApplicationException {
+final class CancellationException extends NetKitException {
+  /// An identifier of the cancellation source.
+  final String source;
+
+  /// An message to clarify the reason of the cancellation.
+  final String message;
+
   const CancellationException({
+    required this.source,
+    required this.message,
+    required super.request,
+    super.cause,
+    super.stackTrace,
+  });
+
+  CancellationException copyWith({
+    String? source,
+    String? message,
+    RequestSpec? request,
     Object? cause,
     StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
+  }) {
+    return CancellationException(
+      source: source ?? this.source,
+      message: message ?? this.message,
+      request: request ?? this.request,
+      cause: cause ?? this.cause,
+      stackTrace: stackTrace ?? this.stackTrace,
+    );
+  }
 
   @override
   String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'CancellationException {cause: $cause, stackTrace: $stackTrace}';
+    return 'CancellationException {request: $request, source: $source}';
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {'source': source, 'request': request.toMap()};
   }
 }
 
 /// Generic failure indicating an unexpected exception from the client.
 final class UnexpectedException extends NetKitException {
+  /// Summary of the unexpected failure.
+  ///
+  /// This should not be used for control flow.
   final String message;
 
-  const UnexpectedException(
-    this.message, {
+  const UnexpectedException({
+    required this.message,
+    required super.request,
+    super.cause,
+    super.stackTrace,
+  });
+
+  UnexpectedException copyWith({
+    String? message,
+    RequestSpec? request,
     Object? cause,
     StackTrace? stackTrace,
-  }) : super(cause, stackTrace);
+  }) {
+    return UnexpectedException(
+      message: message ?? this.message,
+      request: request ?? this.request,
+      cause: cause ?? this.cause,
+      stackTrace: stackTrace ?? this.stackTrace,
+    );
+  }
 
   @override
   String toString() {
-    // ignore: lines_longer_than_80_chars
-    return 'UnexpectedException{message: $message, cause: $cause, stackTrace: $stackTrace}';
+    return 'UnexpectedException {request: $request, message: $message}';
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {'message': message, 'request': request.toMap()};
   }
 }

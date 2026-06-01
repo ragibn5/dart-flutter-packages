@@ -49,7 +49,6 @@ dependencies:
   flutter_screenutil: ^5.9.3
   package_info_plus: ^8.3.0
   jwt_decoder: ^2.0.1
-  dio: ^5.8.0+1
   equatable: ^2.0.8
   path_provider: ^2.1.5
 
@@ -60,10 +59,8 @@ dependencies:
     path: ../datetime_utils
   dlogger:
     path: ../dlogger
-  json_parser:
-    path: ../json_parser
-  json_parser_annotations:
-    path: ../json_parser/json_parser_annotations
+  net_kit:
+    path: ../net_kit
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
@@ -81,10 +78,9 @@ dev_dependencies:
   # Lints
   flutter_lints: ^5.0.0
   very_good_analysis: ^7.0.0
+  bloc_lint: ^0.3.7
   clean_arch_lint:
     path: ../clean_arch_lint
-  json_parser_generator:
-    path: ../json_parser/json_parser_generator
 
   # Generators
   build_runner: ^2.4.15

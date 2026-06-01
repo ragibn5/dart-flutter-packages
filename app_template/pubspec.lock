@@ -112,6 +112,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.2.0"
+  bloc_lint:
+    dependency: "direct dev"
+    description:
+      name: bloc_lint
+      sha256: "48d141f67552cc83703d5735f27ae9c549e4705b543e053eab77fa6cfa44ccf4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.7"
   bloc_test:
     dependency: "direct dev"
     description:
@@ -319,7 +327,7 @@ packages:
     source: hosted
     version: "0.4.1"
   dio:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: dio
       sha256: b9d46faecab38fc8cc286f80bc4d61a3bb5d4ac49e51ed877b4d6706efe57b25
@@ -544,13 +552,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  generator_core:
-    dependency: transitive
-    description:
-      path: "../generator_core"
-      relative: true
-    source: path
-    version: "0.0.1"
   get_it:
     dependency: "direct main"
     description:
@@ -703,27 +704,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  json_parser:
-    dependency: "direct main"
-    description:
-      path: "../json_parser"
-      relative: true
-    source: path
-    version: "0.0.1"
-  json_parser_annotations:
-    dependency: "direct main"
-    description:
-      path: "../json_parser/json_parser_annotations"
-      relative: true
-    source: path
-    version: "0.0.1"
-  json_parser_generator:
-    dependency: "direct dev"
-    description:
-      path: "../json_parser/json_parser_generator"
-      relative: true
-    source: path
-    version: "0.0.1"
   json_serializable:
     dependency: "direct dev"
     description:
@@ -852,6 +832,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  net_kit:
+    dependency: "direct main"
+    description:
+      path: "../net_kit"
+      relative: true
+    source: path
+    version: "0.0.1"
   node_preamble:
     dependency: transitive
     description:
@@ -900,13 +887,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.1"
-  parser:
-    dependency: transitive
-    description:
-      path: "../parser"
-      relative: true
-    source: path
-    version: "0.0.1"
   path:
     dependency: "direct main"
     description:
@@ -1024,6 +1004,14 @@ packages:
     description:
       name: pub_semver
       sha256: "5bfcf68ca79ef689f8990d1160781b4bad40a3bd5e5218ad4076ddb7f4081585"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
+  pubspec_lock_parse:
+    dependency: transitive
+    description:
+      name: pubspec_lock_parse
+      sha256: "020cb470287124c936c30ebfc2f927b287f275b7bf7fc2ab11577e592c017764"
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"

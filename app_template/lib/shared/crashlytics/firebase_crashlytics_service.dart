@@ -25,14 +25,12 @@ class FirebaseCrashlyticsService implements CrashlyticsService {
   }
 
   @override
-  Future<void> setSessionData(String userId, {required bool enabled}) async {
+  Future<void> setSessionData(
+    String userId, {
+    required bool collectionEnabled,
+  }) async {
     await _crashlytics.setUserIdentifier(userId);
-    await _crashlytics.setCrashlyticsCollectionEnabled(enabled);
-  }
-
-  @override
-  Future<void> log(String message) {
-    return _crashlytics.log(message);
+    await _crashlytics.setCrashlyticsCollectionEnabled(collectionEnabled);
   }
 
   @override
@@ -50,13 +48,5 @@ class FirebaseCrashlyticsService implements CrashlyticsService {
       printDetails: printDetails,
       fatal: fatal,
     );
-  }
-
-  @override
-  Future<void> recordFlutterError(
-    FlutterErrorDetails flutterError, {
-    bool fatal = false,
-  }) {
-    return _crashlytics.recordFlutterError(flutterError, fatal: fatal);
   }
 }

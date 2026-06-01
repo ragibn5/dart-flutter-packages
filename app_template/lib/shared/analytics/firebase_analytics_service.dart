@@ -19,14 +19,12 @@ class FirebaseAnalyticsService implements AnalyticsService {
   Future<void> initialize() async {}
 
   @override
-  Future<void> setSessionData(String userId, {required bool enabled}) async {
+  Future<void> setSessionData(
+    String userId, {
+    required bool collectionEnabled,
+  }) async {
     await _firebaseAnalytics.setUserId(id: userId);
-    await _firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
-  }
-
-  @override
-  Future<void> setUserProperty({required String name, required String value}) {
-    return _firebaseAnalytics.setUserProperty(name: name, value: value);
+    await _firebaseAnalytics.setAnalyticsCollectionEnabled(collectionEnabled);
   }
 
   @override

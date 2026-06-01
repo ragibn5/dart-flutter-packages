@@ -71,15 +71,33 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
-  test('`getCurrentSettings` should return correct domain model', () async {
-    final result = await sut.getCurrentSettings();
-    expect(result.locale, settingsDto.locale);
-    expect(result.themeMode, settingsDto.themeMode);
-    verify(() => mockSettingsDataSource.getCurrentSettings()).called(1);
-    verify(
-      () => mockSettingsConverter.convertDataToDomain(settingsDto),
-    ).called(1);
-  });
+  test(
+    '`getCurrentSettings` should return shell AppSettings if data source returned null',
+    () async {
+      when(
+        () => mockSettingsDataSource.getCurrentSettings(),
+      ).thenAnswer((_) async => null);
+
+      final result = await sut.getCurrentSettings();
+      expect(result, const AppSettings());
+      verify(() => mockSettingsDataSource.getCurrentSettings()).called(1);
+      verifyNever(() => mockSettingsConverter.convertDataToDomain(any()));
+    },
+  );
+
+  test(
+    '`getCurrentSettings` should return correct domain model if data source returned non-null',
+    () async {
+      final result = await sut.getCurrentSettings();
+
+      expect(result.locale, settingsDto.locale);
+      expect(result.themeMode, settingsDto.themeMode);
+      verify(() => mockSettingsDataSource.getCurrentSettings()).called(1);
+      verify(
+        () => mockSettingsConverter.convertDataToDomain(settingsDto),
+      ).called(1);
+    },
+  );
 
   test(
     '`setCurrentSettings` should add to stream, and call data source',

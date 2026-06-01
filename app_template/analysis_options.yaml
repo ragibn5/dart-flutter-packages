@@ -8,19 +8,17 @@
 # invoked from the command line by running `flutter analyze`.
 
 # Analyzers
-# Uncomment the one to use (and comment the one to disable, only one can be used)
-#include: package:flutter_lints/flutter.yaml
-include: package:very_good_analysis/analysis_options.yaml
+# Uncomment the ones you want to use.
+include:
+#  - package:flutter_lints/flutter.yaml
+  - package:very_good_analysis/analysis_options.yaml
+  - package:bloc_lint/all.yaml
 
 plugins:
   clean_arch_lint:
     path: ../clean_arch_lint
     diagnostics:
       clean_arch_dependency_direction: true
-  json_parser_analyzer:
-    path: ../json_parser/json_parser_analyzer
-    diagnostics:
-      json_parser_requirements: true
 
 analyzer:
   # Set/Modify language features
@@ -82,3 +80,7 @@ linter:
     prefer_constructors_over_static_methods: false
     always_put_required_named_parameters_first: false
     missing_whitespace_between_adjacent_strings: false
+
+bloc:
+  rules:
+    prefer_cubit: false
