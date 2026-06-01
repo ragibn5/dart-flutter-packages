@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/either.dart';
 import 'package:app_template/core/models/server_message.dart';
 import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart';
 import 'package:app_template/features/auth/data/mappers/auth_refresh_error_mapper.dart';
@@ -15,6 +14,7 @@ import 'package:app_template/features/auth/data/sources/remote_auth_data_source.
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:functionals/functionals.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockAuthDataMapper extends Mock implements AuthDataMapper {}
@@ -218,10 +218,11 @@ void main() {
     () async {
       when(
         () => mockRemoteAuthDataSource.getRefreshedAuthData(any()),
-      ).thenAnswer((_) async => Left(const UnexpectedError(
-        cause: 'error',
-        stackTrace: StackTrace.empty,
-      )));
+      ).thenAnswer(
+        (_) async => Left(
+          const UnexpectedError(cause: 'error', stackTrace: StackTrace.empty),
+        ),
+      );
 
       final result = await sut.refreshCurrentAuthData(authData);
 

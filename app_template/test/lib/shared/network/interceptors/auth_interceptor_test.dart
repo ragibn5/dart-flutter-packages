@@ -4,12 +4,12 @@
 import 'dart:io';
 
 import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/either.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/shared/network/interceptors/auth_interceptor.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:functionals/functionals.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
 

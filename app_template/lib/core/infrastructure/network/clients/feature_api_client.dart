@@ -1,6 +1,6 @@
 import 'package:app_template/core/models/api_error.dart';
 import 'package:app_template/core/models/api_response.dart';
-import 'package:app_template/core/models/either.dart';
+import 'package:functionals/functionals.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 
@@ -59,13 +59,9 @@ class NetKitExceptionTransformer {
   ) {
     return switch (netKitTransportErrorType) {
       .CONNECTION_TIMEOUT => .CONNECTION_TIMEOUT,
-
       .SEND_TIMEOUT => .SEND_TIMEOUT,
-
       .RECEIVE_TIMEOUT => .RECEIVE_TIMEOUT,
-
       .CONNECTION_ERROR => .CONNECTION_ERROR,
-
       .BAD_CERTIFICATE => .BAD_CERTIFICATE,
     };
   }
