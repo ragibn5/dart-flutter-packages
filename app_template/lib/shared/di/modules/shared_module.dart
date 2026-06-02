@@ -59,6 +59,7 @@ abstract class SharedModule {
     return SharedPreferencesStore(SharedPreferencesAsync());
   }
 
+  @singleton
   SQLiteDb getAppDatabase(AppDirectories appDirectories) {
     const appDbVersion = 1;
     const appDbName = 'APP_DB';

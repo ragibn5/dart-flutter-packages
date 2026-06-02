@@ -55,6 +55,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
   @override
   Stream<AppSettings> getSettingsStream() => _settingsStreamController.stream;
 
+  @disposeMethod
   @override
   FutureOr<void> dispose() {
     _settingsStreamController.close();

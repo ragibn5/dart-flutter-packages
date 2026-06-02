@@ -105,7 +105,6 @@ class AuthDataRepositoryImpl implements AuthDataRepository {
   }
 
   @disposeMethod
-  @visibleForTesting
   @override
   void dispose() {
     _authDataStreamController.close();
