@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:app_template/core/models/api_error.dart';
 import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart';
 import 'package:app_template/features/auth/data/mappers/auth_refresh_error_mapper.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
@@ -9,7 +8,7 @@ import 'package:app_template/features/auth/data/sources/remote_auth_data_source.
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
-import 'package:functionals/functionals.dart';
+import 'package:core_models/core_models.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 

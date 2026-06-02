@@ -271,6 +271,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  core_models:
+    dependency: "direct main"
+    description:
+      path: "packages/core_models"
+      relative: true
+    source: path
+    version: "0.0.0"
   coverage:
     dependency: transitive
     description:
@@ -379,6 +386,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.3"
+  feature_api_client:
+    dependency: "direct main"
+    description:
+      path: "packages/feature_api_client"
+      relative: true
+    source: path
+    version: "0.0.0"
   ffi:
     dependency: transitive
     description:
@@ -559,13 +573,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
-  functionals:
-    dependency: "direct main"
-    description:
-      path: "packages/functionals"
-      relative: true
-    source: path
-    version: "0.0.0"
   functions:
     dependency: transitive
     description:

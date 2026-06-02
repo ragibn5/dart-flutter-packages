@@ -5,7 +5,6 @@ sealed class Either<L, R> {
       Left<L>() => onLeft(self.l),
       Right<R>() => onRight(self.r),
       _ => throw StateError(
-          // ignore: lines_longer_than_80_chars
           'Invalid state: should have been either ${Left<L>}, or ${Right<R>}',
         ),
     };
@@ -19,7 +18,9 @@ sealed class Either<L, R> {
     final self = this;
     return switch (self) {
       Left<L>() => self.l,
-      Right<R>() => throw StateError('Expected Left, but was Right(${self.r})'),
+      Right<R>() => throw StateError(
+          'Expected Left, but was Right(${self.r})',
+        ),
       _ => throw StateError(
           'Invalid state: should have been either ${Left<L>}, or ${Right<R>}',
         ),
@@ -30,7 +31,9 @@ sealed class Either<L, R> {
     final self = this;
     return switch (self) {
       Right<R>() => self.r,
-      Left<L>() => throw StateError('Expected Right, but was Left(${self.l})'),
+      Left<L>() => throw StateError(
+          'Expected Right, but was Left(${self.l})',
+        ),
       _ => throw StateError(
           'Invalid state: should have been either ${Left<L>}, or ${Right<R>}',
         ),

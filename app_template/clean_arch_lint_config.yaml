@@ -39,5 +39,5 @@ clean_arch_dependency_direction:
   # Example: equatable, freezed, json_serializable
   excluded_library_packages:
     - equatable
-    - functionals
     - disposable
+    - core_models

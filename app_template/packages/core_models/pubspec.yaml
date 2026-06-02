@@ -1,0 +1,13 @@
+name: core_models
+description: Shared core models.
+
+publish_to: none
+
+environment:
+  sdk: ^3.0.6
+
+dependencies:
+  equatable: ^2.0.8
+
+dev_dependencies:
+  test: ^1.25.5

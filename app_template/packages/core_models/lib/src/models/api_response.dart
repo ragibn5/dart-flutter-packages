@@ -1,10 +1,7 @@
-import 'package:functionals/functionals.dart';
+import 'package:core_models/src/models/either.dart';
 
 sealed class ApiResponse<Err, Res> {
-  /// The status code from the server side.
   final int statusCode;
-
-  /// The response headers.
   final Map<String, List<String>>? headers;
 
   ApiResponse({required this.statusCode, required this.headers});
@@ -18,9 +15,8 @@ sealed class ApiResponse<Err, Res> {
       Failure<Err>() => onFailure(self.error),
       Success<Res>() => onSuccess(self.data),
       _ => throw StateError(
-        // ignore: lines_longer_than_80_chars
-        'Invalid state: should have been either ${Failure<Err>}, or ${Success<Res>}',
-      ),
+          'Invalid state: should have been either $Failure, or $Success',
+        ),
     };
   }
 

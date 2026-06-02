@@ -59,8 +59,11 @@ dependencies:
     path: packages/disposable
   data_domain_converters:
     path: packages/data_domain_converters
-  functionals:
-    path: packages/functionals
+  core_models:
+    path: packages/core_models
+  feature_api_client:
+    path: packages/feature_api_client
+
   # In-house packages
   string_extensions:
     path: ../string_extensions
