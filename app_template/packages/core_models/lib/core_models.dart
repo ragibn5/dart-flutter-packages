@@ -1,4 +1,4 @@
-/// Shared core models
+/// Shared core models.
 library;
 
 export 'src/enums/transport_error_type.dart';
