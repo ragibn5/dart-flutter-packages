@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:app_template/core/infrastructure/network/interceptors/base_auth_interceptor.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
+import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:net_kit/net_kit.dart';
 
@@ -32,7 +32,20 @@ class AuthInterceptor extends BaseAuthInterceptor<AuthData> {
   }
 
   @override
-  bool didServerReportAccessTokenExpiration(RawResponse responses) {
+  Future<RequestSpec> transformRequestWithAuthData(
+    RequestSpec request,
+    AuthData authData,
+  ) async {
+    return request.copyWith(
+      headers: {
+        ...request.headers,
+        ...{HttpHeaders.authorizationHeader: 'Bearer ${authData.accessToken}'},
+      },
+    );
+  }
+
+  @override
+  bool didServerReportAuthError(RawResponse responses) {
     if (responses.statusCode != HttpStatus.unauthorized) {
       return false;
     }
@@ -50,9 +63,9 @@ class AuthInterceptor extends BaseAuthInterceptor<AuthData> {
   }
 
   @override
-  bool shouldRefreshAuthData(RequestSpec request, AuthData currentAuthData) {
+  bool shouldRefreshAuthData(RequestSpec request, AuthData authData) {
     final requestToken = _getRequestToken(request);
-    return requestToken == null || requestToken == currentAuthData.accessToken;
+    return requestToken == null || requestToken == authData.accessToken;
   }
 
   @override
@@ -70,11 +83,6 @@ class AuthInterceptor extends BaseAuthInterceptor<AuthData> {
     AuthData refreshedAuthData,
   ) {
     return _targetClient.execute(spec: request);
-  }
-
-  @override
-  Map<String, String> buildAuthorizationHeaders(AuthData authData) {
-    return {HttpHeaders.authorizationHeader: 'Bearer ${authData.accessToken}'};
   }
 
   /// Iterate through Authorization header splits and return the first

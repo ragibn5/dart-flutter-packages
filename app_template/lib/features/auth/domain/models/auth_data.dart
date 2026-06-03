@@ -1,4 +1,4 @@
-import 'package:app_template/core/models/base_auth_data.dart';
+import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:equatable/equatable.dart';
 
 class AuthData extends Equatable implements BaseAuthData {

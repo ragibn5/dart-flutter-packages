@@ -1,10 +1,7 @@
-// ignore_for_file: lines_longer_than_80_chars
-// ignore_for_file: cascade_invocations
-
 import 'dart:io';
 
-import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/shared/network/interceptors/auth_interceptor.dart';
 import 'package:core_models/core_models.dart';
@@ -17,198 +14,179 @@ class _MockNetClient extends Mock implements NetClient {}
 class _MockAuthDataService extends Mock implements AuthDataService {}
 
 void main() {
-  const userId = 'userId';
   const accessToken =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.2DPnF-zMjAka6iaq_JE-Tq1ir4d-OALNh-k96HRVLiY';
   const newAccessToken =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTYxNjIzOTAyMn0.BtpKXeC14PNaSjwp-ZvgcNZYoM9cd5UZp9C_86q-MCk';
-  final accessTokenExpiry = DateTime.now().add(const Duration(days: 1));
-  final refreshTokenExpiry = accessTokenExpiry.add(const Duration(days: 1));
   final authData = AuthData(
-    userId: userId,
+    userId: 'id',
     accessToken: accessToken,
-    refreshToken: accessToken,
-    accessTokenExpiry: accessTokenExpiry,
-    refreshTokenExpiry: refreshTokenExpiry,
+    refreshToken: 'refresh',
+    accessTokenExpiry: DateTime.now().add(const Duration(days: 1)),
+    refreshTokenExpiry: DateTime.now().add(const Duration(days: 2)),
   );
   final newAuthData = AuthData(
-    userId: userId,
+    userId: 'id',
     accessToken: newAccessToken,
-    refreshToken: accessToken,
-    accessTokenExpiry: accessTokenExpiry,
-    refreshTokenExpiry: refreshTokenExpiry,
-  );
-  final tokenRefreshRequest = TokenRefreshRequest(
-    refreshToken: authData.refreshToken,
+    refreshToken: 'refresh',
+    accessTokenExpiry: DateTime.now().add(const Duration(days: 1)),
+    refreshTokenExpiry: DateTime.now().add(const Duration(days: 2)),
   );
 
-  late RequestSpec authedRequest;
-  late RequestSpec emptyRequest;
   late _MockNetClient mockClient;
   late _MockAuthDataService mockAuthDataService;
 
   late AuthInterceptor sut;
 
   setUpAll(() {
-    registerFallbackValue(tokenRefreshRequest);
     registerFallbackValue(RequestSpec(pathOrUrl: '', method: HttpMethod.GET));
   });
 
   setUp(() {
     mockClient = _MockNetClient();
     mockAuthDataService = _MockAuthDataService();
-
-    emptyRequest = RequestSpec(
-      pathOrUrl: '/test',
-      method: HttpMethod.GET,
-      headers: {},
-    );
-    authedRequest = RequestSpec(
-      pathOrUrl: '/test',
-      method: HttpMethod.GET,
-      headers: {HttpHeaders.authorizationHeader: 'Bearer $accessToken'},
-    );
-
     sut = AuthInterceptor(mockClient, mockAuthDataService);
-
-    when(
-      () => mockAuthDataService.getCurrentAuthData(),
-    ).thenAnswer((_) async => authData);
-    when(
-      () => mockAuthDataService.refreshCurrentAuthData(),
-    ).thenAnswer((_) async => Right(Right(authData)));
-    when(() => mockClient.execute(spec: any(named: 'spec'))).thenAnswer(
-      (_) async => Result.success(
-        NetKitResponse(
-          isError: false,
-          statusCode: HttpStatus.ok,
-          data: null,
-          headers: {},
-          requestSpec: authedRequest,
-        ),
-      ),
-    );
   });
 
-  group('onRequest', () {
-    test('injects authorization headers when authenticated', () async {
-      final result = await sut.onRequest(emptyRequest);
+  group('transformRequestWithAuthData', () {
+    test('Adds bearer token to authorization header', () async {
+      final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
 
-      expect(result, isA<ContinueWithRequest>());
+      final result = await sut.transformRequestWithAuthData(request, authData);
+
       expect(
-        emptyRequest.headers[HttpHeaders.authorizationHeader],
+        result.headers[HttpHeaders.authorizationHeader],
         'Bearer $accessToken',
       );
     });
+  });
 
-    test('rejects request when auth data is unavailable', () async {
-      when(
-        () => mockAuthDataService.getCurrentAuthData(),
-      ).thenAnswer((_) async => null);
-
-      final result = await sut.onRequest(emptyRequest);
-
-      expect(result, isA<ShortRequestWithError>());
-      expect(
-        (result as ShortRequestWithError).error,
-        isA<CancellationException>(),
+  group('didServerReportAuthError', () {
+    test('Returns true for 401 with access_token_expired', () {
+      final response = RawResponse(
+        statusCode: HttpStatus.unauthorized,
+        rawResponseBody: {'error_id': 'access_token_expired'},
+        responseHeaders: {},
+        request: RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET),
       );
+
+      expect(sut.didServerReportAuthError(response), isTrue);
+    });
+
+    test('Returns false for 401 without access_token_expired', () {
+      final response = RawResponse(
+        statusCode: HttpStatus.unauthorized,
+        rawResponseBody: {'error_id': 'other_error'},
+        responseHeaders: {},
+        request: RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET),
+      );
+
+      expect(sut.didServerReportAuthError(response), isFalse);
+    });
+
+    test('Returns false for non-401 status code', () {
+      final response = RawResponse(
+        statusCode: HttpStatus.badRequest,
+        rawResponseBody: {'error_id': 'access_token_expired'},
+        responseHeaders: {},
+        request: RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET),
+      );
+
+      expect(sut.didServerReportAuthError(response), isFalse);
     });
   });
 
-  group('onResponse', () {
-    test(
-      'passes through when server did not report token expiration',
-      () async {
-        final response = RawResponse(
-          statusCode: HttpStatus.badRequest,
-          rawResponseBody: null,
-          responseHeaders: {},
-          request: authedRequest,
-        );
-
-        final result = await sut.onResponse(response);
-
-        expect(result, isA<ContinueWithResponse>());
-      },
-    );
-
-    test('rejects when auth data is unavailable on 401', () async {
+  group('getAuthData', () {
+    test('Delegates to auth data service', () async {
       when(
         () => mockAuthDataService.getCurrentAuthData(),
-      ).thenAnswer((_) async => null);
+      ).thenAnswer((_) async => authData);
 
-      final response = RawResponse(
-        statusCode: HttpStatus.unauthorized,
-        rawResponseBody: {'error_id': 'access_token_expired'},
-        responseHeaders: {},
-        request: authedRequest,
-      );
+      final result = await sut.getAuthData();
 
-      final result = await sut.onResponse(response);
-
-      expect(result, isA<ShortResponseWithError>());
-      expect(
-        (result as ShortResponseWithError).error,
-        isA<CancellationException>(),
-      );
+      expect(result, same(authData));
     });
+  });
 
-    test('retries request when auth data was already refreshed', () async {
-      when(
-        () => mockAuthDataService.getCurrentAuthData(),
-      ).thenAnswer((_) async => newAuthData);
-
-      final response = RawResponse(
-        statusCode: HttpStatus.unauthorized,
-        rawResponseBody: {'error_id': 'access_token_expired'},
-        responseHeaders: {},
-        request: authedRequest,
-      );
-
-      final result = await sut.onResponse(response);
-
-      expect(result, isA<ShortResponseWithFinalResponse>());
-      verify(() => mockClient.execute(spec: any(named: 'spec'))).called(1);
-    });
-
-    test('refreshes and retries on success', () async {
+  group('requestAuthDataRefresh', () {
+    test('Delegates to auth data service', () async {
       when(
         () => mockAuthDataService.refreshCurrentAuthData(),
       ).thenAnswer((_) async => Right(Right(newAuthData)));
 
-      final response = RawResponse(
-        statusCode: HttpStatus.unauthorized,
-        rawResponseBody: {'error_id': 'access_token_expired'},
-        responseHeaders: {},
-        request: authedRequest,
-      );
+      final result = await sut.requestAuthDataRefresh(authData);
 
-      final result = await sut.onResponse(response);
-
-      expect(result, isA<ShortResponseWithFinalResponse>());
-      verify(() => mockClient.execute(spec: any(named: 'spec'))).called(1);
+      expect(result, same(newAuthData));
     });
 
-    test('rejects when refresh fails', () async {
+    test('Returns null when service returns Left', () async {
       when(
         () => mockAuthDataService.refreshCurrentAuthData(),
-      ).thenAnswer((_) async => Left(const CancellationError(source: 'test')));
+      ).thenAnswer((_) async => Left(CancellationError(source: 'test')));
 
-      final response = RawResponse(
-        statusCode: HttpStatus.unauthorized,
-        rawResponseBody: {'error_id': 'access_token_expired'},
-        responseHeaders: {},
-        request: authedRequest,
+      final result = await sut.requestAuthDataRefresh(authData);
+
+      expect(result, isNull);
+    });
+
+    test('Returns null when inner Left returns null', () async {
+      when(
+        () => mockAuthDataService.refreshCurrentAuthData(),
+      ).thenAnswer((_) async => Right(Left(InvalidRefreshToken())));
+
+      final result = await sut.requestAuthDataRefresh(authData);
+
+      expect(result, isNull);
+    });
+  });
+
+  group('retryRequest', () {
+    test('Executes on target client', () async {
+      final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
+      when(() => mockClient.execute(spec: any(named: 'spec'))).thenAnswer(
+        (_) async => Result.success(
+          NetKitResponse(
+            isError: false,
+            statusCode: HttpStatus.ok,
+            data: null,
+            headers: {},
+            requestSpec: request,
+          ),
+        ),
       );
 
-      final result = await sut.onResponse(response);
+      final result = await sut.retryRequest(request, authData);
 
-      expect(result, isA<ShortResponseWithError>());
-      expect(
-        (result as ShortResponseWithError).error,
-        isA<CancellationException>(),
+      expect(result.isSuccess, isTrue);
+      verify(() => mockClient.execute(spec: request)).called(1);
+    });
+  });
+
+  group('shouldRefreshAuthData', () {
+    test('Returns true when request has no auth header', () {
+      final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
+
+      expect(sut.shouldRefreshAuthData(request, authData), isTrue);
+    });
+
+    test('Returns true when request has the same expired token', () {
+      final request = RequestSpec(
+        pathOrUrl: '/test',
+        method: HttpMethod.GET,
+        headers: {HttpHeaders.authorizationHeader: 'Bearer $accessToken'},
       );
+
+      expect(sut.shouldRefreshAuthData(request, authData), isTrue);
+    });
+
+    test('Returns false when request already has a newer token', () {
+      final request = RequestSpec(
+        pathOrUrl: '/test',
+        method: HttpMethod.GET,
+        headers: {HttpHeaders.authorizationHeader: 'Bearer $newAccessToken'},
+      );
+
+      expect(sut.shouldRefreshAuthData(request, authData), isFalse);
     });
   });
 }

@@ -63,6 +63,8 @@ dependencies:
     path: packages/core_models
   feature_api_client:
     path: packages/feature_api_client
+  base_auth_interceptor:
+    path: packages/base_auth_interceptor
 
   # In-house packages
   string_extensions:
