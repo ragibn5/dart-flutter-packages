@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:io';
 
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
@@ -122,7 +124,7 @@ void main() {
     test('Returns null when service returns Left', () async {
       when(
         () => mockAuthDataService.refreshCurrentAuthData(),
-      ).thenAnswer((_) async => Left(CancellationError(source: 'test')));
+      ).thenAnswer((_) async => Left(const CancellationError(source: 'test')));
 
       final result = await sut.requestAuthDataRefresh(authData);
 
