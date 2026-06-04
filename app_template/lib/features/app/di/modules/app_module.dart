@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:app_template/core/infrastructure/storage/database/sqlite_db.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service_impl.dart';
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
@@ -18,6 +17,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqlite_db/sqlite_db.dart';
 
 const String APP_SERVER_PUBLIC_API_CLIENT = 'APP_SERVER_PUBLIC_API_CLIENT';
 const String APP_SERVER_PRIVATE_API_CLIENT = 'APP_SERVER_PRIVATE_API_CLIENT';

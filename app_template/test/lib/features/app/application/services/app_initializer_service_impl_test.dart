@@ -1,9 +1,9 @@
-import 'package:app_template/core/infrastructure/storage/database/sqlite_db.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service_impl.dart';
 import 'package:app_template/shared/analytics/analytics_service.dart';
 import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sqlite_db/sqlite_db.dart';
 
 class _MockCrashlyticsService extends Mock implements CrashlyticsService {}
 

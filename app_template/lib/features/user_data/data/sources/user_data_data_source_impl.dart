@@ -1,8 +1,8 @@
-import 'package:app_template/core/infrastructure/storage/database/sqlite_db.dart';
 import 'package:app_template/features/user_data/data/models/user_data_dto.dart';
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
 import 'package:injectable/injectable.dart';
+import 'package:sqlite_db/sqlite_db.dart';
 
 @Singleton(as: UserDataDataSource)
 class UserDataDataSourceImpl implements UserDataDataSource {
@@ -12,7 +12,7 @@ class UserDataDataSourceImpl implements UserDataDataSource {
 
   @override
   Future<UserDataDTO?> getUserData(String userId) async {
-    final result = await _sqliteDb.dao.get(
+    final result = await _sqliteDb.get(
       UserDataTableConstants.NAME,
       UserDataTableConstants.COLUMN_ID,
       [userId],
@@ -22,12 +22,12 @@ class UserDataDataSourceImpl implements UserDataDataSource {
 
   @override
   Future<void> setUserData(UserDataDTO entity) {
-    return _sqliteDb.dao.insert(UserDataTableConstants.NAME, [entity.toJson()]);
+    return _sqliteDb.insert(UserDataTableConstants.NAME, [entity.toJson()]);
   }
 
   @override
   Future<void> removeUserData(String userId) {
-    return _sqliteDb.dao.delete(
+    return _sqliteDb.delete(
       UserDataTableConstants.NAME,
       UserDataTableConstants.COLUMN_ID,
       [userId],

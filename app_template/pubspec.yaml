@@ -65,6 +65,8 @@ dependencies:
     path: packages/feature_api_client
   base_auth_interceptor:
     path: packages/base_auth_interceptor
+  sqlite_db:
+    path: packages/sqlite_db
 
   # In-house packages
   string_extensions:

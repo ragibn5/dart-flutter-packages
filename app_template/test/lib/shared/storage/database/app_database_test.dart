@@ -1,12 +1,10 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/shared/storage/database/app_database.dart';
-import 'package:app_template/shared/storage/database/models/db_connection_data.dart';
-import 'package:app_template/shared/storage/database/models/db_initialization_scripts.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqlite_db/sqlite_db.dart';
 
 class _MockDbInitializationScripts extends Mock
     implements DbInitializerScripts {}
@@ -77,7 +75,7 @@ void main() {
   );
 
   test(
-    '`dao` getter must throw StateError if database is not yet initialized',
+    'methods must throw StateError if database is not yet initialized',
     () {
       final localDatabase = AppDatabase.test(
         connectionData,
@@ -85,19 +83,36 @@ void main() {
         mockDatabaseFactory,
       );
 
-      expect(() => localDatabase.dao, throwsA(isA<StateError>()));
+      expect(
+        localDatabase.get('t', 'id', ['1']),
+        throwsA(isA<StateError>()),
+      );
     },
   );
 
-  test('`initialize()` initializes  `dao`', () async {
+  test('methods work after initialization', () async {
     final localDatabase = AppDatabase.test(
       connectionData,
       mockDbInitializationScripts,
       mockDatabaseFactory,
     );
 
+    when(() => mockDatabase.isOpen).thenReturn(true);
+    when(
+      () => mockDatabase.query(
+        any(),
+        where: any(named: 'where'),
+        whereArgs: any(named: 'whereArgs'),
+        distinct: any(named: 'distinct'),
+        groupBy: any(named: 'groupBy'),
+        having: any(named: 'having'),
+        orderBy: any(named: 'orderBy'),
+      ),
+    ).thenAnswer((_) async => []);
+    when(() => mockDatabase.delete(any())).thenAnswer((_) async => 0);
     await localDatabase.initialize();
 
-    expect(() => localDatabase.dao, isNotNull);
+    expect(localDatabase.get('t', 'id', ['1']), completes);
+    expect(localDatabase.deleteAll('t'), completes);
   });
 }

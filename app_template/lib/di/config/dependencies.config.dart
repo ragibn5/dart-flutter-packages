@@ -8,8 +8,6 @@
 // ignore_for_file: type=lint
 // coverage:ignore-file
 
-import 'package:app_template/core/infrastructure/storage/database/sqlite_db.dart'
-    as _i998;
 import 'package:app_template/core/infrastructure/storage/preference/preference_store.dart'
     as _i266;
 import 'package:app_template/features/app/application/services/app_initializer_service.dart'
@@ -121,6 +119,7 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:net_kit/net_kit.dart' as _i535;
 import 'package:package_info_plus/package_info_plus.dart' as _i655;
+import 'package:sqlite_db/sqlite_db.dart' as _i998;
 
 const String _stage = 'stage';
 const String _dev = 'dev';
