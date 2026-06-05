@@ -67,8 +67,12 @@ dependencies:
     path: packages/base_auth_interceptor
   sqlite_db:
     path: packages/sqlite_db
+  mutex:
+    path: packages/mutex
   preference_store:
     path: packages/preference_store
+  file_store:
+    path: packages/file_store
 
   # In-house packages
   string_extensions:
