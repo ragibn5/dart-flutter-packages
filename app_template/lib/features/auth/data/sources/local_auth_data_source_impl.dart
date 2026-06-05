@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:app_template/core/infrastructure/storage/preference/preference_store.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/sources/local_auth_data_source.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
+import 'package:preference_store/preference_store.dart';
 
 @Singleton(as: LocalAuthDataSource)
 class LocalAuthDataSourceImpl implements LocalAuthDataSource {

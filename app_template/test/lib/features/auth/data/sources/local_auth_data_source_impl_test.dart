@@ -2,11 +2,11 @@
 
 import 'dart:convert';
 
-import 'package:app_template/core/infrastructure/storage/preference/preference_store.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/sources/local_auth_data_source_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:preference_store/preference_store.dart';
 
 class _MockPreferenceStore extends Mock implements PreferenceStore {}
 

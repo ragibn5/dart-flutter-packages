@@ -8,7 +8,7 @@ import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 
-@Injectable(as: SettingsRepository)
+@Singleton(as: SettingsRepository)
 class SettingsRepositoryImpl implements SettingsRepository {
   final DataDomainConverter<SettingsDTO, AppSettings> _settingsMapper;
   final StreamController<AppSettings> _settingsStreamController;
