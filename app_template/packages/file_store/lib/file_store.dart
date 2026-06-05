@@ -2,4 +2,3 @@
 library;
 
 export 'src/file_store.dart';
-export 'src/file_store_factory.dart';

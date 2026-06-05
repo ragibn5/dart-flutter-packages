@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:meta/meta.dart';
@@ -8,56 +7,51 @@ import 'package:mutex/mutex.dart';
 ///
 /// All read/write operations are serialized per-instance via an internal
 /// mutex so concurrent callers are queued and awaited automatically.
-abstract class FileStore {
-  final _mutex = Mutex();
+class FileStore {
+  final Mutex _mutex;
+  final File _file;
 
-  /// Returns the file used for read/write operations.
-  ///
-  /// Subclasses must implement this to provide the target file.
-  /// The library will try to create the file if it does not yet exist.
-  /// See [readData] and [writeData] for more details.
-  @visibleForOverriding
-  Future<File> getStorageFile();
+  FileStore(File file) : this._(Mutex(), file);
+
+  @visibleForTesting
+  FileStore.test(Mutex mutex, File file) : this._(mutex, file);
+
+  FileStore._(this._mutex, this._file);
 
   /// Reads the full contents of the storage file as a UTF-8 string.
   ///
-  /// Returns `null` when the file does not exist or when an error occurs.
+  /// Returns `null` when the file does not exist.
+  /// Throws on other I/O errors (e.g. permission denied).
   Future<String?> readData() async {
     return _mutex.synchronized(() async {
-      try {
-        final file = await getStorageFile();
-        if (file.existsSync() == false) {
-          return null;
-        } else {
-          return await file.readAsString();
-        }
-      } catch (e, st) {
-        log(e.toString(), stackTrace: st);
+      if (_file.existsSync() == false) {
         return null;
       }
+
+      return _file.readAsStringSync();
     });
   }
 
-  /// Writes [content] to the storage file.
+  /// Writes [content] to the storage file, overwriting any existing content.
   ///
-  /// Returns `true` on success and `false` on error.
-  ///
-  /// Note:
   /// When [content] is `null` the underlying file is deleted.
-  Future<bool> writeData(String? content) async {
+  ///
+  /// Creates the parent directory (and any ancestors) if it does not exist.
+  /// Throws on other I/O errors (e.g. permission denied, path is a directory).
+  Future<void> writeData(String? content) async {
     return _mutex.synchronized(() async {
-      try {
-        final file = await getStorageFile();
-        if (content == null) {
-          await file.delete();
-        } else {
-          await file.writeAsString(content);
+      if (content == null) {
+        if (_file.existsSync()) {
+          _file.deleteSync();
         }
-        return true;
-      } catch (e, st) {
-        log(e.toString(), stackTrace: st);
-        return false;
+        return;
       }
+
+      if (!_file.parent.existsSync()) {
+        _file.parent.createSync(recursive: true);
+      }
+
+      _file.writeAsStringSync(content);
     });
   }
 }
