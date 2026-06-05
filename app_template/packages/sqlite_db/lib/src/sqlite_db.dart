@@ -38,8 +38,8 @@ abstract interface class SQLiteDb implements Initializable, Disposable {
   /// Inserts or upserts rows.
   ///
   /// Returns the number of rows successfully inserted.
-  /// Can be less than the size of [entities] depending on the used
-  /// conflict algorithm.
+  /// This can be less than the size of [entities] depending
+  /// on factors like the used conflict algorithm, and others.
   ///
   /// **Params:**
   /// - [tableName] — the table to insert into.
@@ -56,8 +56,7 @@ abstract interface class SQLiteDb implements Initializable, Disposable {
   /// Deletes rows by their IDs.
   ///
   /// Returns the number of deleted rows.
-  /// Can be less than the size of [ids] depending on the used
-  /// conflict algorithm.
+  /// This can be less than the size of [ids].
   ///
   /// **Params:**
   /// - [tableName] — the table to delete from.

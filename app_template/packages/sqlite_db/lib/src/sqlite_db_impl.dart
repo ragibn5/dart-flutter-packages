@@ -10,7 +10,7 @@ import 'package:sqlite_db/src/models/db_initialization_scripts.dart';
 import 'package:sqlite_db/src/models/db_script.dart';
 import 'package:sqlite_db/src/sqlite_db.dart';
 
-class AppDatabase implements SQLiteDb {
+class SQLiteDbImpl implements SQLiteDb {
   final DbConnectionData _connectionData;
   final DbInitializerScripts _initializerScripts;
 
@@ -18,19 +18,19 @@ class AppDatabase implements SQLiteDb {
 
   Database? _database;
 
-  AppDatabase(
+  SQLiteDbImpl(
     DbConnectionData connectionData,
     DbInitializerScripts initializerScripts,
   ) : this._(connectionData, initializerScripts, databaseFactory);
 
   @visibleForTesting
-  AppDatabase.test(
+  SQLiteDbImpl.test(
     DbConnectionData connectionData,
     DbInitializerScripts initializerScripts,
     DatabaseFactory dbFactory,
   ) : this._(connectionData, initializerScripts, dbFactory);
 
-  AppDatabase._(
+  SQLiteDbImpl._(
     this._connectionData,
     this._initializerScripts,
     this._databaseFactory,
@@ -128,6 +128,7 @@ class AppDatabase implements SQLiteDb {
 
     return _db.transaction((tnx) async {
       final batch = tnx.batch();
+
       for (final item in items) {
         batch.insert(
           tableName,
@@ -135,8 +136,33 @@ class AppDatabase implements SQLiteDb {
           conflictAlgorithm: _mapConflictAlgorithm(conflictAlgorithm),
         );
       }
-      await batch.commit(noResult: true);
-      return items.length;
+
+      final results = await batch.commit(noResult: false);
+
+      // sqflite guarantees one result per operation in a batch
+      if (results.length != items.length) {
+        throw StateError(
+          'Batch insert invariant violated: '
+          'expected ${items.length}, got ${results.length}.',
+        );
+      }
+
+      var insertedCount = 0;
+      for (final r in results) {
+        if (r == null) {
+          continue;
+        }
+
+        if (r is! int) {
+          throw StateError(
+            'Unexpected insert result type: ${r.runtimeType}',
+          );
+        }
+
+        ++insertedCount;
+      }
+
+      return insertedCount;
     });
   }
 
@@ -150,9 +176,12 @@ class AppDatabase implements SQLiteDb {
       return 0;
     }
 
+    final chunks = _chunkList(ids, 500).toList();
+
     return _db.transaction((tnx) async {
       final batch = tnx.batch();
-      for (final chunk in _chunkList(ids, 500)) {
+
+      for (final chunk in chunks) {
         batch.delete(
           tableName,
           where:
@@ -161,8 +190,33 @@ class AppDatabase implements SQLiteDb {
           whereArgs: chunk,
         );
       }
+
       final results = await batch.commit(noResult: false);
-      return results.fold<int>(0, (sum, r) => sum + (r is int ? r : 0));
+
+      if (results.length != chunks.length) {
+        throw StateError(
+          'Batch delete invariant violated: '
+          'expected ${chunks.length}, got ${results.length}.',
+        );
+      }
+
+      var deletedCount = 0;
+
+      for (final r in results) {
+        if (r == null) {
+          continue;
+        }
+
+        if (r is! int) {
+          throw StateError(
+            'Unexpected delete result type: ${r.runtimeType}',
+          );
+        }
+
+        deletedCount += r;
+      }
+
+      return deletedCount;
     });
   }
 

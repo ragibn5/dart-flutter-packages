@@ -64,7 +64,7 @@ abstract class SharedModule {
       return '"${identifier.replaceAll('"', '""')}"';
     }
 
-    return AppDatabase(
+    return const SQLiteDbFactory().create(
       DbConnectionData(
         hostDirectoryPath: path.join(
           appDirectories.databaseDirectory.path,
