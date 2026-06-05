@@ -1,4 +1,4 @@
-/// SQLite database service with abstract contracts and sqflite implementation.
+/// SQLite database.
 library;
 
 export 'src/enums/data_conflict_algorithm.dart';
