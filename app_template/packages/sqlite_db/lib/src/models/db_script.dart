@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-sealed class DbScript extends Equatable {
+sealed class DbScript {
   final String scriptText;
 
   const DbScript({required this.scriptText});
@@ -13,9 +11,6 @@ class SingleVersionedDbScript extends DbScript {
     required super.scriptText,
     required this.targetVersion,
   });
-
-  @override
-  List<Object?> get props => [scriptText, targetVersion];
 }
 
 class DbMigrationScript extends DbScript {
@@ -27,7 +22,4 @@ class DbMigrationScript extends DbScript {
     required this.previousVersion,
     required this.presentVersion,
   });
-
-  @override
-  List<Object?> get props => [scriptText, presentVersion, presentVersion];
 }
