@@ -11,17 +11,17 @@ import 'package:sqlite_db/src/models/db_script.dart';
 import 'package:sqlite_db/src/sqlite_db.dart';
 
 class SQLiteDbImpl implements SQLiteDb {
-  final DbConnectionData _connectionData;
-  final DbInitializerScripts _initializerScripts;
+  final DbConnectionData connectionData;
+  final DbInitializerScripts initializerScripts;
 
-  final DatabaseFactory _databaseFactory;
+  final DatabaseFactory? _databaseFactory;
 
   Database? _database;
 
   SQLiteDbImpl(
     DbConnectionData connectionData,
     DbInitializerScripts initializerScripts,
-  ) : this._(connectionData, initializerScripts, databaseFactory);
+  ) : this._(connectionData, initializerScripts, null);
 
   @visibleForTesting
   SQLiteDbImpl.test(
@@ -31,10 +31,12 @@ class SQLiteDbImpl implements SQLiteDb {
   ) : this._(connectionData, initializerScripts, databaseFactory);
 
   SQLiteDbImpl._(
-    this._connectionData,
-    this._initializerScripts,
+    this.connectionData,
+    this.initializerScripts,
     this._databaseFactory,
   );
+
+  DatabaseFactory get _resolvedFactory => _databaseFactory ?? databaseFactory;
 
   Database get _db {
     if (_database == null || _database?.isOpen == false) {
@@ -45,36 +47,36 @@ class SQLiteDbImpl implements SQLiteDb {
 
   @override
   FutureOr<void> initialize() async {
-    final version = _connectionData.version;
+    final version = connectionData.version;
     final dbFilePath = path.join(
-      _connectionData.hostDirectoryPath,
-      _connectionData.name,
+      connectionData.hostDirectoryPath,
+      connectionData.name,
     );
-    _database = await _databaseFactory.openDatabase(
+    _database = await _resolvedFactory.openDatabase(
       dbFilePath,
       options: OpenDatabaseOptions(
-        version: _connectionData.version,
+        version: connectionData.version,
         onConfigure: (db) => _executeSingleVersionedScripts(
           db,
           version,
-          _initializerScripts.configurationScripts,
+          initializerScripts.configurationScripts,
         ),
         onCreate: (db, version) => _executeSingleVersionedScripts(
           db,
           version,
-          _initializerScripts.creationScripts,
+          initializerScripts.creationScripts,
         ),
         onUpgrade: (db, oldVersion, newVersion) => _executeDualVersionedScripts(
           db,
           oldVersion,
           newVersion,
-          _initializerScripts.upgradeScripts,
+          initializerScripts.upgradeScripts,
         ),
         onDowngrade: (db, oldVersion, newVersion) => null,
         onOpen: (db) => _executeSingleVersionedScripts(
           db,
           version,
-          _initializerScripts.openScripts,
+          initializerScripts.openScripts,
         ),
       ),
     );
