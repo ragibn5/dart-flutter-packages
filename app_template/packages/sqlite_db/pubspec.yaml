@@ -19,7 +19,6 @@ dependencies:
     path: ../../../functions
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   test: ^1.25.5
   mocktail: ^1.0.5
+  sqflite_common_ffi: ^2.4.0+2
