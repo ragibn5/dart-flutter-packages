@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common/sqflite.dart';
 import 'package:sqlite_db/sqlite_db.dart';
 import 'package:sqlite_db/src/sqlite_db_impl.dart';
 
@@ -10,26 +10,26 @@ class _MockDbInitializationScripts extends Mock
 
 class _MockDatabaseFactory extends Mock implements DatabaseFactory {}
 
+class _MockBatch extends Mock implements Batch {}
+
+class _MockTransaction extends Mock implements Transaction {
+  final Database db;
+
+  _MockTransaction(this.db);
+
+  @override
+  Batch batch() => db.batch();
+}
+
 class _MockDatabase extends Mock implements Database {
   @override
   Future<T> transaction<T>(
     Future<T> Function(Transaction) action, {
     bool? exclusive,
   }) {
-    final transaction = _TestTransaction(this);
+    final transaction = _MockTransaction(this);
     return action(transaction);
   }
-}
-
-class _MockBatch extends Mock implements Batch {}
-
-class _TestTransaction extends Mock implements Transaction {
-  final Database db;
-
-  _TestTransaction(this.db);
-
-  @override
-  Batch batch() => db.batch();
 }
 
 void main() {

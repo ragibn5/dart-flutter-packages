@@ -20,7 +20,6 @@ import 'package:intl/intl.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_db/sqlite_db.dart';
 
 const String APP_SERVER_PUBLIC_API_CLIENT = 'APP_SERVER_PUBLIC_API_CLIENT';
@@ -89,7 +88,6 @@ abstract class SharedModule {
           ),
         ],
       ),
-      databaseFactory,
     );
   }
 

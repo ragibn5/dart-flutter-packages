@@ -1,4 +1,3 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_db/src/models/db_connection_data.dart';
 import 'package:sqlite_db/src/models/db_initialization_scripts.dart';
 import 'package:sqlite_db/src/sqlite_db.dart';
@@ -8,7 +7,7 @@ import 'package:sqlite_db/src/sqlite_db_impl.dart';
 ///
 /// Usage:
 /// ```dart
-/// final db = SQLiteDbFactory().create(connectionData, scripts, dbFactory);
+/// final db = SQLiteDbFactory().create(connectionData, scripts);
 /// await db.initialize();
 /// ```
 ///
@@ -19,8 +18,7 @@ class SQLiteDbFactory {
   SQLiteDb create(
     DbConnectionData connectionData,
     DbInitializerScripts initializerScripts,
-    DatabaseFactory databaseFactory,
   ) {
-    return SQLiteDbImpl(connectionData, initializerScripts, databaseFactory);
+    return SQLiteDbImpl(connectionData, initializerScripts);
   }
 }

@@ -21,15 +21,14 @@ class SQLiteDbImpl implements SQLiteDb {
   SQLiteDbImpl(
     DbConnectionData connectionData,
     DbInitializerScripts initializerScripts,
-    DatabaseFactory databaseFactory,
   ) : this._(connectionData, initializerScripts, databaseFactory);
 
   @visibleForTesting
   SQLiteDbImpl.test(
     DbConnectionData connectionData,
     DbInitializerScripts initializerScripts,
-    DatabaseFactory dbFactory,
-  ) : this._(connectionData, initializerScripts, dbFactory);
+    DatabaseFactory databaseFactory,
+  ) : this._(connectionData, initializerScripts, databaseFactory);
 
   SQLiteDbImpl._(
     this._connectionData,
