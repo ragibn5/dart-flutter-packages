@@ -1,17 +1,17 @@
-import 'package:app_template/shared/alerter/alert_action.dart';
-import 'package:app_template/shared/alerter/alert_type.dart';
+import 'package:alerter/src/enums/alert_type.dart';
+import 'package:alerter/src/models/alert_action.dart';
 
 class AlertData<T> {
   final String title;
   final String message;
-  final List<AlertAction<T>> actions;
   final AlertType alertType;
+  final List<AlertAction<T>> actions;
 
   AlertData._({
     required this.title,
     required this.message,
-    required this.actions,
     required this.alertType,
+    required this.actions,
   });
 
   factory AlertData.info({

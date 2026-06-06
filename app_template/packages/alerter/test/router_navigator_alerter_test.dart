@@ -1,8 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/shared/alerter/alert_action.dart';
-import 'package:app_template/shared/alerter/alert_data.dart';
-import 'package:app_template/shared/alerter/router_navigator_based_alerter.dart';
+import 'package:alerter/alerter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -15,7 +13,7 @@ void main() {
   late _MockContext mockContext;
   late _MockNavigatorKey mockNavigatorKey;
 
-  late RouterNavigatorBasedAlerter alerter;
+  late RouterNavigatorAlerter sut;
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -23,7 +21,7 @@ void main() {
     mockContext = _MockContext();
     mockNavigatorKey = _MockNavigatorKey();
 
-    alerter = RouterNavigatorBasedAlerter(mockNavigatorKey);
+    sut = RouterNavigatorAlerter(mockNavigatorKey);
   });
 
   test(
@@ -36,10 +34,7 @@ void main() {
 
       when(() => mockNavigatorKey.currentContext).thenReturn(null);
 
-      expect(
-        () => alerter.showTextAlert(alertData),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => sut.showTextAlert(alertData), throwsA(isA<StateError>()));
     },
   );
 
@@ -59,9 +54,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: alerter.buildAlertDialog(mockContext, alertData),
-          ),
+          home: Scaffold(body: sut.buildAlertDialog(mockContext, alertData)),
         ),
       );
 

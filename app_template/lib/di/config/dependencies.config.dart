@@ -9,6 +9,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:alerter/alerter.dart' as _i103;
 import 'package:app_template/features/app/application/services/app_initializer_service.dart'
     as _i707;
 import 'package:app_template/features/app/application/services/session_initializer_service.dart'
@@ -91,9 +92,6 @@ import 'package:app_template/features/user_data/domain/repositories/user_data_re
 import 'package:app_template/features/user_data/domain/services/user_data_service.dart'
     as _i84;
 import 'package:app_template/router/app_router.dart' as _i204;
-import 'package:app_template/shared/alerter/alerter.dart' as _i518;
-import 'package:app_template/shared/alerter/router_navigator_based_alerter.dart'
-    as _i751;
 import 'package:app_template/shared/analytics/analytics_service.dart' as _i814;
 import 'package:app_template/shared/analytics/firebase_analytics_service.dart'
     as _i1009;
@@ -209,6 +207,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i30.LocalAuthDataSource>(
       () => _i451.LocalAuthDataSourceImpl(gh<_i300.PreferenceStore>()),
     );
+    gh.singleton<_i103.Alerter>(
+      () =>
+          sharedModule.getAlerter(gh<_i409.GlobalKey<_i409.NavigatorState>>()),
+    );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getProdFlavorConfig(),
       registerFor: {_prod},
@@ -220,11 +222,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i850.SettingsDataSource>(
       () => _i886.SettingsDataSourceImpl(gh<_i300.PreferenceStore>()),
-    );
-    gh.singleton<_i518.Alerter>(
-      () => _i751.RouterNavigatorBasedAlerter(
-        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
-      ),
     );
     gh.singleton<_i612.SettingsRepository>(
       () => _i584.SettingsRepositoryImpl(

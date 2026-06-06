@@ -1,19 +1,17 @@
-import 'package:app_template/shared/alerter/alert_action.dart';
-import 'package:app_template/shared/alerter/alert_data.dart';
-import 'package:app_template/shared/alerter/alert_type.dart';
-import 'package:app_template/shared/alerter/alerter.dart';
+import 'package:alerter/src/alerter.dart';
+import 'package:alerter/src/enums/alert_type.dart';
+import 'package:alerter/src/models/alert_action.dart';
+import 'package:alerter/src/models/alert_data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:injectable/injectable.dart';
 
-@Singleton(as: Alerter)
-class RouterNavigatorBasedAlerter implements Alerter {
+class RouterNavigatorAlerter extends Alerter {
   final GlobalKey<NavigatorState> _navigatorKey;
 
-  RouterNavigatorBasedAlerter(this._navigatorKey);
+  const RouterNavigatorAlerter(this._navigatorKey);
 
   @override
-  Future<T?> showTextAlert<T>(AlertData<T> alertData) {
+  BuildContext getCurrentContext() {
     final context = _navigatorKey.currentContext;
     if (context == null) {
       throw StateError(
@@ -22,10 +20,7 @@ class RouterNavigatorBasedAlerter implements Alerter {
       );
     }
 
-    return showDialog<T>(
-      context: context,
-      builder: (context) => buildAlertDialog(context, alertData),
-    );
+    return context;
   }
 
   @override

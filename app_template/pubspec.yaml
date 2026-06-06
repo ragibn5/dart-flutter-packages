@@ -73,6 +73,8 @@ dependencies:
     path: packages/preference_store
   file_store:
     path: packages/file_store
+  alerter:
+    path: packages/alerter
 
   # In-house packages
   string_extensions:
