@@ -93,16 +93,13 @@ import 'package:app_template/features/user_data/domain/repositories/user_data_re
 import 'package:app_template/features/user_data/domain/services/user_data_service.dart'
     as _i84;
 import 'package:app_template/router/app_router.dart' as _i204;
-import 'package:app_template/shared/crashlytics/crashlytics_service.dart'
-    as _i125;
-import 'package:app_template/shared/crashlytics/firebase_crashlytics_service.dart'
-    as _i333;
 import 'package:app_template/shared/di/modules/shared_module.dart' as _i885;
 import 'package:app_template/shared/logger/app_log_policy_controller.dart'
     as _i644;
 import 'package:app_template/shared/logger/app_log_policy_controller_impl.dart'
     as _i948;
 import 'package:app_template/shared/logger/app_logger.dart' as _i1054;
+import 'package:crashlytics/crashlytics.dart' as _i35;
 import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
 import 'package:dlogger/dlogger.dart' as _i975;
 import 'package:flutter/material.dart' as _i409;
@@ -164,6 +161,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i548.AnalyticsService>(
       () => sharedModule.getAnalyticsService(),
     );
+    gh.singleton<_i35.CrashlyticsService>(
+      () => sharedModule.getCrashlyticsService(),
+    );
     gh.singleton<_i322.PlatformSettingsProvider>(
       () => _i423.PlatformSettingsProviderImpl(),
     );
@@ -193,9 +193,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getExpFlavorConfig(),
       registerFor: {_exp},
-    );
-    gh.singleton<_i125.CrashlyticsService>(
-      () => _i333.FirebaseCrashlyticsService(),
     );
     gh.singleton<
       _i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>
@@ -235,7 +232,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i707.AppInitializerService>(
       () => appModule.getAppInitializerService(
         gh<_i548.AnalyticsService>(),
-        gh<_i125.CrashlyticsService>(),
+        gh<_i35.CrashlyticsService>(),
         gh<_i860.SQLiteDb>(),
       ),
     );
@@ -298,6 +295,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i374.AuthDataService>(
       () => authModule.getAuthDataService(gh<_i731.AuthDataRepository>()),
     );
+    gh.singleton<_i741.SessionInitializerService>(
+      () => appModule.getSessionInitializerService(
+        gh<_i374.AuthDataService>(),
+        gh<_i548.AnalyticsService>(),
+        gh<_i35.CrashlyticsService>(),
+      ),
+    );
+    gh.singleton<_i625.AppRootBloc>(
+      () => _i625.AppRootBloc(
+        gh<_i1054.AppLogger>(),
+        gh<_i374.AuthDataService>(),
+        gh<_i658.SettingsService>(),
+        gh<_i707.AppInitializerService>(),
+        gh<_i741.SessionInitializerService>(),
+      ),
+    );
     gh.singleton<_i535.NetClient>(
       () => sharedModule.getAppServerPrivateApiClient(
         gh<_i821.FlavorConfig>(),
@@ -314,22 +327,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
         gh<_i1054.AppLogger>(),
         gh<_i374.AuthDataService>(),
-      ),
-    );
-    gh.singleton<_i741.SessionInitializerService>(
-      () => appModule.getSessionInitializerService(
-        gh<_i374.AuthDataService>(),
-        gh<_i548.AnalyticsService>(),
-        gh<_i125.CrashlyticsService>(),
-      ),
-    );
-    gh.singleton<_i625.AppRootBloc>(
-      () => _i625.AppRootBloc(
-        gh<_i1054.AppLogger>(),
-        gh<_i374.AuthDataService>(),
-        gh<_i658.SettingsService>(),
-        gh<_i707.AppInitializerService>(),
-        gh<_i741.SessionInitializerService>(),
       ),
     );
     return this;

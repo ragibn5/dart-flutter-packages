@@ -10,7 +10,7 @@ import 'package:app_template/features/app/presentation/widgets/startup_error/sta
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:app_template/router/app_router.dart';
-import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
+import 'package:crashlytics/crashlytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

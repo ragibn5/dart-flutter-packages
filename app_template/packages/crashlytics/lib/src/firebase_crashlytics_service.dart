@@ -1,10 +1,8 @@
-import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
+import 'package:crashlytics/src/crashlytics_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
-import 'package:injectable/injectable.dart';
 
-@Singleton(as: CrashlyticsService)
-class FirebaseCrashlyticsService implements CrashlyticsService {
+class FirebaseCrashlyticsService extends CrashlyticsService {
   final FirebaseCrashlytics _crashlytics;
 
   FirebaseCrashlyticsService() : this._(FirebaseCrashlytics.instance);
@@ -17,6 +15,8 @@ class FirebaseCrashlyticsService implements CrashlyticsService {
 
   @override
   Future<void> initialize() async {
+    super.initialize();
+
     FlutterError.onError = _crashlytics.recordFlutterFatalError;
     PlatformDispatcher.instance.onError = (error, stack) {
       _crashlytics.recordError(error, stack, fatal: true);

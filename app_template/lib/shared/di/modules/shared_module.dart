@@ -14,6 +14,7 @@ import 'package:app_template/shared/logger/app_logger_impl.dart';
 import 'package:app_template/shared/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:crashlytics/crashlytics.dart';
 import 'package:dlogger/dlogger.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
@@ -171,6 +172,11 @@ abstract class SharedModule {
   @singleton
   AnalyticsService getAnalyticsService() {
     return const AnalyticsServiceFactory().create();
+  }
+
+  @singleton
+  CrashlyticsService getCrashlyticsService() {
+    return const CrashlyticsServiceFactory().create();
   }
 
   @singleton

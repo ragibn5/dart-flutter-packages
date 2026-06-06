@@ -1,6 +1,15 @@
-import 'package:initializable/initializable.dart';
+import 'dart:async';
 
-abstract interface class CrashlyticsService implements Initializable {
+import 'package:initializable/initializable.dart';
+import 'package:meta/meta.dart';
+
+abstract class CrashlyticsService implements Initializable {
+  const CrashlyticsService();
+
+  @mustCallSuper
+  @override
+  FutureOr<void> initialize() {}
+
   Future<void> setSessionData(String userId, {required bool collectionEnabled});
 
   Future<void> recordError(

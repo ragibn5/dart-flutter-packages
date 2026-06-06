@@ -10,7 +10,7 @@ import 'package:app_template/features/app/infrastructure/models/app_flavor.dart'
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/models/flavor_config.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
+import 'package:crashlytics/crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';

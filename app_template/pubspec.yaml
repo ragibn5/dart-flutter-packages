@@ -77,6 +77,8 @@ dependencies:
     path: packages/alerter
   analytics:
     path: packages/analytics
+  crashlytics:
+    path: packages/crashlytics
   snacker:
     path: packages/snacker
 
