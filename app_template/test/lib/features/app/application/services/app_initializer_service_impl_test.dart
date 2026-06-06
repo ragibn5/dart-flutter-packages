@@ -23,6 +23,10 @@ void main() {
     mockAnalytics = _MockAnalyticsService();
     mockDatabase = _MockSQLiteDb();
 
+    when(() => mockCrashlytics.initialize()).thenAnswer((_) async {});
+    when(() => mockAnalytics.initialize()).thenAnswer((_) async {});
+    when(() => mockDatabase.initialize()).thenAnswer((_) async {});
+
     sut = AppInitializerServiceImpl(
       mockCrashlytics,
       mockAnalytics,
