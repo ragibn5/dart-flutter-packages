@@ -1,4 +1,4 @@
-import 'package:app_template/shared/logger/app_logger.dart';
+import 'package:app_logger/app_logger.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 

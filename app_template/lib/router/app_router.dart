@@ -1,8 +1,8 @@
+import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/router/app_router.gr.dart';
 import 'package:app_template/router/guards/root_redirection_route_guard.dart';
 import 'package:app_template/router/guards/router_logger.dart';
-import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';

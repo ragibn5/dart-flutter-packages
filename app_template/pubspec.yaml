@@ -81,6 +81,8 @@ dependencies:
     path: packages/crashlytics
   snacker:
     path: packages/snacker
+  app_logger:
+    path: packages/logger
 
   # In-house packages
   string_extensions:

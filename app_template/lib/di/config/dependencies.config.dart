@@ -11,6 +11,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:alerter/alerter.dart' as _i103;
 import 'package:analytics/analytics.dart' as _i548;
+import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/features/app/application/services/app_initializer_service.dart'
     as _i707;
 import 'package:app_template/features/app/application/services/session_initializer_service.dart'
@@ -94,11 +95,6 @@ import 'package:app_template/features/user_data/domain/services/user_data_servic
     as _i84;
 import 'package:app_template/router/app_router.dart' as _i204;
 import 'package:app_template/shared/di/modules/shared_module.dart' as _i885;
-import 'package:app_template/shared/logger/app_log_policy_controller.dart'
-    as _i644;
-import 'package:app_template/shared/logger/app_log_policy_controller_impl.dart'
-    as _i948;
-import 'package:app_template/shared/logger/app_logger.dart' as _i1054;
 import 'package:crashlytics/crashlytics.dart' as _i35;
 import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
 import 'package:dlogger/dlogger.dart' as _i975;
@@ -175,7 +171,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.getDevFlavorConfig(),
       registerFor: {_dev},
     );
-    gh.singleton<_i1054.AppLogger>(
+    gh.singleton<_i519.AppLogger>(
       () => sharedModule.getLogger(
         gh<_i527.AppDirectories>(),
         gh<_i975.LogPolicyController>(),
@@ -218,9 +214,6 @@ extension GetItInjectableX on _i174.GetIt {
       ),
       dispose: (i) => i.dispose(),
     );
-    gh.singleton<_i644.AppLogPolicyController>(
-      () => _i948.AppLogPolicyControllerImpl(gh<_i975.LogPolicyController>()),
-    );
     gh.singleton<_i860.SQLiteDb>(
       () => sharedModule.getAppDatabase(gh<_i527.AppDirectories>()),
     );
@@ -249,12 +242,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i612.SettingsRepository>(),
       ),
     );
+    gh.singleton<_i257.UserDataDataSource>(
+      () => _i785.UserDataDataSourceImpl(gh<_i860.SQLiteDb>()),
+    );
     gh.singleton<_i535.NetClient>(
       () => sharedModule.getAppServerPublicApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
         gh<_i658.SettingsService>(),
-        gh<_i1054.AppLogger>(),
+        gh<_i519.AppLogger>(),
       ),
       instanceName: 'APP_SERVER_PUBLIC_API_CLIENT',
     );
@@ -262,12 +258,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => sharedModule.getAppServerTokenRefresherApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
-        gh<_i1054.AppLogger>(),
+        gh<_i519.AppLogger>(),
         gh<_i658.SettingsService>(),
       ),
-    );
-    gh.singleton<_i257.UserDataDataSource>(
-      () => _i785.UserDataDataSourceImpl(gh<_i860.SQLiteDb>()),
     );
     gh.singleton<_i728.UserDataRepository>(
       () => _i393.UserDataRepositoryImpl(
@@ -302,30 +295,30 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i35.CrashlyticsService>(),
       ),
     );
-    gh.singleton<_i625.AppRootBloc>(
-      () => _i625.AppRootBloc(
-        gh<_i1054.AppLogger>(),
-        gh<_i374.AuthDataService>(),
-        gh<_i658.SettingsService>(),
-        gh<_i707.AppInitializerService>(),
-        gh<_i741.SessionInitializerService>(),
-      ),
-    );
     gh.singleton<_i535.NetClient>(
       () => sharedModule.getAppServerPrivateApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
-        gh<_i1054.AppLogger>(),
+        gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
         gh<_i658.SettingsService>(),
         gh<_i120.AppServerTokenRefreshApiClient>(),
       ),
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
     );
+    gh.singleton<_i625.AppRootBloc>(
+      () => _i625.AppRootBloc(
+        gh<_i519.AppLogger>(),
+        gh<_i374.AuthDataService>(),
+        gh<_i658.SettingsService>(),
+        gh<_i707.AppInitializerService>(),
+        gh<_i741.SessionInitializerService>(),
+      ),
+    );
     gh.singleton<_i204.AppRouter>(
       () => _i204.AppRouter(
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
-        gh<_i1054.AppLogger>(),
+        gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
       ),
     );

@@ -1,4 +1,7 @@
-abstract interface class AppLogger {
+/// Abstract interface for application-level logging.
+///
+/// Provides per-level convenience methods instead of a generic `log` call.
+abstract class AppLogger {
   void logDebug({
     required String tag,
     required String message,

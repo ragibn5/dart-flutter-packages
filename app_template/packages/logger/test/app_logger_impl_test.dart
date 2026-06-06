@@ -1,9 +1,9 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/shared/logger/app_logger_impl.dart';
+import 'package:app_logger/src/app_logger_impl.dart';
 import 'package:dlogger/dlogger.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:test/test.dart';
 
 class _MockCompositeLogger extends Mock implements CompositeLogger {}
 
@@ -26,7 +26,6 @@ void main() {
 
   late AppLoggerImpl sut;
 
-  /// Generic helper to verify a log call
   void verifyLog({
     required void Function() logMethod,
     required LogLevel expectedLevel,

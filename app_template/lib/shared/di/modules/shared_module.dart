@@ -1,5 +1,6 @@
 import 'package:alerter/alerter.dart';
 import 'package:analytics/analytics.dart';
+import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/models/flavor_config.dart';
@@ -8,14 +9,11 @@ import 'package:app_template/features/auth/infrastructure/app_server_token_refre
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
-import 'package:app_template/shared/logger/app_logger.dart';
-import 'package:app_template/shared/logger/app_logger_id.dart';
-import 'package:app_template/shared/logger/app_logger_impl.dart';
 import 'package:app_template/shared/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:crashlytics/crashlytics.dart';
-import 'package:dlogger/dlogger.dart';
+import 'package:dlogger/dlogger.dart' hide Logger;
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
@@ -40,11 +38,11 @@ abstract class SharedModule {
     AppDirectories appDirectories,
     LogPolicyController logPolicyController,
   ) {
-    return AppLoggerImpl(
-      [PolicyBasedLogFilter(logPolicyController)],
-      {
-        AppLoggerId.CONSOLE: ConsoleLogger(),
-        AppLoggerId.FILE: FileLogger(
+    return const AppLoggerFactory().create(
+      filters: [PolicyBasedLogFilter(logPolicyController)],
+      loggers: {
+        'console': ConsoleLogger(),
+        'file': FileLogger(
           logDirectory: appDirectories.logDirectory,
           fileNameBuilder: (data) =>
               'LOG-${DateFormat('dd-MM-yyyy').format(data.stamp)}.log',

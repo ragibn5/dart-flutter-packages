@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service.dart';
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
@@ -10,7 +11,6 @@ import 'package:app_template/features/auth/domain/services/auth_data_service.dar
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
-import 'package:app_template/shared/logger/app_logger.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
