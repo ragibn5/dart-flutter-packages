@@ -13,7 +13,7 @@ version: 0.0.1+1
 
 # Range of compatible SDK versions
 environment:
-  sdk: ^3.11.0
+  sdk: ^3.10.9
 
 # Regular dependencies
 # (Bundled in executable artifact)

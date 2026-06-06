@@ -4,7 +4,7 @@ description: A reusable analytics service.
 publish_to: none
 
 environment:
-  sdk: ^3.11.0
+  sdk: ^3.10.9
 
 dependencies:
   flutter:
