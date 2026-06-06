@@ -75,6 +75,8 @@ dependencies:
     path: packages/file_store
   alerter:
     path: packages/alerter
+  snacker:
+    path: packages/snacker
 
   # In-house packages
   string_extensions:

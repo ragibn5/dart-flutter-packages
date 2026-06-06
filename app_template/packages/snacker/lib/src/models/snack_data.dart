@@ -1,5 +1,5 @@
-import 'package:app_template/shared/snacker/snack_type.dart';
 import 'package:flutter/widgets.dart';
+import 'package:snacker/src/enums/snack_type.dart';
 
 class SnackData {
   final String message;

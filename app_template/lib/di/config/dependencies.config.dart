@@ -105,9 +105,6 @@ import 'package:app_template/shared/logger/app_log_policy_controller.dart'
 import 'package:app_template/shared/logger/app_log_policy_controller_impl.dart'
     as _i948;
 import 'package:app_template/shared/logger/app_logger.dart' as _i1054;
-import 'package:app_template/shared/snacker/scaffold_messenger_based_snacker.dart'
-    as _i916;
-import 'package:app_template/shared/snacker/snacker.dart' as _i638;
 import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
 import 'package:dlogger/dlogger.dart' as _i975;
 import 'package:flutter/material.dart' as _i409;
@@ -116,6 +113,7 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:net_kit/net_kit.dart' as _i535;
 import 'package:package_info_plus/package_info_plus.dart' as _i655;
 import 'package:preference_store/preference_store.dart' as _i300;
+import 'package:snacker/snacker.dart' as _i1020;
 import 'package:sqlite_db/sqlite_db.dart' as _i860;
 
 const String _stage = 'stage';
@@ -215,11 +213,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.getProdFlavorConfig(),
       registerFor: {_prod},
     );
-    gh.singleton<_i638.Snacker>(
-      () => _i916.ScaffoldMessengerBasedSnacker(
-        gh<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(),
-      ),
-    );
     gh.factory<_i850.SettingsDataSource>(
       () => _i886.SettingsDataSourceImpl(gh<_i300.PreferenceStore>()),
     );
@@ -235,6 +228,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i860.SQLiteDb>(
       () => sharedModule.getAppDatabase(gh<_i527.AppDirectories>()),
+    );
+    gh.singleton<_i1020.Snacker>(
+      () => sharedModule.getSnacker(
+        gh<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(),
+      ),
     );
     gh.singleton<_i707.AppInitializerService>(
       () => appModule.getAppInitializerService(

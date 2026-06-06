@@ -1,16 +1,21 @@
-import 'package:app_template/shared/snacker/scaffold_messenger_based_snacker.dart';
-import 'package:app_template/shared/snacker/snack_data.dart';
-import 'package:app_template/shared/snacker/snack_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:snacker/snacker.dart';
+
+class _MockScaffoldMessengerKey extends Mock
+    implements GlobalKey<ScaffoldMessengerState> {}
 
 void main() {
+  late _MockScaffoldMessengerKey mockScaffoldMessengerKey;
   late GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
-  late ScaffoldMessengerBasedSnacker snacker;
+
+  late ScaffoldMessengerSnacker sut;
 
   setUp(() {
+    mockScaffoldMessengerKey = _MockScaffoldMessengerKey();
     scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-    snacker = ScaffoldMessengerBasedSnacker(scaffoldMessengerKey);
+    sut = ScaffoldMessengerSnacker(scaffoldMessengerKey);
   });
 
   Future<void> pumpScaffold(WidgetTester tester) async {
@@ -24,22 +29,26 @@ void main() {
     );
   }
 
-  group('ScaffoldMessengerBasedSnacker', () {
-    test('throws StateError when key has no currentState', () {
+  group('ScaffoldMessengerSnacker', () {
+    test('Throws StateError when key has no currentState', () {
+      sut = ScaffoldMessengerSnacker(mockScaffoldMessengerKey);
+
+      when(() => mockScaffoldMessengerKey.currentState).thenReturn(null);
+
       expect(
-        () => snacker.showTextSnack(SnackData.info(message: 'test')),
+        () => sut.showTextSnack(SnackData.info(message: 'test')),
         throwsA(isA<StateError>()),
       );
     });
 
-    testWidgets('clears previous snack bar before showing new one', (
+    testWidgets('Clears previous snack bar before showing new one', (
       tester,
     ) async {
       await pumpScaffold(tester);
 
-      snacker.showTextSnack(SnackData.info(message: 'First'));
+      sut.showTextSnack(SnackData.info(message: 'First'));
       await tester.pump();
-      snacker.showTextSnack(SnackData.info(message: 'Second'));
+      sut.showTextSnack(SnackData.info(message: 'Second'));
       await tester.pump();
 
       expect(find.text('First'), findsNothing);
@@ -47,11 +56,11 @@ void main() {
     });
 
     testWidgets(
-      'renders message, duration, and text alignment from SnackData',
+      'Renders message, duration, and text alignment from SnackData',
       (tester) async {
         await pumpScaffold(tester);
 
-        snacker.showTextSnack(
+        sut.showTextSnack(
           SnackData.error(
             message: 'Something went wrong',
             duration: const Duration(seconds: 5),
@@ -70,14 +79,14 @@ void main() {
   });
 
   group('SnackData', () {
-    test('each factory sets the correct SnackType', () {
+    test('Each factory sets the correct SnackType', () {
       expect(SnackData.info(message: '').snackType, SnackType.INFO);
       expect(SnackData.success(message: '').snackType, SnackType.SUCCESS);
       expect(SnackData.warning(message: '').snackType, SnackType.WARNING);
       expect(SnackData.error(message: '').snackType, SnackType.ERROR);
     });
 
-    test('defaults to 2s duration and center alignment', () {
+    test('Defaults to 2s duration and center alignment', () {
       final data = SnackData.info(message: 'test');
       expect(data.duration, const Duration(seconds: 2));
       expect(data.textAlignment, TextAlign.center);

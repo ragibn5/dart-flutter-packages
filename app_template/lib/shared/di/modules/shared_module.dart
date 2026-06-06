@@ -1,4 +1,3 @@
-import 'package:alerter/alerter.dart';
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/models/flavor_config.dart';
@@ -13,6 +12,7 @@ import 'package:app_template/shared/logger/app_logger_impl.dart';
 import 'package:app_template/shared/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/shared/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:alerter/alerter.dart';
 import 'package:dlogger/dlogger.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
@@ -20,6 +20,7 @@ import 'package:intl/intl.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:path/path.dart' as path;
 import 'package:preference_store/preference_store.dart';
+import 'package:snacker/snacker.dart';
 import 'package:sqlite_db/sqlite_db.dart';
 
 const String APP_SERVER_PUBLIC_API_CLIENT = 'APP_SERVER_PUBLIC_API_CLIENT';
@@ -162,7 +163,16 @@ abstract class SharedModule {
   }
 
   @singleton
-  Alerter getAlerter(GlobalKey<NavigatorState> navigatorKey) {
+  Alerter getAlerter(
+    GlobalKey<NavigatorState> navigatorKey,
+  ) {
     return RouterNavigatorAlerter(navigatorKey);
+  }
+
+  @singleton
+  Snacker getSnacker(
+    GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
+  ) {
+    return ScaffoldMessengerSnacker(scaffoldMessengerKey);
   }
 }
