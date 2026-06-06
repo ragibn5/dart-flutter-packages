@@ -1,8 +1,10 @@
 import 'package:initializable/initializable.dart';
+import 'package:meta/meta.dart';
 
 abstract class AnalyticsService implements Initializable {
   const AnalyticsService();
 
+  @mustCallSuper
   @override
   Future<void> initialize() async {}
 
