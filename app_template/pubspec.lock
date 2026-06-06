@@ -291,6 +291,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  common_widgets:
+    dependency: "direct main"
+    description:
+      path: "packages/common_widgets"
+      relative: true
+    source: path
+    version: "0.0.0"
   convert:
     dependency: transitive
     description:
@@ -789,6 +796,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
+  json_converters:
+    dependency: "direct main"
+    description:
+      path: "packages/json_converters"
+      relative: true
+    source: path
+    version: "0.0.0"
   json_serializable:
     dependency: "direct dev"
     description:

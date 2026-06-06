@@ -83,6 +83,10 @@ dependencies:
     path: packages/snacker
   app_logger:
     path: packages/logger
+  json_converters:
+    path: packages/json_converters
+  common_widgets:
+    path: packages/common_widgets
 
   # In-house packages
   string_extensions:

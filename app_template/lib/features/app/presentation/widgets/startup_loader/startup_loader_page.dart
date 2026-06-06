@@ -1,4 +1,4 @@
-import 'package:app_template/shared/loader_page/common_loader_page.dart';
+import 'package:common_widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
 
 class StartupLoaderPage extends StatelessWidget {

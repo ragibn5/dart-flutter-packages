@@ -1,6 +1,6 @@
-import 'package:app_template/shared/converters/date_time_json_converter.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:json_converters/json_converters.dart';
 
 part 'auth_data_dto.g.dart';
 
