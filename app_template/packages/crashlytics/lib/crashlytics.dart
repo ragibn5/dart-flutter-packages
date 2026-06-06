@@ -2,4 +2,4 @@
 library;
 
 export 'src/crashlytics_service.dart' show CrashlyticsService;
-export 'src/factory.dart' show CrashlyticsServiceFactory;
+export 'src/crashlytics_service_factory.dart' show CrashlyticsServiceFactory;
