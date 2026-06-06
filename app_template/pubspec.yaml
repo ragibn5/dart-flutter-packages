@@ -57,36 +57,36 @@ dependencies:
     path: packages/initializable
   disposable:
     path: packages/disposable
-  data_domain_converters:
-    path: packages/data_domain_converters
   core_models:
     path: packages/core_models
-  feature_api_client:
-    path: packages/feature_api_client
-  base_auth_interceptor:
-    path: packages/base_auth_interceptor
-  sqlite_db:
-    path: packages/sqlite_db
   mutex:
     path: packages/mutex
+  data_domain_converters:
+    path: packages/data_domain_converters
+  base_auth_interceptor:
+    path: packages/base_auth_interceptor
+  feature_api_client:
+    path: packages/feature_api_client
+  json_converters:
+    path: packages/json_converters
+  app_logger:
+    path: packages/logger
   preference_store:
     path: packages/preference_store
-  file_store:
-    path: packages/file_store
   alerter:
     path: packages/alerter
+  snacker:
+    path: packages/snacker
+  common_widgets:
+    path: packages/common_widgets
+  sqlite_db:
+    path: packages/sqlite_db
+  file_store:
+    path: packages/file_store
   analytics:
     path: packages/analytics
   crashlytics:
     path: packages/crashlytics
-  snacker:
-    path: packages/snacker
-  app_logger:
-    path: packages/logger
-  json_converters:
-    path: packages/json_converters
-  common_widgets:
-    path: packages/common_widgets
 
   # In-house packages
   string_extensions:
