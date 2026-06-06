@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:analytics/analytics.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service_impl.dart';
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
@@ -9,7 +10,6 @@ import 'package:app_template/features/app/infrastructure/models/app_flavor.dart'
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/models/flavor_config.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/shared/analytics/analytics_service.dart';
 import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';

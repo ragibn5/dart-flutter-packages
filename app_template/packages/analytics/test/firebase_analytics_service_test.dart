@@ -1,6 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/shared/analytics/firebase_analytics_service.dart';
+import 'package:analytics/src/firebase_analytics_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -15,13 +15,11 @@ void main() {
 
   late _MockFirebaseAnalytics mockFirebaseAnalytics;
 
-  late FirebaseAnalyticsService firebaseAnalyticsService;
+  late FirebaseAnalyticsService sut;
 
   setUp(() {
     mockFirebaseAnalytics = _MockFirebaseAnalytics();
-    firebaseAnalyticsService = FirebaseAnalyticsService.test(
-      mockFirebaseAnalytics,
-    );
+    sut = FirebaseAnalyticsService.test(mockFirebaseAnalytics);
 
     when(
       () => mockFirebaseAnalytics.setUserId(id: any(named: 'id')),
@@ -46,10 +44,7 @@ void main() {
   test(
     '`setSessionData` should set user Id and analytics collection enabled status',
     () async {
-      await firebaseAnalyticsService.setSessionData(
-        userId,
-        collectionEnabled: connectionEnabled,
-      );
+      await sut.setSessionData(userId, collectionEnabled: connectionEnabled);
 
       verify(() => mockFirebaseAnalytics.setUserId(id: userId)).called(1);
       verify(
@@ -61,7 +56,7 @@ void main() {
   );
 
   test('`logEvent` should log correct event with correct value', () async {
-    await firebaseAnalyticsService.logEvent(eventName, eventValue);
+    await sut.logEvent(eventName, eventValue);
 
     verify(
       () => mockFirebaseAnalytics.logEvent(

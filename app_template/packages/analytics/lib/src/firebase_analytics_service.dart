@@ -1,10 +1,8 @@
-import 'package:app_template/shared/analytics/analytics_service.dart';
+import 'package:analytics/src/analytics_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/foundation.dart';
-import 'package:injectable/injectable.dart';
+import 'package:meta/meta.dart';
 
-@Singleton(as: AnalyticsService)
-class FirebaseAnalyticsService implements AnalyticsService {
+class FirebaseAnalyticsService extends AnalyticsService {
   final FirebaseAnalytics _firebaseAnalytics;
 
   FirebaseAnalyticsService() : this._(FirebaseAnalytics.instance);
@@ -14,9 +12,6 @@ class FirebaseAnalyticsService implements AnalyticsService {
   @visibleForTesting
   FirebaseAnalyticsService.test(FirebaseAnalytics firebaseAnalytics)
     : this._(firebaseAnalytics);
-
-  @override
-  Future<void> initialize() async {}
 
   @override
   Future<void> setSessionData(
