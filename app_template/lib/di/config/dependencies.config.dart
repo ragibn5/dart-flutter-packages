@@ -12,11 +12,14 @@
 import 'package:alerter/alerter.dart' as _i103;
 import 'package:analytics/analytics.dart' as _i548;
 import 'package:app_logger/app_logger.dart' as _i519;
+import 'package:app_template/di/modules/app_module.dart' as _i384;
+import 'package:app_template/di/modules/auth_module.dart' as _i228;
+import 'package:app_template/di/modules/settings_module.dart' as _i150;
+import 'package:app_template/di/modules/user_data_module.dart' as _i201;
 import 'package:app_template/features/app/application/services/app_initializer_service.dart'
     as _i707;
 import 'package:app_template/features/app/application/services/session_initializer_service.dart'
     as _i741;
-import 'package:app_template/features/app/di/modules/app_module.dart' as _i393;
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart'
     as _i527;
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart'
@@ -30,23 +33,15 @@ import 'package:app_template/features/app/infrastructure/services/fallback_local
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart'
     as _i625;
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart'
-    as _i120;
+    as _i524;
 import 'package:app_template/features/auth/data/repositories/auth_data_mapper.dart'
-    as _i907;
-import 'package:app_template/features/auth/data/repositories/auth_data_repository_impl.dart'
-    as _i16;
+    as _i704;
 import 'package:app_template/features/auth/data/repositories/auth_refresh_error_mapper.dart'
-    as _i315;
+    as _i82;
 import 'package:app_template/features/auth/data/sources/local_auth_data_source.dart'
     as _i30;
-import 'package:app_template/features/auth/data/sources/local_auth_data_source_impl.dart'
-    as _i451;
 import 'package:app_template/features/auth/data/sources/remote_auth_data_source.dart'
     as _i156;
-import 'package:app_template/features/auth/data/sources/remote_auth_data_source_impl.dart'
-    as _i752;
-import 'package:app_template/features/auth/di/modules/auth_module.dart'
-    as _i1052;
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart'
     as _i731;
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart'
@@ -57,36 +52,18 @@ import 'package:app_template/features/settings/application/services/platform_set
     as _i322;
 import 'package:app_template/features/settings/application/services/settings_service.dart'
     as _i658;
-import 'package:app_template/features/settings/data/mappers/settings_mapper.dart'
-    as _i677;
 import 'package:app_template/features/settings/data/models/settings_dto.dart'
     as _i801;
-import 'package:app_template/features/settings/data/repositories/settings_repository_impl.dart'
-    as _i584;
 import 'package:app_template/features/settings/data/sources/settings_data_source.dart'
     as _i850;
-import 'package:app_template/features/settings/data/sources/settings_data_source_impl.dart'
-    as _i886;
-import 'package:app_template/features/settings/di/modules/settings_module.dart'
-    as _i885;
 import 'package:app_template/features/settings/domain/models/app_settings.dart'
     as _i78;
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart'
     as _i612;
-import 'package:app_template/features/settings/infrastructures/services/platform_settings_provider_impl.dart'
-    as _i423;
-import 'package:app_template/features/user_data/data/mappers/user_data_mapper.dart'
-    as _i343;
 import 'package:app_template/features/user_data/data/models/user_data_dto.dart'
     as _i1018;
-import 'package:app_template/features/user_data/data/repositories/user_data_repository_impl.dart'
-    as _i393;
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart'
     as _i257;
-import 'package:app_template/features/user_data/data/sources/user_data_data_source_impl.dart'
-    as _i785;
-import 'package:app_template/features/user_data/di/modules/user_data_module.dart'
-    as _i151;
 import 'package:app_template/features/user_data/domain/models/user_data.dart'
     as _i436;
 import 'package:app_template/features/user_data/domain/repositories/user_data_repository.dart'
@@ -118,13 +95,19 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    final appModule = _$AppModule();
+    final authModule = _$AuthModule();
     final settingsModule = _$SettingsModule();
     final userDataModule = _$UserDataModule();
-    final authModule = _$AuthModule();
-    gh.factory<_i907.AuthDataMapper>(() => _i907.AuthDataMapper());
-    gh.factory<_i315.AuthRefreshErrorMapper>(
-      () => _i315.AuthRefreshErrorMapper(),
+    final appModule = _$AppModule();
+    gh.factory<_i704.AuthDataMapper>(() => authModule.getAuthDataMapper());
+    gh.factory<_i82.AuthRefreshErrorMapper>(
+      () => authModule.getAuthRefreshErrorMapper(),
+    );
+    gh.factory<_i1003.DataDomainConverter<_i801.SettingsDTO, _i78.AppSettings>>(
+      () => settingsModule.getSettingsMapper(),
+    );
+    gh.factory<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>>(
+      () => userDataModule.getUserDataMapper(),
     );
     await gh.singletonAsync<_i655.PackageInfo>(
       () => appModule.getPackageInfo(),
@@ -151,13 +134,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.getCrashlyticsService(),
     );
     gh.singleton<_i291.FallbackLocaleSelector>(
-      () => const _i291.FallbackLocaleSelector(),
+      () => appModule.getFallbackLocaleSelector(),
+    );
+    gh.singleton<_i322.PlatformSettingsProvider>(
+      () => settingsModule.getPlatformSettingsProvider(),
     );
     gh.singleton<_i972.AppLocaleResolver>(
       () => settingsModule.getAppLocaleResolver(),
-    );
-    gh.singleton<_i322.PlatformSettingsProvider>(
-      () => _i423.PlatformSettingsProviderImpl(),
     );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getStageFlavorConfig(),
@@ -173,24 +156,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i975.LogPolicyController>(),
       ),
     );
-    gh.singleton<
-      _i1003.DataDomainConverter<_i801.SettingsDTO, _i78.AppSettings>
-    >(() => _i677.SettingsMapper());
-    gh.singleton<_i803.AppConfigFactory>(
-      () => _i803.AppConfigFactory(
-        gh<_i655.PackageInfo>(),
-        gh<_i291.FallbackLocaleSelector>(),
-      ),
-    );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getExpFlavorConfig(),
       registerFor: {_exp},
     );
-    gh.singleton<
-      _i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>
-    >(() => _i343.UserDataMapper());
-    gh.singleton<_i30.LocalAuthDataSource>(
-      () => _i451.LocalAuthDataSourceImpl(gh<_i300.PreferenceStore>()),
+    gh.singleton<_i803.AppConfigFactory>(
+      () => appModule.getAppConfigFactory(
+        gh<_i655.PackageInfo>(),
+        gh<_i291.FallbackLocaleSelector>(),
+      ),
     );
     gh.singleton<_i103.Alerter>(
       () => appModule.getAlerter(gh<_i409.GlobalKey<_i409.NavigatorState>>()),
@@ -199,15 +173,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.getProdFlavorConfig(),
       registerFor: {_prod},
     );
-    gh.factory<_i850.SettingsDataSource>(
-      () => _i886.SettingsDataSourceImpl(gh<_i300.PreferenceStore>()),
+    gh.singleton<_i30.LocalAuthDataSource>(
+      () => authModule.getLocalAuthDataSource(gh<_i300.PreferenceStore>()),
     );
-    gh.singleton<_i612.SettingsRepository>(
-      () => _i584.SettingsRepositoryImpl(
-        gh<_i1003.DataDomainConverter<_i801.SettingsDTO, _i78.AppSettings>>(),
-        gh<_i850.SettingsDataSource>(),
-      ),
-      dispose: (i) => i.dispose(),
+    gh.singleton<_i850.SettingsDataSource>(
+      () => settingsModule.getSettingsDataSource(gh<_i300.PreferenceStore>()),
     );
     gh.singleton<_i860.SQLiteDb>(
       () => appModule.getAppDatabase(gh<_i527.AppDirectories>()),
@@ -230,6 +200,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i655.PackageInfo>(),
       ),
     );
+    gh.singleton<_i257.UserDataDataSource>(
+      () => userDataModule.getUserDataDataSource(gh<_i860.SQLiteDb>()),
+    );
+    gh.singleton<_i612.SettingsRepository>(
+      () => settingsModule.getSettingsRepository(
+        gh<_i1003.DataDomainConverter<_i801.SettingsDTO, _i78.AppSettings>>(),
+        gh<_i850.SettingsDataSource>(),
+      ),
+    );
+    gh.singleton<_i728.UserDataRepository>(
+      () => userDataModule.getUserDataRepository(
+        gh<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>>(),
+        gh<_i257.UserDataDataSource>(),
+      ),
+    );
     gh.singleton<_i658.SettingsService>(
       () => settingsModule.getSettingsService(
         gh<_i972.AppLocaleResolver>(),
@@ -237,8 +222,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i612.SettingsRepository>(),
       ),
     );
-    gh.singleton<_i257.UserDataDataSource>(
-      () => _i785.UserDataDataSourceImpl(gh<_i860.SQLiteDb>()),
+    gh.singleton<_i84.UserDataService>(
+      () => userDataModule.getUserDataService(gh<_i728.UserDataRepository>()),
     );
     gh.singleton<_i535.NetClient>(
       () => appModule.getAppServerPublicApiClient(
@@ -249,7 +234,7 @@ extension GetItInjectableX on _i174.GetIt {
       ),
       instanceName: 'APP_SERVER_PUBLIC_API_CLIENT',
     );
-    gh.factory<_i120.AppServerTokenRefreshApiClient>(
+    gh.factory<_i524.AppServerTokenRefreshApiClient>(
       () => appModule.getAppServerTokenRefresherApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
@@ -257,28 +242,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i658.SettingsService>(),
       ),
     );
-    gh.singleton<_i728.UserDataRepository>(
-      () => _i393.UserDataRepositoryImpl(
-        gh<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>>(),
-        gh<_i257.UserDataDataSource>(),
-      ),
-    );
     gh.singleton<_i156.RemoteAuthDataSource>(
-      () => _i752.RemoteAuthDataSourceImpl(
-        gh<_i120.AppServerTokenRefreshApiClient>(),
+      () => authModule.getRemoteAuthDataSource(
+        gh<_i524.AppServerTokenRefreshApiClient>(),
       ),
-    );
-    gh.singleton<_i84.UserDataService>(
-      () => userDataModule.getUserDataService(gh<_i728.UserDataRepository>()),
     );
     gh.singleton<_i731.AuthDataRepository>(
-      () => _i16.AuthDataRepositoryImpl(
-        gh<_i907.AuthDataMapper>(),
-        gh<_i315.AuthRefreshErrorMapper>(),
+      () => authModule.getAuthDataRepository(
+        gh<_i704.AuthDataMapper>(),
+        gh<_i82.AuthRefreshErrorMapper>(),
         gh<_i30.LocalAuthDataSource>(),
         gh<_i156.RemoteAuthDataSource>(),
       ),
-      dispose: (i) => i.dispose(),
     );
     gh.singleton<_i374.AuthDataService>(
       () => authModule.getAuthDataService(gh<_i731.AuthDataRepository>()),
@@ -290,19 +265,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i35.CrashlyticsService>(),
       ),
     );
-    gh.singleton<_i535.NetClient>(
-      () => appModule.getAppServerPrivateApiClient(
-        gh<_i821.FlavorConfig>(),
-        gh<_i143.BuildMetadata>(),
-        gh<_i519.AppLogger>(),
-        gh<_i374.AuthDataService>(),
-        gh<_i658.SettingsService>(),
-        gh<_i120.AppServerTokenRefreshApiClient>(),
-      ),
-      instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
-    );
     gh.singleton<_i625.AppRootBloc>(
-      () => _i625.AppRootBloc(
+      () => appModule.getAppRootBloc(
         gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
         gh<_i658.SettingsService>(),
@@ -310,8 +274,19 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i741.SessionInitializerService>(),
       ),
     );
+    gh.singleton<_i535.NetClient>(
+      () => appModule.getAppServerPrivateApiClient(
+        gh<_i821.FlavorConfig>(),
+        gh<_i143.BuildMetadata>(),
+        gh<_i519.AppLogger>(),
+        gh<_i374.AuthDataService>(),
+        gh<_i658.SettingsService>(),
+        gh<_i524.AppServerTokenRefreshApiClient>(),
+      ),
+      instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
+    );
     gh.singleton<_i204.AppRouter>(
-      () => _i204.AppRouter(
+      () => appModule.getAppRouter(
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
         gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
@@ -321,10 +296,10 @@ extension GetItInjectableX on _i174.GetIt {
   }
 }
 
-class _$AppModule extends _i393.AppModule {}
+class _$AuthModule extends _i228.AuthModule {}
 
-class _$SettingsModule extends _i885.SettingsModule {}
+class _$SettingsModule extends _i150.SettingsModule {}
 
-class _$UserDataModule extends _i151.UserDataModule {}
+class _$UserDataModule extends _i201.UserDataModule {}
 
-class _$AuthModule extends _i1052.AuthModule {}
+class _$AppModule extends _i384.AppModule {}

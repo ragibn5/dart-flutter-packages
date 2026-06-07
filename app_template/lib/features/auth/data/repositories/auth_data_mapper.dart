@@ -1,9 +1,7 @@
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
-import 'package:injectable/injectable.dart';
 
-@injectable
 class AuthDataMapper implements DataDomainConverter<AuthDataDTO, AuthData> {
   @override
   AuthData convertDataToDomain(AuthDataDTO dataModel) {

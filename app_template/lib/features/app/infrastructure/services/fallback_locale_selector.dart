@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:injectable/injectable.dart';
 
-@singleton
 class FallbackLocaleSelector {
   const FallbackLocaleSelector();
 

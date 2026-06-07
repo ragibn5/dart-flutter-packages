@@ -5,9 +5,7 @@ import 'package:app_template/router/guards/root_redirection_route_guard.dart';
 import 'package:app_template/router/guards/router_logger.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:injectable/injectable.dart';
 
-@singleton
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
   final AppLogger _logger;

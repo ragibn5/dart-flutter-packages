@@ -5,9 +5,7 @@ import 'package:app_template/features/user_data/data/sources/user_data_data_sour
 import 'package:app_template/features/user_data/domain/models/user_data.dart';
 import 'package:app_template/features/user_data/domain/repositories/user_data_repository.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
-import 'package:injectable/injectable.dart';
 
-@Singleton(as: UserDataRepository)
 class UserDataRepositoryImpl implements UserDataRepository {
   final DataDomainConverter<UserDataDTO, UserData> _userDataMapper;
   final UserDataDataSource _userDataDataSource;

@@ -2,11 +2,9 @@ import 'dart:convert';
 
 import 'package:app_template/features/settings/data/models/settings_dto.dart';
 import 'package:app_template/features/settings/data/sources/settings_data_source.dart';
-import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 import 'package:preference_store/preference_store.dart';
 
-@Injectable(as: SettingsDataSource)
 class SettingsDataSourceImpl implements SettingsDataSource {
   @visibleForTesting
   static const String preferenceKey = 'app_preferences';

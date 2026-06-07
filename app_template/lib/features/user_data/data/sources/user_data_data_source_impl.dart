@@ -1,10 +1,8 @@
 import 'package:app_template/features/user_data/data/models/user_data_dto.dart';
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
-import 'package:injectable/injectable.dart';
 import 'package:sqlite_db/sqlite_db.dart';
 
-@Singleton(as: UserDataDataSource)
 class UserDataDataSourceImpl implements UserDataDataSource {
   final SQLiteDb _sqliteDb;
 

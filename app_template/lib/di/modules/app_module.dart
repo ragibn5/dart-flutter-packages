@@ -12,11 +12,15 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
+import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
+import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
+import 'package:app_template/router/app_router.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:dlogger/dlogger.dart' hide Logger;
 import 'package:flutter/material.dart';
@@ -299,5 +303,44 @@ abstract class AppModule {
       analyticsService,
       crashlyticsService,
     );
+  }
+
+  @singleton
+  FallbackLocaleSelector getFallbackLocaleSelector() {
+    return const FallbackLocaleSelector();
+  }
+
+  @singleton
+  AppConfigFactory getAppConfigFactory(
+    PackageInfo packageInfo,
+    FallbackLocaleSelector fallbackLocaleSelector,
+  ) {
+    return AppConfigFactory(packageInfo, fallbackLocaleSelector);
+  }
+
+  @singleton
+  AppRootBloc getAppRootBloc(
+    AppLogger logger,
+    AuthDataService authDataService,
+    SettingsService settingsService,
+    AppInitializerService appInitializerService,
+    SessionInitializerService sessionInitializerService,
+  ) {
+    return AppRootBloc(
+      logger,
+      authDataService,
+      settingsService,
+      appInitializerService,
+      sessionInitializerService,
+    );
+  }
+
+  @singleton
+  AppRouter getAppRouter(
+    GlobalKey<NavigatorState> navigatorKey,
+    AppLogger logger,
+    AuthDataService authDataService,
+  ) {
+    return AppRouter(navigatorKey, logger, authDataService);
   }
 }

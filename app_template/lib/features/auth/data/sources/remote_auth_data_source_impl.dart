@@ -3,9 +3,7 @@ import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/data/sources/remote_auth_data_source.dart';
 import 'package:core_models/core_models.dart';
-import 'package:injectable/injectable.dart';
 
-@Singleton(as: RemoteAuthDataSource)
 class RemoteAuthDataSourceImpl implements RemoteAuthDataSource {
   final AppServerTokenRefreshApiClient _client;
 

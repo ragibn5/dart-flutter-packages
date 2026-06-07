@@ -9,10 +9,8 @@ import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 import 'package:core_models/core_models.dart';
-import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 
-@Singleton(as: AuthDataRepository)
 class AuthDataRepositoryImpl implements AuthDataRepository {
   final AuthDataMapper _authDataMapper;
   final AuthRefreshErrorMapper _authRefreshErrorMapper;
@@ -104,7 +102,6 @@ class AuthDataRepositoryImpl implements AuthDataRepository {
     return _authDataStreamController.stream;
   }
 
-  @disposeMethod
   @override
   void dispose() {
     _authDataStreamController.close();

@@ -8,13 +8,11 @@ import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 
 part 'app_root_event.dart';
 part 'app_root_state.dart';
 
-@singleton
 class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AppLogger _logger;
   final AuthDataService _authDataService;
