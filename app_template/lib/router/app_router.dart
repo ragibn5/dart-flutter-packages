@@ -5,7 +5,7 @@ import 'package:app_template/features/auth/domain/services/auth_data_service.dar
 import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:app_template/features/auth/presentation/screens/login_screen.dart';
 import 'package:app_template/features/home/presentation/widgets/home_screen.dart';
-import 'package:app_template/router/app_routes.dart';
+import 'package:app_template/router/enums/app_routes.dart';
 import 'package:app_template/router/guards/root_redirection_route_guard.dart';
 import 'package:app_template/router/guards/router_logger.dart';
 import 'package:auto_route/auto_route.dart';
