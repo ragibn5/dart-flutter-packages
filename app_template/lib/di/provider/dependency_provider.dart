@@ -1,9 +1,6 @@
 import 'dart:async';
 
-import 'package:app_template/di/provider/dependency_provider_impl.dart';
 import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
-
-DependencyProvider di = DependencyProviderImpl.getInstance();
 
 abstract interface class DependencyProvider {
   T get<T extends Object>({String? name});

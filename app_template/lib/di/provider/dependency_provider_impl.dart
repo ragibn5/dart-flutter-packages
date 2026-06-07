@@ -59,17 +59,21 @@ class DependencyProviderImpl implements DependencyProvider {
       return;
     }
 
-    await _configuratorFunc.call(
-      _registrar,
-      flavor != null ? Environment(flavor.name) : null,
-    );
-
-    _isInitialized = true;
+    try {
+      await _configuratorFunc.call(
+        _registrar,
+        flavor != null ? Environment(flavor.name) : null,
+      );
+      _isInitialized = true;
+    } catch (e) {
+      _isInitialized = false;
+      rethrow;
+    }
   }
 
   @override
-  FutureOr<void> dispose() {
-    _registrar.reset();
+  FutureOr<void> dispose() async {
+    await _registrar.reset();
 
     _isInitialized = false;
   }

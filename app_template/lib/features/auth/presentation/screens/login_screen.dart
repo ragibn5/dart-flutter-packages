@@ -3,7 +3,7 @@
 // inside your preferred feature module/directory.
 //
 
-import 'package:app_template/di/provider/dependency_provider.dart';
+import 'package:app_template/di/di.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:app_template/generated/assets/assets.gen.dart';
@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLoginTapped(BuildContext context) {
-    context.read<LoginBloc>().add(
+    BlocProvider.of<LoginBloc>(context).add(
       LoginRequested(username: _usernameFieldController.text),
     );
   }
