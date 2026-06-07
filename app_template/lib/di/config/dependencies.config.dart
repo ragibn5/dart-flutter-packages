@@ -94,7 +94,6 @@ import 'package:app_template/features/user_data/domain/repositories/user_data_re
 import 'package:app_template/features/user_data/domain/services/user_data_service.dart'
     as _i84;
 import 'package:app_template/router/app_router.dart' as _i204;
-import 'package:app_template/shared/di/modules/shared_module.dart' as _i885;
 import 'package:crashlytics/crashlytics.dart' as _i35;
 import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
 import 'package:dlogger/dlogger.dart' as _i975;
@@ -121,7 +120,6 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final appModule = _$AppModule();
     final settingsModule = _$SettingsModule();
-    final sharedModule = _$SharedModule();
     final userDataModule = _$UserDataModule();
     final authModule = _$AuthModule();
     gh.factory<_i907.AuthDataMapper>(() => _i907.AuthDataMapper());
@@ -142,23 +140,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(
       () => appModule.getGlobalScaffoldMessengerState(),
     );
+    gh.singleton<_i975.LogPolicyController>(
+      () => appModule.getLogPolicyController(),
+    );
+    gh.singleton<_i300.PreferenceStore>(
+      () => appModule.getSharedPreferenceStore(),
+    );
+    gh.singleton<_i548.AnalyticsService>(() => appModule.getAnalyticsService());
+    gh.singleton<_i35.CrashlyticsService>(
+      () => appModule.getCrashlyticsService(),
+    );
     gh.singleton<_i291.FallbackLocaleSelector>(
       () => const _i291.FallbackLocaleSelector(),
     );
     gh.singleton<_i972.AppLocaleResolver>(
       () => settingsModule.getAppLocaleResolver(),
-    );
-    gh.singleton<_i975.LogPolicyController>(
-      () => sharedModule.getLogPolicyController(),
-    );
-    gh.singleton<_i300.PreferenceStore>(
-      () => sharedModule.getSharedPreferenceStore(),
-    );
-    gh.singleton<_i548.AnalyticsService>(
-      () => sharedModule.getAnalyticsService(),
-    );
-    gh.singleton<_i35.CrashlyticsService>(
-      () => sharedModule.getCrashlyticsService(),
     );
     gh.singleton<_i322.PlatformSettingsProvider>(
       () => _i423.PlatformSettingsProviderImpl(),
@@ -172,7 +168,7 @@ extension GetItInjectableX on _i174.GetIt {
       registerFor: {_dev},
     );
     gh.singleton<_i519.AppLogger>(
-      () => sharedModule.getLogger(
+      () => appModule.getLogger(
         gh<_i527.AppDirectories>(),
         gh<_i975.LogPolicyController>(),
       ),
@@ -197,8 +193,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i451.LocalAuthDataSourceImpl(gh<_i300.PreferenceStore>()),
     );
     gh.singleton<_i103.Alerter>(
-      () =>
-          sharedModule.getAlerter(gh<_i409.GlobalKey<_i409.NavigatorState>>()),
+      () => appModule.getAlerter(gh<_i409.GlobalKey<_i409.NavigatorState>>()),
     );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getProdFlavorConfig(),
@@ -215,10 +210,10 @@ extension GetItInjectableX on _i174.GetIt {
       dispose: (i) => i.dispose(),
     );
     gh.singleton<_i860.SQLiteDb>(
-      () => sharedModule.getAppDatabase(gh<_i527.AppDirectories>()),
+      () => appModule.getAppDatabase(gh<_i527.AppDirectories>()),
     );
     gh.singleton<_i1020.Snacker>(
-      () => sharedModule.getSnacker(
+      () => appModule.getSnacker(
         gh<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(),
       ),
     );
@@ -246,7 +241,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i785.UserDataDataSourceImpl(gh<_i860.SQLiteDb>()),
     );
     gh.singleton<_i535.NetClient>(
-      () => sharedModule.getAppServerPublicApiClient(
+      () => appModule.getAppServerPublicApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
         gh<_i658.SettingsService>(),
@@ -255,7 +250,7 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'APP_SERVER_PUBLIC_API_CLIENT',
     );
     gh.factory<_i120.AppServerTokenRefreshApiClient>(
-      () => sharedModule.getAppServerTokenRefresherApiClient(
+      () => appModule.getAppServerTokenRefresherApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
         gh<_i519.AppLogger>(),
@@ -296,7 +291,7 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.singleton<_i535.NetClient>(
-      () => sharedModule.getAppServerPrivateApiClient(
+      () => appModule.getAppServerPrivateApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
         gh<_i519.AppLogger>(),
@@ -329,8 +324,6 @@ extension GetItInjectableX on _i174.GetIt {
 class _$AppModule extends _i393.AppModule {}
 
 class _$SettingsModule extends _i885.SettingsModule {}
-
-class _$SharedModule extends _i885.SharedModule {}
 
 class _$UserDataModule extends _i151.UserDataModule {}
 

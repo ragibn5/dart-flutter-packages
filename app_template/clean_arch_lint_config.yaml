@@ -33,7 +33,6 @@ clean_arch_dependency_direction:
   # Paths should be relative to `lib/` or `test/`.
   # Example: To exclude `lib/core/*`, write `core/*`
   excluded_project_paths:
-    - core/
   # External library packages to exclude from analysis (default: [])
   # Specify package names as strings
   # Example: equatable, freezed, json_serializable

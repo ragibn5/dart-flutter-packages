@@ -4,9 +4,9 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
+import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/settings/domain/models/app_locale.dart';
-import 'package:app_template/shared/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
