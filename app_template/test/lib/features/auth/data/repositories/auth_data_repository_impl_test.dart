@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:app_template/core/models/server_message.dart';
 import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart';
 import 'package:app_template/features/auth/data/mappers/auth_refresh_error_mapper.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
