@@ -4,9 +4,7 @@ import 'package:alerter/alerter.dart';
 import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service.dart';
-import 'package:app_template/features/app/application/services/app_initializer_service_impl.dart';
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
-import 'package:app_template/features/app/application/services/session_initializer_service_impl.dart';
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart';
 import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
@@ -283,7 +281,7 @@ abstract class AppModule {
     CrashlyticsService crashlyticsService,
     SQLiteDb appDatabase,
   ) {
-    return AppInitializerServiceImpl(
+    return AppInitializerService(
       crashlyticsService,
       analyticsService,
       appDatabase,
@@ -296,7 +294,7 @@ abstract class AppModule {
     AnalyticsService analyticsService,
     CrashlyticsService crashlyticsService,
   ) {
-    return SessionInitializerServiceImpl(
+    return SessionInitializerService(
       authDataService,
       analyticsService,
       crashlyticsService,
