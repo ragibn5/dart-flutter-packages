@@ -7,15 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:test/test.dart';
 
-class _TestAuthData implements BaseAuthData {
-  @override
-  final String accessToken;
-
-  @override
-  final String refreshToken;
-
-  _TestAuthData({required this.accessToken, required this.refreshToken});
-}
+class _TestAuthData {}
 
 class _TestAuthInterceptor extends BaseAuthInterceptor<_TestAuthData> {
   final Future<_TestAuthData?> Function() onGetAuthData;
@@ -69,15 +61,8 @@ class _TestAuthInterceptor extends BaseAuthInterceptor<_TestAuthData> {
 }
 
 void main() {
-  const accessToken = 'access-token';
-  final authData = _TestAuthData(
-    accessToken: accessToken,
-    refreshToken: 'refresh-token',
-  );
-  final newAuthData = _TestAuthData(
-    accessToken: 'new-$accessToken',
-    refreshToken: 'refresh-token',
-  );
+  final authData = _TestAuthData();
+  final newAuthData = _TestAuthData();
 
   setUpAll(() {
     registerFallbackValue(RequestSpec(pathOrUrl: '', method: HttpMethod.GET));

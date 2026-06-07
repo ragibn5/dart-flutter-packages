@@ -1,13 +1,10 @@
-import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:equatable/equatable.dart';
 
-class AuthData extends Equatable implements BaseAuthData {
+class AuthData extends Equatable {
   final String userId;
 
-  @override
   final String accessToken;
 
-  @override
   final String refreshToken;
 
   final DateTime accessTokenExpiry;

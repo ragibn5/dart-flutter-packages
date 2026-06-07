@@ -1,12 +1,10 @@
-import 'package:base_auth_interceptor/src/base_auth_data.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 
-abstract class BaseAuthInterceptor<T extends BaseAuthData>
-    extends QueuedNetKitInterceptor {
+abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
   /// Returns the current auth data, or `null` if none is available.
   @visibleForOverriding
-  Future<T?> getAuthData();
+  Future<AuthData?> getAuthData();
 
   /// Transforms the outgoing [request] with the given [authData].
   ///
@@ -25,7 +23,7 @@ abstract class BaseAuthInterceptor<T extends BaseAuthData>
   @visibleForOverriding
   Future<RequestSpec> transformRequestWithAuthData(
     RequestSpec request,
-    T authData,
+    AuthData authData,
   );
 
   /// Returns `true` when the server response indicates that an
@@ -40,7 +38,7 @@ abstract class BaseAuthInterceptor<T extends BaseAuthData>
   /// queue already refreshed the auth data, and we no longer need
   /// to perform the auth data refresh.
   @visibleForOverriding
-  bool shouldRefreshAuthData(RequestSpec request, T authData);
+  bool shouldRefreshAuthData(RequestSpec request, AuthData authData);
 
   /// Attempts to refresh the auth data.
   ///
@@ -49,7 +47,7 @@ abstract class BaseAuthInterceptor<T extends BaseAuthData>
   /// Note:
   /// When `null` is returned the request is cancelled immediately.
   @visibleForOverriding
-  Future<T?> requestAuthDataRefresh(T oldAuthData);
+  Future<AuthData?> requestAuthDataRefresh(AuthData oldAuthData);
 
   /// Re-executes [request] with the (possibly refreshed) auth data.
   ///
@@ -57,7 +55,10 @@ abstract class BaseAuthInterceptor<T extends BaseAuthData>
   /// the template so downstream interceptors see a normal response.
   /// Throw/cancel semantics should be avoided — use the result type.
   @visibleForOverriding
-  Future<ApiCallResult> retryRequest(RequestSpec request, T refreshedAuthData);
+  Future<ApiCallResult> retryRequest(
+    RequestSpec request,
+    AuthData refreshedAuthData,
+  );
 
   @override
   Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
