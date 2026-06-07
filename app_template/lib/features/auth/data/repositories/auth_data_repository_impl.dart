@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart';
-import 'package:app_template/features/auth/data/mappers/auth_refresh_error_mapper.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
+import 'package:app_template/features/auth/data/repositories/auth_data_mapper.dart';
+import 'package:app_template/features/auth/data/repositories/auth_refresh_error_mapper.dart';
 import 'package:app_template/features/auth/data/sources/local_auth_data_source.dart';
 import 'package:app_template/features/auth/data/sources/remote_auth_data_source.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';

@@ -29,12 +29,14 @@ import 'package:app_template/features/app/infrastructure/services/fallback_local
     as _i291;
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart'
     as _i625;
-import 'package:app_template/features/auth/data/mappers/auth_data_mapper.dart'
+import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart'
+    as _i120;
+import 'package:app_template/features/auth/data/repositories/auth_data_mapper.dart'
     as _i907;
-import 'package:app_template/features/auth/data/mappers/auth_refresh_error_mapper.dart'
-    as _i315;
 import 'package:app_template/features/auth/data/repositories/auth_data_repository_impl.dart'
     as _i16;
+import 'package:app_template/features/auth/data/repositories/auth_refresh_error_mapper.dart'
+    as _i315;
 import 'package:app_template/features/auth/data/sources/local_auth_data_source.dart'
     as _i30;
 import 'package:app_template/features/auth/data/sources/local_auth_data_source_impl.dart'
@@ -49,8 +51,6 @@ import 'package:app_template/features/auth/domain/repositories/auth_data_reposit
     as _i731;
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart'
     as _i374;
-import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client.dart'
-    as _i120;
 import 'package:app_template/features/settings/application/services/app_locale_resolver.dart'
     as _i972;
 import 'package:app_template/features/settings/application/services/platform_settings_provider.dart'

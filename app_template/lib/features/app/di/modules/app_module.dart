@@ -14,8 +14,8 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
