@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:common_widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +7,6 @@ import 'package:flutter/material.dart';
 /// The page may or may not be navigated to, based on the navigation logic.
 /// If it is NOT intended to be shown, make sure your redirection logic is
 /// exhaustive and bypasses navigation to this page.
-@RoutePage()
 class RootRedirectionPage extends StatelessWidget {
   const RootRedirectionPage({super.key});
 

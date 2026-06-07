@@ -2,7 +2,7 @@
 
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/router/app_router.gr.dart';
+import 'package:app_template/router/app_routes.dart';
 import 'package:app_template/router/guards/root_redirection_route_guard.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,9 +17,6 @@ class _MockAuthDataService extends Mock implements AuthDataService {}
 class _FakeAuthData extends Fake implements AuthData {}
 
 void main() {
-  const homeRoute = HomeRoute();
-  const loginRoute = LoginRoute();
-
   final fakeAuthData = _FakeAuthData();
 
   late _MockStackRouter mockRouter;
@@ -29,8 +26,7 @@ void main() {
   late RootRedirectionRouteGuard sut;
 
   setUpAll(() {
-    registerFallbackValue(homeRoute);
-    registerFallbackValue(loginRoute);
+    registerFallbackValue(NamedRoute(''));
     registerFallbackValue(_FakeAuthData());
   });
 
@@ -42,7 +38,7 @@ void main() {
     sut = RootRedirectionRouteGuard(mockAuthDataService);
 
     when(() => mockResolver.next(any())).thenAnswer((_) {});
-    when(() => mockResolver.redirectUntil(any())).thenAnswer((_) async => null);
+    when(() => mockRouter.replace(any())).thenAnswer((_) async {});
   });
 
   test(
@@ -54,7 +50,9 @@ void main() {
 
       await sut.onNavigation(mockResolver, mockRouter);
 
-      verify(() => mockResolver.redirectUntil(loginRoute)).called(1);
+      verify(
+        () => mockRouter.replace(NamedRoute(AppRoutes.LOGIN.routeInfo.name)),
+      ).called(1);
       verify(() => mockResolver.next(false)).called(1);
     },
   );
@@ -68,7 +66,9 @@ void main() {
 
       await sut.onNavigation(mockResolver, mockRouter);
 
-      verify(() => mockResolver.redirectUntil(homeRoute)).called(1);
+      verify(
+        () => mockRouter.replace(NamedRoute(AppRoutes.HOME.routeInfo.name)),
+      ).called(1);
       verify(() => mockResolver.next(false)).called(1);
     },
   );
