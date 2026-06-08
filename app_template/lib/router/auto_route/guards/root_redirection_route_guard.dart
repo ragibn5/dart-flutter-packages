@@ -1,5 +1,5 @@
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/router/enums/app_routes.dart';
+import 'package:app_template/router/app_routes.dart';
 import 'package:auto_route/auto_route.dart';
 
 class RootRedirectionRouteGuard extends AutoRouteGuard {

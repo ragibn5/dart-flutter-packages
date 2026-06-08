@@ -2,8 +2,8 @@
 
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/router/enums/app_routes.dart';
-import 'package:app_template/router/guards/root_redirection_route_guard.dart';
+import 'package:app_template/router/app_routes.dart';
+import 'package:app_template/router/auto_route/guards/root_redirection_route_guard.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

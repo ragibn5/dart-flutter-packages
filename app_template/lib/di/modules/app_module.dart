@@ -21,6 +21,7 @@ import 'package:app_template/features/auth/infrastructure/app_server_token_refre
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
 import 'package:app_template/router/app_router.dart';
+import 'package:app_template/router/auto_route/auto_route_app_router.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:dlogger/dlogger.dart' hide Logger;
 import 'package:flutter/material.dart';
@@ -341,6 +342,6 @@ abstract class AppModule {
     AppLogger logger,
     AuthDataService authDataService,
   ) {
-    return AppRouter(navigatorKey, logger, authDataService);
+    return AutoRouteAppRouter(navigatorKey, logger, authDataService);
   }
 }

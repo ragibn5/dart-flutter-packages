@@ -1,4 +1,4 @@
-import 'package:app_template/router/models/route_info.dart';
+import 'package:app_template/router/route_info.dart';
 
 enum AppRoutes {
   ROOT(RouteInfo('root', '/')),
