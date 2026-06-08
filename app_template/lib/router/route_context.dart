@@ -1,6 +1,6 @@
 class RouteContext {
   final Map<String, String> pathParameters;
-  final Map<String, Object?> queryParameters;
+  final Map<String, String> queryParameters;
   final Object? extra;
 
   const RouteContext({

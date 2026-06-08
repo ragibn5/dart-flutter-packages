@@ -30,7 +30,7 @@ class GoRouteAppRouter implements AppRouter {
   Future<T?> pushWithName<T extends Object?>(
     String routeName, {
     Map<String, String> pathParameters = const {},
-    Map<String, Object?> queryParameters = const {},
+    Map<String, String> queryParameters = const {},
     Object? extra,
   }) => _router.pushNamed<T>(
     routeName,
@@ -43,7 +43,7 @@ class GoRouteAppRouter implements AppRouter {
   Future<T?> replaceWithName<T extends Object?>(
     String routeName, {
     Map<String, String> pathParameters = const {},
-    Map<String, Object?> queryParameters = const {},
+    Map<String, String> queryParameters = const {},
     Object? extra,
   }) => _router.replaceNamed<T>(
     routeName,
