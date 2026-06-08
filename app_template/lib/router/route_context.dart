@@ -1,5 +1,5 @@
 class RouteContext {
-  final Map<String, Object?> pathParameters;
+  final Map<String, String> pathParameters;
   final Map<String, Object?> queryParameters;
   final Object? extra;
 

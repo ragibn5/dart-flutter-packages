@@ -30,7 +30,7 @@ class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
   Future<T?> pushWithName<T extends Object?>(
     String routeName, {
     Map<String, String> pathParameters = const {},
-    Map<String, String> queryParameters = const {},
+    Map<String, Object?> queryParameters = const {},
     Object? extra,
   }) => push<T>(
     NamedRoute(
@@ -45,7 +45,7 @@ class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
   Future<T?> replaceWithName<T extends Object?>(
     String routeName, {
     Map<String, String> pathParameters = const {},
-    Map<String, String> queryParameters = const {},
+    Map<String, Object?> queryParameters = const {},
     Object? extra,
   }) => replace<T>(
     NamedRoute(
@@ -73,7 +73,9 @@ class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
           builder: (c, d) => r.builder(
             c,
             RouteContext(
-              pathParameters: d.params.rawMap,
+              pathParameters: d.params.rawMap.map(
+                (k, v) => MapEntry(k, v.toString()),
+              ),
               queryParameters: d.queryParams.rawMap,
               extra: d.args,
             ),
