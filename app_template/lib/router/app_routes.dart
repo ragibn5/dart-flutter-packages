@@ -20,13 +20,11 @@ enum AppRoutes {
 
 final appRouteDefs = [
   RouteDef(
-    name: AppRoutes.ROOT.routeInfo.name,
-    path: AppRoutes.ROOT.routeInfo.path,
+    info: AppRoutes.ROOT.routeInfo,
     builder: (_, __) => const RootRedirectionPage(),
   ),
   RouteDef(
-    name: AppRoutes.LOGIN.routeInfo.name,
-    path: AppRoutes.LOGIN.routeInfo.path,
+    info: AppRoutes.LOGIN.routeInfo,
     builder: (_, __) => BlocProvider(
       create: (_) => LoginBloc(di.get()),
       child: LoginScreen(
@@ -36,8 +34,7 @@ final appRouteDefs = [
     ),
   ),
   RouteDef(
-    name: AppRoutes.HOME.routeInfo.name,
-    path: AppRoutes.HOME.routeInfo.path,
+    info: AppRoutes.HOME.routeInfo,
     builder: (_, __) => const HomeScreen(),
   ),
 ];

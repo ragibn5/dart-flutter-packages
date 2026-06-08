@@ -64,11 +64,12 @@ class GoRouteAppRouter implements AppRouter {
       routes: appRouteDefs
           .map(
             (r) => GoRoute(
-              path: r.path,
-              name: r.name,
+              path: r.info.path,
+              name: r.info.name,
               builder: (context, state) => r.builder(
                 context,
                 RouteContext(
+                  info: r.info,
                   pathParameters: state.pathParameters,
                   queryParameters: state.uri.queryParameters,
                   extra: state.extra,

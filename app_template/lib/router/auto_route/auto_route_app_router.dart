@@ -64,15 +64,16 @@ class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
   List<AutoRoute> get routes => appRouteDefs
       .map(
         (r) => NamedRouteDef(
-          name: r.name,
-          path: r.path,
-          initial: r.name == AppRoutes.ROOT.routeInfo.name,
-          guards: r.name == AppRoutes.ROOT.routeInfo.name
+          name: r.info.name,
+          path: r.info.path,
+          initial: r.info.name == AppRoutes.ROOT.routeInfo.name,
+          guards: r.info.name == AppRoutes.ROOT.routeInfo.name
               ? [RootRedirectionRouteGuard(_authDataService)]
               : [],
           builder: (c, d) => r.builder(
             c,
             RouteContext(
+              info: r.info,
               pathParameters: d.params.rawMap.map(
                 (k, v) => MapEntry(k, v.toString()),
               ),
