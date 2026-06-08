@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 abstract class AppRouter {
   RouterConfig<Object> get routerConfig;

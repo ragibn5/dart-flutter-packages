@@ -1,5 +1,5 @@
 import 'package:app_logger/app_logger.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class RouterLogger extends NavigatorObserver {
   static const TAG = 'RouterLogger';

@@ -4,7 +4,7 @@ import 'package:app_template/router/app_router.dart';
 import 'package:app_template/router/app_routes.dart';
 import 'package:app_template/router/go_route/observers/router_logger.dart';
 import 'package:app_template/router/route_context.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class GoRouteAppRouter implements AppRouter {

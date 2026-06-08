@@ -6,7 +6,7 @@ import 'package:app_template/router/auto_route/guards/root_redirection_route_gua
 import 'package:app_template/router/auto_route/guards/router_logger.dart';
 import 'package:app_template/router/route_context.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 @AutoRouterConfig()
 class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
