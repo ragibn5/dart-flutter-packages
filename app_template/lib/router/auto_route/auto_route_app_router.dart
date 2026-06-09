@@ -1,22 +1,22 @@
-import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/router/app_router.dart';
 import 'package:app_template/router/app_routes.dart';
+import 'package:app_template/router/auto_route/adapter/auto_route_observer_adapter.dart';
 import 'package:app_template/router/auto_route/guards/root_redirection_route_guard.dart';
-import 'package:app_template/router/auto_route/guards/router_logger.dart';
 import 'package:app_template/router/route_context.dart';
+import 'package:app_template/router/router_observer.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/widgets.dart';
 
 @AutoRouterConfig()
 class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
-  final AppLogger _logger;
   final AuthDataService _authDataService;
+  final List<RouterObserver> _observers;
 
   AutoRouteAppRouter(
     GlobalKey<NavigatorState> rootNavigatorState,
-    this._logger,
     this._authDataService,
+    this._observers,
   ) : super(navigatorKey: rootNavigatorState);
 
   @override
@@ -89,5 +89,7 @@ class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
 
   @protected
   @override
-  List<AutoRouteGuard> get guards => [RouterLogger(_logger)];
+  List<AutoRouteGuard> get guards => [
+    ..._observers.map(AutoRouteObserverAdapter.new),
+  ];
 }

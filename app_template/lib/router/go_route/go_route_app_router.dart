@@ -1,27 +1,27 @@
-import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/router/app_router.dart';
 import 'package:app_template/router/app_routes.dart';
-import 'package:app_template/router/go_route/observers/router_logger.dart';
+import 'package:app_template/router/go_route/adapter/go_route_observer_adapter.dart';
 import 'package:app_template/router/route_context.dart';
+import 'package:app_template/router/router_observer.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class GoRouteAppRouter implements AppRouter {
   final GlobalKey<NavigatorState> _navigatorKey;
 
-  final AppLogger _logger;
   final AuthDataService _authDataService;
+  final List<RouterObserver> _observers;
 
   late final GoRouter _router = _buildRouter();
 
   GoRouteAppRouter({
     required GlobalKey<NavigatorState> navigatorKey,
-    required AppLogger logger,
     required AuthDataService authDataService,
+    List<RouterObserver> observers = const [],
   }) : _navigatorKey = navigatorKey,
-       _logger = logger,
-       _authDataService = authDataService;
+       _authDataService = authDataService,
+       _observers = observers;
 
   @override
   RouterConfig<Object> get routerConfig => _router;
@@ -60,7 +60,7 @@ class GoRouteAppRouter implements AppRouter {
       navigatorKey: _navigatorKey,
       initialLocation: AppRoutes.ROOT.routeInfo.path,
       redirect: buildRootRedirect,
-      observers: [RouterLogger(_logger)],
+      observers: _observers.map(GoRouteObserverAdapter.new).toList(),
       routes: appRouteDefs
           .map(
             (r) => GoRoute(

@@ -339,9 +339,8 @@ abstract class AppModule {
   @singleton
   AppRouter getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
-    AppLogger logger,
     AuthDataService authDataService,
   ) {
-    return AutoRouteAppRouter(navigatorKey, logger, authDataService);
+    return AutoRouteAppRouter(navigatorKey, authDataService, const []);
   }
 }

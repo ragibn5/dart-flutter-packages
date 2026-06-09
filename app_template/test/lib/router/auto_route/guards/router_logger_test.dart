@@ -1,7 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/router/auto_route/guards/router_logger.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
