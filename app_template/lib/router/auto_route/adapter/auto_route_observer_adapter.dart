@@ -11,11 +11,11 @@ class AutoRouteObserverAdapter extends AutoRouteGuard {
   void onNavigation(NavigationResolver resolver, StackRouter router) {
     _observer.onNavigationEvent(
       NavigationEvent(
-        type: NavigationType.push,
-        fromRoute: router.current.name,
         toRoute: resolver.routeName,
+        fromRoute: router.current.name,
       ),
     );
+
     resolver.next();
   }
 }

@@ -1,13 +1,15 @@
 enum NavigationType { push, replace, pop }
 
 class NavigationEvent {
-  final NavigationType type;
-  final String? fromRoute;
-  final String toRoute;
+  /// The name of the route that is being navigated to.
+  ///
+  /// Can be null if the route is an anonymous route.
+  final String? toRoute;
 
-  const NavigationEvent({
-    required this.type,
-    this.fromRoute,
-    required this.toRoute,
-  });
+  /// The name of the route that is being navigated from.
+  ///
+  /// Can be null if the route is an anonymous route.
+  final String? fromRoute;
+
+  const NavigationEvent({this.toRoute, this.fromRoute});
 }

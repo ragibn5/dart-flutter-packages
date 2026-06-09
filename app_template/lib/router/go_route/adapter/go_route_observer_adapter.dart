@@ -2,7 +2,7 @@ import 'package:app_template/router/navigation_event.dart';
 import 'package:app_template/router/router_observer.dart';
 import 'package:flutter/widgets.dart';
 
-class GoRouteObserverAdapter extends NavigatorObserver {
+class GoRouteObserverAdapter extends RouteObserver {
   final RouterObserver _observer;
 
   GoRouteObserverAdapter(this._observer);
@@ -11,9 +11,8 @@ class GoRouteObserverAdapter extends NavigatorObserver {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     _observer.onNavigationEvent(
       NavigationEvent(
-        type: NavigationType.push,
+        toRoute: route.settings.name,
         fromRoute: previousRoute?.settings.name,
-        toRoute: route.settings.name ?? '',
       ),
     );
   }
@@ -22,9 +21,8 @@ class GoRouteObserverAdapter extends NavigatorObserver {
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     _observer.onNavigationEvent(
       NavigationEvent(
-        type: NavigationType.replace,
+        toRoute: newRoute?.settings.name,
         fromRoute: oldRoute?.settings.name,
-        toRoute: newRoute?.settings.name ?? '',
       ),
     );
   }
@@ -33,9 +31,8 @@ class GoRouteObserverAdapter extends NavigatorObserver {
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     _observer.onNavigationEvent(
       NavigationEvent(
-        type: NavigationType.pop,
         fromRoute: route.settings.name,
-        toRoute: previousRoute?.settings.name ?? '',
+        toRoute: previousRoute?.settings.name,
       ),
     );
   }
