@@ -1,9 +1,9 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'package:app_template/features/app/infrastructure/config/router/guards/root_redirection_route_guard.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/router/app_route.dart';
-import 'package:app_template/router/auto_route/guards/root_redirection_route_guard.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

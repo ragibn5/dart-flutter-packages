@@ -1,9 +1,9 @@
 import 'package:app_template/di/di.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
 import 'package:app_template/features/app/presentation/widgets/root_redirection/root_redirection_page.dart';
 import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:app_template/features/auth/presentation/screens/login_screen.dart';
 import 'package:app_template/features/home/presentation/widgets/home_screen.dart';
-import 'package:app_template/router/app_route.dart';
 import 'package:app_template/router/route_def.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
