@@ -1,13 +1,13 @@
-import 'package:app_template/router/app_router.dart';
-import 'package:app_template/router/go_route/adapter/go_route_observer_adapter.dart';
-import 'package:app_template/router/route_context.dart';
-import 'package:app_template/router/route_def.dart';
-import 'package:app_template/router/route_info.dart';
-import 'package:app_template/router/router_observer.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nav_router/src/go_route/adapter/go_route_observer_adapter.dart';
+import 'package:nav_router/src/models/route_context.dart';
+import 'package:nav_router/src/models/route_def.dart';
+import 'package:nav_router/src/models/route_info.dart';
+import 'package:nav_router/src/nav_router.dart';
+import 'package:nav_router/src/services/router_observer.dart';
 
-class GoRouteAppRouter implements AppRouter {
+class GoRouteAppRouter implements NavRouter {
   final GlobalKey<NavigatorState> _navigatorKey;
   final RouteInfo _initialRoute;
   final List<RouteDef> _routes;

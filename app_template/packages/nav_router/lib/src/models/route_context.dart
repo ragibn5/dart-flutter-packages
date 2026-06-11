@@ -1,4 +1,4 @@
-import 'package:app_template/router/route_info.dart';
+import 'package:nav_router/src/models/route_info.dart';
 
 class RouteContext {
   final RouteInfo info;

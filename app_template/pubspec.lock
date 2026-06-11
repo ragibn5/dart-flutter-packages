@@ -914,6 +914,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.1"
+  nav_router:
+    dependency: "direct main"
+    description:
+      path: "packages/nav_router"
+      relative: true
+    source: path
+    version: "0.0.0"
   nested:
     dependency: transitive
     description:

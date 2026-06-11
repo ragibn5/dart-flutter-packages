@@ -1,5 +1,3 @@
-enum NavigationType { push, replace, pop }
-
 class NavigationEvent {
   /// The name of the route that is being navigated to.
   ///

@@ -1,5 +1,5 @@
-import 'package:app_template/router/route_info.dart';
-import 'package:app_template/router/route_widget_builder.dart';
+import 'package:nav_router/src/models/route_info.dart';
+import 'package:nav_router/src/typedefs/route_widget_builder.dart';
 
 class RouteDef {
   final RouteInfo info;

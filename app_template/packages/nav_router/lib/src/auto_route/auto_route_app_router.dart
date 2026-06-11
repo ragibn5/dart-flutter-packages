@@ -1,14 +1,14 @@
-import 'package:app_template/router/app_router.dart';
-import 'package:app_template/router/auto_route/adapter/auto_route_observer_adapter.dart';
-import 'package:app_template/router/route_context.dart';
-import 'package:app_template/router/route_def.dart';
-import 'package:app_template/router/route_info.dart';
-import 'package:app_template/router/router_observer.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nav_router/src/auto_route/adapter/auto_route_observer_adapter.dart';
+import 'package:nav_router/src/models/route_context.dart';
+import 'package:nav_router/src/models/route_def.dart';
+import 'package:nav_router/src/models/route_info.dart';
+import 'package:nav_router/src/nav_router.dart';
+import 'package:nav_router/src/services/router_observer.dart';
 
 @AutoRouterConfig()
-class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
+class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   final List<RouteDef> _routes;
   final RouteInfo? _initialRoute;
   final List<RouterObserver> _observers;

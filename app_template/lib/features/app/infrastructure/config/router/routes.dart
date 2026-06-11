@@ -4,8 +4,8 @@ import 'package:app_template/features/app/presentation/widgets/root_redirection/
 import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:app_template/features/auth/presentation/screens/login_screen.dart';
 import 'package:app_template/features/home/presentation/widgets/home_screen.dart';
-import 'package:app_template/router/route_def.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nav_router/nav_router.dart';
 
 final appRouteDefs = [
   RouteDef(

@@ -1,0 +1,17 @@
+name: nav_router
+description: Navigation router.
+
+publish_to: none
+
+environment:
+  sdk: ^3.10.9
+
+dependencies:
+  flutter:
+    sdk: flutter
+  equatable: ^2.0.8
+  go_router: ^17.3.0
+  auto_route: 10.1.2
+
+dev_dependencies:
+  test: ^1.25.5

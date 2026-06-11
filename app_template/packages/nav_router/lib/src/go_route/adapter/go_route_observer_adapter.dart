@@ -1,6 +1,6 @@
-import 'package:app_template/router/navigation_event.dart';
-import 'package:app_template/router/router_observer.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nav_router/src/models/navigation_event.dart';
+import 'package:nav_router/src/services/router_observer.dart';
 
 class GoRouteObserverAdapter extends RouteObserver {
   final RouterObserver _observer;

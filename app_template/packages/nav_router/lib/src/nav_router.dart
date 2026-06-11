@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-abstract class AppRouter {
+abstract class NavRouter {
   RouterConfig<Object> get routerConfig;
 
   Future<T?> pushWithName<T extends Object?>(

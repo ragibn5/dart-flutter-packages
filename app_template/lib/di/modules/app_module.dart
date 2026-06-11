@@ -14,6 +14,7 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:app_template/features/app/infrastructure/router/observers/router_logger.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
@@ -22,13 +23,12 @@ import 'package:app_template/features/auth/domain/services/auth_data_service.dar
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
-import 'package:app_template/router/app_router.dart';
-import 'package:app_template/router/auto_route/auto_route_app_router.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:dlogger/dlogger.dart' hide Logger;
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
+import 'package:nav_router/nav_router.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
@@ -339,14 +339,15 @@ abstract class AppModule {
   }
 
   @singleton
-  AppRouter getAppRouter(
+  NavRouter getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
     AuthDataService authDataService,
   ) {
-    return AutoRouteAppRouter(
+    return GoRouteAppRouter(
       navigatorKey: navigatorKey,
-      initialRoute: AppRoute.ROOT.routeInfo,
+      initialRoute: AppRoute.LOGIN.routeInfo,
       routes: appRouteDefs,
+      observers: [RouterLogger()],
     );
   }
 }
