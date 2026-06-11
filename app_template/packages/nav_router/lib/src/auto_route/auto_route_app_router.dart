@@ -66,7 +66,7 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
         (r) => NamedRouteDef(
           name: r.info.name,
           path: r.info.path,
-          initial: r.info.name == _initialRoute?.name,
+          initial: r.info.path == _initialRoute?.path,
           builder: (c, d) => r.builder(
             c,
             this,
