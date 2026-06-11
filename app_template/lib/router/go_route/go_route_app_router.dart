@@ -1,26 +1,50 @@
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/router/app_router.dart';
-import 'package:app_template/router/app_routes.dart';
 import 'package:app_template/router/go_route/adapter/go_route_observer_adapter.dart';
 import 'package:app_template/router/route_context.dart';
+import 'package:app_template/router/route_def.dart';
+import 'package:app_template/router/route_info.dart';
 import 'package:app_template/router/router_observer.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class GoRouteAppRouter implements AppRouter {
   final GlobalKey<NavigatorState> _navigatorKey;
-
-  final AuthDataService _authDataService;
+  final RouteInfo _initialRoute;
+  final List<RouteDef> _routes;
   final List<RouterObserver> _observers;
 
-  late final GoRouter _router = _buildRouter();
+  late final GoRouter _router = GoRouter(
+    navigatorKey: _navigatorKey,
+    initialLocation: _initialRoute.path,
+    observers: _observers.map(GoRouteObserverAdapter.new).toList(),
+    routes: _routes
+        .map(
+          (r) => GoRoute(
+            path: r.info.path,
+            name: r.info.name,
+            builder: (context, state) => r.builder(
+              context,
+              this,
+              RouteContext(
+                info: r.info,
+                pathParameters: state.pathParameters,
+                queryParameters: state.uri.queryParameters,
+                extra: state.extra,
+              ),
+            ),
+          ),
+        )
+        .toList(),
+  );
 
   GoRouteAppRouter({
     required GlobalKey<NavigatorState> navigatorKey,
-    required AuthDataService authDataService,
+    required RouteInfo initialRoute,
+    required List<RouteDef> routes,
     List<RouterObserver> observers = const [],
   }) : _navigatorKey = navigatorKey,
-       _authDataService = authDataService,
+       _initialRoute = initialRoute,
+       _routes = routes,
        _observers = observers;
 
   @override
@@ -54,47 +78,4 @@ class GoRouteAppRouter implements AppRouter {
 
   @override
   void popTopRoute<T extends Object?>([T? result]) => _router.pop<T>(result);
-
-  GoRouter _buildRouter() {
-    return GoRouter(
-      navigatorKey: _navigatorKey,
-      initialLocation: AppRoutes.ROOT.routeInfo.path,
-      redirect: buildRootRedirect,
-      observers: _observers.map(GoRouteObserverAdapter.new).toList(),
-      routes: appRouteDefs
-          .map(
-            (r) => GoRoute(
-              path: r.info.path,
-              name: r.info.name,
-              builder: (context, state) => r.builder(
-                context,
-                RouteContext(
-                  info: r.info,
-                  pathParameters: state.pathParameters,
-                  queryParameters: state.uri.queryParameters,
-                  extra: state.extra,
-                ),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Future<String?> buildRootRedirect(
-    BuildContext context,
-    GoRouterState state,
-  ) async {
-    final currentAuthData = await _authDataService.getCurrentAuthData();
-    final isOnLogin = state.matchedLocation == AppRoutes.LOGIN.routeInfo.path;
-
-    if (currentAuthData == null && !isOnLogin) {
-      return AppRoutes.LOGIN.routeInfo.path;
-    }
-    if (currentAuthData != null && isOnLogin) {
-      return AppRoutes.HOME.routeInfo.path;
-    }
-
-    return null;
-  }
 }

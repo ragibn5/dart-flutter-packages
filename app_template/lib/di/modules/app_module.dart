@@ -20,8 +20,10 @@ import 'package:app_template/features/auth/domain/services/auth_data_service.dar
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
+import 'package:app_template/router/app_route.dart';
 import 'package:app_template/router/app_router.dart';
 import 'package:app_template/router/auto_route/auto_route_app_router.dart';
+import 'package:app_template/router/routes.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:dlogger/dlogger.dart' hide Logger;
 import 'package:flutter/material.dart';
@@ -341,6 +343,10 @@ abstract class AppModule {
     GlobalKey<NavigatorState> navigatorKey,
     AuthDataService authDataService,
   ) {
-    return AutoRouteAppRouter(navigatorKey, authDataService, const []);
+    return AutoRouteAppRouter(
+      navigatorKey: navigatorKey,
+      initialRoute: AppRoute.ROOT.routeInfo,
+      routes: appRouteDefs,
+    );
   }
 }

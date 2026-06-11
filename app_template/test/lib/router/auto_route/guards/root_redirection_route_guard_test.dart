@@ -2,7 +2,7 @@
 
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/router/app_routes.dart';
+import 'package:app_template/router/app_route.dart';
 import 'package:app_template/router/auto_route/guards/root_redirection_route_guard.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -51,7 +51,7 @@ void main() {
       await sut.onNavigation(mockResolver, mockRouter);
 
       verify(
-        () => mockRouter.replace(NamedRoute(AppRoutes.LOGIN.routeInfo.name)),
+        () => mockRouter.replace(NamedRoute(AppRoute.LOGIN.routeInfo.name)),
       ).called(1);
       verify(() => mockResolver.next(false)).called(1);
     },
@@ -67,7 +67,7 @@ void main() {
       await sut.onNavigation(mockResolver, mockRouter);
 
       verify(
-        () => mockRouter.replace(NamedRoute(AppRoutes.HOME.routeInfo.name)),
+        () => mockRouter.replace(NamedRoute(AppRoute.HOME.routeInfo.name)),
       ).called(1);
       verify(() => mockResolver.next(false)).called(1);
     },

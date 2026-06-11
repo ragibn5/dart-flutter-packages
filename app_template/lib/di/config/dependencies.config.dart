@@ -265,6 +265,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i35.CrashlyticsService>(),
       ),
     );
+    gh.singleton<_i204.AppRouter>(
+      () => appModule.getAppRouter(
+        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+        gh<_i374.AuthDataService>(),
+      ),
+    );
     gh.singleton<_i625.AppRootBloc>(
       () => appModule.getAppRootBloc(
         gh<_i519.AppLogger>(),
@@ -284,13 +290,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i524.AppServerTokenRefreshApiClient>(),
       ),
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
-    );
-    gh.singleton<_i204.AppRouter>(
-      () => appModule.getAppRouter(
-        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
-        gh<_i519.AppLogger>(),
-        gh<_i374.AuthDataService>(),
-      ),
     );
     return this;
   }

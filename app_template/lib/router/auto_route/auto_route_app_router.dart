@@ -1,30 +1,30 @@
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/router/app_router.dart';
-import 'package:app_template/router/app_routes.dart';
 import 'package:app_template/router/auto_route/adapter/auto_route_observer_adapter.dart';
-import 'package:app_template/router/auto_route/guards/root_redirection_route_guard.dart';
 import 'package:app_template/router/route_context.dart';
+import 'package:app_template/router/route_def.dart';
+import 'package:app_template/router/route_info.dart';
 import 'package:app_template/router/router_observer.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/widgets.dart';
 
 @AutoRouterConfig()
 class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
-  final AuthDataService _authDataService;
+  final List<RouteDef> _routes;
+  final RouteInfo? _initialRoute;
   final List<RouterObserver> _observers;
 
-  AutoRouteAppRouter(
-    GlobalKey<NavigatorState> rootNavigatorState,
-    this._authDataService,
-    this._observers,
-  ) : super(navigatorKey: rootNavigatorState);
+  AutoRouteAppRouter({
+    required GlobalKey<NavigatorState> navigatorKey,
+    required RouteInfo initialRoute,
+    required List<RouteDef> routes,
+    List<RouterObserver> observers = const [],
+  }) : _initialRoute = initialRoute,
+       _routes = routes,
+       _observers = observers,
+       super(navigatorKey: navigatorKey);
 
   @override
-  RouterConfig<Object> get routerConfig => super.config(
-    reevaluateListenable: ReevaluateListenable.stream(
-      _authDataService.watchAuthData(),
-    ),
-  );
+  RouterConfig<Object> get routerConfig => super.config();
 
   @override
   Future<T?> pushWithName<T extends Object?>(
@@ -61,17 +61,15 @@ class AutoRouteAppRouter extends RootStackRouter implements AppRouter {
 
   @protected
   @override
-  List<AutoRoute> get routes => appRouteDefs
+  List<AutoRoute> get routes => _routes
       .map(
         (r) => NamedRouteDef(
           name: r.info.name,
           path: r.info.path,
-          initial: r.info.name == AppRoutes.ROOT.routeInfo.name,
-          guards: r.info.name == AppRoutes.ROOT.routeInfo.name
-              ? [RootRedirectionRouteGuard(_authDataService)]
-              : [],
+          initial: r.info.name == _initialRoute?.name,
           builder: (c, d) => r.builder(
             c,
+            this,
             RouteContext(
               info: r.info,
               pathParameters: d.params.rawMap.map(
