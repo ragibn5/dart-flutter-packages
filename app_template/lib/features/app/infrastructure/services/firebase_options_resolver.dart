@@ -6,7 +6,7 @@ import 'package:app_template/features/app/infrastructure/config/firebase/firebas
     as prod_firebase_options;
 import 'package:app_template/features/app/infrastructure/config/firebase/firebase_options_stage.dart'
     as stage_firebase_options;
-import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class FirebaseOptionsResolver {

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:app_template/di/di.dart';
-import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/firebase_options_resolver.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';

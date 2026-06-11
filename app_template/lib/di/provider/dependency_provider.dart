@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 
 abstract interface class DependencyProvider {
   T get<T extends Object>({String? name});

@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:app_template/di/config/dependencies.dart';
 import 'package:app_template/di/provider/dependency_provider.dart';
-import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';

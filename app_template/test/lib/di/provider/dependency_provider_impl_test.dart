@@ -3,7 +3,7 @@
 // ignore_for_file: cascade_invocations
 
 import 'package:app_template/di/provider/dependency_provider_impl.dart';
-import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart' hide test;
