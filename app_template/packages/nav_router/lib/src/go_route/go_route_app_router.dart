@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart' as grouter;
+import 'package:go_router/go_router.dart' hide Block;
 import 'package:nav_router/src/models/guard_result.dart';
 import 'package:nav_router/src/models/route_context.dart';
 import 'package:nav_router/src/models/route_def.dart';
@@ -51,6 +52,9 @@ class GoRouteAppRouter implements NavRouter {
   RouterConfig<Object> get routerConfig => _router;
 
   @override
+  RouteContext get currentRoute => _getRouteContext(_router.state);
+
+  @override
   Future<T?> pushWithName<T extends Object?>(
     String routeName, {
     Map<String, String> pathParameters = const {},
@@ -98,13 +102,12 @@ class GoRouteAppRouter implements NavRouter {
   @override
   void popUntilRoute(bool Function(RouteContext) predicate) {
     while (_router.canPop()) {
-      if (predicate(_currentRouteContext())) return;
+      if (predicate(_getRouteContext(_router.state))) return;
       _router.pop();
     }
   }
 
-  RouteContext _currentRouteContext() {
-    final state = _router.state;
+  RouteContext _getRouteContext(GoRouterState state) {
     final name = state.name;
     final path = state.path;
     return RouteContext(
@@ -122,13 +125,13 @@ class GoRouteAppRouter implements NavRouter {
     grouter.GoRouter router,
   ) async {
     final current = RouteContext(
-      info: RouteInfo(currentState.name!, currentState.path!),
+      info: RouteInfo(currentState.name ?? '', currentState.path ?? ''),
       pathParameters: currentState.pathParameters,
       queryParameters: currentState.uri.queryParameters,
       extra: currentState.extra,
     );
     final next = RouteContext(
-      info: RouteInfo(nextState.name!, nextState.path!),
+      info: RouteInfo(nextState.name ?? '', nextState.path ?? ''),
       pathParameters: nextState.pathParameters,
       queryParameters: nextState.uri.queryParameters,
       extra: nextState.extra,

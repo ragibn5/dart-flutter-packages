@@ -29,6 +29,9 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   RouterConfig<Object> get routerConfig => super.config();
 
   @override
+  RouteContext get currentRoute => _getRouteContext(current);
+
+  @override
   Future<T?> pushWithName<T extends Object?>(
     String routeName, {
     Map<String, String> pathParameters = const {},
@@ -82,7 +85,7 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   @override
   void popUntilRoute(bool Function(RouteContext) predicate) {
     while (canPop()) {
-      if (predicate(_currentRouteContext())) return;
+      if (predicate(_getRouteContext(current))) return;
       pop();
     }
   }
@@ -117,8 +120,7 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   @override
   List<AutoRouteGuard> get guards => [_GuardChain(_guards, _routes)];
 
-  RouteContext _currentRouteContext() {
-    final state = current;
+  RouteContext _getRouteContext(RouteData<dynamic> state) {
     return RouteContext(
       info: RouteInfo(state.name, state.path),
       pathParameters: state.params.rawMap.map(
