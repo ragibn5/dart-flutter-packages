@@ -104,20 +104,14 @@ class GoRouteAppRouter implements NavRouter {
   }
 
   RouteContext _currentRouteContext() {
-    final config = _router.routerDelegate.currentConfiguration;
-    final lastMatch = config.matches.last;
-    final route = lastMatch.route;
-    String? name;
-    String? path;
-    if (route is grouter.GoRoute) {
-      name = route.name;
-      path = route.path;
-    }
+    final state = _router.state;
+    final name = state.name;
+    final path = state.path;
     return RouteContext(
-      info: RouteInfo(name ?? '', path ?? lastMatch.matchedLocation),
-      pathParameters: config.pathParameters,
-      queryParameters: config.uri.queryParameters,
-      extra: config.extra,
+      info: RouteInfo(name ?? '', path ?? ''),
+      pathParameters: state.pathParameters,
+      queryParameters: state.uri.queryParameters,
+      extra: state.extra,
     );
   }
 
@@ -143,12 +137,7 @@ class GoRouteAppRouter implements NavRouter {
     final routeDef = _routes.firstWhere(
       (r) => r.info.name == nextState.name || r.info.path == nextState.path,
     );
-    final allGuards = [
-      // root guards
-      ..._guards,
-      // route guards
-      ...routeDef.guards,
-    ];
+    final allGuards = [..._guards, ...routeDef.guards];
 
     for (final guard in allGuards) {
       final result = await guard.onNavigationRequest(context, current, next);

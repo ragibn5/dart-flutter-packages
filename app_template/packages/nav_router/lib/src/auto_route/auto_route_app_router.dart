@@ -81,22 +81,9 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
 
   @override
   void popUntilRoute(bool Function(RouteContext) predicate) {
-    for (var i = stackData.length - 1; i >= 0; i--) {
-      final data = stackData[i];
-      final ctx = RouteContext(
-        info: RouteInfo(data.name, data.path),
-        pathParameters: data.params.rawMap.map(
-          (k, v) => MapEntry(k, v.toString()),
-        ),
-        queryParameters: data.queryParams.rawMap.map(
-          (k, v) => MapEntry(k, v.toString()),
-        ),
-        extra: data.args,
-      );
-      if (predicate(ctx)) {
-        popUntilRouteWithName(data.name);
-        return;
-      }
+    while (canPop()) {
+      if (predicate(_currentRouteContext())) return;
+      pop();
     }
   }
 
@@ -129,6 +116,20 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   @protected
   @override
   List<AutoRouteGuard> get guards => [_GuardChain(_guards, _routes)];
+
+  RouteContext _currentRouteContext() {
+    final state = current;
+    return RouteContext(
+      info: RouteInfo(state.name, state.path),
+      pathParameters: state.params.rawMap.map(
+        (k, v) => MapEntry(k, v.toString()),
+      ),
+      queryParameters: state.queryParams.rawMap.map(
+        (k, v) => MapEntry(k, v.toString()),
+      ),
+      extra: state.args,
+    );
+  }
 }
 
 class _GuardChain extends AutoRouteGuard {
