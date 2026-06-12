@@ -14,4 +14,6 @@ dependencies:
   auto_route: 10.1.2
 
 dev_dependencies:
-  test: ^1.25.5
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4

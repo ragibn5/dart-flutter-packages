@@ -2,12 +2,12 @@ import 'package:nav_router/src/models/route_context.dart';
 
 sealed class GuardResult {}
 
-final class Continue extends GuardResult {}
+final class ContinueNavigation extends GuardResult {}
 
-final class Block extends GuardResult {}
+final class BlockNavigation extends GuardResult {}
 
-final class Redirect extends GuardResult {
+final class RedirectNavigation extends GuardResult {
   final RouteContext redirectRoute;
 
-  Redirect(this.redirectRoute);
+  RedirectNavigation(this.redirectRoute);
 }

@@ -11,6 +11,6 @@ class RouterLogger implements RouteGuard {
     RouteContext next,
   ) async {
     log('Routing: ${current.info.path} -> ${next.info.path}');
-    return Continue();
+    return ContinueNavigation();
   }
 }

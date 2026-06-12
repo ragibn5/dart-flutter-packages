@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart' as grouter;
+import 'package:go_router/go_router.dart';
 import 'package:nav_router/src/models/guard_result.dart';
 import 'package:nav_router/src/models/route_context.dart';
 import 'package:nav_router/src/models/route_def.dart';
@@ -13,13 +13,13 @@ class GoRouteAppRouter implements NavRouter {
   final List<RouteDef> _routes;
   final List<RouteGuard> _guards;
 
-  late final grouter.GoRouter _router = grouter.GoRouter(
+  late final GoRouter _router = GoRouter(
     navigatorKey: _navigatorKey,
     initialLocation: _initialRoute.path,
     onEnter: _handleGuards,
     routes: _routes
         .map(
-          (r) => grouter.GoRoute(
+          (r) => GoRoute(
             name: r.info.name,
             path: r.info.path,
             builder: (context, state) => r.builder(
@@ -114,11 +114,11 @@ class GoRouteAppRouter implements NavRouter {
     }
   }
 
-  Future<grouter.OnEnterResult> _handleGuards(
+  Future<OnEnterResult> _handleGuards(
     BuildContext context,
-    grouter.GoRouterState currentState,
-    grouter.GoRouterState nextState,
-    grouter.GoRouter router,
+    GoRouterState currentState,
+    GoRouterState nextState,
+    GoRouter router,
   ) async {
     final current = RouteContext(
       info: RouteInfo(currentState.name ?? '', currentState.path ?? ''),
@@ -141,10 +141,10 @@ class GoRouteAppRouter implements NavRouter {
     for (final guard in allGuards) {
       final result = await guard.onNavigationRequest(context, current, next);
       switch (result) {
-        case Block():
-          return const grouter.Block.stop();
-        case Redirect():
-          return grouter.Block.then(
+        case BlockNavigation():
+          return const Block.stop();
+        case RedirectNavigation():
+          return Block.then(
             () => router.goNamed(
               result.redirectRoute.info.name,
               pathParameters: result.redirectRoute.pathParameters,
@@ -152,11 +152,11 @@ class GoRouteAppRouter implements NavRouter {
               extra: result.redirectRoute.extra,
             ),
           );
-        case Continue():
+        case ContinueNavigation():
           break;
       }
     }
 
-    return const grouter.Allow();
+    return const Allow();
   }
 }

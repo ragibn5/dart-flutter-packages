@@ -54,15 +54,12 @@ void main() {
   test(
     '`setUserData` should call insert() with a list containing encoded entity',
     () async {
-      when(
-        () => mockSQLiteDb.insert(any(), any()),
-      ).thenAnswer((_) async => 1);
+      when(() => mockSQLiteDb.insert(any(), any())).thenAnswer((_) async => 1);
 
       await sut.setUserData(dto);
 
       verify(
-        () =>
-            mockSQLiteDb.insert(UserDataTableConstants.NAME, [dto.toJson()]),
+        () => mockSQLiteDb.insert(UserDataTableConstants.NAME, [dto.toJson()]),
       ).called(1);
     },
   );

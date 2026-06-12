@@ -18,9 +18,9 @@ class RootRedirectRouteGuard implements RouteGuard {
     final isOnLogin = current.info.name == AppRoute.LOGIN.routeInfo.name;
 
     if (currentAuthData == null) {
-      return Redirect(RouteContext(info: AppRoute.LOGIN.routeInfo));
+      return RedirectNavigation(RouteContext(info: AppRoute.LOGIN.routeInfo));
     } else {
-      return Redirect(RouteContext(info: AppRoute.HOME.routeInfo));
+      return RedirectNavigation(RouteContext(info: AppRoute.HOME.routeInfo));
     }
   }
 }

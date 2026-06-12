@@ -180,10 +180,10 @@ class _GuardChain extends AutoRouteGuard {
         next,
       );
       switch (result) {
-        case Block():
+        case BlockNavigation():
           resolver.next(false);
           return;
-        case Redirect():
+        case RedirectNavigation():
           resolver.next(false);
           unawaited(
             router.push(
@@ -196,7 +196,7 @@ class _GuardChain extends AutoRouteGuard {
             ),
           );
           return;
-        case Continue():
+        case ContinueNavigation():
           break;
       }
     }
