@@ -54,7 +54,7 @@ class GoRouteAppRouter implements NavRouter {
   RouteContext get currentRoute {
     final state = _router.state;
     return RouteContext(
-      info: RouteInfo(state.name ?? '', state.path ?? ''),
+      info: RouteInfo(state.name ?? '', state.matchedLocation),
       pathParameters: state.pathParameters,
       queryParameters: state.uri.queryParameters,
       extra: state.extra,
@@ -121,13 +121,13 @@ class GoRouteAppRouter implements NavRouter {
     GoRouter router,
   ) async {
     final current = RouteContext(
-      info: RouteInfo(currentState.name ?? '', currentState.path ?? ''),
+      info: RouteInfo(currentState.name ?? '', currentState.matchedLocation),
       pathParameters: currentState.pathParameters,
       queryParameters: currentState.uri.queryParameters,
       extra: currentState.extra,
     );
     final next = RouteContext(
-      info: RouteInfo(nextState.name ?? '', nextState.path ?? ''),
+      info: RouteInfo(nextState.name ?? '', nextState.matchedLocation),
       pathParameters: nextState.pathParameters,
       queryParameters: nextState.uri.queryParameters,
       extra: nextState.extra,
