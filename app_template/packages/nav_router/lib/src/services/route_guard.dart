@@ -5,7 +5,7 @@ import 'package:nav_router/src/models/route_context.dart';
 abstract interface class RouteGuard {
   Future<GuardResult> onNavigationRequest(
     BuildContext context,
-    RouteContext previous,
     RouteContext current,
+    RouteContext next,
   );
 }

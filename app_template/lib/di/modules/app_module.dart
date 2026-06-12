@@ -14,7 +14,7 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
-import 'package:app_template/features/app/infrastructure/router/observers/router_logger.dart';
+import 'package:app_template/features/app/infrastructure/router/guards/router_logger.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
@@ -345,9 +345,10 @@ abstract class AppModule {
   ) {
     return GoRouteAppRouter(
       navigatorKey: navigatorKey,
-      initialRoute: AppRoute.LOGIN.routeInfo,
-      routes: appRouteDefs,
-      observers: [RouterLogger()],
+      initialRoute: AppRoute.ROOT.routeInfo,
+      routes: getAppRouteDefs(authDataService),
+      // observers: [RouterLogger()],
+      guards: [RouterLoggerGuard()],
     );
   }
 }

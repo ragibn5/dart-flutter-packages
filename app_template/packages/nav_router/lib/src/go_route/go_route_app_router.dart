@@ -19,11 +19,12 @@ class GoRouteAppRouter implements NavRouter {
   late final grouter.GoRouter _router = grouter.GoRouter(
     navigatorKey: _navigatorKey,
     initialLocation: _initialRoute.path,
-    onEnter: _handleRouterGuards,
+    onEnter: _handleGuards,
     observers: _observers.map(GoRouteObserverAdapter.new).toList(),
     routes: _routes
         .map(
           (r) => grouter.GoRoute(
+            name: r.info.name,
             path: r.info.path,
             builder: (context, state) => r.builder(
               context,
@@ -84,17 +85,17 @@ class GoRouteAppRouter implements NavRouter {
   @override
   void popTopRoute<T extends Object?>([T? result]) => _router.pop<T>(result);
 
-  Future<grouter.OnEnterResult> _handleRouterGuards(
+  Future<grouter.OnEnterResult> _handleGuards(
     BuildContext context,
-    grouter.GoRouterState state,
+    grouter.GoRouterState currentState,
     grouter.GoRouterState nextState,
     grouter.GoRouter router,
   ) async {
     final current = RouteContext(
-      info: RouteInfo(state.name!, state.path!),
-      pathParameters: state.pathParameters,
-      queryParameters: state.uri.queryParameters,
-      extra: state.extra,
+      info: RouteInfo(currentState.name!, currentState.path!),
+      pathParameters: currentState.pathParameters,
+      queryParameters: currentState.uri.queryParameters,
+      extra: currentState.extra,
     );
     final next = RouteContext(
       info: RouteInfo(nextState.name!, nextState.path!),
@@ -103,7 +104,17 @@ class GoRouteAppRouter implements NavRouter {
       extra: nextState.extra,
     );
 
-    for (final guard in _guards) {
+    final routeDef = _routes.firstWhere(
+      (r) => r.info.name == nextState.name || r.info.path == nextState.path,
+    );
+    final allGuards = [
+      // root guards
+      ..._guards,
+      // route guards
+      ...routeDef.guards,
+    ];
+
+    for (final guard in allGuards) {
       final result = await guard.onNavigationRequest(context, current, next);
       switch (result) {
         case Block():
@@ -121,6 +132,7 @@ class GoRouteAppRouter implements NavRouter {
           break;
       }
     }
+
     return const grouter.Allow();
   }
 }
