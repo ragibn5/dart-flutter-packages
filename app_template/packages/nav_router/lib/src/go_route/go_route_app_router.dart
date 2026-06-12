@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart' as grouter;
-import 'package:go_router/go_router.dart' hide Block;
 import 'package:nav_router/src/models/guard_result.dart';
 import 'package:nav_router/src/models/route_context.dart';
 import 'package:nav_router/src/models/route_def.dart';
@@ -52,7 +51,15 @@ class GoRouteAppRouter implements NavRouter {
   RouterConfig<Object> get routerConfig => _router;
 
   @override
-  RouteContext get currentRoute => _getRouteContext(_router.state);
+  RouteContext get currentRoute {
+    final state = _router.state;
+    return RouteContext(
+      info: RouteInfo(state.name ?? '', state.path ?? ''),
+      pathParameters: state.pathParameters,
+      queryParameters: state.uri.queryParameters,
+      extra: state.extra,
+    );
+  }
 
   @override
   Future<T?> pushWithName<T extends Object?>(
@@ -102,20 +109,9 @@ class GoRouteAppRouter implements NavRouter {
   @override
   void popUntilRoute(bool Function(RouteContext) predicate) {
     while (_router.canPop()) {
-      if (predicate(_getRouteContext(_router.state))) return;
+      if (predicate(currentRoute)) return;
       _router.pop();
     }
-  }
-
-  RouteContext _getRouteContext(GoRouterState state) {
-    final name = state.name;
-    final path = state.path;
-    return RouteContext(
-      info: RouteInfo(name ?? '', path ?? ''),
-      pathParameters: state.pathParameters,
-      queryParameters: state.uri.queryParameters,
-      extra: state.extra,
-    );
   }
 
   Future<grouter.OnEnterResult> _handleGuards(

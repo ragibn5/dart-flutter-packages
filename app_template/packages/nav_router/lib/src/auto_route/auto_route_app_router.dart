@@ -29,7 +29,19 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   RouterConfig<Object> get routerConfig => super.config();
 
   @override
-  RouteContext get currentRoute => _getRouteContext(current);
+  RouteContext get currentRoute {
+    final state = current;
+    return RouteContext(
+      info: RouteInfo(state.name, state.path),
+      pathParameters: state.params.rawMap.map(
+        (k, v) => MapEntry(k, v.toString()),
+      ),
+      queryParameters: state.queryParams.rawMap.map(
+        (k, v) => MapEntry(k, v.toString()),
+      ),
+      extra: state.args,
+    );
+  }
 
   @override
   Future<T?> pushWithName<T extends Object?>(
@@ -85,7 +97,7 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   @override
   void popUntilRoute(bool Function(RouteContext) predicate) {
     while (canPop()) {
-      if (predicate(_getRouteContext(current))) return;
+      if (predicate(currentRoute)) return;
       pop();
     }
   }
@@ -119,19 +131,6 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   @protected
   @override
   List<AutoRouteGuard> get guards => [_GuardChain(_guards, _routes)];
-
-  RouteContext _getRouteContext(RouteData<dynamic> state) {
-    return RouteContext(
-      info: RouteInfo(state.name, state.path),
-      pathParameters: state.params.rawMap.map(
-        (k, v) => MapEntry(k, v.toString()),
-      ),
-      queryParameters: state.queryParams.rawMap.map(
-        (k, v) => MapEntry(k, v.toString()),
-      ),
-      extra: state.args,
-    );
-  }
 }
 
 class _GuardChain extends AutoRouteGuard {
