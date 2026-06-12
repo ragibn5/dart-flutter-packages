@@ -19,5 +19,7 @@ abstract class NavRouter {
     Object? extra,
   });
 
+  bool canPopTopRoute();
+
   void popTopRoute<T extends Object?>([T? result]);
 }

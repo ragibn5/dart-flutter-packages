@@ -59,6 +59,9 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   );
 
   @override
+  bool canPopTopRoute() => canPop();
+
+  @override
   void popTopRoute<T extends Object?>([T? result]) => pop<T>(result);
 
   @protected

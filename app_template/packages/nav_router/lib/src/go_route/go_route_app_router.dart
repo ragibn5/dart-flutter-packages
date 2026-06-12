@@ -77,6 +77,9 @@ class GoRouteAppRouter implements NavRouter {
   );
 
   @override
+  bool canPopTopRoute() => _router.canPop();
+
+  @override
   void popTopRoute<T extends Object?>([T? result]) => _router.pop<T>(result);
 
   Future<grouter.OnEnterResult> _handleGuards(
