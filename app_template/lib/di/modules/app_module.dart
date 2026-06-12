@@ -343,7 +343,7 @@ abstract class AppModule {
     GlobalKey<NavigatorState> navigatorKey,
     AuthDataService authDataService,
   ) {
-    return GoRouteAppRouter(
+    return NavRouterFactory().create(
       navigatorKey: navigatorKey,
       initialRoute: AppRoute.ROOT.routeInfo,
       routes: getAppRouteDefs(authDataService),
