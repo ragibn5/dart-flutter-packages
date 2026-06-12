@@ -59,10 +59,46 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   );
 
   @override
+  void navigateTo(
+    String routeName, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  }) => navigate(
+    NamedRoute(
+      routeName,
+      params: pathParameters,
+      queryParams: queryParameters,
+      args: extra,
+    ),
+  );
+
+  @override
   bool canPopTopRoute() => canPop();
 
   @override
   void popTopRoute<T extends Object?>([T? result]) => pop<T>(result);
+
+  @override
+  void popUntilRoute(bool Function(RouteContext) predicate) {
+    for (var i = stackData.length - 1; i >= 0; i--) {
+      final data = stackData[i];
+      final ctx = RouteContext(
+        info: RouteInfo(data.name, data.path),
+        pathParameters: data.params.rawMap.map(
+          (k, v) => MapEntry(k, v.toString()),
+        ),
+        queryParameters: data.queryParams.rawMap.map(
+          (k, v) => MapEntry(k, v.toString()),
+        ),
+        extra: data.args,
+      );
+      if (predicate(ctx)) {
+        popUntilRouteWithName(data.name);
+        return;
+      }
+    }
+  }
 
   @protected
   @override

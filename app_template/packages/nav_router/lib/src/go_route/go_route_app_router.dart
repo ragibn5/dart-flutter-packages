@@ -77,10 +77,49 @@ class GoRouteAppRouter implements NavRouter {
   );
 
   @override
+  void navigateTo(
+    String routeName, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  }) => _router.goNamed(
+    routeName,
+    pathParameters: pathParameters,
+    queryParameters: queryParameters,
+    extra: extra,
+  );
+
+  @override
   bool canPopTopRoute() => _router.canPop();
 
   @override
   void popTopRoute<T extends Object?>([T? result]) => _router.pop<T>(result);
+
+  @override
+  void popUntilRoute(bool Function(RouteContext) predicate) {
+    while (_router.canPop()) {
+      if (predicate(_currentRouteContext())) return;
+      _router.pop();
+    }
+  }
+
+  RouteContext _currentRouteContext() {
+    final config = _router.routerDelegate.currentConfiguration;
+    final lastMatch = config.matches.last;
+    final route = lastMatch.route;
+    String? name;
+    String? path;
+    if (route is grouter.GoRoute) {
+      name = route.name;
+      path = route.path;
+    }
+    return RouteContext(
+      info: RouteInfo(name ?? '', path ?? lastMatch.matchedLocation),
+      pathParameters: config.pathParameters,
+      queryParameters: config.uri.queryParameters,
+      extra: config.extra,
+    );
+  }
 
   Future<grouter.OnEnterResult> _handleGuards(
     BuildContext context,
