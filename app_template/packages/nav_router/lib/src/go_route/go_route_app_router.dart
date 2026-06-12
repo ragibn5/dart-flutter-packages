@@ -1,26 +1,22 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart' as grouter;
-import 'package:nav_router/src/go_route/adapter/go_route_observer_adapter.dart';
 import 'package:nav_router/src/models/guard_result.dart';
 import 'package:nav_router/src/models/route_context.dart';
 import 'package:nav_router/src/models/route_def.dart';
 import 'package:nav_router/src/models/route_info.dart';
 import 'package:nav_router/src/nav_router.dart';
 import 'package:nav_router/src/services/route_guard.dart';
-import 'package:nav_router/src/services/router_observer.dart';
 
 class GoRouteAppRouter implements NavRouter {
   final GlobalKey<NavigatorState> _navigatorKey;
   final RouteInfo _initialRoute;
   final List<RouteDef> _routes;
-  final List<RouterObserver> _observers;
   final List<RouteGuard> _guards;
 
   late final grouter.GoRouter _router = grouter.GoRouter(
     navigatorKey: _navigatorKey,
     initialLocation: _initialRoute.path,
     onEnter: _handleGuards,
-    observers: _observers.map(GoRouteObserverAdapter.new).toList(),
     routes: _routes
         .map(
           (r) => grouter.GoRoute(
@@ -45,12 +41,10 @@ class GoRouteAppRouter implements NavRouter {
     required GlobalKey<NavigatorState> navigatorKey,
     required RouteInfo initialRoute,
     required List<RouteDef> routes,
-    List<RouterObserver> observers = const [],
     List<RouteGuard> guards = const [],
   }) : _navigatorKey = navigatorKey,
        _initialRoute = initialRoute,
        _routes = routes,
-       _observers = observers,
        _guards = guards;
 
   @override

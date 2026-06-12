@@ -1,26 +1,28 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nav_router/src/auto_route/adapter/auto_route_observer_adapter.dart';
+import 'package:nav_router/src/models/guard_result.dart';
 import 'package:nav_router/src/models/route_context.dart';
 import 'package:nav_router/src/models/route_def.dart';
 import 'package:nav_router/src/models/route_info.dart';
 import 'package:nav_router/src/nav_router.dart';
-import 'package:nav_router/src/services/router_observer.dart';
+import 'package:nav_router/src/services/route_guard.dart';
 
 @AutoRouterConfig()
 class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
   final List<RouteDef> _routes;
   final RouteInfo? _initialRoute;
-  final List<RouterObserver> _observers;
+  final List<RouteGuard> _guards;
 
   AutoRouteAppRouter({
     required GlobalKey<NavigatorState> navigatorKey,
     required RouteInfo initialRoute,
     required List<RouteDef> routes,
-    List<RouterObserver> observers = const [],
+    List<RouteGuard> guards = const [],
   }) : _initialRoute = initialRoute,
        _routes = routes,
-       _observers = observers,
+       _guards = guards,
        super(navigatorKey: navigatorKey);
 
   @override
@@ -87,7 +89,77 @@ class AutoRouteAppRouter extends RootStackRouter implements NavRouter {
 
   @protected
   @override
-  List<AutoRouteGuard> get guards => [
-    ..._observers.map(AutoRouteObserverAdapter.new),
-  ];
+  List<AutoRouteGuard> get guards => [_GuardChain(_guards, _routes)];
+}
+
+class _GuardChain extends AutoRouteGuard {
+  final List<RouteGuard> _guards;
+  final List<RouteDef> _routes;
+
+  _GuardChain(this._guards, this._routes);
+
+  @override
+  void onNavigation(NavigationResolver resolver, StackRouter router) {
+    _resolve(resolver, router);
+  }
+
+  Future<void> _resolve(NavigationResolver resolver, StackRouter router) async {
+    final routeDef = _routes.firstWhere(
+      (r) =>
+          r.info.name == resolver.route.name ||
+          r.info.path == resolver.route.path,
+    );
+    final allGuards = [..._guards, ...routeDef.guards];
+
+    final current = RouteContext(
+      info: RouteInfo(router.current.name, router.current.path),
+      pathParameters: router.current.route.params.rawMap.map(
+        (k, v) => MapEntry(k, v.toString()),
+      ),
+      queryParameters: router.current.route.queryParams.rawMap.map(
+        (k, v) => MapEntry(k, v.toString()),
+      ),
+      extra: router.current.route.args,
+    );
+    final next = RouteContext(
+      info: RouteInfo(resolver.routeName, resolver.route.path),
+      pathParameters: resolver.route.params.rawMap.map(
+        (k, v) => MapEntry(k, v.toString()),
+      ),
+      queryParameters: resolver.route.queryParams.rawMap.map(
+        (k, v) => MapEntry(k, v.toString()),
+      ),
+      extra: resolver.route.args,
+    );
+
+    for (final guard in allGuards) {
+      final result = await guard.onNavigationRequest(
+        resolver.context,
+        current,
+        next,
+      );
+      switch (result) {
+        case Block():
+          resolver.next(false);
+          return;
+        case Redirect():
+          resolver.next(false);
+          unawaited(
+            router.push(
+              NamedRoute(
+                result.redirectRoute.info.name,
+                params: result.redirectRoute.pathParameters,
+                queryParams: result.redirectRoute.queryParameters,
+                args: result.redirectRoute.extra,
+              ),
+            ),
+          );
+          return;
+        case Continue():
+          break;
+      }
+    }
+
+    resolver.next();
+  }
 }

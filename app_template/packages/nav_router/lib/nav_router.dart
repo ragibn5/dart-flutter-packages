@@ -10,5 +10,4 @@ export 'src/models/route_def.dart';
 export 'src/models/route_info.dart';
 export 'src/nav_router.dart';
 export 'src/services/route_guard.dart';
-export 'src/services/router_observer.dart';
 export 'src/typedefs/route_widget_builder.dart';

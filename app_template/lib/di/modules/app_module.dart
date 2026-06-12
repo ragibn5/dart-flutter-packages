@@ -347,8 +347,7 @@ abstract class AppModule {
       navigatorKey: navigatorKey,
       initialRoute: AppRoute.ROOT.routeInfo,
       routes: getAppRouteDefs(authDataService),
-      // observers: [RouterLogger()],
-      guards: [RouterLoggerGuard()],
+      guards: [RouterLogger()],
     );
   }
 }
