@@ -55,7 +55,7 @@ dependencies:
 
   # App-private packages
   initializable:
-    path: packages/initializable
+    path: ../initializable
   disposable:
     path: ../disposable
   core_models:

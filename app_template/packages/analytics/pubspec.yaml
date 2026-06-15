@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   firebase_analytics: ^11.4.5
   initializable:
-    path: ../initializable
+    path: ../../../initializable
 
 dev_dependencies:
   flutter_test:
