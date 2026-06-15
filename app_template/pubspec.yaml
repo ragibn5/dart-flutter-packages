@@ -75,7 +75,7 @@ dependencies:
   preference_store:
     path: ../preference_store
   nav_router:
-    path: packages/nav_router
+    path: ../nav_router
   alerter:
     path: packages/alerter
   snacker:
