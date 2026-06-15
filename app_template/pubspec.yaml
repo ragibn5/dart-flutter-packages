@@ -69,7 +69,7 @@ dependencies:
   feature_api_client:
     path: packages/feature_api_client
   json_converters:
-    path: packages/json_converters
+    path: ../json_converters
   app_logger:
     path: packages/logger
   preference_store:
