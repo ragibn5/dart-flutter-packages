@@ -57,7 +57,7 @@ dependencies:
   initializable:
     path: packages/initializable
   disposable:
-    path: packages/disposable
+    path: ../disposable
   core_models:
     path: packages/core_models
   mutex:

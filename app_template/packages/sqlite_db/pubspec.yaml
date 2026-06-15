@@ -12,7 +12,7 @@ dependencies:
   path: ^1.9.1
   sqflite: ^2.4.2
   disposable:
-    path: ../disposable
+    path: ../../../disposable
   initializable:
     path: ../initializable
   functions:
