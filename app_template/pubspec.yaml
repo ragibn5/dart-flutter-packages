@@ -63,7 +63,7 @@ dependencies:
   mutex:
     path: ../mutex
   data_domain_converters:
-    path: packages/data_domain_converters
+    path: ../data_domain_converters
   base_auth_interceptor:
     path: packages/base_auth_interceptor
   feature_api_client:
