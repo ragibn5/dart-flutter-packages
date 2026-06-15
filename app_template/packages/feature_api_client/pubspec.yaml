@@ -9,7 +9,7 @@ environment:
 dependencies:
   equatable: ^2.0.8
   core_models:
-    path: ../core_models
+    path: ../../../core_models
   net_kit:
     path: ../../../net_kit
 

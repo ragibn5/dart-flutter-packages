@@ -59,7 +59,7 @@ dependencies:
   disposable:
     path: ../disposable
   core_models:
-    path: packages/core_models
+    path: ../core_models
   mutex:
     path: ../mutex
   data_domain_converters:
