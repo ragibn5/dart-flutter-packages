@@ -67,7 +67,7 @@ dependencies:
   base_auth_interceptor:
     path: ../base_auth_interceptor
   feature_api_client:
-    path: packages/feature_api_client
+    path: ../feature_api_client
   json_converters:
     path: ../json_converters
   app_logger:

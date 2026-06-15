@@ -1,0 +1,32 @@
+name: feature_api_client
+description: Reusable API client with typed request/response contracts and error handling.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/feature_api_client
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.0.6
+
+# Regular dependencies
+dependencies:
+  equatable: ^2.0.8
+  core_models:
+    path: ../core_models
+  net_kit:
+    path: ../net_kit
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  test: ^1.25.5
+  mocktail: ^1.0.5
+  lints: ^3.0.0
+  very_good_analysis: ^5.1.0
