@@ -1,0 +1,38 @@
+name: sqlite_db
+description: SQLite database.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/sqlite_db
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.0.6
+
+# Regular dependencies
+dependencies:
+  flutter:
+    sdk: flutter
+  path: ^1.9.1
+  sqflite: ^2.4.2
+  disposable:
+    path: ../disposable
+  initializable:
+    path: ../initializable
+  functions:
+    path: ../functions
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.5
+  lints: ^3.0.0
+  very_good_analysis: ^5.1.0

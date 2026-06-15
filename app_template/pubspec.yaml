@@ -83,7 +83,7 @@ dependencies:
   common_widgets:
     path: packages/common_widgets
   sqlite_db:
-    path: packages/sqlite_db
+    path: ../sqlite_db
   file_store:
     path: ../file_store
   analytics:
