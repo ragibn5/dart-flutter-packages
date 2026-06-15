@@ -13,13 +13,13 @@ version: 0.0.1
 
 # Range of compatible SDK versions
 environment:
-  sdk: ^3.0.6
+  sdk: ^3.11.0
 
 # Regular dependencies
 dependencies:
   flutter:
     sdk: flutter
-  path: ^1.9.1
+  path: ^1.9.0
   sqflite: ^2.4.2
   disposable:
     path: ../disposable
