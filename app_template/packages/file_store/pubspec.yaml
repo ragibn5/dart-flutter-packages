@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   mutex:
-    path: ../mutex
+    path: ../../../mutex
 
 dev_dependencies:
   test: ^1.25.0

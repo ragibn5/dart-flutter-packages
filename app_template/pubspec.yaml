@@ -61,7 +61,7 @@ dependencies:
   core_models:
     path: packages/core_models
   mutex:
-    path: packages/mutex
+    path: ../mutex
   data_domain_converters:
     path: packages/data_domain_converters
   base_auth_interceptor:
