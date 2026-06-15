@@ -115,10 +115,10 @@ packages:
   initializable:
     dependency: "direct main"
     description:
-      path: "../initializable"
+      path: "../../../initializable"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   leak_tracker:
     dependency: transitive
     description:

@@ -120,10 +120,10 @@ packages:
   base_auth_interceptor:
     dependency: "direct main"
     description:
-      path: "packages/base_auth_interceptor"
+      path: "../base_auth_interceptor"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   bloc:
     dependency: "direct main"
     description:
@@ -301,10 +301,10 @@ packages:
   core_models:
     dependency: "direct main"
     description:
-      path: "packages/core_models"
+      path: "../core_models"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   coverage:
     dependency: transitive
     description:
@@ -355,10 +355,10 @@ packages:
   data_domain_converters:
     dependency: "direct main"
     description:
-      path: "packages/data_domain_converters"
+      path: "../data_domain_converters"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   datetime_utils:
     dependency: "direct main"
     description:
@@ -393,10 +393,10 @@ packages:
   disposable:
     dependency: "direct main"
     description:
-      path: "packages/disposable"
+      path: "../disposable"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   dlogger:
     dependency: "direct main"
     description:
@@ -423,10 +423,10 @@ packages:
   feature_api_client:
     dependency: "direct main"
     description:
-      path: "packages/feature_api_client"
+      path: "../feature_api_client"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   ffi:
     dependency: transitive
     description:
@@ -446,10 +446,10 @@ packages:
   file_store:
     dependency: "direct main"
     description:
-      path: "packages/file_store"
+      path: "../file_store"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   firebase_analytics:
     dependency: "direct main"
     description:
@@ -720,10 +720,10 @@ packages:
   initializable:
     dependency: "direct main"
     description:
-      path: "packages/initializable"
+      path: "../initializable"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   injectable:
     dependency: "direct main"
     description:
@@ -791,10 +791,10 @@ packages:
   json_converters:
     dependency: "direct main"
     description:
-      path: "packages/json_converters"
+      path: "../json_converters"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   json_serializable:
     dependency: "direct dev"
     description:
@@ -902,10 +902,10 @@ packages:
   mutex:
     dependency: "direct main"
     description:
-      path: "packages/mutex"
+      path: "../mutex"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -917,10 +917,10 @@ packages:
   nav_router:
     dependency: "direct main"
     description:
-      path: "packages/nav_router"
+      path: "../nav_router"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   nested:
     dependency: transitive
     description:
@@ -1091,10 +1091,10 @@ packages:
   preference_store:
     dependency: "direct main"
     description:
-      path: "packages/preference_store"
+      path: "../preference_store"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   provider:
     dependency: transitive
     description:
@@ -1342,10 +1342,10 @@ packages:
   sqlite_db:
     dependency: "direct main"
     description:
-      path: "packages/sqlite_db"
+      path: "../sqlite_db"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   stack_trace:
     dependency: transitive
     description:
