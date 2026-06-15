@@ -85,7 +85,7 @@ dependencies:
   sqlite_db:
     path: packages/sqlite_db
   file_store:
-    path: packages/file_store
+    path: ../file_store
   analytics:
     path: packages/analytics
   crashlytics:
