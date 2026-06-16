@@ -24,10 +24,7 @@ class RouterNavigatorAlerter extends Alerter {
   }
 
   @override
-  AlertDialog buildAlertDialog<T>(
-    BuildContext context,
-    AlertData<T> alertData,
-  ) {
+  Widget buildAlertDialog<T>(BuildContext context, AlertData<T> alertData) {
     return AlertDialog(
       title: buildAlertTitle(alertData),
       icon: buildAlertIcon(alertData.alertType),

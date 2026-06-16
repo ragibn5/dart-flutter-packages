@@ -16,5 +16,5 @@ abstract class Alerter {
   BuildContext getCurrentContext();
 
   @visibleForOverriding
-  AlertDialog buildAlertDialog<T>(BuildContext context, AlertData<T> alertData);
+  Widget buildAlertDialog<T>(BuildContext context, AlertData<T> alertData);
 }
