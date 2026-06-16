@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:app_template/di/config/dependencies.dart';
 import 'package:app_template/di/provider/dependency_provider.dart';
-import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
@@ -59,17 +59,21 @@ class DependencyProviderImpl implements DependencyProvider {
       return;
     }
 
-    await _configuratorFunc.call(
-      _registrar,
-      flavor != null ? Environment(flavor.name) : null,
-    );
-
-    _isInitialized = true;
+    try {
+      await _configuratorFunc.call(
+        _registrar,
+        flavor != null ? Environment(flavor.name) : null,
+      );
+      _isInitialized = true;
+    } catch (e) {
+      _isInitialized = false;
+      rethrow;
+    }
   }
 
   @override
-  FutureOr<void> dispose() {
-    _registrar.reset();
+  FutureOr<void> dispose() async {
+    await _registrar.reset();
 
     _isInitialized = false;
   }

@@ -3,29 +3,19 @@
 // inside your preferred feature module/directory.
 //
 
-import 'package:app_template/di/provider/dependency_provider.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:app_template/generated/assets/assets.gen.dart';
 import 'package:app_template/generated/l10n.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-@RoutePage()
-class LoginScreen extends StatefulWidget implements AutoRouteWrapper {
-  const LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  final void Function() onLoginComplete;
+
+  const LoginScreen({super.key, required this.onLoginComplete});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
-
-  @override
-  Widget wrappedRoute(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LoginBloc(di.get<AuthDataService>()),
-      child: this,
-    );
-  }
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -73,9 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLoginTapped(BuildContext context) {
-    context.read<LoginBloc>().add(
-      LoginRequested(username: _usernameFieldController.text),
-    );
+    BlocProvider.of<LoginBloc>(
+      context,
+    ).add(LoginRequested(username: _usernameFieldController.text));
   }
 
   void _handleListenableStates(BuildContext context, LoginState state) {
@@ -83,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
       case LoginInitial():
         break;
       case LoginComplete():
-      // context.router.replace(const HomeRoute());
+        widget.onLoginComplete();
       default:
         break;
     }

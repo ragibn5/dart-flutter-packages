@@ -51,8 +51,47 @@ dependencies:
   jwt_decoder: ^2.0.1
   equatable: ^2.0.8
   path_provider: ^2.1.5
+  go_router: ^17.3.0
 
-  # Others (In-house)
+  # App-private packages
+  initializable:
+    path: ../initializable
+  disposable:
+    path: ../disposable
+  core_models:
+    path: ../core_models
+  mutex:
+    path: ../mutex
+  data_domain_converters:
+    path: ../data_domain_converters
+  base_auth_interceptor:
+    path: ../base_auth_interceptor
+  feature_api_client:
+    path: ../feature_api_client
+  json_converters:
+    path: ../json_converters
+  app_logger:
+    path: packages/logger
+  preference_store:
+    path: ../preference_store
+  nav_router:
+    path: ../nav_router
+  alerter:
+    path: packages/alerter
+  snacker:
+    path: packages/snacker
+  common_widgets:
+    path: packages/common_widgets
+  sqlite_db:
+    path: ../sqlite_db
+  file_store:
+    path: ../file_store
+  analytics:
+    path: packages/analytics
+  crashlytics:
+    path: packages/crashlytics
+
+  # In-house packages
   string_extensions:
     path: ../string_extensions
   datetime_utils:
@@ -89,7 +128,6 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.3
   json_serializable: ^6.9.4
   injectable_generator: ^2.7.0
-  auto_route_generator: ^10.0.1
   flutter_gen_runner: ^5.10.0
   package_rename: ^1.10.1
 

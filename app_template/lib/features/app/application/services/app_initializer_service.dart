@@ -1,5 +1,12 @@
-import 'package:app_template/core/services/initializer_pipeline.dart';
+import 'package:analytics/analytics.dart';
+import 'package:crashlytics/crashlytics.dart';
+import 'package:initializable/initializable.dart';
+import 'package:sqlite_db/sqlite_db.dart';
 
-abstract class AppInitializerService extends InitializerPipeline {
-  AppInitializerService(super.initializables);
+class AppInitializerService extends InitializerPipeline {
+  AppInitializerService(
+    CrashlyticsService crashlyticsService,
+    AnalyticsService analyticsService,
+    SQLiteDb appDatabase,
+  ) : super([crashlyticsService, analyticsService, appDatabase]);
 }

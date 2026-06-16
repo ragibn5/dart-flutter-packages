@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:app_template/di/provider/dependency_provider.dart';
-import 'package:app_template/features/app/infrastructure/models/app_flavor.dart';
+import 'package:app_template/di/di.dart';
+import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/firebase_options_resolver.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
@@ -9,12 +9,12 @@ import 'package:app_template/features/app/presentation/widgets/app_root/app_root
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/models/error_report.dart';
-import 'package:app_template/router/app_router.dart';
-import 'package:app_template/shared/crashlytics/crashlytics_service.dart';
+import 'package:crashlytics/crashlytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:nav_router/nav_router.dart';
 
 Future<void> runFlavoredApp({required AppFlavor flavor}) async {
   await runZonedGuarded(
@@ -61,7 +61,7 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
           create: (context) =>
               di.get<AppRootBloc>()..add(AppInitializationRequested()),
           child: AppRoot(
-            appRouter: di.get<AppRouter>(),
+            appRouter: di.get<NavRouter>(),
             authDataService: di.get<AuthDataService>(),
             scaffoldMessengerKey: di.get<GlobalKey<ScaffoldMessengerState>>(),
             appConfig: di.get<AppConfigFactory>().create(platformDispatcher),

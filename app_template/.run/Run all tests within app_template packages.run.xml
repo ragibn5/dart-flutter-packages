@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="Run all tests within app_template packages"
+        type="FlutterTestConfigType" factoryName="Flutter Test">
+        <option name="testDir" value="$PROJECT_DIR$/packages" />
+        <option name="useRegexp" value="false" />
+        <option name="additionalArgs" value="" />
+        <method v="2" />
+    </configuration>
+</component>

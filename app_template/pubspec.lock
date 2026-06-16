@@ -17,6 +17,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.59"
+  alerter:
+    dependency: "direct main"
+    description:
+      path: "packages/alerter"
+      relative: true
+    source: path
+    version: "0.0.0"
   analysis_server_core:
     dependency: transitive
     description:
@@ -32,6 +39,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.3"
+  analytics:
+    dependency: "direct main"
+    description:
+      path: "packages/analytics"
+      relative: true
+    source: path
+    version: "0.0.0"
   analyzer:
     dependency: transitive
     description:
@@ -64,6 +78,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  app_logger:
+    dependency: "direct main"
+    description:
+      path: "packages/logger"
+      relative: true
+    source: path
+    version: "0.0.0"
   archive:
     dependency: transitive
     description:
@@ -96,14 +117,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.1.2"
-  auto_route_generator:
-    dependency: "direct dev"
+  base_auth_interceptor:
+    dependency: "direct main"
     description:
-      name: auto_route_generator
-      sha256: "3411b3ad9fda50e8bce5a3494a9e0d7385082438e22721febc9e3af08a35bc11"
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.2.5"
+      path: "../base_auth_interceptor"
+      relative: true
+    source: path
+    version: "0.0.1"
   bloc:
     dependency: "direct main"
     description:
@@ -263,6 +283,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  common_widgets:
+    dependency: "direct main"
+    description:
+      path: "packages/common_widgets"
+      relative: true
+    source: path
+    version: "0.0.0"
   convert:
     dependency: transitive
     description:
@@ -271,14 +298,28 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  core_models:
+    dependency: "direct main"
+    description:
+      path: "../core_models"
+      relative: true
+    source: path
+    version: "0.0.1"
   coverage:
     dependency: transitive
     description:
       name: coverage
-      sha256: "5da775aa218eaf2151c721b16c01c7676fbfdd99cebba2bf64e8b807a28ff94d"
+      sha256: "956a3de0725ca232ad353565a8290d3357592bf4250f6f298a185e2d949c5d3d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.15.0"
+    version: "1.15.1"
+  crashlytics:
+    dependency: "direct main"
+    description:
+      path: "packages/crashlytics"
+      relative: true
+    source: path
+    version: "0.0.0"
   crypto:
     dependency: transitive
     description:
@@ -311,6 +352,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  data_domain_converters:
+    dependency: "direct main"
+    description:
+      path: "../data_domain_converters"
+      relative: true
+    source: path
+    version: "0.0.1"
   datetime_utils:
     dependency: "direct main"
     description:
@@ -342,6 +390,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  disposable:
+    dependency: "direct main"
+    description:
+      path: "../disposable"
+      relative: true
+    source: path
+    version: "0.0.1"
   dlogger:
     dependency: "direct main"
     description:
@@ -365,6 +420,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.3"
+  feature_api_client:
+    dependency: "direct main"
+    description:
+      path: "../feature_api_client"
+      relative: true
+    source: path
+    version: "0.0.1"
   ffi:
     dependency: transitive
     description:
@@ -381,6 +443,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
+  file_store:
+    dependency: "direct main"
+    description:
+      path: "../file_store"
+      relative: true
+    source: path
+    version: "0.0.1"
   firebase_analytics:
     dependency: "direct main"
     description:
@@ -568,6 +637,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.3"
+  go_router:
+    dependency: "direct main"
+    description:
+      name: go_router
+      sha256: "5922b2861e2235a3504896f0d6fa07d84141b480cf52eecd2f42cd25585a9e8a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "17.3.0"
   graphs:
     dependency: transitive
     description:
@@ -588,18 +665,10 @@ packages:
     dependency: transitive
     description:
       name: hooks
-      sha256: a41af4e8fc687cd6d33de9751eb936c8c0204ebe2bcb6c15ecf707504bf47f31
+      sha256: "9a62a50b50b769a737bc0a8ff381f333529df3ab746b2f6b02e83760231455ba"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
-  hotreloader:
-    dependency: transitive
-    description:
-      name: hotreloader
-      sha256: "66871df468fc24eee81f1a0a7cb98acc104716f9b7376d355437b48d633c4ebf"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.4.0"
+    version: "2.0.2"
   html:
     dependency: transitive
     description:
@@ -648,6 +717,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.1"
+  initializable:
+    dependency: "direct main"
+    description:
+      path: "../initializable"
+      relative: true
+    source: path
+    version: "0.0.1"
   injectable:
     dependency: "direct main"
     description:
@@ -712,6 +788,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
+  json_converters:
+    dependency: "direct main"
+    description:
+      path: "../json_converters"
+      relative: true
+    source: path
+    version: "0.0.1"
   json_serializable:
     dependency: "direct dev"
     description:
@@ -752,14 +835,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  lean_builder:
-    dependency: transitive
-    description:
-      name: lean_builder
-      sha256: "4f3d70c34c52cc5034e8cc6f53d35aa3a32fb373b78fb4c29cf45cd1dcf06942"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.5"
   lints:
     dependency: transitive
     description:
@@ -824,6 +899,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  mutex:
+    dependency: "direct main"
+    description:
+      path: "../mutex"
+      relative: true
+    source: path
+    version: "0.0.1"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -832,6 +914,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.1"
+  nav_router:
+    dependency: "direct main"
+    description:
+      path: "../nav_router"
+      relative: true
+    source: path
+    version: "0.0.1"
   nested:
     dependency: transitive
     description:
@@ -915,10 +1004,10 @@ packages:
     dependency: "direct main"
     description:
       name: path_provider
-      sha256: "50c5dd5b6e1aaf6fb3a78b33f6aa3afca52bf903a8a5298f53101fdaee55bbcd"
+      sha256: a7f4874f987173da295a61c181b8ee71dab59b332a486b391babf26a1b884825
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.5"
+    version: "2.1.6"
   path_provider_android:
     dependency: transitive
     description:
@@ -947,10 +1036,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_platform_interface
-      sha256: "88f5779f72ba699763fa3a3b06aa4bf6de76c8e5de842cf6f29e2e06476c2334"
+      sha256: "484838772624c3a4b94f1e44a3e19897fee738f2d5c4ce448443b0417f7c9dda"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.3"
   path_provider_windows:
     dependency: transitive
     description:
@@ -999,6 +1088,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.5.0"
+  preference_store:
+    dependency: "direct main"
+    description:
+      path: "../preference_store"
+      relative: true
+    source: path
+    version: "0.0.1"
   provider:
     dependency: transitive
     description:
@@ -1140,6 +1236,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  snacker:
+    dependency: "direct main"
+    description:
+      path: "packages/snacker"
+      relative: true
+    source: path
+    version: "0.0.0"
   source_gen:
     dependency: transitive
     description:
@@ -1232,10 +1335,17 @@ packages:
     dependency: transitive
     description:
       name: sqlite3
-      sha256: "9488c7d2cdb1091c91cacf7e207cff81b28bff8e366f042bad3afe7d34afe189"
+      sha256: "37356bcb56ce0d9404d602c41e4bdb7765e7e9732a3e47adb3d98c556a6abdad"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.2"
+    version: "3.3.3"
+  sqlite_db:
+    dependency: "direct main"
+    description:
+      path: "../sqlite_db"
+      relative: true
+    source: path
+    version: "0.0.1"
   stack_trace:
     dependency: transitive
     description:
@@ -1459,14 +1569,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.6.1"
-  xxh3:
-    dependency: transitive
-    description:
-      name: xxh3
-      sha256: "399a0438f5d426785723c99da6b16e136f4953fb1e9db0bf270bd41dd4619916"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
   yaml:
     dependency: transitive
     description:

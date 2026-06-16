@@ -84,3 +84,4 @@ linter:
 bloc:
   rules:
     prefer_cubit: false
+    prefer_build_context_extensions: false

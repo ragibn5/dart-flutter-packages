@@ -5,11 +5,10 @@ import 'package:app_template/features/app/presentation/widgets/startup_loader/st
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:app_template/generated/l10n.dart';
-import 'package:app_template/router/app_router.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:nav_router/nav_router.dart';
 
 /// The root widget of the app.
 ///
@@ -19,7 +18,7 @@ class AppRoot extends StatefulWidget {
   final AppConfig appConfig;
 
   /// The router to use.
-  final AppRouter appRouter;
+  final NavRouter appRouter;
 
   /// The AuthDataService to set up the router config.
   final AuthDataService authDataService;
@@ -67,7 +66,7 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
           darkTheme: widget.appConfig.darkThemeData,
           themeMode: _extractThemeMode(state, widget.appConfig),
           onGenerateTitle: (context) => S.of(context).appTitle,
-          routerConfig: _buildRouterConfig(),
+          routerConfig: _routerConfig,
           builder: (_, child) => _StateAwareRootPage(
             appConfig: widget.appConfig,
             state: state,
@@ -90,13 +89,7 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     context.read<AppRootBloc>().add(SystemLocaleChanged());
   }
 
-  RouterConfig<Object>? _buildRouterConfig() {
-    return widget.appRouter.config(
-      reevaluateListenable: ReevaluateListenable.stream(
-        widget.authDataService.watchAuthData(),
-      ),
-    );
-  }
+  RouterConfig<Object> get _routerConfig => widget.appRouter.routerConfig;
 
   Locale _extractLocale(AppRootState state, AppConfig platformConfig) {
     if (state is! AppInitializationSuccess) {

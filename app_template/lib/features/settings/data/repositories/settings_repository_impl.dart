@@ -1,14 +1,12 @@
 import 'dart:async';
 
-import 'package:app_template/core/converters/data_domain_converter.dart';
 import 'package:app_template/features/settings/data/models/settings_dto.dart';
 import 'package:app_template/features/settings/data/sources/settings_data_source.dart';
 import 'package:app_template/features/settings/domain/models/app_settings.dart';
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart';
-import 'package:injectable/injectable.dart';
+import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:meta/meta.dart';
 
-@Injectable(as: SettingsRepository)
 class SettingsRepositoryImpl implements SettingsRepository {
   final DataDomainConverter<SettingsDTO, AppSettings> _settingsMapper;
   final StreamController<AppSettings> _settingsStreamController;
@@ -35,7 +33,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
   @override
   Future<AppSettings> getCurrentSettings() async {
     final settingsDTO = await _settingsDataSource.getCurrentSettings();
-    if(settingsDTO == null) {
+    if (settingsDTO == null) {
       return const AppSettings();
     }
 

@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:app_template/core/models/api_error.dart';
-import 'package:app_template/core/models/either.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
+import 'package:core_models/core_models.dart';
 
 class AuthDataServiceImpl implements AuthDataService {
   final AuthDataRepository _authRepository;

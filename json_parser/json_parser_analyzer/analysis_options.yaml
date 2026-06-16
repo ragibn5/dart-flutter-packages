@@ -19,12 +19,6 @@ analyzer:
     strict-raw-types: true
     strict-inference: true
 
-  # Add all the file path/name patterns
-  # that should be excluded from analyzer.
-  exclude:
-    - lib/**/*.g.dart
-    - lib/generated/**
-    - lib/generated_plugin_registrant.dart
 
   # Add all rules that you want to consider
   # as error(regardless of their default level).
