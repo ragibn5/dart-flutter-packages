@@ -1,18 +1,43 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:snacker/src/enums/snack_type.dart';
+import 'package:snacker/src/models/snack_data.dart';
 import 'package:snacker/src/snacker.dart';
 
-class ScaffoldMessengerSnacker extends Snacker {
+class ScaffoldMessengerSnacker implements Snacker {
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
 
   const ScaffoldMessengerSnacker(this._scaffoldMessengerKey);
 
   @override
-  ScaffoldMessengerState? getCurrentState() {
-    return _scaffoldMessengerKey.currentState;
+  void showTextSnack(SnackData data, {AnimationStyle? snackBarAnimationStyle}) {
+    final currentState = _scaffoldMessengerKey.currentState;
+    if (currentState == null) {
+      throw StateError('No `$ScaffoldMessengerState` is available');
+    }
+
+    currentState
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: buildSnackBody(data),
+          duration: data.duration,
+          backgroundColor: getSnackBarBackgroundColor(data.snackType),
+        ),
+        snackBarAnimationStyle: snackBarAnimationStyle,
+      );
   }
 
-  @override
+  @visibleForOverriding
+  Text buildSnackBody(SnackData data) {
+    return Text(
+      data.message,
+      textAlign: data.textAlignment,
+      style: const TextStyle(color: Colors.white),
+    );
+  }
+
+  @visibleForOverriding
   Color getSnackBarBackgroundColor(SnackType type) {
     switch (type) {
       case .INFO:
