@@ -122,6 +122,7 @@ class _StateAwareRootPage extends StatelessWidget {
   final Widget? child;
 
   const _StateAwareRootPage({
+    // ignore: unused_element_parameter
     super.key,
     required this.appConfig,
     required this.state,

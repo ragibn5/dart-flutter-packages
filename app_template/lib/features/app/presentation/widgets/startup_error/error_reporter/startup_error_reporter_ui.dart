@@ -69,7 +69,11 @@ class StartupErrorReporterUi extends StatelessWidget {
 class _SendButton extends StatelessWidget {
   final void Function() onTap;
 
-  const _SendButton({super.key, required this.onTap});
+  const _SendButton({
+    // ignore: unused_element_parameter
+    super.key,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
