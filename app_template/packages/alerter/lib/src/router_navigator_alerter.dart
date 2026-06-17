@@ -65,25 +65,35 @@ class RouterNavigatorAlerter implements Alerter {
       content: buildAlertContent(alertData),
       actionsPadding: getActionsPadding(),
       actions: alertData.actions
-          .map((e) => _buildActionButton(context, e))
+          .map(
+            (e) => buildActionButton(
+              context,
+              e.title,
+              resolveActionHandler(context, e),
+            ),
+          )
           .toList(),
     );
   }
 
-  Widget _buildActionButton<T>(BuildContext context, AlertAction<T> action) {
+  /// Resolves an [AlertAction] into its pop callback.
+  /// Consumers can use this when building custom dialogs:
+  /// ```dart
+  /// TextButton(
+  ///   onPressed: resolveActionHandler(context, action),
+  ///   child: Text(action.title),
+  /// )
+  /// ```
+  @visibleForOverriding
+  void Function() resolveActionHandler<T>(
+    BuildContext context,
+    AlertAction<T> action,
+  ) {
     switch (action) {
       case CloseAction():
-        return buildActionButton(
-          context,
-          action.title,
-          () => _tryPop(context, action.closingValue),
-        );
+        return () => _tryPop(context, action.closingValue);
       case PromptAction():
-        return buildActionButton(
-          context,
-          action.title,
-          () => _tryPop(context, action.onTap()),
-        );
+        return () => _tryPop(context, action.onTap());
     }
   }
 
