@@ -1,6 +1,6 @@
 # alerter
 
-A top-level alert dialogs presenter.
+A top-level alert dialog presenter.
 
 ## Installation
 

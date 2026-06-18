@@ -1,5 +1,5 @@
 name: alerter
-description: A top-level alert dialogs presenter.
+description: A top-level alert dialog presenter.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
