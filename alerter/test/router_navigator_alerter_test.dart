@@ -15,7 +15,7 @@ void main() {
   });
 
   group('getCurrentContext', () {
-    test('throws StateError when navigator key has no current context', () {
+    test('Throws StateError when navigator key has no current context', () {
       when(() => mockNavigatorKey.currentContext).thenReturn(null);
 
       expect(

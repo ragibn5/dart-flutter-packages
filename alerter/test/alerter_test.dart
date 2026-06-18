@@ -63,7 +63,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('showTextAlert', () {
-    testWidgets('throws StateError when no context is available', (
+    testWidgets('Throws StateError when no context is available', (
       tester,
     ) async {
       final alerter = _TestAlerter();
@@ -77,7 +77,7 @@ void main() {
       );
     });
 
-    testWidgets('displays default AlertDialog with all components', (
+    testWidgets('Displays default AlertDialog with all components', (
       tester,
     ) async {
       final alerter = _TestAlerter();
@@ -114,7 +114,7 @@ void main() {
       expect(find.text('Continue'), findsOneWidget);
     });
 
-    testWidgets('tapping CloseAction dismisses the dialog', (tester) async {
+    testWidgets('Tapping CloseAction dismisses the dialog', (tester) async {
       final alerter = _TestAlerter();
       final data = AlertData.error(title: 'Title', message: 'Message');
       final actions = [CloseAction<Never>(title: 'Dismiss')];
@@ -180,7 +180,7 @@ void main() {
     });
   });
 
-  group('alert type icons', () {
+  group('Alert type icons', () {
     testWidgets('INFO shows info icon', (tester) async {
       final alerter = _TestAlerter();
       final data = AlertData.info(title: 'Info', message: 'Message');
@@ -302,7 +302,7 @@ void main() {
     });
   });
 
-  group('component overrides', () {
+  group('Component overrides', () {
     testWidgets('buildAlertTitle override replaces title widget', (
       tester,
     ) async {
@@ -411,7 +411,7 @@ void main() {
     });
   });
 
-  group('full dialog override', () {
+  group('Full dialog override', () {
     testWidgets('buildAlertDialog override replaces entire dialog', (
       tester,
     ) async {

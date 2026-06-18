@@ -12,7 +12,7 @@ class RouterNavigatorAlerter extends Alerter {
     if (context == null) {
       throw StateError(
         'Invalid navigator state, '
-        'make sure you are using the same navigator key in your app',
+        'make sure you are using the same navigator key in your app.',
       );
     }
 
