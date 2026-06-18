@@ -27,7 +27,9 @@ migrate_working_dir/
 **/doc/api/
 .dart_tool/
 .packages
-build/
+.flutter-plugins-dependencies
+/build/
+/coverage/
 
 # FVM Version Cache
 .fvm/
