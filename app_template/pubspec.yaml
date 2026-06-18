@@ -77,7 +77,7 @@ dependencies:
   nav_router:
     path: ../nav_router
   alerter:
-    path: packages/alerter
+    path: ../alerter
   snacker:
     path: packages/snacker
   common_widgets:

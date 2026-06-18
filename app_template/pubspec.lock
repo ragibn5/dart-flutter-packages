@@ -20,10 +20,10 @@ packages:
   alerter:
     dependency: "direct main"
     description:
-      path: "packages/alerter"
+      path: "../alerter"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   analysis_server_core:
     dependency: transitive
     description:
