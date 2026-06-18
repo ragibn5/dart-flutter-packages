@@ -42,10 +42,10 @@ packages:
   analytics:
     dependency: "direct main"
     description:
-      path: "packages/analytics"
+      path: "../analytics"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   analyzer:
     dependency: transitive
     description:
@@ -316,10 +316,10 @@ packages:
   crashlytics:
     dependency: "direct main"
     description:
-      path: "packages/crashlytics"
+      path: "../crashlytics"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   crypto:
     dependency: transitive
     description:

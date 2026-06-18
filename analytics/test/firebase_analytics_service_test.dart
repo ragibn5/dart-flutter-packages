@@ -19,7 +19,8 @@ void main() {
 
   setUp(() {
     mockFirebaseAnalytics = _MockFirebaseAnalytics();
-    sut = FirebaseAnalyticsService.test(mockFirebaseAnalytics);
+
+    sut = FirebaseAnalyticsService(mockFirebaseAnalytics);
 
     when(
       () => mockFirebaseAnalytics.setUserId(id: any(named: 'id')),

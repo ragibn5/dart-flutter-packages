@@ -87,9 +87,9 @@ dependencies:
   file_store:
     path: ../file_store
   analytics:
-    path: packages/analytics
+    path: ../analytics
   crashlytics:
-    path: packages/crashlytics
+    path: ../crashlytics
 
   # In-house packages
   string_extensions:

@@ -5,13 +5,7 @@ import 'package:flutter/foundation.dart';
 class FirebaseCrashlyticsService extends CrashlyticsService {
   final FirebaseCrashlytics _crashlytics;
 
-  FirebaseCrashlyticsService() : this._(FirebaseCrashlytics.instance);
-
-  FirebaseCrashlyticsService._(this._crashlytics);
-
-  @visibleForTesting
-  FirebaseCrashlyticsService.test(FirebaseCrashlytics crashlytics)
-    : this._(crashlytics);
+  FirebaseCrashlyticsService(this._crashlytics);
 
   @override
   Future<void> initialize() async {

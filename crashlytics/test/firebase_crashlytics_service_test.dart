@@ -31,7 +31,7 @@ void main() {
   setUp(() {
     mockFirebaseCrashlytics = _MockFirebaseCrashlytics();
 
-    sut = FirebaseCrashlyticsService.test(mockFirebaseCrashlytics);
+    sut = FirebaseCrashlyticsService(mockFirebaseCrashlytics);
 
     when(
       () => mockFirebaseCrashlytics.recordFlutterFatalError(any()),

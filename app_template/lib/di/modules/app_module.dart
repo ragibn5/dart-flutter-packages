@@ -25,6 +25,8 @@ import 'package:app_template/features/settings/application/services/settings_ser
 import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:dlogger/dlogger.dart' hide Logger;
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
@@ -269,12 +271,12 @@ abstract class AppModule {
 
   @singleton
   AnalyticsService getAnalyticsService() {
-    return const AnalyticsServiceFactory().create();
+    return FirebaseAnalyticsService(FirebaseAnalytics.instance);
   }
 
   @singleton
   CrashlyticsService getCrashlyticsService() {
-    return const CrashlyticsServiceFactory().create();
+    return FirebaseCrashlyticsService(FirebaseCrashlytics.instance);
   }
 
   @singleton

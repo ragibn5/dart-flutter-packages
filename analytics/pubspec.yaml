@@ -1,0 +1,34 @@
+name: analytics
+description: A reusable analytics service.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analytics
+
+# This prevents you from accidentally publish to pub.dev
+publish_to: 'none'
+
+# Library version
+version: 0.0.1
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.11.0
+
+# Regular dependencies
+# (Bundled in executable artifact)
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_analytics: ^11.4.5
+  initializable:
+    path: ../initializable
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  lints: ^3.0.0
+  very_good_analysis: ^5.1.0
