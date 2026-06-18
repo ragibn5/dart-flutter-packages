@@ -1239,10 +1239,10 @@ packages:
   snacker:
     dependency: "direct main"
     description:
-      path: "packages/snacker"
+      path: "../snacker"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   source_gen:
     dependency: transitive
     description:

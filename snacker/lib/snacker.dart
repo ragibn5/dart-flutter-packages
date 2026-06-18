@@ -1,4 +1,4 @@
-/// A top-level snack bar presenter
+/// A top-level snack bar presenter.
 library;
 
 export 'src/enums/snack_type.dart';
