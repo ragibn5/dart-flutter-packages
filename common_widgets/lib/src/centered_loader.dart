@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CommonLoaderScreen extends StatelessWidget {
-  const CommonLoaderScreen({super.key});
+class CenteredLoader extends StatelessWidget {
+  const CenteredLoader({super.key});
 
   @override
   Widget build(BuildContext context) {

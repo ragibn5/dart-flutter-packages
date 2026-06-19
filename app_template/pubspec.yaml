@@ -81,7 +81,7 @@ dependencies:
   snacker:
     path: ../snacker
   common_widgets:
-    path: packages/common_widgets
+    path: ../common_widgets
   sqlite_db:
     path: ../sqlite_db
   file_store:
