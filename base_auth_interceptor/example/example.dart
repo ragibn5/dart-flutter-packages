@@ -1,13 +1,18 @@
 import 'package:base_auth_interceptor/base_auth_interceptor.dart';
+import 'package:net_kit/net_kit.dart';
 
 class AppAuthInterceptor extends BaseAuthInterceptor<String> {
   @override
   Future<String?> getAuthData() async => 'my-token';
 
   @override
-  Future<RequestSpec> transformRequestWithAuthData(RequestSpec request,
-      String authData,) async =>
-      request.addHeader('Authorization', 'Bearer ${authData}');
+  Future<RequestSpec> transformRequestWithAuthData(
+    RequestSpec request,
+    String authData,
+  ) async {
+    request.headers.addAll({'Authorization': 'Bearer $authData'});
+    return request;
+  }
 
   @override
   bool didServerReportAuthError(RawResponse response) =>
@@ -20,7 +25,17 @@ class AppAuthInterceptor extends BaseAuthInterceptor<String> {
   Future<String?> requestAuthDataRefresh(String oldAuthData) async => null;
 
   @override
-  Future<ApiCallResult> retryRequest(RequestSpec request,
-      String refreshedAuthData,) async =>
-      ApiCallResult(data: '', statusCode: 200);
+  Future<ApiCallResult> retryRequest(
+    RequestSpec request,
+    String refreshedAuthData,
+  ) async =>
+      ApiCallResult.success(
+        NetKitResponse(
+          isError: false,
+          statusCode: 200,
+          data: '',
+          headers: {},
+          requestSpec: request,
+        ),
+      );
 }
