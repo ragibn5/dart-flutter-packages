@@ -15,8 +15,6 @@ class RootRedirectRouteGuard implements RouteGuard {
     RouteContext next,
   ) async {
     final currentAuthData = await _authDataService.getCurrentAuthData();
-    final isOnLogin = current.info.name == AppRoute.LOGIN.routeInfo.name;
-
     if (currentAuthData == null) {
       return RedirectNavigation(RouteContext(info: AppRoute.LOGIN.routeInfo));
     } else {

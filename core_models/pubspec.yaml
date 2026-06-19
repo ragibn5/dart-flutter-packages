@@ -17,7 +17,7 @@ environment:
 
 # Regular dependencies
 dependencies:
-  equatable: ^2.0.8
+  # path: any
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

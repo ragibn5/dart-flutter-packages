@@ -38,7 +38,7 @@ generation utilities, and architectural support.
 - [`parser`](parser)
 - [`json_parser`](json_parser)
 - [`json_parser_annotations`](json_parser/json_parser_annotations)
-- [`json_parser_analyzer_`](json_parser/json_parser_analyzer)
+- [`json_parser_analyzer`](json_parser/json_parser_analyzer)
 - [`json_parser_generator`](json_parser/json_parser_generator)
 - [`file_store`](file_store)
 - [`json_converters`](json_converters)
@@ -50,6 +50,9 @@ generation utilities, and architectural support.
 - [`radio_group`](radio_group)
 - [`selection_group`](selection_group)
 - [`menu`](menu)
+- [`alerter`](alerter)
+- [`snacker`](snacker)
+- [`common_widgets`](common_widgets)
 - [`clean_arch_lint`](clean_arch_lint)
 
 ---
@@ -60,6 +63,8 @@ Top-level integration or reference implementation packages that may depend on mu
 intermediate packages.
 
 - [`app_template`](app_template)
+- [`analytics`](analytics)
+- [`crashlytics`](crashlytics)
 
 ---
 

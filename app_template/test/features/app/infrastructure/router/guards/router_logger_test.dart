@@ -9,8 +9,8 @@ void main() {
   test('Should return ContinueNavigation and not throw', () async {
     final sut = RouterLogger();
     final context = _FakeBuildContext();
-    final current = RouteContext(info: const RouteInfo('current', '/current'));
-    final next = RouteContext(info: const RouteInfo('next', '/next'));
+    const current = RouteContext(info: RouteInfo('current', '/current'));
+    const next = RouteContext(info: RouteInfo('next', '/next'));
 
     final result = await sut.onNavigationRequest(context, current, next);
 

@@ -54,6 +54,12 @@ dependencies:
   go_router: ^17.3.0
 
   # App-private packages
+  shared_models:
+    path: packages/shared_models
+  app_logger:
+    path: packages/app_logger
+
+  # In-house packages
   initializable:
     path: ../initializable
   disposable:
@@ -64,42 +70,34 @@ dependencies:
     path: ../mutex
   data_domain_converters:
     path: ../data_domain_converters
-  base_auth_interceptor:
-    path: ../base_auth_interceptor
-  feature_api_client:
-    path: ../feature_api_client
   json_converters:
     path: ../json_converters
-  app_logger:
-    path: packages/logger
+  string_extensions:
+    path: ../string_extensions
+  datetime_utils:
+    path: ../datetime_utils
   preference_store:
     path: ../preference_store
-  nav_router:
-    path: ../nav_router
-  alerter:
-    path: packages/alerter
-  snacker:
-    path: packages/snacker
-  common_widgets:
-    path: packages/common_widgets
   sqlite_db:
     path: ../sqlite_db
   file_store:
     path: ../file_store
   analytics:
-    path: packages/analytics
+    path: ../analytics
   crashlytics:
-    path: packages/crashlytics
-
-  # In-house packages
-  string_extensions:
-    path: ../string_extensions
-  datetime_utils:
-    path: ../datetime_utils
-  dlogger:
-    path: ../dlogger
-  net_kit:
-    path: ../net_kit
+    path: ../crashlytics
+  base_auth_interceptor:
+    path: ../base_auth_interceptor
+  feature_api_client:
+    path: ../feature_api_client
+  nav_router:
+    path: ../nav_router
+  alerter:
+    path: ../alerter
+  snacker:
+    path: ../snacker
+  common_widgets:
+    path: ../common_widgets
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

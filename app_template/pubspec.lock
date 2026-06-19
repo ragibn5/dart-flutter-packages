@@ -20,10 +20,10 @@ packages:
   alerter:
     dependency: "direct main"
     description:
-      path: "packages/alerter"
+      path: "../alerter"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   analysis_server_core:
     dependency: transitive
     description:
@@ -42,10 +42,10 @@ packages:
   analytics:
     dependency: "direct main"
     description:
-      path: "packages/analytics"
+      path: "../analytics"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   analyzer:
     dependency: transitive
     description:
@@ -81,7 +81,7 @@ packages:
   app_logger:
     dependency: "direct main"
     description:
-      path: "packages/logger"
+      path: "packages/app_logger"
       relative: true
     source: path
     version: "0.0.0"
@@ -286,10 +286,10 @@ packages:
   common_widgets:
     dependency: "direct main"
     description:
-      path: "packages/common_widgets"
+      path: "../common_widgets"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   convert:
     dependency: transitive
     description:
@@ -316,10 +316,10 @@ packages:
   crashlytics:
     dependency: "direct main"
     description:
-      path: "packages/crashlytics"
+      path: "../crashlytics"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   crypto:
     dependency: transitive
     description:
@@ -398,7 +398,7 @@ packages:
     source: path
     version: "0.0.1"
   dlogger:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "../dlogger"
       relative: true
@@ -930,7 +930,7 @@ packages:
     source: hosted
     version: "1.0.0"
   net_kit:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "../net_kit"
       relative: true
@@ -1143,6 +1143,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  shared_models:
+    dependency: "direct main"
+    description:
+      path: "packages/shared_models"
+      relative: true
+    source: path
+    version: "0.0.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1239,10 +1246,10 @@ packages:
   snacker:
     dependency: "direct main"
     description:
-      path: "packages/snacker"
+      path: "../snacker"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "0.0.1"
   source_gen:
     dependency: transitive
     description:
