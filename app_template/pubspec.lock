@@ -398,7 +398,7 @@ packages:
     source: path
     version: "0.0.1"
   dlogger:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "../dlogger"
       relative: true
@@ -930,7 +930,7 @@ packages:
     source: hosted
     version: "1.0.0"
   net_kit:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "../net_kit"
       relative: true
