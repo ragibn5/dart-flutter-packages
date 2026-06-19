@@ -8,5 +8,6 @@ class AppLoggerFactory {
   AppLogger create({
     required Map<String, Logger> loggers,
     List<LogFilter> filters = const [],
-  }) => AppLoggerImpl(filters, loggers);
+  }) =>
+      AppLoggerImpl(filters, loggers);
 }

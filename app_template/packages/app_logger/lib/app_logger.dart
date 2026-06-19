@@ -1,4 +1,4 @@
-/// A reusable logging service.
+/// A reusable logging service for the host app.
 library;
 
 export 'src/app_logger.dart';

@@ -1,5 +1,5 @@
 name: app_logger
-description: A reusable logging service.
+description: A reusable logging service for the host app.
 
 publish_to: none
 

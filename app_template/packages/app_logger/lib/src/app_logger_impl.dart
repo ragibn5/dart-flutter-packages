@@ -6,7 +6,7 @@ class AppLoggerImpl implements AppLogger {
   final CompositeLogger _compositeLogger;
 
   AppLoggerImpl(List<LogFilter> filters, Map<String, Logger> loggers)
-    : this._(CompositeLogger(loggers, filters));
+      : this._(CompositeLogger(loggers, filters));
 
   @visibleForTesting
   AppLoggerImpl.test(CompositeLogger compositeLogger) : this._(compositeLogger);
@@ -20,7 +20,8 @@ class AppLoggerImpl implements AppLogger {
     Object? error,
     StackTrace? stackTrace,
     Map<String, dynamic>? extras,
-  }) => _log(LogLevel.DEBUG, tag, message, error, stackTrace, extras);
+  }) =>
+      _log(LogLevel.DEBUG, tag, message, error, stackTrace, extras);
 
   @override
   void logInfo({
@@ -29,7 +30,8 @@ class AppLoggerImpl implements AppLogger {
     Object? error,
     StackTrace? stackTrace,
     Map<String, dynamic>? extras,
-  }) => _log(LogLevel.INFO, tag, message, error, stackTrace, extras);
+  }) =>
+      _log(LogLevel.INFO, tag, message, error, stackTrace, extras);
 
   @override
   void logWarning({
@@ -38,7 +40,8 @@ class AppLoggerImpl implements AppLogger {
     Object? error,
     StackTrace? stackTrace,
     Map<String, dynamic>? extras,
-  }) => _log(LogLevel.WARNING, tag, message, error, stackTrace, extras);
+  }) =>
+      _log(LogLevel.WARNING, tag, message, error, stackTrace, extras);
 
   @override
   void logError({
@@ -47,7 +50,8 @@ class AppLoggerImpl implements AppLogger {
     Object? error,
     StackTrace? stackTrace,
     Map<String, dynamic>? extras,
-  }) => _log(LogLevel.ERROR, tag, message, error, stackTrace, extras);
+  }) =>
+      _log(LogLevel.ERROR, tag, message, error, stackTrace, extras);
 
   void _log(
     LogLevel level,

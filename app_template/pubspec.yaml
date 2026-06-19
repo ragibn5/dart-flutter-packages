@@ -60,6 +60,8 @@ dependencies:
     path: ../disposable
   core_models:
     path: ../core_models
+  shared_models:
+    path: packages/shared_models
   mutex:
     path: ../mutex
   data_domain_converters:
@@ -71,7 +73,7 @@ dependencies:
   json_converters:
     path: ../json_converters
   app_logger:
-    path: packages/logger
+    path: packages/app_logger
   preference_store:
     path: ../preference_store
   nav_router:

@@ -81,7 +81,7 @@ packages:
   app_logger:
     dependency: "direct main"
     description:
-      path: "packages/logger"
+      path: "packages/app_logger"
       relative: true
     source: path
     version: "0.0.0"
@@ -1143,6 +1143,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  shared_models:
+    dependency: "direct main"
+    description:
+      path: "packages/shared_models"
+      relative: true
+    source: path
+    version: "0.0.0"
   shared_preferences:
     dependency: "direct main"
     description:

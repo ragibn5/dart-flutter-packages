@@ -4,6 +4,7 @@ import 'package:app_template/features/auth/data/models/token_refresh_request.dar
 import 'package:core_models/core_models.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
+import 'package:shared_models/shared_models.dart';
 
 class AppServerTokenRefreshApiClientImpl
     extends AppServerTokenRefreshApiClient {

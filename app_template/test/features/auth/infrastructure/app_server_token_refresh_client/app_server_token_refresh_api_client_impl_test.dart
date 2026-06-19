@@ -7,6 +7,7 @@ import 'package:core_models/core_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
+import 'package:shared_models/shared_models.dart';
 
 class _MockNetClient extends Mock implements NetClient {}
 
