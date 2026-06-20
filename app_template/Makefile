@@ -8,11 +8,14 @@ test:
 coverage:
 	@bash scripts/coverage.sh
 
-.PHONY: opencvrg
-opencvrg:
+.PHONY: open_coverage
+open_coverage:
 	@if [[ "$$OSTYPE" == "darwin"* ]]; then \
 		open coverage/html/index.html; \
 	else \
 		echo "Could not open coverage report."; \
 		echo "May be you want to add support for opening the report for your current OS."; \
 	fi
+
+.PHONY: run_and_open_coverage
+run_and_open_coverage: coverage open_coverage
