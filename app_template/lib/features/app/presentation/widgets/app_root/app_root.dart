@@ -1,5 +1,5 @@
 import 'package:app_template/features/app/infrastructure/models/app_config.dart';
-import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
+import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_loader/startup_loader_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';

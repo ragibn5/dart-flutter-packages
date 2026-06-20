@@ -9,7 +9,7 @@ import 'package:app_template/features/settings/data/sources/settings_data_source
 import 'package:app_template/features/settings/data/sources/settings_data_source_impl.dart';
 import 'package:app_template/features/settings/domain/models/app_settings.dart';
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart';
-import 'package:app_template/features/settings/infrastructures/services/platform_settings_provider_impl.dart';
+import 'package:app_template/features/settings/infrastructure/services/platform_settings_provider_impl.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:injectable/injectable.dart';
 import 'package:preference_store/preference_store.dart';

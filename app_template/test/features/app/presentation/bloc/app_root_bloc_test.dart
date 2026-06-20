@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/services/app_initializer_service.dart';
 import 'package:app_template/features/app/application/services/session_initializer_service.dart';
-import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart';
+import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';

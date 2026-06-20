@@ -30,7 +30,7 @@ import 'package:app_template/features/app/infrastructure/services/app_config_fac
     as _i803;
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart'
     as _i291;
-import 'package:app_template/features/app/presentation/widgets/app_root/app_root_bloc.dart'
+import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart'
     as _i625;
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart'
     as _i524;

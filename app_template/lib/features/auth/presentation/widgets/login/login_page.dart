@@ -9,16 +9,16 @@ import 'package:app_template/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   final void Function() onLoginComplete;
 
-  const LoginScreen({super.key, required this.onLoginComplete});
+  const LoginPage({super.key, required this.onLoginComplete});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginPageState extends State<LoginPage> {
   final _usernameFieldController = TextEditingController();
 
   @override
