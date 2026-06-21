@@ -44,11 +44,11 @@ abstract class AuthModule {
     RemoteAuthDataSource remoteAuthDataSource,
   ) {
     return AuthDataRepositoryImpl(
+      StreamController.broadcast(),
       authDataMapper,
       authRefreshErrorMapper,
       localAuthDataSource,
       remoteAuthDataSource,
-      StreamController.broadcast(),
     );
   }
 

@@ -5,12 +5,7 @@ import 'package:flutter/widgets.dart';
 class PlatformSettingsProviderImpl implements PlatformSettingsProvider {
   final WidgetsBinding _binding;
 
-  PlatformSettingsProviderImpl() : this._(WidgetsBinding.instance);
-
-  @visibleForTesting
-  PlatformSettingsProviderImpl.test(WidgetsBinding binding) : this._(binding);
-
-  PlatformSettingsProviderImpl._(this._binding);
+  PlatformSettingsProviderImpl(this._binding);
 
   @override
   LocaleComponents getSystemaLocale() {

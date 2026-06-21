@@ -16,6 +16,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_models/shared_models.dart';
 
+class _MockAuthDataStreamController extends Mock
+    implements StreamController<AuthData?> {}
+
 class _MockAuthDataMapper extends Mock implements AuthDataMapper {}
 
 class _MockAuthDataRefreshErrorMapper extends Mock
@@ -59,11 +62,12 @@ void main() {
     refreshTokenExpiry: refreshedAuthDataDTO.refreshTokenExpiry,
   );
   const serverMessage = ServerMessage(code: 'refresh_token_expired');
+  const authDataStream = Stream<AuthData?>.empty();
   final authRefreshDomainError = InvalidRefreshToken();
 
+  late StreamController<AuthData?> mockAuthDataStreamController;
   late AuthDataMapper mockAuthDataMapper;
   late AuthRefreshErrorMapper mockAuthDataRefreshErrorMapper;
-  late StreamController<AuthData?> authDataStreamController;
   late LocalAuthDataSource mockLocalAuthDataSource;
   late RemoteAuthDataSource mockRemoteAuthDataSource;
 
@@ -77,20 +81,24 @@ void main() {
   });
 
   setUp(() {
+    mockAuthDataStreamController = _MockAuthDataStreamController();
     mockAuthDataMapper = _MockAuthDataMapper();
     mockAuthDataRefreshErrorMapper = _MockAuthDataRefreshErrorMapper();
-    authDataStreamController = StreamController.broadcast();
     mockLocalAuthDataSource = _MockLocalAuthDataDataSource();
     mockRemoteAuthDataSource = _MockRemoteAuthDataDataSource();
 
     sut = AuthDataRepositoryImpl(
+      mockAuthDataStreamController,
       mockAuthDataMapper,
       mockAuthDataRefreshErrorMapper,
       mockLocalAuthDataSource,
       mockRemoteAuthDataSource,
-      authDataStreamController,
     );
 
+    when(
+      () => mockAuthDataStreamController.stream,
+    ).thenAnswer((_) => authDataStream);
+    when(() => mockAuthDataStreamController.close()).thenAnswer((_) async {});
     when(
       () => mockAuthDataMapper.convertDataToDomain(authDataDTO),
     ).thenAnswer((_) => authData);
@@ -276,12 +284,12 @@ void main() {
   test('getAuthDataStream should return the auth data stream', () async {
     final result = sut.getAuthDataStream();
 
-    expect(result, authDataStreamController.stream);
+    expect(result, authDataStream);
   });
 
   test('Dispose should close the auth data stream', () async {
     sut.dispose();
 
-    expect(authDataStreamController.isClosed, true);
+    verify(() => mockAuthDataStreamController.close()).called(1);
   });
 }

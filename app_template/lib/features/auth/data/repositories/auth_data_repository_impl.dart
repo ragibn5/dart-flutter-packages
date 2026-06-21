@@ -11,19 +11,20 @@ import 'package:app_template/features/auth/domain/repositories/auth_data_reposit
 import 'package:core_models/core_models.dart';
 
 class AuthDataRepositoryImpl implements AuthDataRepository {
+  final StreamController<AuthData?> _authDataStreamController;
+
   final AuthDataMapper _authDataMapper;
   final AuthRefreshErrorMapper _authRefreshErrorMapper;
-  final StreamController<AuthData?> _authDataStreamController;
 
   final LocalAuthDataSource _localAuthDataSource;
   final RemoteAuthDataSource _remoteAuthDataSource;
 
   AuthDataRepositoryImpl(
+    this._authDataStreamController,
     this._authDataMapper,
     this._authRefreshErrorMapper,
     this._localAuthDataSource,
     this._remoteAuthDataSource,
-    this._authDataStreamController,
   );
 
   @override

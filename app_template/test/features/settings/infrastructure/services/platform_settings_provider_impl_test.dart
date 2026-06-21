@@ -38,7 +38,7 @@ void main() {
     mockWidgetBinding = _MockWidgetBinding();
     mockPlatformDispatcher = _MockPlatformDispatcher();
 
-    platformSettingsProviderImpl = PlatformSettingsProviderImpl.test(
+    platformSettingsProviderImpl = PlatformSettingsProviderImpl(
       mockWidgetBinding,
     );
 

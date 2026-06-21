@@ -103,8 +103,9 @@ void main() {
   test(
     'watchAuthData should return the auth data stream from the repository',
     () async {
-      sut.watchAuthData();
+      final stream = sut.watchAuthData();
 
+      expect(stream, same(authDataStream));
       verify(() => mockAuthDataRepository.getAuthDataStream()).called(1);
     },
   );

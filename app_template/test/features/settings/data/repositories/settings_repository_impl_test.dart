@@ -10,21 +10,21 @@ import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockSettingsConverter extends Mock
-    implements DataDomainConverter<SettingsDTO, AppSettings> {}
-
 class _MockSettingsStreamController extends Mock
     implements StreamController<AppSettings> {}
+
+class _MockSettingsConverter extends Mock
+    implements DataDomainConverter<SettingsDTO, AppSettings> {}
 
 class _MockSettingsDataSource extends Mock implements SettingsDataSource {}
 
 void main() {
   const settingsDto = SettingsDTO(locale: .EN, themeMode: .LIGHT);
-
   const settings = AppSettings(locale: .EN, themeMode: .LIGHT);
+  const settingsStream = Stream<AppSettings>.empty();
 
-  late _MockSettingsConverter mockSettingsConverter;
   late _MockSettingsStreamController mockSettingsStreamController;
+  late _MockSettingsConverter mockSettingsConverter;
   late _MockSettingsDataSource mockSettingsDataSource;
 
   late SettingsRepositoryImpl sut;
@@ -35,16 +35,20 @@ void main() {
   });
 
   setUp(() {
-    mockSettingsConverter = _MockSettingsConverter();
     mockSettingsStreamController = _MockSettingsStreamController();
+    mockSettingsConverter = _MockSettingsConverter();
     mockSettingsDataSource = _MockSettingsDataSource();
 
-    sut = SettingsRepositoryImpl.test(
-      mockSettingsConverter,
+    sut = SettingsRepositoryImpl(
       mockSettingsStreamController,
+      mockSettingsConverter,
       mockSettingsDataSource,
     );
 
+    when(
+      () => mockSettingsStreamController.stream,
+    ).thenAnswer((_) => settingsStream);
+    when(() => mockSettingsStreamController.close()).thenAnswer((_) async {});
     when(
       () => mockSettingsConverter.convertDataToDomain(settingsDto),
     ).thenReturn(settings);
@@ -52,9 +56,6 @@ void main() {
       () => mockSettingsConverter.convertDomainToData(settings),
     ).thenReturn(settingsDto);
     when(() => mockSettingsStreamController.add(any())).thenAnswer((_) {});
-    when(
-      () => mockSettingsStreamController.close(),
-    ).thenAnswer((_) async => null);
     when(
       () => mockSettingsDataSource.getCurrentSettings(),
     ).thenAnswer((_) async => settingsDto);
@@ -100,6 +101,15 @@ void main() {
       verify(
         () => mockSettingsDataSource.setCurrentSettings(settingsDto),
       ).called(1);
+    },
+  );
+
+  test(
+    '`getSettingsStream` should return a stream from the stream controller',
+    () async {
+      final result = sut.getSettingsStream();
+
+      expect(result, settingsStream);
     },
   );
 
