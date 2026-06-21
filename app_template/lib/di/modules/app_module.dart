@@ -22,7 +22,7 @@ import 'package:app_template/features/auth/data/clients/app_server_token_refresh
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
-import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
+import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:dlogger/dlogger.dart' hide Logger;
 import 'package:firebase_analytics/firebase_analytics.dart';

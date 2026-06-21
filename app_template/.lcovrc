@@ -24,6 +24,9 @@ exclude = lib/main_*.dart
 # Models (data objects)
 exclude = lib/**/models/**
 
+# Constants
+exclude = lib/**/constants
+
 # UI (widget tests not considered)
 exclude = lib/**/presentation/widgets/**
 

@@ -29,6 +29,9 @@ if command -v lcov &>/dev/null; then
     # Models (data objects)
     'lib/**/models/**'
 
+    # Constants
+    'lib/**/constants'
+
     # UI (widget tests not considered)
     'lib/**/presentation/widgets/**'
 
