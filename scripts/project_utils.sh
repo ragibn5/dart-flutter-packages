@@ -7,6 +7,6 @@ find_project_root() {
     dir="$(dirname "$dir")"
   done
 
-  echo "Error: could not find project root from $PWD" >&2
+  echo "Error: could not find project root from $PWD." >&2
   return 1
 }

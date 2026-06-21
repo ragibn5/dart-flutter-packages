@@ -21,5 +21,5 @@ view-coverage: run-tests-with-coverage process-coverage-data
 	@if [[ "$$OSTYPE" == "darwin"* ]]; then \
 		open coverage/html/index.html; \
 	else \
-		echo "Coverage report at coverage/html/index.html"; \
+		echo "Coverage report at coverage/html/index.html."; \
 	fi
