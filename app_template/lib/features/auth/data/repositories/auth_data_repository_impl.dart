@@ -9,51 +9,21 @@ import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 import 'package:core_models/core_models.dart';
-import 'package:meta/meta.dart';
 
 class AuthDataRepositoryImpl implements AuthDataRepository {
   final AuthDataMapper _authDataMapper;
   final AuthRefreshErrorMapper _authRefreshErrorMapper;
-
   final StreamController<AuthData?> _authDataStreamController;
 
   final LocalAuthDataSource _localAuthDataSource;
   final RemoteAuthDataSource _remoteAuthDataSource;
 
   AuthDataRepositoryImpl(
-    AuthDataMapper authDataMapper,
-    AuthRefreshErrorMapper authDataRefreshErrorMapper,
-    LocalAuthDataSource localAuthDataSource,
-    RemoteAuthDataSource remoteAuthDataSource,
-  ) : this._(
-        authDataMapper,
-        authDataRefreshErrorMapper,
-        StreamController.broadcast(),
-        localAuthDataSource,
-        remoteAuthDataSource,
-      );
-
-  @visibleForTesting
-  AuthDataRepositoryImpl.test(
-    AuthDataMapper authDataMapper,
-    AuthRefreshErrorMapper authDataRefreshErrorMapper,
-    StreamController<AuthData?> authDataStreamController,
-    LocalAuthDataSource localAuthDataSource,
-    RemoteAuthDataSource remoteAuthDataSource,
-  ) : this._(
-        authDataMapper,
-        authDataRefreshErrorMapper,
-        authDataStreamController,
-        localAuthDataSource,
-        remoteAuthDataSource,
-      );
-
-  AuthDataRepositoryImpl._(
     this._authDataMapper,
     this._authRefreshErrorMapper,
-    this._authDataStreamController,
     this._localAuthDataSource,
     this._remoteAuthDataSource,
+    this._authDataStreamController,
   );
 
   @override

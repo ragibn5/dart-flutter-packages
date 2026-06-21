@@ -99,8 +99,9 @@ void main() {
     await themeController.close();
     await authController.close();
   });
+
   blocTest<AppRootBloc, AppRootState>(
-    'emits [InProgress -> Success] on AppInitializationRequested',
+    'Emits [InProgress -> Success] on AppInitializationRequested',
     build: () => bloc,
     act: (bloc) => bloc.add(AppInitializationRequested()),
     wait: const Duration(milliseconds: 100),
@@ -117,7 +118,7 @@ void main() {
   );
 
   blocTest<AppRootBloc, AppRootState>(
-    'starts listening for global events on AppInitializationRequested',
+    'Starts listening for global events on AppInitializationRequested',
     build: () => bloc,
     act: (bloc) => bloc.add(AppInitializationRequested()),
     wait: const Duration(milliseconds: 100),
@@ -129,7 +130,7 @@ void main() {
   );
 
   blocTest<AppRootBloc, AppRootState>(
-    'emits AppInitializationError when app initializer throws',
+    'Emits AppInitializationError when app initializer throws',
     build: () {
       when(
         () => appInitializerService.initialize(),
@@ -145,7 +146,7 @@ void main() {
   );
 
   blocTest<AppRootBloc, AppRootState>(
-    're-initializes session when auth stream emits new value',
+    'Re-initializes session when auth stream emits new value',
     build: () {
       when(
         () => sessionInitializerService.initialize(),
@@ -174,19 +175,28 @@ void main() {
   );
 
   blocTest<AppRootBloc, AppRootState>(
-    'updates locale when locale stream emits a value after init success',
+    'Does not update locale when locale stream emits a value and state is not AppInitializationSuccess',
+    build: () => bloc,
+    act: (_) => localeController.add(.AR),
+    expect: () => <AppRootState>[],
+  );
+
+  blocTest<AppRootBloc, AppRootState>(
+    'Updates locale when locale stream emits a value after init success',
     build: () => bloc,
     act: (bloc) async {
       bloc.add(AppInitializationRequested());
       await Future<dynamic>.delayed(const Duration(milliseconds: 50));
-
-      // emit new locale
       localeController.add(.AR);
     },
     wait: const Duration(milliseconds: 100),
     expect: () => [
       isA<AppInitializationInProgress>(),
-      isA<AppInitializationSuccess>(),
+      isA<AppInitializationSuccess>().having(
+        (s) => s.locale,
+        'locale',
+        AppLocale.EN,
+      ),
       isA<AppInitializationSuccess>().having(
         (s) => s.locale,
         'locale',
@@ -196,19 +206,116 @@ void main() {
   );
 
   blocTest<AppRootBloc, AppRootState>(
-    'updates theme when theme stream emits a value after init success',
+    'Does not update theme when theme stream emits a value and state is not AppInitializationSuccess',
+    build: () => bloc,
+    act: (_) => themeController.add(.DARK),
+    expect: () => <AppRootState>[],
+  );
+
+  blocTest<AppRootBloc, AppRootState>(
+    'Updates theme when theme stream emits a value after init success',
     build: () => bloc,
     act: (bloc) async {
       bloc.add(AppInitializationRequested());
       await Future<dynamic>.delayed(const Duration(milliseconds: 50));
-
-      // emit new theme
       themeController.add(.DARK);
     },
     wait: const Duration(milliseconds: 100),
     expect: () => [
       isA<AppInitializationInProgress>(),
-      isA<AppInitializationSuccess>(),
+      isA<AppInitializationSuccess>().having(
+        (s) => s.themeMode,
+        'themeMode',
+        AppThemeMode.LIGHT,
+      ),
+      isA<AppInitializationSuccess>().having(
+        (s) => s.themeMode,
+        'themeMode',
+        AppThemeMode.DARK,
+      ),
+    ],
+  );
+
+  blocTest<AppRootBloc, AppRootState>(
+    'Does not update locale on SystemLocaleChanged if state is not AppInitializationSuccess',
+    build: () => bloc,
+    act: (bloc) => bloc.add(SystemLocaleChanged()),
+    expect: () => <AppRootState>[],
+  );
+
+  blocTest<AppRootBloc, AppRootState>(
+    'Updates locale on SystemLocaleChanged after init success',
+    build: () {
+      var callCount = 0;
+      when(() => appPreferenceService.getEffectiveLocale()).thenAnswer((
+        _,
+      ) async {
+        callCount++;
+        if (callCount == 1) {
+          return AppLocale.EN;
+        } else {
+          return AppLocale.AR;
+        }
+      });
+      return bloc;
+    },
+    act: (bloc) async {
+      bloc.add(AppInitializationRequested());
+      await Future<dynamic>.delayed(const Duration(milliseconds: 50));
+      bloc.add(SystemLocaleChanged());
+    },
+    wait: const Duration(milliseconds: 100),
+    expect: () => [
+      isA<AppInitializationInProgress>(),
+      isA<AppInitializationSuccess>().having(
+        (s) => s.locale,
+        'locale',
+        AppLocale.EN,
+      ),
+      isA<AppInitializationSuccess>().having(
+        (s) => s.locale,
+        'locale',
+        AppLocale.AR,
+      ),
+    ],
+  );
+
+  blocTest<AppRootBloc, AppRootState>(
+    'Does not update theme on SystemBrightnessModeChanged if state is not AppInitializationSuccess',
+    build: () => bloc,
+    act: (bloc) => bloc.add(SystemBrightnessModeChanged()),
+    expect: () => <AppRootState>[],
+  );
+
+  blocTest<AppRootBloc, AppRootState>(
+    'Updates theme mode on SystemBrightnessModeChanged after init success',
+    build: () {
+      var callCount = 0;
+      when(() => appPreferenceService.getEffectiveThemeMode()).thenAnswer((
+        _,
+      ) async {
+        callCount++;
+        if (callCount == 1) {
+          return AppThemeMode.LIGHT;
+        } else {
+          return AppThemeMode.DARK;
+        }
+      });
+      return bloc;
+    },
+    act: (bloc) async {
+      bloc.add(AppInitializationRequested());
+      await Future<dynamic>.delayed(const Duration(milliseconds: 50));
+      bloc.add(SystemBrightnessModeChanged());
+    },
+    wait: const Duration(milliseconds: 100),
+    expect: () => [
+      isA<AppInitializationInProgress>(),
+      isA<AppInitializationSuccess>().having(
+        (s) => s.themeMode,
+        'themeMode',
+        AppThemeMode.LIGHT,
+      ),
       isA<AppInitializationSuccess>().having(
         (s) => s.themeMode,
         'themeMode',

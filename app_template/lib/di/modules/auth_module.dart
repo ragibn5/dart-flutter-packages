@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/data/repositories/auth_data_mapper.dart';
 import 'package:app_template/features/auth/data/repositories/auth_data_repository_impl.dart';
@@ -46,6 +48,7 @@ abstract class AuthModule {
       authRefreshErrorMapper,
       localAuthDataSource,
       remoteAuthDataSource,
+      StreamController.broadcast(),
     );
   }
 

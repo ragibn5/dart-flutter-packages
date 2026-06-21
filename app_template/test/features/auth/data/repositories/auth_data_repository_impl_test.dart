@@ -83,12 +83,12 @@ void main() {
     mockLocalAuthDataSource = _MockLocalAuthDataDataSource();
     mockRemoteAuthDataSource = _MockRemoteAuthDataDataSource();
 
-    sut = AuthDataRepositoryImpl.test(
+    sut = AuthDataRepositoryImpl(
       mockAuthDataMapper,
       mockAuthDataRefreshErrorMapper,
-      authDataStreamController,
       mockLocalAuthDataSource,
       mockRemoteAuthDataSource,
+      authDataStreamController,
     );
 
     when(
