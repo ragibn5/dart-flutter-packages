@@ -350,7 +350,7 @@ void main() {
           instanceName: 'test',
           dispose: any(named: 'dispose'),
         ),
-      ).called(2);
+      ).called(1);
     });
   });
 }
