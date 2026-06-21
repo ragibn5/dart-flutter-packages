@@ -29,9 +29,10 @@ void main() {
     AppSettings appSettings,
     AppThemeMode expected,
   ) async {
+    final settingsStream = Stream.fromIterable([appSettings]);
     when(
       () => mockSettingsRepository.getSettingsStream(),
-    ).thenAnswer((_) => Stream.fromIterable([appSettings]));
+    ).thenAnswer((_) => settingsStream);
 
     final result = sut.watchThemeMode();
     expect(await result.first, expected);
@@ -42,9 +43,10 @@ void main() {
     LocaleComponents systemLocale,
     AppLocale expected,
   ) async {
+    final settingsStream = Stream.fromIterable([appSettings]);
     when(
       () => mockSettingsRepository.getSettingsStream(),
-    ).thenAnswer((_) => Stream.fromIterable([appSettings]));
+    ).thenAnswer((_) => settingsStream);
     when(
       () => mockPlatformSettingsProvider.getSystemaLocale(),
     ).thenAnswer((_) => systemLocale);
@@ -73,6 +75,9 @@ void main() {
     );
 
     when(
+      () => mockSettingsRepository.getCurrentSettings(),
+    ).thenAnswer((_) async => const AppSettings());
+    when(
       () => mockSettingsRepository.setCurrentSettings(any()),
     ).thenAnswer((_) async {});
   });
@@ -85,22 +90,21 @@ void main() {
       ).thenAnswer((_) async => const AppSettings(locale: .EN));
 
       final result = await sut.getEffectiveLocale();
+
       expect(result, AppLocale.EN);
+      verifyNever(() => mockPlatformSettingsProvider.getSystemaLocale());
+      verifyNever(() => mockAppLocaleResolver.resolveLocale(any()));
     },
   );
 
   test(
     'If a locale setting is NOT persisted, and platform locale is supported, `getEffectiveLocale` returns that.',
     () async {
-      const appSettings = AppSettings();
       final localeComponents = LocaleComponents(
         languageCode: AppLocale.AR.languageCode,
         scriptCode: AppLocale.AR.scriptCode,
         countryCode: AppLocale.AR.countryCode,
       );
-      when(
-        () => mockSettingsRepository.getCurrentSettings(),
-      ).thenAnswer((_) async => appSettings);
       when(
         () => mockPlatformSettingsProvider.getSystemaLocale(),
       ).thenAnswer((_) => localeComponents);
@@ -109,6 +113,7 @@ void main() {
       ).thenAnswer((_) => .AR);
 
       final result = await sut.getEffectiveLocale();
+
       expect(result, AppLocale.AR);
     },
   );
@@ -116,11 +121,7 @@ void main() {
   test(
     'If a locale setting is NOT persisted, and platform locale is NOT supported, `getEffectiveLocale` returns EN.',
     () async {
-      const appSettings = AppSettings();
       const localeComponents = LocaleComponents(languageCode: 'fr');
-      when(
-        () => mockSettingsRepository.getCurrentSettings(),
-      ).thenAnswer((_) async => appSettings);
       when(
         () => mockPlatformSettingsProvider.getSystemaLocale(),
       ).thenAnswer((_) => localeComponents);
@@ -141,6 +142,7 @@ void main() {
       ).thenAnswer((_) async => const AppSettings(themeMode: .DARK));
 
       final result = await sut.getEffectiveThemeMode();
+
       expect(result, AppThemeMode.DARK);
     },
   );
@@ -148,11 +150,8 @@ void main() {
   test(
     'If a theme-mode setting is NOT persisted, SYSTEM is returned',
     () async {
-      when(
-        () => mockSettingsRepository.getCurrentSettings(),
-      ).thenAnswer((_) async => const AppSettings());
-
       final result = await sut.getEffectiveThemeMode();
+
       expect(result, AppThemeMode.SYSTEM);
     },
   );
