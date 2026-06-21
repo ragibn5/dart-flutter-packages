@@ -4,18 +4,22 @@ FLUTTER := $(shell command -v fvm 2>/dev/null && echo "fvm flutter" || echo "flu
 test:
 	$(FLUTTER) test --no-test-assets
 
-.PHONY: coverage
-coverage:
-	@bash scripts/coverage.sh
+.PHONY: run-tests-with-coverage
+run-tests-with-coverage:
+	@bash scripts/coverage/run_test_with_coverage.sh
 
-.PHONY: open_coverage
-open_coverage:
+.PHONY: process-coverage-data
+process-coverage-data:
+	@bash scripts/coverage/process_coverage_data.sh
+
+.PHONY: enforce-coverage-threshold
+enforce-coverage-threshold:
+	@bash ../scripts/check_coverage.sh coverage/lcov.info 100
+
+.PHONY: view-coverage
+view-coverage: run-tests-with-coverage process-coverage-data
 	@if [[ "$$OSTYPE" == "darwin"* ]]; then \
 		open coverage/html/index.html; \
 	else \
-		echo "Could not open coverage report."; \
-		echo "May be you want to add support for opening the report for your current OS."; \
+		echo "Coverage report at coverage/html/index.html"; \
 	fi
-
-.PHONY: run_and_open_coverage
-run_and_open_coverage: coverage open_coverage

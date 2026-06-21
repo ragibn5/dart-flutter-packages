@@ -37,9 +37,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y lcov
 
       - name: Run tests with coverage
-        run: make coverage
+        run: make run-tests-with-coverage
 
-      - name: Upload coverage report
+      - name: Process coverage report
+        run: make process-coverage-data
+
+      - name: Upload raw coverage data
         uses: actions/upload-artifact@v4
         with:
           name: coverage-lcov
@@ -51,3 +54,6 @@ jobs:
         with:
           name: coverage-html
           path: app_template/coverage/html/
+
+      - name: Enforce coverage threshold
+        run: make enforce-coverage-threshold
