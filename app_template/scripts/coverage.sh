@@ -39,7 +39,7 @@ if command -v lcov &>/dev/null; then
     'lib/**/*_event.dart'
     'lib/**/*_state.dart'
 
-    # Feature specifics
+    # Feature specifics - [app]
     'lib/features/app/infrastructure/config/**'
   )
 
