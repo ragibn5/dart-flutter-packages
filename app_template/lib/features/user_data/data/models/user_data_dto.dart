@@ -1,4 +1,4 @@
-import 'package:app_template/features/user_data/infrastructure/database/user_data_table_constants.dart';
+import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 

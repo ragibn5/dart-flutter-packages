@@ -1,0 +1,59 @@
+name: app_template CI
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'app_template/**'
+      - '.github/workflows/app_template_ci.yml'
+
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - 'app_template/**'
+      - '.github/workflows/app_template_ci.yml'
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: app_template
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.9
+          cache: true
+
+      - run: dart pub get
+
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
+
+      - name: Run tests with coverage
+        run: make run-tests-with-coverage
+
+      - name: Process coverage report
+        run: make process-coverage-data
+
+      - name: Upload raw coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: app_template/coverage/lcov.info
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-html
+          path: app_template/coverage/html/
+
+      - name: Enforce coverage threshold
+        run: make enforce-coverage-threshold

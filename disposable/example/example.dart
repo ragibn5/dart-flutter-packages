@@ -1,3 +1,5 @@
+// ignore_for_file: cascade_invocations
+
 import 'package:disposable/disposable.dart';
 
 class DatabaseConnection implements Disposable {

@@ -5,28 +5,17 @@ import 'package:app_template/features/settings/data/sources/settings_data_source
 import 'package:app_template/features/settings/domain/models/app_settings.dart';
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
-import 'package:meta/meta.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
-  final DataDomainConverter<SettingsDTO, AppSettings> _settingsMapper;
   final StreamController<AppSettings> _settingsStreamController;
+
+  final DataDomainConverter<SettingsDTO, AppSettings> _settingsMapper;
+
   final SettingsDataSource _settingsDataSource;
 
   SettingsRepositoryImpl(
-    DataDomainConverter<SettingsDTO, AppSettings> settingsMapper,
-    SettingsDataSource settingsDataSource,
-  ) : this._(settingsMapper, StreamController.broadcast(), settingsDataSource);
-
-  @visibleForTesting
-  SettingsRepositoryImpl.test(
-    DataDomainConverter<SettingsDTO, AppSettings> settingsMapper,
-    StreamController<AppSettings> settingsController,
-    SettingsDataSource settingsDataSource,
-  ) : this._(settingsMapper, settingsController, settingsDataSource);
-
-  SettingsRepositoryImpl._(
-    this._settingsMapper,
     this._settingsStreamController,
+    this._settingsMapper,
     this._settingsDataSource,
   );
 
@@ -51,7 +40,9 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  Stream<AppSettings> getSettingsStream() => _settingsStreamController.stream;
+  Stream<AppSettings> getSettingsStream() {
+    return _settingsStreamController.stream;
+  }
 
   @override
   FutureOr<void> dispose() {

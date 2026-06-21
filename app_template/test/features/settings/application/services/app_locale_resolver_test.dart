@@ -9,26 +9,65 @@ import 'package:mocktail/mocktail.dart';
 void main() {
   const localeComponents = LocaleComponents(languageCode: 'en');
 
-  late AppLocaleResolver appLocaleResolver;
+  late AppLocaleResolver sut;
 
   setUpAll(() {
     registerFallbackValue(localeComponents);
   });
 
   setUp(() {
-    appLocaleResolver = AppLocaleResolver();
+    sut = AppLocaleResolver();
   });
 
   test(
-    'Should return matching AppLocale if locale components match completely with any supported one',
+    'Should return matching AppLocale if language+script+country matches with any supported one',
     () {
-      final localeComponents = LocaleComponents(
-        languageCode: AppLocale.EN.languageCode,
-        scriptCode: AppLocale.EN.scriptCode,
-        countryCode: AppLocale.EN.countryCode,
+      const localeComponents = LocaleComponents(
+        languageCode: 'en',
+        scriptCode: 'Latn',
+        countryCode: 'US',
       );
 
-      final result = appLocaleResolver.resolveLocale(localeComponents);
+      final result = sut.resolveLocale(localeComponents);
+
+      expect(result, AppLocale.EN);
+    },
+  );
+
+  test(
+    'Should return matching AppLocale if language+script matches with any supported one',
+    () {
+      const localeComponents = LocaleComponents(
+        languageCode: 'en',
+        scriptCode: 'Latn',
+      );
+
+      final result = sut.resolveLocale(localeComponents);
+
+      expect(result, AppLocale.EN);
+    },
+  );
+
+  test(
+    'Should return matching AppLocale if language+country matches with any supported one',
+    () {
+      const localeComponents = LocaleComponents(
+        languageCode: 'en',
+        countryCode: 'US',
+      );
+
+      final result = sut.resolveLocale(localeComponents);
+
+      expect(result, AppLocale.EN);
+    },
+  );
+
+  test(
+    'Should return matching AppLocale if only language match completely with any supported one',
+    () {
+      const localeComponents = LocaleComponents(languageCode: 'en');
+
+      final result = sut.resolveLocale(localeComponents);
 
       expect(result, AppLocale.EN);
     },
@@ -39,32 +78,26 @@ void main() {
     () {
       const localeComponents = LocaleComponents(languageCode: 'fr');
 
-      final result = appLocaleResolver.resolveLocale(localeComponents);
+      final result = sut.resolveLocale(localeComponents);
 
       expect(result, isNull);
     },
   );
 
   test('Should return best match in case of partial match', () {
-    final localComponentsList = [
+    const localComponentsList = [
       LocaleComponents(
-        languageCode: AppLocale.EN.languageCode,
-        scriptCode: AppLocale.EN.scriptCode,
-        countryCode: AppLocale.EN.countryCode,
+        languageCode: 'en',
+        scriptCode: 'Latn',
+        countryCode: 'US',
       ),
-      LocaleComponents(
-        languageCode: AppLocale.EN.languageCode,
-        scriptCode: AppLocale.EN.scriptCode,
-      ),
-      LocaleComponents(
-        languageCode: AppLocale.EN.languageCode,
-        countryCode: AppLocale.EN.countryCode,
-      ),
-      LocaleComponents(languageCode: AppLocale.EN.languageCode),
+      LocaleComponents(languageCode: 'en', scriptCode: 'Latn'),
+      LocaleComponents(languageCode: 'en', countryCode: 'US'),
+      LocaleComponents(languageCode: 'en'),
     ];
 
     for (final localeComponents in localComponentsList) {
-      final result = appLocaleResolver.resolveLocale(localeComponents);
+      final result = sut.resolveLocale(localeComponents);
       expect(result, AppLocale.EN);
     }
   });

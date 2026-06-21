@@ -67,7 +67,7 @@ platforms:
 ### Set up app/project specific identifiers, resources & services
 
 ▶️ **If you want to complete this step with an automated script, run
-the [setup.sh](setup.sh).**
+the [setup.sh](scripts/setup.sh).**
 
 Or, follow the steps bellow.
 
@@ -169,7 +169,7 @@ You may want to modify the platform specific values and components to get starte
       actions in step 1 and 2. Remaining ones are automated for you. See the next steps.
     - Assuming you already created firebase projects for each flavor. For simplicity, we are using
       the same firebase project, but it is recommended to use different firebase project per flavor.
-    - Please find and open the [`firebase_setup.sh`](firebase_setup.sh). Change the
+    - Please find and open the [`firebase_setup.sh`](scripts/firebase_setup.sh). Change the
       `default_project`, `default_ios_bundle` and `default_android_pkg` for each flavor. If the apps
       do not yet exist in firebase, they will be created.
     - Finally, run this script file (from the run icon on top of the file). This will overwrite the

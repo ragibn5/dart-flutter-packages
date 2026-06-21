@@ -17,7 +17,7 @@ class _MockCrashlyticsService extends Mock implements CrashlyticsService {}
 class _FakeAuthDataService extends Fake implements AuthDataService {}
 
 void main() {
-  const anonymousUserId = 'anonymous';
+  const anonymousUserId = 'anonymous-user';
 
   final authData = AuthData(
     userId: 'userId',
@@ -42,7 +42,7 @@ void main() {
     mockAnalyticsService = _MockAnalyticsService();
     mockCrashlyticsService = _MockCrashlyticsService();
 
-    sut = SessionInitializerService.test(
+    sut = SessionInitializerService(
       mockAuthDataService,
       mockAnalyticsService,
       mockCrashlyticsService,

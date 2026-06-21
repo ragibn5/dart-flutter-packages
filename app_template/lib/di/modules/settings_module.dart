@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_template/features/settings/application/services/app_locale_resolver.dart';
 import 'package:app_template/features/settings/application/services/platform_settings_provider.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
@@ -9,8 +11,9 @@ import 'package:app_template/features/settings/data/sources/settings_data_source
 import 'package:app_template/features/settings/data/sources/settings_data_source_impl.dart';
 import 'package:app_template/features/settings/domain/models/app_settings.dart';
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart';
-import 'package:app_template/features/settings/infrastructures/services/platform_settings_provider_impl.dart';
+import 'package:app_template/features/settings/infrastructure/services/platform_settings_provider_impl.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
+import 'package:flutter/widgets.dart';
 import 'package:injectable/injectable.dart';
 import 'package:preference_store/preference_store.dart';
 
@@ -27,7 +30,7 @@ abstract class SettingsModule {
 
   @singleton
   PlatformSettingsProvider getPlatformSettingsProvider() {
-    return PlatformSettingsProviderImpl();
+    return PlatformSettingsProviderImpl(WidgetsBinding.instance);
   }
 
   @singleton
@@ -35,7 +38,11 @@ abstract class SettingsModule {
     DataDomainConverter<SettingsDTO, AppSettings> settingsMapper,
     SettingsDataSource settingsDataSource,
   ) {
-    return SettingsRepositoryImpl(settingsMapper, settingsDataSource);
+    return SettingsRepositoryImpl(
+      StreamController.broadcast(),
+      settingsMapper,
+      settingsDataSource,
+    );
   }
 
   @singleton
