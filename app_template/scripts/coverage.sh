@@ -5,7 +5,7 @@ source "$(dirname "$0")/utils.sh"
 PROJECT_ROOT=$(find_project_root)
 cd "$PROJECT_ROOT"
 
-FLUTTER="${FLUTTER:-fvm flutter}"
+FLUTTER=$(get_flutter_cmd)
 
 $FLUTTER test --no-test-assets --coverage --coverage-path coverage/lcov.info
 

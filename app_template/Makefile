@@ -1,4 +1,4 @@
-FLUTTER ?= fvm flutter
+FLUTTER := $(shell command -v fvm 2>/dev/null && echo "fvm flutter" || echo "flutter")
 
 .PHONY: test
 test:
