@@ -3,14 +3,14 @@ import 'package:app_template/features/auth/domain/services/auth_data_service.dar
 import 'package:crashlytics/crashlytics.dart';
 import 'package:initializable/initializable.dart';
 
-class SessionInitializerService implements Initializable {
+class SessionInitializerUseCase implements Initializable {
   final String _anonymousUserId;
 
   final AuthDataService _authDataService;
   final AnalyticsService _analyticsService;
   final CrashlyticsService _crashlyticsService;
 
-  SessionInitializerService(
+  SessionInitializerUseCase(
     this._authDataService,
     this._analyticsService,
     this._crashlyticsService, {

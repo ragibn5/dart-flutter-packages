@@ -1,6 +1,6 @@
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/features/app/application/services/app_initializer_service.dart';
-import 'package:app_template/features/app/application/services/session_initializer_service.dart';
+import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
@@ -17,8 +17,8 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AppLogger _logger;
   final AuthDataService _authDataService;
   final SettingsService _settingsService;
-  final AppInitializerService _appInitializerService;
-  final SessionInitializerService _sessionInitializerService;
+  final AppInitializerUseCase _appInitializerService;
+  final SessionInitializerUseCase _sessionInitializerService;
 
   AppRootBloc(
     this._logger,

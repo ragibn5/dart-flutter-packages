@@ -16,9 +16,9 @@ import 'package:app_template/di/modules/app_module.dart' as _i384;
 import 'package:app_template/di/modules/auth_module.dart' as _i228;
 import 'package:app_template/di/modules/settings_module.dart' as _i150;
 import 'package:app_template/di/modules/user_data_module.dart' as _i201;
-import 'package:app_template/features/app/application/services/app_initializer_service.dart'
+import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart'
     as _i707;
-import 'package:app_template/features/app/application/services/session_initializer_service.dart'
+import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart'
     as _i741;
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart'
     as _i527;
@@ -187,8 +187,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(),
       ),
     );
-    gh.singleton<_i707.AppInitializerService>(
-      () => appModule.getAppInitializerService(
+    gh.singleton<_i707.AppInitializerUseCase>(
+      () => appModule.getAppInitializerUseCase(
         gh<_i548.AnalyticsService>(),
         gh<_i35.CrashlyticsService>(),
         gh<_i860.SQLiteDb>(),
@@ -258,8 +258,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i374.AuthDataService>(
       () => authModule.getAuthDataService(gh<_i731.AuthDataRepository>()),
     );
-    gh.singleton<_i741.SessionInitializerService>(
-      () => appModule.getSessionInitializerService(
+    gh.singleton<_i741.SessionInitializerUseCase>(
+      () => appModule.getSessionInitializerUseCase(
         gh<_i374.AuthDataService>(),
         gh<_i548.AnalyticsService>(),
         gh<_i35.CrashlyticsService>(),
@@ -276,8 +276,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
         gh<_i658.SettingsService>(),
-        gh<_i707.AppInitializerService>(),
-        gh<_i741.SessionInitializerService>(),
+        gh<_i707.AppInitializerUseCase>(),
+        gh<_i741.SessionInitializerUseCase>(),
       ),
     );
     gh.singleton<_i535.NetClient>(

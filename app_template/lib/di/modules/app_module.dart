@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:alerter/alerter.dart';
 import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/features/app/application/services/app_initializer_service.dart';
-import 'package:app_template/features/app/application/services/session_initializer_service.dart';
+import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
 import 'package:app_template/features/app/infrastructure/config/router/routes.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
@@ -285,12 +285,12 @@ abstract class AppModule {
   }
 
   @singleton
-  AppInitializerService getAppInitializerService(
+  AppInitializerUseCase getAppInitializerUseCase(
     AnalyticsService analyticsService,
     CrashlyticsService crashlyticsService,
     SQLiteDb appDatabase,
   ) {
-    return AppInitializerService(
+    return AppInitializerUseCase(
       crashlyticsService,
       analyticsService,
       appDatabase,
@@ -298,12 +298,12 @@ abstract class AppModule {
   }
 
   @singleton
-  SessionInitializerService getSessionInitializerService(
+  SessionInitializerUseCase getSessionInitializerUseCase(
     AuthDataService authDataService,
     AnalyticsService analyticsService,
     CrashlyticsService crashlyticsService,
   ) {
-    return SessionInitializerService(
+    return SessionInitializerUseCase(
       authDataService,
       analyticsService,
       crashlyticsService,
@@ -328,8 +328,8 @@ abstract class AppModule {
     AppLogger logger,
     AuthDataService authDataService,
     SettingsService settingsService,
-    AppInitializerService appInitializerService,
-    SessionInitializerService sessionInitializerService,
+    AppInitializerUseCase appInitializerService,
+    SessionInitializerUseCase sessionInitializerService,
   ) {
     return AppRootBloc(
       logger,

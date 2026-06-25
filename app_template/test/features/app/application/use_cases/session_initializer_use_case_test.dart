@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:analytics/analytics.dart';
-import 'package:app_template/features/app/application/services/session_initializer_service.dart';
+import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:crashlytics/crashlytics.dart';
@@ -31,7 +31,7 @@ void main() {
   late _MockAnalyticsService mockAnalyticsService;
   late _MockCrashlyticsService mockCrashlyticsService;
 
-  late SessionInitializerService sut;
+  late SessionInitializerUseCase sut;
 
   setUpAll(() {
     registerFallbackValue(_FakeAuthDataService());
@@ -42,7 +42,7 @@ void main() {
     mockAnalyticsService = _MockAnalyticsService();
     mockCrashlyticsService = _MockCrashlyticsService();
 
-    sut = SessionInitializerService(
+    sut = SessionInitializerUseCase(
       mockAuthDataService,
       mockAnalyticsService,
       mockCrashlyticsService,

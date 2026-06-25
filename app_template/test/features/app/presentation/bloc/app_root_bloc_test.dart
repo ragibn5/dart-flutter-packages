@@ -3,8 +3,8 @@
 import 'dart:async';
 
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/features/app/application/services/app_initializer_service.dart';
-import 'package:app_template/features/app/application/services/session_initializer_service.dart';
+import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
@@ -22,10 +22,10 @@ class _MockAuthDataService extends Mock implements AuthDataService {}
 class _MockAppPreferenceService extends Mock implements SettingsService {}
 
 class _MockAppInitializerService extends Mock
-    implements AppInitializerService {}
+    implements AppInitializerUseCase {}
 
 class _MockSessionInitializerService extends Mock
-    implements SessionInitializerService {}
+    implements SessionInitializerUseCase {}
 
 void main() {
   late _MockLogger logger;
