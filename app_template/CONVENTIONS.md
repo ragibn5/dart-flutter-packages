@@ -17,7 +17,6 @@ lib/
 ├── features/
 │   ├── <auth>/
 │   │   ├── data/
-│   │   ├── data/
 │   │   ├── domain/
 │   │   ├── application/
 │   │   ├── infrastructure/
@@ -62,7 +61,7 @@ Use cases live in `application/use_cases/` and orchestrate a single business ope
 Keep in mind the following while designing use cases:
 
 - One class per use case, named after the operation (e.g., `RefreshAuthData`, `SubmitOrder`).
-- Has exactly one public method (typically `call` or `execute`).
+- Has exactly one public method (typically `call`, or `execute`, or anything that suits).
 - Return type matches the repository pattern (`Future<Either<ApiError, Either<AppErr, AppDTO>>>`).
 - Keeps orchestration logic (validation, precondition checks, fallback) — not business rules
   (those belong in domain entities).
