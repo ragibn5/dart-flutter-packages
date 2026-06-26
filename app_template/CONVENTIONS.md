@@ -36,10 +36,10 @@ lib/
 
 | Layer            | Purpose                                                                                            |
 |------------------|----------------------------------------------------------------------------------------------------|
-| `data`           | Repository implementations, DTOs (models), data sources, mappers, etc.                             |
+| `data`           | Repository implementations, DTOs, data sources, mappers, etc.                                      |
 | `domain`         | Pure Dart — [entities](#entities), [domain services](#domain-services), repository contracts, etc. |
-| `application`    | [Use cases](#use-cases), application layer DTOs, etc.                                              |
-| `infrastructure` | Database, api clients, interceptors, platform components, etc.                                     |
+| `application`    | [Use cases](#use-cases).                                                                           |
+| `infrastructure` | Database, api clients, interceptors, port implementations, platform components, etc.               |
 | `presentation`   | State management, [widgets](#widgets), etc.                                                        |
 
 Note: The `Purpose` column is not a complete list of components. You may have more or fewer
@@ -107,14 +107,10 @@ Note:
 - If multiple use cases of the same feature end up with the same repeated logic, may be
   it belongs to a [domain service](#domain-services).
 - Within same feature, avoid using the use cases as dependencies of other use cases as much as
-  possible and use [domain services](#domain-services) instead. For cross feature uses, it is
-  inevitable and
+  possible and use [domain services](#domain-services) instead. For cross feature uses, it is inevitable and
   is actually the way.
-- [Use cases](#use-cases) should be the only component that can cross features, i.e. other features
-  can
-  use them.
-- Do not pass mutable domain entities across features; use [application DTOs](#application-layer) in
-  those cases.
+- [Use cases](#use-cases) should be the only component that can cross features, i.e. other
+  features can use them.
 
 #### Application services
 
@@ -149,8 +145,8 @@ widgets/
 
 #### BLoC pattern
 
-Each BLoC receives events, calls a use case, and creates sealed state classes. For remote
-network calls, the flow is:
+Each BLoC receives events, calls a use case, and creates sealed state classes.
+For remote network calls, the flow is:
 
 ```
 Event ──> BLoC ──> Use Case ──> Either<ApiError, Either<DomainErr, DomainEntity>>
@@ -162,14 +158,14 @@ Event ──> BLoC ──> Use Case ──> Either<ApiError, Either<DomainErr, D
                 Right(Right(Entity))   → Success state
 ```
 
-Where the sealed state is defined as:
+Where the sealed states may be defined as:
 
 ```
 sealed class MyState {}
 class Initial extends MyState {}
 class Loading extends MyState {}
-class Success extends MyState { final DomainEntity data; ... }
-class DomainError extends MyState { final DomainErr error; ... }
+class Success extends MyState { ... }
+class DomainError extends MyState { ... }
 class TransportError extends MyState { final ApiError error; ... }
 ```
 
@@ -199,12 +195,7 @@ Use Case (application layer)
   │  ── orchestrates one business operation
   │  ── may call multiple repositories (own feature) / services (cross-feature)
   │
-  │  ── map DomainErr → AppErr      (Optional, transform if DomainErr is a mutable type,
-  │                                  or contains behaviour, otherwise return DomainErr directly)
-  │  ── map DomainEntity → AppDTO   (Optional, transform if DomainEntity is a mutable type,
-  │                                  or contains behaviour, otherwise return DomainEntity directly)
-  │
-  │  Future<Either<ApiError, Either<AppErr, AppDTO>>>
+  │  Future<Either<ApiError, Either<DomainErr, DomainEntity>>>
   ▼
 BLoC
   │  ── folds Either into sealed states
@@ -222,7 +213,6 @@ Create `lib/features/<feature>/` with the layers in the following order:
     - Repository contracts in [`domain/repositories/`](#domain-layer).
 
 2. **Application layer**
-    - DTOs in [`application/dto/`](#application-layer).
     - Use cases in [`application/use_cases/`](#use-cases).
 
 3. **Data layer**
