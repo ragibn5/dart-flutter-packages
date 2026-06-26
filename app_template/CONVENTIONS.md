@@ -34,55 +34,97 @@ lib/
 
 ### Feature layers
 
-| Layer            | Purpose                                                                |
-|------------------|------------------------------------------------------------------------|
-| `data`           | Repository implementations, DTOs (models), data sources, mappers, etc. |
-| `domain`         | Pure Dart — entities, repository contracts, etc.                       |
-| `application`    | Use cases, application layer DTOs, etc.                                |
-| `infrastructure` | Database, api clients, interceptors, platform components, etc.         |
-| `presentation`   | State management, widgets, etc.                                        |
+| Layer            | Purpose                                                                                            |
+|------------------|----------------------------------------------------------------------------------------------------|
+| `data`           | Repository implementations, DTOs (models), data sources, mappers, etc.                             |
+| `domain`         | Pure Dart — [entities](#entities), [domain services](#domain-services), repository contracts, etc. |
+| `application`    | [Use cases](#use-cases), application layer DTOs, etc.                                              |
+| `infrastructure` | Database, api clients, interceptors, platform components, etc.                                     |
+| `presentation`   | State management, [widgets](#widgets), etc.                                                        |
 
 Note: The `Purpose` column is not a complete list of components. You may have more or fewer
 types according to your needs.
 
 Conventions for specific layers:
 
+- [Domain layer](#domain-layer)
 - [Application layer](#application-layer)
 - [Presentation layer](#presentation-layer)
 
 Unlisted layers follow clean architecture standards — refer to existing features for guidance.
 
+### Domain layer
+
+#### Entities
+
+Entities live in [`domain/entities/`](#entities).
+
+These are pure Dart classes that represent and hold core business logic.
+Be aware of what logic you put in here. The only case when logic belongs to
+the entity is when the logic is entirely composed of the entity's own
+components. For example, if `UserEntity` has fields `age` and `gender`,
+then `userEntity.isAdultMale()` belongs here.
+
+#### Domain services
+
+Domain services live in [`domain/services/`](#domain-services).
+
+These are pure Dart classes that are used in cases when the business logic is
+not quite the part of one single entity. For example, when the business logic
+is composed of components scattered between multiple entities of same domain.
+This also applies when the business logic is composed with multiple instances
+of the same, or different entities of the same domain.
+
+These domain services should not use [entities](#entities) from different domains, or be used
+to orchestrate application logic. These are **not** [use cases](#use-cases), or any application
+layer components.
+
 ### Application layer
 
-**Use cases**
+#### Use cases
 
-Use cases live in `application/use_cases/` and orchestrate a single business operation.
+Use cases live in [`application/use_cases/`](#use-cases) and orchestrate a single business
+operation.
 
 Keep in mind the following while designing use cases:
 
 - One class per use case, named after the operation (e.g., `RefreshAuthData`, `SubmitOrder`).
 - Has exactly one public method (typically `call`, or `execute`, or anything that suits).
-- Return type matches the repository pattern (`Future<Either<ApiError, Either<AppErr, AppDTO>>>`).
 - Keeps orchestration logic (validation, precondition checks, fallback) — not business rules
-  (those belong in domain entities).
+  (those belong in [domain entities](#entities), or [domain services](#domain-services)).
 
 A use case may receive its dependencies from two places:
 
-1. From within same feature: Repositories, application services, or use cases from same feature.
+1. From within same feature:
+   Repositories, [domain services](#domain-services), [use cases](#use-cases) etc., from the same
+   feature.
 2. From within other feature: Define an abstraction in `application/ports` and inject that in the
-   use case. The implementation using the external use cases should live in `infrastructure/ports`.
+   use case. The implementation can use external use cases, and should live outside the calling
+   layer. In our case, we will use `infrastructure/ports`.
 
-Note: Use cases should be the only component that can cross features, i.e. other features can use
-them.
+Note:
 
-**Application services**
+- If multiple use cases of the same feature end up with the same repeated logic, may be
+  it belongs to a [domain service](#domain-services).
+- Within same feature, avoid using the use cases as dependencies of other use cases as much as
+  possible and use [domain services](#domain-services) instead. For cross feature uses, it is
+  inevitable and
+  is actually the way.
+- [Use cases](#use-cases) should be the only component that can cross features, i.e. other features
+  can
+  use them.
+- Do not pass mutable domain entities across features; use [application DTOs](#application-layer) in
+  those cases.
 
-If a feature has complex application logic shared across multiple feature-private use cases,
-extract it into application services (`application/services/`). These should not cross features.
+#### Application services
+
+There is no such thing as an application service; it is another use case.
 
 ### Presentation layer
 
-**BLoC files** follow this convention under `presentation/bloc/`:
+#### BLoC files
+
+BLoC files follow this convention under [`presentation/bloc/`](#bloc-files):
 
 ```
 bloc/
@@ -91,7 +133,9 @@ bloc/
 └── <feature>_state.dart
 ```
 
-**Widgets** live under `presentation/widgets/`. Place each top-level widget (usually a page)
+#### Widgets
+
+Widgets live under [`presentation/widgets/`](#widgets). Place each top-level widget (usually a page)
 in its own folder with its component sub-widgets:
 
 ```
@@ -103,7 +147,7 @@ widgets/
 │   └── profile_photo.dart
 ```
 
-**BLoC pattern**
+#### BLoC pattern
 
 Each BLoC receives events, calls a use case, and creates sealed state classes. For remote
 network calls, the flow is:
@@ -134,8 +178,6 @@ class TransportError extends MyState { final ApiError error; ... }
 Each layer uses a consistent return type pattern when communicating with the next. Data flows
 from outer layers (API, infrastructure) inward toward the domain, with types transformed at
 each boundary.
-
-#### Data flow diagram
 
 ```
 Per-Endpoint API Client
@@ -176,12 +218,12 @@ BLoC
 Create `lib/features/<feature>/` with the layers in the following order:
 
 1. **Domain layer**
-    - Feature entities in `domain/entities/`.
-    - Repository contracts in `domain/repositories/`.
+    - Feature entities in [`domain/entities/`](#entities).
+    - Repository contracts in [`domain/repositories/`](#domain-layer).
 
 2. **Application layer**
-    - DTOs in `application/dto/`.
-    - Use cases in `application/use_cases/`.
+    - DTOs in [`application/dto/`](#application-layer).
+    - Use cases in [`application/use_cases/`](#use-cases).
 
 3. **Data layer**
     - Data models in `data/models/`.
@@ -196,16 +238,17 @@ Create `lib/features/<feature>/` with the layers in the following order:
     - Platform components in `infrastructure/platform/`.
 
 5. **Presentation layer**
-    - Widgets in `presentation/widgets/`.
-    - BLoC classes (with events and states) in `presentation/bloc/`.
+    - Widgets in [`presentation/widgets/`](#widgets).
+    - BLoC classes (with events and states) in [`presentation/bloc/`](#bloc-files).
 
-   See [Presentation layer](#presentation-layer) below for more details.
+   See [Presentation layer](#presentation-layer) above for more details.
 
-6. Wire new routes in `lib/features/app/infrastructure/config/router/routes.dart`.
+6. Wire new routes in [
+   `lib/features/app/infrastructure/config/router/routes.dart`](lib/features/app/infrastructure/config/router/routes.dart).
 
 7. Register dependencies in the [feature module](#dependency-injection).
 
-8. Add corresponding tests in `test/features/<feature>/`.
+8. Add corresponding tests in [`test/features/<feature>/`](test/features).
 
 See the [Return types in layers](#data-flow-between-layers) for information on data flow between
 these layers.
@@ -228,7 +271,8 @@ lib/di/
 
 ### Adding a dependency
 
-- **Existing feature** — open the feature's DI module in `lib/di/modules/` and add the registration.
+- **Existing feature** — open the feature's DI module in [`lib/di/modules/`](lib/di/modules)
+  and add the registration.
 - **New feature** — create a module at `lib/di/modules/<feature>_module.dart`. Refer to existing
   modules for guidance. Simply creating the module is enough — the DI framework generates wiring
   when `build_runner` runs. See [Code generation](#code-generation).
@@ -253,7 +297,8 @@ Four build flavors are supported:
 - `prod`: For end users - final destination.
 
 Each flavor has its own Firebase project, launcher icon, splash screen, and app name.
-Entry points are defined in `lib/main_<flavor>.dart`, with corresponding run configurations
+Entry points are defined in [`lib/main_<flavor>.dart`](lib/main_dev.dart), with corresponding run
+configurations
 in [`.run/`](.run) (IDEA).
 
 ## Code generation
