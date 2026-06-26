@@ -107,8 +107,8 @@ Note:
 - If multiple use cases of the same feature end up with the same repeated logic, may be
   it belongs to a [domain service](#domain-services).
 - Within same feature, avoid using the use cases as dependencies of other use cases as much as
-  possible and use [domain services](#domain-services) instead. For cross feature uses, it is inevitable and
-  is actually the way.
+  possible and use [domain services](#domain-services) instead. For cross feature uses, it is
+  inevitable and is actually the way.
 - [Use cases](#use-cases) should be the only component that can cross features, i.e. other
   features can use them.
 
@@ -203,6 +203,19 @@ BLoC
   │
   │  sealed class MyState { ... }
 ```
+
+#### Component map
+
+Here is a list of each component referenced in the data flow. Use them throughout the project
+for architectural consistency.
+
+| Component                         | Location / Package                                                                                                                                  |
+|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Either<L, R>`                    | [`package:core_models/core_models.dart`](../core_models/lib/core_models.dart) — custom sealed class (`Left`, `Right`)                               |
+| `ApiError`                        | [`package:core_models/core_models.dart`](../core_models/lib/core_models.dart) — subtypes: `TransportError`, `CancellationError`, `UnexpectedError`  |
+| `ApiResponse<Err, Res>`           | [`package:core_models/core_models.dart`](../core_models/lib/core_models.dart) — subtypes: `Success<Res>`, `Failure<Err>`                            |
+| `FeatureApiClient<Req, Res, Err>` | [`package:feature_api_client/feature_api_client.dart`](../feature_api_client/lib/feature_api_client.dart) — base class for per-endpoint API clients |
+| `NetClient` / `NetKitInterceptor` | [`package:net_kit/net_kit.dart`](../net_kit/lib/net_kit.dart) — HTTP client and interceptor interfaces, raw request/response models                 |
 
 ### Adding a new feature
 
