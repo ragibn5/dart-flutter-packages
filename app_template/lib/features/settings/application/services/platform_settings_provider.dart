@@ -1,4 +1,4 @@
-import 'package:app_template/features/settings/domain/models/locale_components.dart';
+import 'package:app_template/features/settings/domain/entities/locale_components.dart';
 
 abstract interface class PlatformSettingsProvider {
   LocaleComponents getSystemaLocale();

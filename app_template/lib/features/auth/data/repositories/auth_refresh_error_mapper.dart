@@ -1,4 +1,4 @@
-import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
+import 'package:app_template/features/auth/domain/entities/auth_data_refresh_error.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:shared_models/shared_models.dart';
 

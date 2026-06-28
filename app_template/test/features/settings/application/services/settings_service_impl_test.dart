@@ -3,10 +3,10 @@
 import 'package:app_template/features/settings/application/services/app_locale_resolver.dart';
 import 'package:app_template/features/settings/application/services/platform_settings_provider.dart';
 import 'package:app_template/features/settings/application/services/settings_service_impl.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
-import 'package:app_template/features/settings/domain/models/app_settings.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
-import 'package:app_template/features/settings/domain/models/locale_components.dart';
+import 'package:app_template/features/settings/domain/entities/app_locale.dart';
+import 'package:app_template/features/settings/domain/entities/app_settings.dart';
+import 'package:app_template/features/settings/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/settings/domain/entities/locale_components.dart';
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:app_template/features/settings/data/models/settings_dto.dart';
 import 'package:app_template/features/settings/data/repositories/settings_repository_impl.dart';
 import 'package:app_template/features/settings/data/sources/settings_data_source.dart';
-import 'package:app_template/features/settings/domain/models/app_settings.dart';
+import 'package:app_template/features/settings/domain/entities/app_settings.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

@@ -2,7 +2,7 @@
 
 import 'package:analytics/analytics.dart';
 import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
-import 'package:app_template/features/auth/domain/models/auth_data.dart';
+import 'package:app_template/features/auth/domain/entities/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:flutter_test/flutter_test.dart';

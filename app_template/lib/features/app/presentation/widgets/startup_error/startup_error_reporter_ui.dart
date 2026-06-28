@@ -1,5 +1,5 @@
 import 'package:app_template/features/app/presentation/bloc/startup_error_reporter_bloc.dart';
-import 'package:app_template/features/reporting/domain/models/error_report.dart';
+import 'package:app_template/features/reporting/domain/entities/error_report.dart';
 import 'package:common_widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
+import 'package:app_template/features/settings/domain/entities/app_locale.dart';
 import 'package:net_kit/net_kit.dart';
 
 class MetadataHeaderKeys {

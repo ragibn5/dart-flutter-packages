@@ -1,6 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/features/auth/domain/models/auth_data.dart';
+import 'package:app_template/features/auth/domain/entities/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';

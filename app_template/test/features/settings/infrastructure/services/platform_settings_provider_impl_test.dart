@@ -2,7 +2,7 @@
 
 import 'dart:ui';
 
-import 'package:app_template/features/settings/domain/models/locale_components.dart';
+import 'package:app_template/features/settings/domain/entities/locale_components.dart';
 import 'package:app_template/features/settings/infrastructure/services/platform_settings_provider_impl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';

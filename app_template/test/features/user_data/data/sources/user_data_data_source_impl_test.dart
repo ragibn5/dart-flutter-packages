@@ -2,7 +2,7 @@
 
 import 'package:app_template/features/user_data/data/models/user_data_dto.dart';
 import 'package:app_template/features/user_data/data/sources/user_data_data_source_impl.dart';
-import 'package:app_template/features/user_data/domain/models/user_data.dart';
+import 'package:app_template/features/user_data/domain/entities/user_data.dart';
 import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

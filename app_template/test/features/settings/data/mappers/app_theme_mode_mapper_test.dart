@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:app_template/features/settings/data/mappers/app_theme_mode_mapper.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/settings/domain/entities/app_theme_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

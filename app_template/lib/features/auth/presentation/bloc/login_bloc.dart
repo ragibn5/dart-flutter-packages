@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:app_template/features/auth/domain/models/auth_data.dart';
+import 'package:app_template/features/auth/domain/entities/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';

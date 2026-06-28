@@ -1,5 +1,5 @@
 import 'package:app_template/features/settings/application/services/platform_settings_provider.dart';
-import 'package:app_template/features/settings/domain/models/locale_components.dart';
+import 'package:app_template/features/settings/domain/entities/locale_components.dart';
 import 'package:flutter/widgets.dart';
 
 class PlatformSettingsProviderImpl implements PlatformSettingsProvider {

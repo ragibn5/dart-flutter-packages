@@ -1,5 +1,5 @@
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/settings/domain/entities/app_locale.dart';
+import 'package:app_template/features/settings/domain/entities/app_theme_mode.dart';
 
 abstract interface class SettingsService {
   /// Returns the **effective app locale**.

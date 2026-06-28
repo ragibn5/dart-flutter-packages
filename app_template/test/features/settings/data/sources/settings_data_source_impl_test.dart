@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:app_template/features/settings/data/models/settings_dto.dart';
 import 'package:app_template/features/settings/data/sources/settings_data_source_impl.dart';
-import 'package:app_template/features/settings/domain/models/app_settings.dart';
+import 'package:app_template/features/settings/domain/entities/app_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:preference_store/preference_store.dart';

@@ -1,4 +1,4 @@
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/settings/domain/entities/app_theme_mode.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 class AppThemeModeMapper extends JsonConverter<AppThemeMode?, String?> {

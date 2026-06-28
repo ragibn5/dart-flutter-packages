@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:app_template/features/settings/application/services/app_locale_resolver.dart';
 import 'package:app_template/features/settings/application/services/platform_settings_provider.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/settings/domain/entities/app_locale.dart';
+import 'package:app_template/features/settings/domain/entities/app_theme_mode.dart';
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart';
 
 class SettingsServiceImpl implements SettingsService {

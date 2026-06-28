@@ -2,7 +2,7 @@
 
 import 'package:app_template/features/user_data/data/mappers/user_data_mapper.dart';
 import 'package:app_template/features/user_data/data/models/user_data_dto.dart';
-import 'package:app_template/features/user_data/domain/models/user_data.dart';
+import 'package:app_template/features/user_data/domain/entities/user_data.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
