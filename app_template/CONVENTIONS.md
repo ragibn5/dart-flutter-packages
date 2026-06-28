@@ -93,8 +93,8 @@ Use cases live in [`application/use_cases/`](#use-cases) and orchestrate a singl
 
 Keep in mind the following while designing use cases:
 
-- One class per use case, named after the operation (e.g., `RefreshAuthData`, `SubmitOrder`).
-- Has exactly one public method (typically `call`, or `execute`, or anything that suits).
+- One class per use case, named after the operation (e.g., `RefreshAuthDataUseCase`, `SubmitOrderUseCase`).
+- Has exactly one public method (typically `call`, or `execute`, `initialize` or anything that suits the purpose).
 - Keeps orchestration logic (validation, precondition checks, fallback) — not business rules (those belong in [domain entities](#entities), or [domain services](#domain-services)).
 
 A use case may receive its dependencies from two places:
