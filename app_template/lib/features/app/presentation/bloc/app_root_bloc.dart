@@ -1,6 +1,6 @@
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/entities/error_report.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
@@ -18,21 +18,22 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AuthDataService _authDataService;
   final SettingsService _settingsService;
   final AppInitializerUseCase _appInitializerService;
-  final SessionInitializerUseCase _sessionInitializerService;
+
+  final InitializeSessionUseCase _initializeSession;
 
   AppRootBloc(
     this._logger,
     this._authDataService,
     this._settingsService,
     this._appInitializerService,
-    this._sessionInitializerService,
+    this._initializeSession,
   ) : super(AppInitializationInitial()) {
     on<AppInitializationRequested>((event, emit) async {
       emit(AppInitializationInProgress());
 
       try {
         await _appInitializerService.initialize();
-        await _sessionInitializerService.initialize();
+        await _initializeSession();
 
         add(_LocaleChangeListenerInitRequested());
         add(_ThemeModeChangeListenerInitRequested());
@@ -122,7 +123,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
     });
 
     on<_SessionDataRefreshRequested>((event, emit) {
-      return _sessionInitializerService.initialize();
+      return _initializeSession();
     });
   }
 }

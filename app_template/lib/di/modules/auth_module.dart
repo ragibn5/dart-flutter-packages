@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart';
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/data/repositories/auth_data_mapper.dart';
 import 'package:app_template/features/auth/data/repositories/auth_data_repository_impl.dart';
@@ -55,5 +56,10 @@ abstract class AuthModule {
   @singleton
   AuthDataService getAuthDataService(AuthDataRepository repository) {
     return AuthDataServiceImpl(repository);
+  }
+
+  @injectable
+  GetAuthDataUseCase getGetAuthDataUseCase(AuthDataRepository repository) {
+    return GetAuthDataUseCase(repository);
   }
 }

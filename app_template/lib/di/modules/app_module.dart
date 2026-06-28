@@ -4,7 +4,7 @@ import 'package:alerter/alerter.dart';
 import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
 import 'package:app_template/features/app/infrastructure/config/router/routes.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
@@ -14,10 +14,14 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:app_template/features/app/infrastructure/ports/get_user_id_port_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/set_analytics_session_data_port_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/set_crashlytics_session_data_port_impl.dart';
 import 'package:app_template/features/app/infrastructure/router/guards/router_logger.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
+import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart';
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
@@ -297,16 +301,18 @@ abstract class AppModule {
     );
   }
 
-  @singleton
-  SessionInitializerUseCase getSessionInitializerUseCase(
-    AuthDataService authDataService,
-    AnalyticsService analyticsService,
-    CrashlyticsService crashlyticsService,
+  @injectable
+  InitializeSessionUseCase getInitializeSessionUseCase(
+    GetAuthDataUseCase getAuthDataUseCase,
   ) {
-    return SessionInitializerUseCase(
-      authDataService,
-      analyticsService,
-      crashlyticsService,
+    return InitializeSessionUseCase(
+      GetUserIdPortImpl(getAuthDataUseCase),
+      SetAnalyticsSessionDataPortImpl(
+        FirebaseAnalyticsService(FirebaseAnalytics.instance),
+      ),
+      SetCrashlyticsSessionDataPortImpl(
+        FirebaseCrashlyticsService(FirebaseCrashlytics.instance),
+      ),
     );
   }
 
@@ -329,14 +335,14 @@ abstract class AppModule {
     AuthDataService authDataService,
     SettingsService settingsService,
     AppInitializerUseCase appInitializerService,
-    SessionInitializerUseCase sessionInitializerService,
+    InitializeSessionUseCase initializeSessionUseCase,
   ) {
     return AppRootBloc(
       logger,
       authDataService,
       settingsService,
       appInitializerService,
-      sessionInitializerService,
+      initializeSessionUseCase,
     );
   }
 

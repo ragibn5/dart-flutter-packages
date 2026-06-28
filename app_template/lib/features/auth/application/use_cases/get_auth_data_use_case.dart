@@ -1,7 +1,7 @@
 import 'package:app_template/features/auth/domain/entities/auth_data.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 
-abstract interface class GetAuthDataUseCase {
+class GetAuthDataUseCase {
   final AuthDataRepository _authRepository;
 
   GetAuthDataUseCase(this._authRepository);

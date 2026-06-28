@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/auth/domain/entities/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';

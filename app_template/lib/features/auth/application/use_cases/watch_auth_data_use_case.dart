@@ -1,7 +1,7 @@
 import 'package:app_template/features/auth/domain/entities/auth_data.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 
-abstract interface class WatchAuthDataUseCase {
+class WatchAuthDataUseCase {
   final AuthDataRepository _authRepository;
 
   WatchAuthDataUseCase(this._authRepository);

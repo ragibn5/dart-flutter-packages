@@ -3,7 +3,7 @@ import 'package:app_template/features/auth/domain/entities/auth_data_refresh_err
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 import 'package:core_models/core_models.dart';
 
-abstract interface class RefreshAuthDataUseCase {
+class RefreshAuthDataUseCase {
   final AuthDataRepository _authRepository;
 
   RefreshAuthDataUseCase(this._authRepository);

@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:analytics/analytics.dart';
-import 'package:app_template/features/app/application/use_cases/session_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
 import 'package:app_template/features/auth/domain/entities/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:crashlytics/crashlytics.dart';
