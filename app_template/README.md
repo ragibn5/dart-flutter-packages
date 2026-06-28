@@ -28,11 +28,8 @@ A template to start new applications from.
 
 ### Setup localization
 
-1. The project relies on `Flutter Intl` to manage localization in this project. In Android Studio,
-   go to `Tools` >> `Flutter Intl` >> `Initialize for the project`. This may already be initialized,
-   but running it ensures proper setup on your machine.
-2. The Flutter Intl plugin requires global activation of `intl_utils`. If not already activated,
-   you may need to run the following command to activate the `intl_utils` globally.
+1. The project relies on `Flutter Intl` to manage localization in this project. In Android Studio, go to `Tools` >> `Flutter Intl` >> `Initialize for the project`. This may already be initialized, but running it ensures proper setup on your machine.
+2. The Flutter Intl plugin requires global activation of `intl_utils`. If not already activated, you may need to run the following command to activate the `intl_utils` globally.
    ```bash
    fvm flutter pub global activate intl_utils
    ```
@@ -70,8 +67,7 @@ Or, from Android Studio, use the pre-configured run configurations.
 
 ## Code generation
 
-The project uses code generation to generate many of its components. Run the following
-commands to regenerate all generated code, specially when setting up for the first time.
+The project uses code generation to generate many of its components. Run the following commands to regenerate all generated code, specially when setting up for the first time.
 
 ```bash
 # Generate dart codes
@@ -104,8 +100,7 @@ Or, with coverage:
 fvm flutter test --coverage
 ```
 
-Even better, you can run the tests, generate and view the coverage report via pre-configured
-Makefile commands:
+Even better, you can run the tests, generate and view the coverage report via pre-configured Makefile commands:
 
 ```bash
 make view-coverage
@@ -117,8 +112,7 @@ See [CONVENTIONS.md](CONVENTIONS.md) for the project conventions and development
 
 ## Whitelabel
 
-See [WHITELABEL.md](WHITELABEL.md) for instructions on customizing this template for your own app.
-Covers flavors, package name, app id, app name, launcher icon, splash screen, and Firebase setup.
+See [WHITELABEL.md](WHITELABEL.md) for instructions on customizing this template for your own app. Covers flavors, package name, app id, app name, launcher icon, splash screen, and Firebase setup.
 
 ## License
 
