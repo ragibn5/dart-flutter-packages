@@ -94,13 +94,13 @@ Use cases live in [`application/use_cases/`](#use-cases) and orchestrate a singl
 Keep in mind the following while designing use cases:
 
 - One class per use case, named after the operation (e.g., `RefreshAuthDataUseCase`, `SubmitOrderUseCase`).
-- Has exactly one public method (typically `call`, or `execute`, `initialize` or anything that suits the purpose).
+- Has exactly one public method named `call` (so that it is a callable class - can have any return type and/or any parameters).
 - Keeps orchestration logic (validation, precondition checks, fallback) — not business rules (those belong in [domain entities](#entities), or [domain services](#domain-services)).
 
 A use case may receive its dependencies from two places:
 
-1. From within same feature: Repositories, [domain services](#domain-services), [use cases](#use-cases) etc., from the same feature.
-2. From within other feature: Define an abstraction in [`application/ports/`](#ports) and inject that in the use case. The implementation can use external use cases, and should live outside the calling layer.
+1. From within same feature: Repositories, [domain services](#domain-services), other [use cases](#use-cases) etc., from the same feature.
+2. From within other feature: Define an abstract use case (ports) and use that as dependency. See the [`Ports`](#ports) section for more information.
 
 Note:
 
@@ -110,9 +110,9 @@ Note:
 
 #### Ports
 
-Ports live in `application/ports/`.
+Ports are abstract use cases and lives together with concrete ones in `application/usecases/`.
 
-These are interfaces used in `application/use_cases/` to abstract away external communications such as (but not a complete list):
+These are interfaces used as dependencies of other use cases and BLoC(s) to abstract away external communications such as (but not a complete list):
 
 - 3rd party library usages
 - Cross-feature communications
@@ -131,7 +131,7 @@ Per-endpoint API client abstractions defined in [`data/clients/`](#per-endpoint-
 
 #### Port implementations
 
-Port abstractions defined in [`application/ports/`](#ports) are implemented here in [`infrastructure/ports/`](#port-implementations).
+Port abstractions defined in [`application/use_cases/`](#ports) are implemented here in [`infrastructure/ports/`](#port-implementations).
 
 #### Database
 
@@ -205,7 +205,7 @@ Bellow is the convention you should follow when structuring features the project
 |------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `data`           | Repository implementations, DTOs, [data sources](#data-sources), [mappers](#data-mappers), etc.                                                             |
 | `domain`         | Pure Dart — [entities](#entities), [domain services](#domain-services), repository contracts, etc.                                                          |
-| `application`    | [Use cases](#use-cases) and [ports](#ports) (abstractions).                                                                                                 |
+| `application`    | [Use cases](#use-cases) and [ports](#ports) (abstract use cases).                                                                                           |
 | `infrastructure` | [Api clients](#per-endpoint-api-client-implementations), interceptors, [database](#database) components, [port implementations](#port-implementations) etc. |
 | `presentation`   | State management, [widgets](#widgets), etc.                                                                                                                 |
 
