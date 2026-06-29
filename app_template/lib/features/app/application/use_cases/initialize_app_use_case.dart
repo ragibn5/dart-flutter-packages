@@ -13,6 +13,7 @@ class InitializeAppUseCase {
     this._appDatabase,
   );
 
+  /// Initializes the app.
   Future<void> call() async {
     final initializables = [
       _crashlyticsService,

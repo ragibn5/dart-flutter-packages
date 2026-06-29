@@ -1,9 +1,12 @@
 import 'package:app_logger/app_logger.dart';
+import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
+import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_locale_selection_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_theme_mode_selection_use_case.dart';
 import 'package:app_template/features/reporting/domain/entities/error_report.dart';
-import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/settings/domain/entities/app_locale.dart';
 import 'package:app_template/features/settings/domain/entities/app_theme_mode.dart';
 import 'package:bloc/bloc.dart';
@@ -15,16 +18,22 @@ part 'app_root_state.dart';
 
 class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AppLogger _logger;
-  final AuthDataService _authDataService;
-  final SettingsService _settingsService;
 
+  final WatchAuthStateUseCase _watchAuthState;
+  final WatchLocaleSelectionUseCase _watchLocaleSelection;
+  final WatchThemeModeSelectionUseCase _watchThemeModeSelection;
+  final GetEffectiveLocaleUseCase _getEffectiveLocale;
+  final GetEffectiveThemeModeUseCase _getEffectiveThemeMode;
   final InitializeAppUseCase _initializeApp;
   final InitializeSessionUseCase _initializeSession;
 
   AppRootBloc(
     this._logger,
-    this._authDataService,
-    this._settingsService,
+    this._watchAuthState,
+    this._watchLocaleSelection,
+    this._watchThemeModeSelection,
+    this._getEffectiveLocale,
+    this._getEffectiveThemeMode,
     this._initializeApp,
     this._initializeSession,
   ) : super(AppInitializationInitial()) {
@@ -41,8 +50,8 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
 
         emit(
           AppInitializationSuccess(
-            locale: await _settingsService.getEffectiveLocale(),
-            themeMode: await _settingsService.getEffectiveThemeMode(),
+            locale: await _getEffectiveLocale(),
+            themeMode: await _getEffectiveThemeMode(),
           ),
         );
       } catch (e, st) {
@@ -71,7 +80,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
         return;
       }
 
-      final effectiveLocale = await _settingsService.getEffectiveLocale();
+      final effectiveLocale = await _getEffectiveLocale();
       emit(currentState.copyWith(locale: effectiveLocale));
     });
 
@@ -81,13 +90,13 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
         return;
       }
 
-      final effectiveThemeMode = await _settingsService.getEffectiveThemeMode();
+      final effectiveThemeMode = await _getEffectiveThemeMode();
       emit(currentState.copyWith(themeMode: effectiveThemeMode));
     });
 
     on<_LocaleChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
-        _settingsService.watchLocale(),
+        _watchLocaleSelection(),
         onData: (newLocale) {
           final currentState = state;
           if (currentState is! AppInitializationSuccess) {
@@ -101,7 +110,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
 
     on<_ThemeModeChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
-        _settingsService.watchThemeMode(),
+        _watchThemeModeSelection(),
         onData: (newThemeMode) {
           final currentState = state;
           if (currentState is! AppInitializationSuccess) {
@@ -115,7 +124,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
 
     on<_SessionChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
-        _authDataService.watchAuthData(),
+        _watchAuthState(),
         onData: (data) {
           add(_SessionDataRefreshRequested());
         },

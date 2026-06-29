@@ -14,9 +14,9 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
-import 'package:app_template/features/app/infrastructure/ports/get_user_id_port_impl.dart';
-import 'package:app_template/features/app/infrastructure/ports/set_analytics_session_data_port_impl.dart';
-import 'package:app_template/features/app/infrastructure/ports/set_crashlytics_session_data_port_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/get_user_id_use_case_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/set_analytics_session_data_use_case_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/set_crashlytics_session_data_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/router/guards/router_logger.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
@@ -306,11 +306,11 @@ abstract class AppModule {
     GetAuthDataUseCase getAuthDataUseCase,
   ) {
     return InitializeSessionUseCase(
-      GetUserIdPortImpl(getAuthDataUseCase),
-      SetAnalyticsSessionDataPortImpl(
+      GetUserIdUseCaseImpl(getAuthDataUseCase),
+      SetAnalyticsSessionDataUseCaseImpl(
         FirebaseAnalyticsService(FirebaseAnalytics.instance),
       ),
-      SetCrashlyticsSessionDataPortImpl(
+      SetCrashlyticsSessionDataUseCaseImpl(
         FirebaseCrashlyticsService(FirebaseCrashlytics.instance),
       ),
     );

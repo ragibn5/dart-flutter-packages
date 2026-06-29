@@ -1,11 +1,11 @@
-import 'package:app_template/features/app/application/ports/set_crashlytics_session_data_port.dart';
+import 'package:app_template/features/app/application/use_cases/set_crashlytics_session_data_use_case.dart';
 import 'package:crashlytics/crashlytics.dart';
 
-class SetCrashlyticsSessionDataPortImpl
-    implements SetCrashlyticsSessionDataPort {
+class SetCrashlyticsSessionDataUseCaseImpl
+    implements SetCrashlyticsSessionDataUseCase {
   final CrashlyticsService _crashlyticsService;
 
-  SetCrashlyticsSessionDataPortImpl(this._crashlyticsService);
+  SetCrashlyticsSessionDataUseCaseImpl(this._crashlyticsService);
 
   @override
   Future<void> call(String userId, {required bool collectionEnabled}) {

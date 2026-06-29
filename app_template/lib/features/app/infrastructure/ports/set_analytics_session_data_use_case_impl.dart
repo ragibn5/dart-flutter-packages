@@ -1,10 +1,11 @@
 import 'package:analytics/analytics.dart';
-import 'package:app_template/features/app/application/ports/set_analytics_session_data_port.dart';
+import 'package:app_template/features/app/application/use_cases/set_analytics_session_data_use_case.dart';
 
-class SetAnalyticsSessionDataPortImpl implements SetAnalyticsSessionDataPort {
+class SetAnalyticsSessionDataUseCaseImpl
+    implements SetAnalyticsSessionDataUseCase {
   final AnalyticsService _analyticsService;
 
-  SetAnalyticsSessionDataPortImpl(this._analyticsService);
+  SetAnalyticsSessionDataUseCaseImpl(this._analyticsService);
 
   @override
   Future<void> call(String userId, {required bool collectionEnabled}) {
