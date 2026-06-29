@@ -1,5 +1,5 @@
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/entities/error_report.dart';
@@ -17,22 +17,22 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AppLogger _logger;
   final AuthDataService _authDataService;
   final SettingsService _settingsService;
-  final AppInitializerUseCase _appInitializerService;
 
+  final InitializeAppUseCase _initializeApp;
   final InitializeSessionUseCase _initializeSession;
 
   AppRootBloc(
     this._logger,
     this._authDataService,
     this._settingsService,
-    this._appInitializerService,
+    this._initializeApp,
     this._initializeSession,
   ) : super(AppInitializationInitial()) {
     on<AppInitializationRequested>((event, emit) async {
       emit(AppInitializationInProgress());
 
       try {
-        await _appInitializerService.initialize();
+        await _initializeApp();
         await _initializeSession();
 
         add(_LocaleChangeListenerInitRequested());

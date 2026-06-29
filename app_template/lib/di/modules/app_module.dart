@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:alerter/alerter.dart';
 import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
 import 'package:app_template/features/app/infrastructure/config/router/routes.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
@@ -289,12 +289,12 @@ abstract class AppModule {
   }
 
   @singleton
-  AppInitializerUseCase getAppInitializerUseCase(
+  InitializeAppUseCase getAppInitializerUseCase(
     AnalyticsService analyticsService,
     CrashlyticsService crashlyticsService,
     SQLiteDb appDatabase,
   ) {
-    return AppInitializerUseCase(
+    return InitializeAppUseCase(
       crashlyticsService,
       analyticsService,
       appDatabase,
@@ -334,7 +334,7 @@ abstract class AppModule {
     AppLogger logger,
     AuthDataService authDataService,
     SettingsService settingsService,
-    AppInitializerUseCase appInitializerService,
+    InitializeAppUseCase appInitializerService,
     InitializeSessionUseCase initializeSessionUseCase,
   ) {
     return AppRootBloc(

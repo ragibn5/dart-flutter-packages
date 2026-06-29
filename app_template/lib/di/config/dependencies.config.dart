@@ -16,7 +16,7 @@ import 'package:app_template/di/modules/app_module.dart' as _i384;
 import 'package:app_template/di/modules/auth_module.dart' as _i228;
 import 'package:app_template/di/modules/settings_module.dart' as _i150;
 import 'package:app_template/di/modules/user_data_module.dart' as _i201;
-import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart'
+import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart'
     as _i493;
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart'
     as _i1052;
@@ -189,7 +189,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(),
       ),
     );
-    gh.singleton<_i493.AppInitializerUseCase>(
+    gh.singleton<_i493.InitializeAppUseCase>(
       () => appModule.getAppInitializerUseCase(
         gh<_i548.AnalyticsService>(),
         gh<_i35.CrashlyticsService>(),
@@ -289,7 +289,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
         gh<_i658.SettingsService>(),
-        gh<_i493.AppInitializerUseCase>(),
+        gh<_i493.InitializeAppUseCase>(),
         gh<_i1052.InitializeSessionUseCase>(),
       ),
     );

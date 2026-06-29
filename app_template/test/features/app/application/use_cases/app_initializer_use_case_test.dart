@@ -1,5 +1,5 @@
 import 'package:analytics/analytics.dart';
-import 'package:app_template/features/app/application/use_cases/app_initializer_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,7 +16,7 @@ void main() {
   late _MockAnalyticsService mockAnalytics;
   late _MockSQLiteDb mockDatabase;
 
-  late AppInitializerUseCase sut;
+  late InitializeAppUseCase sut;
 
   setUp(() {
     mockCrashlytics = _MockCrashlyticsService();
@@ -27,7 +27,7 @@ void main() {
     when(() => mockAnalytics.initialize()).thenAnswer((_) async {});
     when(() => mockDatabase.initialize()).thenAnswer((_) async {});
 
-    sut = AppInitializerUseCase(mockCrashlytics, mockAnalytics, mockDatabase);
+    sut = InitializeAppUseCase(mockCrashlytics, mockAnalytics, mockDatabase);
   });
 
   test('Should initialize all services in order', () async {
