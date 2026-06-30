@@ -1,14 +1,14 @@
-import 'package:app_template/features/settings/application/services/platform_settings_provider.dart';
+import 'package:app_template/features/settings/application/use_cases/get_platform_locale_use_case.dart';
 import 'package:app_template/features/settings/domain/entities/locale_components.dart';
 import 'package:flutter/widgets.dart';
 
-class PlatformSettingsProviderImpl implements PlatformSettingsProvider {
+class GetPlatformLocaleUseCaseImpl implements GetPlatformLocaleUseCase {
   final WidgetsBinding _binding;
 
-  PlatformSettingsProviderImpl(this._binding);
+  GetPlatformLocaleUseCaseImpl(this._binding);
 
   @override
-  LocaleComponents getSystemaLocale() {
+  Future<LocaleComponents> call() async {
     final systemLocale = _binding.platformDispatcher.locale;
     return LocaleComponents(
       languageCode: systemLocale.languageCode,

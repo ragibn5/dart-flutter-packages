@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:app_template/features/settings/application/services/app_locale_resolver.dart';
-import 'package:app_template/features/settings/application/services/platform_settings_provider.dart';
+import 'package:app_template/features/settings/domain/services/app_locale_resolver.dart';
+import 'package:app_template/features/settings/application/use_cases/get_platform_locale_use_case.dart';
 import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/settings/application/services/settings_service_impl.dart';
 import 'package:app_template/features/settings/data/mappers/settings_mapper.dart';
@@ -11,7 +11,7 @@ import 'package:app_template/features/settings/data/sources/settings_data_source
 import 'package:app_template/features/settings/data/sources/settings_data_source_impl.dart';
 import 'package:app_template/features/settings/domain/entities/app_settings.dart';
 import 'package:app_template/features/settings/domain/repositories/settings_repository.dart';
-import 'package:app_template/features/settings/infrastructure/services/platform_settings_provider_impl.dart';
+import 'package:app_template/features/settings/infrastructure/ports/platform_settings_provider_impl.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:flutter/widgets.dart';
 import 'package:injectable/injectable.dart';

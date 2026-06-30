@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:app_template/features/settings/application/services/app_locale_resolver.dart';
-import 'package:app_template/features/settings/application/services/platform_settings_provider.dart';
+import 'package:app_template/features/settings/domain/services/app_locale_resolver.dart';
+import 'package:app_template/features/settings/application/use_cases/get_platform_locale_use_case.dart';
 import 'package:app_template/features/settings/application/services/settings_service_impl.dart';
 import 'package:app_template/features/settings/domain/entities/app_locale.dart';
 import 'package:app_template/features/settings/domain/entities/app_settings.dart';

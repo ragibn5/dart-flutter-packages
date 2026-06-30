@@ -14,10 +14,9 @@ import 'package:analytics/analytics.dart' as _i548;
 import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/di/modules/app_module.dart' as _i384;
 import 'package:app_template/di/modules/auth_module.dart' as _i228;
-import 'package:app_template/di/modules/settings_module.dart' as _i150;
 import 'package:app_template/di/modules/user_data_module.dart' as _i201;
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart'
-    as _i493;
+    as _i656;
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart'
     as _i1052;
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart'
@@ -48,20 +47,6 @@ import 'package:app_template/features/auth/domain/repositories/auth_data_reposit
     as _i731;
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart'
     as _i374;
-import 'package:app_template/features/settings/application/services/app_locale_resolver.dart'
-    as _i972;
-import 'package:app_template/features/settings/application/services/platform_settings_provider.dart'
-    as _i322;
-import 'package:app_template/features/settings/application/services/settings_service.dart'
-    as _i658;
-import 'package:app_template/features/settings/data/models/settings_dto.dart'
-    as _i801;
-import 'package:app_template/features/settings/data/sources/settings_data_source.dart'
-    as _i850;
-import 'package:app_template/features/settings/domain/entities/app_settings.dart'
-    as _i250;
-import 'package:app_template/features/settings/domain/repositories/settings_repository.dart'
-    as _i612;
 import 'package:app_template/features/user_data/data/models/user_data_dto.dart'
     as _i1018;
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart'
@@ -98,16 +83,12 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final authModule = _$AuthModule();
-    final settingsModule = _$SettingsModule();
     final userDataModule = _$UserDataModule();
     final appModule = _$AppModule();
     gh.factory<_i704.AuthDataMapper>(() => authModule.getAuthDataMapper());
     gh.factory<_i82.AuthRefreshErrorMapper>(
       () => authModule.getAuthRefreshErrorMapper(),
     );
-    gh.factory<
-      _i1003.DataDomainConverter<_i801.SettingsDTO, _i250.AppSettings>
-    >(() => settingsModule.getSettingsMapper());
     gh.factory<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i414.UserData>>(
       () => userDataModule.getUserDataMapper(),
     );
@@ -137,12 +118,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i291.FallbackLocaleSelector>(
       () => appModule.getFallbackLocaleSelector(),
-    );
-    gh.singleton<_i322.PlatformSettingsProvider>(
-      () => settingsModule.getPlatformSettingsProvider(),
-    );
-    gh.singleton<_i972.AppLocaleResolver>(
-      () => settingsModule.getAppLocaleResolver(),
     );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getStageFlavorConfig(),
@@ -178,9 +153,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i30.LocalAuthDataSource>(
       () => authModule.getLocalAuthDataSource(gh<_i300.PreferenceStore>()),
     );
-    gh.singleton<_i850.SettingsDataSource>(
-      () => settingsModule.getSettingsDataSource(gh<_i300.PreferenceStore>()),
-    );
     gh.singleton<_i860.SQLiteDb>(
       () => appModule.getAppDatabase(gh<_i527.AppDirectories>()),
     );
@@ -189,7 +161,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(),
       ),
     );
-    gh.singleton<_i493.InitializeAppUseCase>(
+    gh.singleton<_i656.InitializeAppUseCase>(
       () => appModule.getAppInitializerUseCase(
         gh<_i548.AnalyticsService>(),
         gh<_i35.CrashlyticsService>(),
@@ -202,20 +174,37 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i655.PackageInfo>(),
       ),
     );
+    gh.factory<_i524.AppServerTokenRefreshApiClient>(
+      () => appModule.getAppServerTokenRefresherApiClient(
+        gh<_i821.FlavorConfig>(),
+        gh<_i143.BuildMetadata>(),
+        gh<_i519.AppLogger>(),
+        gh<InvalidType>(),
+      ),
+    );
     gh.singleton<_i257.UserDataDataSource>(
       () => userDataModule.getUserDataDataSource(gh<_i860.SQLiteDb>()),
     );
-    gh.singleton<_i612.SettingsRepository>(
-      () => settingsModule.getSettingsRepository(
-        gh<_i1003.DataDomainConverter<_i801.SettingsDTO, _i250.AppSettings>>(),
-        gh<_i850.SettingsDataSource>(),
+    gh.singleton<_i156.RemoteAuthDataSource>(
+      () => authModule.getRemoteAuthDataSource(
+        gh<_i524.AppServerTokenRefreshApiClient>(),
       ),
     );
-    gh.singleton<_i658.SettingsService>(
-      () => settingsModule.getSettingsService(
-        gh<_i972.AppLocaleResolver>(),
-        gh<_i322.PlatformSettingsProvider>(),
-        gh<_i612.SettingsRepository>(),
+    gh.singleton<_i535.NetClient>(
+      () => appModule.getAppServerPublicApiClient(
+        gh<_i821.FlavorConfig>(),
+        gh<_i143.BuildMetadata>(),
+        gh<InvalidType>(),
+        gh<_i519.AppLogger>(),
+      ),
+      instanceName: 'APP_SERVER_PUBLIC_API_CLIENT',
+    );
+    gh.singleton<_i731.AuthDataRepository>(
+      () => authModule.getAuthDataRepository(
+        gh<_i704.AuthDataMapper>(),
+        gh<_i82.AuthRefreshErrorMapper>(),
+        gh<_i30.LocalAuthDataSource>(),
+        gh<_i156.RemoteAuthDataSource>(),
       ),
     );
     gh.singleton<_i728.UserDataRepository>(
@@ -227,47 +216,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i84.UserDataService>(
       () => userDataModule.getUserDataService(gh<_i728.UserDataRepository>()),
     );
-    gh.singleton<_i535.NetClient>(
-      () => appModule.getAppServerPublicApiClient(
-        gh<_i821.FlavorConfig>(),
-        gh<_i143.BuildMetadata>(),
-        gh<_i658.SettingsService>(),
-        gh<_i519.AppLogger>(),
-      ),
-      instanceName: 'APP_SERVER_PUBLIC_API_CLIENT',
-    );
-    gh.factory<_i524.AppServerTokenRefreshApiClient>(
-      () => appModule.getAppServerTokenRefresherApiClient(
-        gh<_i821.FlavorConfig>(),
-        gh<_i143.BuildMetadata>(),
-        gh<_i519.AppLogger>(),
-        gh<_i658.SettingsService>(),
-      ),
-    );
-    gh.singleton<_i156.RemoteAuthDataSource>(
-      () => authModule.getRemoteAuthDataSource(
-        gh<_i524.AppServerTokenRefreshApiClient>(),
-      ),
-    );
-    gh.singleton<_i731.AuthDataRepository>(
-      () => authModule.getAuthDataRepository(
-        gh<_i704.AuthDataMapper>(),
-        gh<_i82.AuthRefreshErrorMapper>(),
-        gh<_i30.LocalAuthDataSource>(),
-        gh<_i156.RemoteAuthDataSource>(),
-      ),
-    );
     gh.factory<_i969.GetAuthDataUseCase>(
       () => authModule.getGetAuthDataUseCase(gh<_i731.AuthDataRepository>()),
     );
     gh.singleton<_i374.AuthDataService>(
       () => authModule.getAuthDataService(gh<_i731.AuthDataRepository>()),
-    );
-    gh.singleton<_i251.NavRouter>(
-      () => appModule.getAppRouter(
-        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
-        gh<_i374.AuthDataService>(),
-      ),
     );
     gh.singleton<_i535.NetClient>(
       () => appModule.getAppServerPrivateApiClient(
@@ -275,10 +228,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i143.BuildMetadata>(),
         gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
-        gh<_i658.SettingsService>(),
+        gh<InvalidType>(),
         gh<_i524.AppServerTokenRefreshApiClient>(),
       ),
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
+    );
+    gh.singleton<_i251.NavRouter>(
+      () => appModule.getAppRouter(
+        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+        gh<_i374.AuthDataService>(),
+      ),
     );
     gh.factory<_i1052.InitializeSessionUseCase>(
       () =>
@@ -288,8 +247,8 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.getAppRootBloc(
         gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
-        gh<_i658.SettingsService>(),
-        gh<_i493.InitializeAppUseCase>(),
+        gh<InvalidType>(),
+        gh<_i656.InitializeAppUseCase>(),
         gh<_i1052.InitializeSessionUseCase>(),
       ),
     );
@@ -298,8 +257,6 @@ extension GetItInjectableX on _i174.GetIt {
 }
 
 class _$AuthModule extends _i228.AuthModule {}
-
-class _$SettingsModule extends _i150.SettingsModule {}
 
 class _$UserDataModule extends _i201.UserDataModule {}
 

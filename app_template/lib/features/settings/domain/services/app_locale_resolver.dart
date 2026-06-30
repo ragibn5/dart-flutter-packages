@@ -2,6 +2,7 @@ import 'package:app_template/features/settings/domain/entities/app_locale.dart';
 import 'package:app_template/features/settings/domain/entities/locale_components.dart';
 
 class AppLocaleResolver {
+  /// Resolve a [LocaleComponents] into an [AppLocale] if possible.
   AppLocale? resolveLocale(LocaleComponents requested) {
     bool match(AppLocale locale, {bool script = false, bool country = false}) {
       if (locale.languageCode != requested.languageCode) {
