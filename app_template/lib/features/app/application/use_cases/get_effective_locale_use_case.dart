@@ -1,6 +1,47 @@
-import 'package:app_template/features/settings/domain/entities/app_locale.dart';
+import 'package:app_template/features/app/application/use_cases/get_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
+import 'package:app_template/features/app/domain/entities/app_locale.dart';
+import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
 
-abstract interface class GetEffectiveLocaleUseCase {
-  /// Get the effective locale of the app.
-  Future<AppLocale> call();
+class GetEffectiveLocaleUseCase {
+  final AppLocaleResolver _appLocaleResolver;
+
+  final GetLocaleUseCase _getLocale;
+  final GetPlatformLocaleUseCase _getPlatformLocale;
+
+  GetEffectiveLocaleUseCase(
+    this._appLocaleResolver,
+    this._getLocale,
+    this._getPlatformLocale,
+  );
+
+  /// Returns the **effective app locale** as [LocaleComponents].
+  ///
+  /// Resolution order:
+  /// 1. If the user explicitly selected a locale earlier, its corresponding
+  ///    locale components are returned.
+  /// 2. Otherwise, if the system's current locale can be mapped into
+  ///    one of the supported locales (i.e. [AppLocale.values]), then
+  ///    its corresponding locale components are returned.
+  /// 3. If none of the above works out, [AppLocale.EN]'s corresponding
+  ///    locale components are returned.
+  Future<LocaleComponents> call() async {
+    final persistedLocale = await _getLocale();
+    if (persistedLocale != AppLocale.SYSTEM) {
+      return _mapToLocaleComponents(persistedLocale);
+    }
+
+    final platformLocale = await _getPlatformLocale();
+    final resolvedLocale = _appLocaleResolver.resolverAppLocale(platformLocale);
+    return _mapToLocaleComponents(resolvedLocale ?? AppLocale.EN);
+  }
+
+  LocaleComponents _mapToLocaleComponents(AppLocale locale) {
+    return LocaleComponents(
+      languageCode: locale.languageCode,
+      scriptCode: locale.scriptCode,
+      countryCode: locale.countryCode,
+    );
+  }
 }

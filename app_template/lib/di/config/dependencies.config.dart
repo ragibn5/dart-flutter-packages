@@ -15,10 +15,42 @@ import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/di/modules/app_module.dart' as _i384;
 import 'package:app_template/di/modules/auth_module.dart' as _i228;
 import 'package:app_template/di/modules/user_data_module.dart' as _i201;
+import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart'
+    as _i999;
+import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart'
+    as _i363;
+import 'package:app_template/features/app/application/use_cases/get_locale_use_case.dart'
+    as _i217;
+import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart'
+    as _i846;
+import 'package:app_template/features/app/application/use_cases/get_theme_mode_use_case.dart'
+    as _i739;
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart'
     as _i656;
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart'
     as _i1052;
+import 'package:app_template/features/app/application/use_cases/set_locale_use_case.dart'
+    as _i929;
+import 'package:app_template/features/app/application/use_cases/set_theme_mode_use_case.dart'
+    as _i390;
+import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart'
+    as _i884;
+import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart'
+    as _i625;
+import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart'
+    as _i44;
+import 'package:app_template/features/app/data/models/settings_dto.dart'
+    as _i913;
+import 'package:app_template/features/app/data/sources/settings_data_source.dart'
+    as _i1014;
+import 'package:app_template/features/app/domain/entities/app_settings.dart'
+    as _i746;
+import 'package:app_template/features/app/domain/repositories/settings_repository.dart'
+    as _i1030;
+import 'package:app_template/features/app/domain/services/app_locale_resolver.dart'
+    as _i79;
+import 'package:app_template/features/app/domain/services/local_components_mapper.dart'
+    as _i1034;
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart'
     as _i527;
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart'
@@ -82,9 +114,26 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    final appModule = _$AppModule();
     final authModule = _$AuthModule();
     final userDataModule = _$UserDataModule();
-    final appModule = _$AppModule();
+    gh.factory<_i79.AppLocaleResolver>(() => appModule.getAppLocaleResolver());
+    gh.factory<_i1034.LocalComponentsMapper>(
+      () => appModule.getLocalComponentsMapper(),
+    );
+    gh.factory<_i291.FallbackLocaleSelector>(
+      () => appModule.getFallbackLocaleSelector(),
+    );
+    gh.factory<
+      _i1003.DataDomainConverter<_i913.SettingsDTO, _i746.AppSettings>
+    >(() => appModule.getSettingsMapper());
+    gh.factory<_i846.GetPlatformLocaleUseCase>(
+      () => appModule.getPlatformLocaleUseCase(),
+    );
+    gh.factory<_i548.AnalyticsService>(() => appModule.getAnalyticsService());
+    gh.factory<_i35.CrashlyticsService>(
+      () => appModule.getCrashlyticsService(),
+    );
     gh.factory<_i704.AuthDataMapper>(() => authModule.getAuthDataMapper());
     gh.factory<_i82.AuthRefreshErrorMapper>(
       () => authModule.getAuthRefreshErrorMapper(),
@@ -112,13 +161,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i300.PreferenceStore>(
       () => appModule.getSharedPreferenceStore(),
     );
-    gh.singleton<_i548.AnalyticsService>(() => appModule.getAnalyticsService());
-    gh.singleton<_i35.CrashlyticsService>(
-      () => appModule.getCrashlyticsService(),
-    );
-    gh.singleton<_i291.FallbackLocaleSelector>(
-      () => appModule.getFallbackLocaleSelector(),
-    );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getStageFlavorConfig(),
       registerFor: {_stage},
@@ -137,67 +179,120 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.getExpFlavorConfig(),
       registerFor: {_exp},
     );
-    gh.singleton<_i803.AppConfigFactory>(
+    gh.factory<_i803.AppConfigFactory>(
       () => appModule.getAppConfigFactory(
         gh<_i655.PackageInfo>(),
         gh<_i291.FallbackLocaleSelector>(),
       ),
     );
-    gh.singleton<_i103.Alerter>(
+    gh.factory<_i103.Alerter>(
       () => appModule.getAlerter(gh<_i409.GlobalKey<_i409.NavigatorState>>()),
     );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getProdFlavorConfig(),
       registerFor: {_prod},
     );
-    gh.singleton<_i30.LocalAuthDataSource>(
+    gh.singleton<_i1014.SettingsDataSource>(
+      () => appModule.getSettingsDataSource(gh<_i300.PreferenceStore>()),
+    );
+    gh.factory<_i30.LocalAuthDataSource>(
       () => authModule.getLocalAuthDataSource(gh<_i300.PreferenceStore>()),
+    );
+    gh.singleton<_i1030.SettingsRepository>(
+      () => appModule.getSettingsRepository(
+        gh<_i1003.DataDomainConverter<_i913.SettingsDTO, _i746.AppSettings>>(),
+        gh<_i1014.SettingsDataSource>(),
+      ),
     );
     gh.singleton<_i860.SQLiteDb>(
       () => appModule.getAppDatabase(gh<_i527.AppDirectories>()),
     );
-    gh.singleton<_i1020.Snacker>(
+    gh.factory<_i1020.Snacker>(
       () => appModule.getSnacker(
         gh<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(),
       ),
     );
-    gh.singleton<_i656.InitializeAppUseCase>(
+    gh.factory<_i625.WatchLocaleUseCase>(
+      () => appModule.getWatchLocaleUseCase(
+        gh<_i1030.SettingsRepository>(),
+        gh<_i846.GetPlatformLocaleUseCase>(),
+        gh<_i79.AppLocaleResolver>(),
+        gh<_i1034.LocalComponentsMapper>(),
+      ),
+    );
+    gh.factory<_i656.InitializeAppUseCase>(
       () => appModule.getAppInitializerUseCase(
         gh<_i548.AnalyticsService>(),
         gh<_i35.CrashlyticsService>(),
         gh<_i860.SQLiteDb>(),
       ),
     );
-    gh.singleton<_i143.BuildMetadata>(
+    gh.factory<_i143.BuildMetadata>(
       () => appModule.getBuildMetadata(
         gh<_i821.FlavorConfig>(),
         gh<_i655.PackageInfo>(),
       ),
+    );
+    gh.factory<_i257.UserDataDataSource>(
+      () => userDataModule.getUserDataDataSource(gh<_i860.SQLiteDb>()),
+    );
+    gh.factory<_i217.GetLocaleUseCase>(
+      () => appModule.getGetLocaleUseCase(gh<_i1030.SettingsRepository>()),
+    );
+    gh.factory<_i739.GetThemeModeUseCase>(
+      () => appModule.getGetThemeModeUseCase(gh<_i1030.SettingsRepository>()),
+    );
+    gh.factory<_i929.SetLocaleUseCase>(
+      () => appModule.getSetLocaleUseCase(gh<_i1030.SettingsRepository>()),
+    );
+    gh.factory<_i390.SetThemeModeUseCase>(
+      () => appModule.getSetThemeModeUseCase(gh<_i1030.SettingsRepository>()),
+    );
+    gh.factory<_i44.WatchThemeModeUseCase>(
+      () => appModule.getWatchThemeModeUseCase(gh<_i1030.SettingsRepository>()),
+    );
+    gh.factory<_i363.GetEffectiveThemeModeUseCase>(
+      () => appModule.getGetEffectiveThemeModeUseCase(
+        gh<_i739.GetThemeModeUseCase>(),
+      ),
+    );
+    gh.factory<_i999.GetEffectiveLocaleUseCase>(
+      () => appModule.getGetEffectiveLocaleUseCase(
+        gh<_i79.AppLocaleResolver>(),
+        gh<_i217.GetLocaleUseCase>(),
+        gh<_i846.GetPlatformLocaleUseCase>(),
+      ),
+    );
+    gh.factory<_i728.UserDataRepository>(
+      () => userDataModule.getUserDataRepository(
+        gh<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i414.UserData>>(),
+        gh<_i257.UserDataDataSource>(),
+      ),
+    );
+    gh.factory<_i84.UserDataService>(
+      () => userDataModule.getUserDataService(gh<_i728.UserDataRepository>()),
     );
     gh.factory<_i524.AppServerTokenRefreshApiClient>(
       () => appModule.getAppServerTokenRefresherApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
         gh<_i519.AppLogger>(),
-        gh<InvalidType>(),
-      ),
-    );
-    gh.singleton<_i257.UserDataDataSource>(
-      () => userDataModule.getUserDataDataSource(gh<_i860.SQLiteDb>()),
-    );
-    gh.singleton<_i156.RemoteAuthDataSource>(
-      () => authModule.getRemoteAuthDataSource(
-        gh<_i524.AppServerTokenRefreshApiClient>(),
+        gh<_i999.GetEffectiveLocaleUseCase>(),
       ),
     );
     gh.singleton<_i535.NetClient>(
       () => appModule.getAppServerPublicApiClient(
         gh<_i821.FlavorConfig>(),
         gh<_i143.BuildMetadata>(),
-        gh<InvalidType>(),
+        gh<_i999.GetEffectiveLocaleUseCase>(),
         gh<_i519.AppLogger>(),
       ),
       instanceName: 'APP_SERVER_PUBLIC_API_CLIENT',
+    );
+    gh.factory<_i156.RemoteAuthDataSource>(
+      () => authModule.getRemoteAuthDataSource(
+        gh<_i524.AppServerTokenRefreshApiClient>(),
+      ),
     );
     gh.singleton<_i731.AuthDataRepository>(
       () => authModule.getAuthDataRepository(
@@ -207,20 +302,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i156.RemoteAuthDataSource>(),
       ),
     );
-    gh.singleton<_i728.UserDataRepository>(
-      () => userDataModule.getUserDataRepository(
-        gh<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i414.UserData>>(),
-        gh<_i257.UserDataDataSource>(),
-      ),
-    );
-    gh.singleton<_i84.UserDataService>(
-      () => userDataModule.getUserDataService(gh<_i728.UserDataRepository>()),
+    gh.factory<_i374.AuthDataService>(
+      () => authModule.getAuthDataService(gh<_i731.AuthDataRepository>()),
     );
     gh.factory<_i969.GetAuthDataUseCase>(
       () => authModule.getGetAuthDataUseCase(gh<_i731.AuthDataRepository>()),
-    );
-    gh.singleton<_i374.AuthDataService>(
-      () => authModule.getAuthDataService(gh<_i731.AuthDataRepository>()),
     );
     gh.singleton<_i535.NetClient>(
       () => appModule.getAppServerPrivateApiClient(
@@ -228,7 +314,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i143.BuildMetadata>(),
         gh<_i519.AppLogger>(),
         gh<_i374.AuthDataService>(),
-        gh<InvalidType>(),
+        gh<_i999.GetEffectiveLocaleUseCase>(),
         gh<_i524.AppServerTokenRefreshApiClient>(),
       ),
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
@@ -239,6 +325,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i374.AuthDataService>(),
       ),
     );
+    gh.factory<_i884.WatchAuthStateUseCase>(
+      () => appModule.getWatchAuthStateUseCase(gh<_i374.AuthDataService>()),
+    );
     gh.factory<_i1052.InitializeSessionUseCase>(
       () =>
           appModule.getInitializeSessionUseCase(gh<_i969.GetAuthDataUseCase>()),
@@ -246,8 +335,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i873.AppRootBloc>(
       () => appModule.getAppRootBloc(
         gh<_i519.AppLogger>(),
-        gh<_i374.AuthDataService>(),
-        gh<InvalidType>(),
+        gh<_i884.WatchAuthStateUseCase>(),
+        gh<_i625.WatchLocaleUseCase>(),
+        gh<_i44.WatchThemeModeUseCase>(),
+        gh<_i999.GetEffectiveLocaleUseCase>(),
+        gh<_i363.GetEffectiveThemeModeUseCase>(),
         gh<_i656.InitializeAppUseCase>(),
         gh<_i1052.InitializeSessionUseCase>(),
       ),
@@ -256,8 +348,8 @@ extension GetItInjectableX on _i174.GetIt {
   }
 }
 
+class _$AppModule extends _i384.AppModule {}
+
 class _$AuthModule extends _i228.AuthModule {}
 
 class _$UserDataModule extends _i201.UserDataModule {}
-
-class _$AppModule extends _i384.AppModule {}

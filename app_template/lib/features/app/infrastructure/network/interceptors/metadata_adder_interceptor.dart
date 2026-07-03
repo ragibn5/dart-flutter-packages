@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
+import 'package:app_template/features/app/domain/entities/locale_components.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
-import 'package:app_template/features/settings/domain/entities/app_locale.dart';
 import 'package:net_kit/net_kit.dart';
 
 class MetadataHeaderKeys {
@@ -37,7 +37,7 @@ class MetadataAdderInterceptor extends NetKitInterceptor {
     );
   }
 
-  Map<String, String> _buildLocaleHeaders(AppLocale locale) {
+  Map<String, String> _buildLocaleHeaders(LocaleComponents locale) {
     final platformLocale = Locale.fromSubtags(
       languageCode: locale.languageCode,
       scriptCode: locale.scriptCode,

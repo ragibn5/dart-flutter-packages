@@ -1,10 +1,30 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:alerter/alerter.dart';
 import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
+import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_theme_mode_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/set_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/set_theme_mode_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart';
+import 'package:app_template/features/app/data/mappers/settings_mapper.dart';
+import 'package:app_template/features/app/data/models/settings_dto.dart';
+import 'package:app_template/features/app/data/repositories/settings_repository_impl.dart';
+import 'package:app_template/features/app/data/sources/settings_data_source.dart';
+import 'package:app_template/features/app/data/sources/settings_data_source_impl.dart';
+import 'package:app_template/features/app/domain/entities/app_settings.dart';
+import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
+import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
+import 'package:app_template/features/app/domain/services/local_components_mapper.dart';
 import 'package:app_template/features/app/infrastructure/config/router/routes.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
@@ -14,9 +34,11 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:app_template/features/app/infrastructure/ports/get_platform_locale_use_case.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_user_id_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/set_analytics_session_data_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/set_crashlytics_session_data_use_case_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/watch_auth_state_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/router/guards/router_logger.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
@@ -25,9 +47,9 @@ import 'package:app_template/features/auth/application/use_cases/get_auth_data_u
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
-import 'package:app_template/features/settings/application/services/settings_service.dart';
 import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
 import 'package:crashlytics/crashlytics.dart';
+import 'package:data_domain_converters/data_domain_converters.dart';
 import 'package:dlogger/dlogger.dart' hide Logger;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -51,7 +73,6 @@ const String APP_SERVER_PRIVATE_API_CLIENT = 'APP_SERVER_PRIVATE_API_CLIENT';
 abstract class AppModule {
   @Singleton(env: [AppFlavor.FLAVOR_NAME_DEV])
   FlavorConfig getDevFlavorConfig() {
-    // TODO: CHANGE THE URLS
     return FlavorConfig(
       flavor: AppFlavor.DEV.name,
       baseUrl: 'https://dev.yourserver.com',
@@ -61,7 +82,6 @@ abstract class AppModule {
 
   @Singleton(env: [AppFlavor.FLAVOR_NAME_EXP])
   FlavorConfig getExpFlavorConfig() {
-    // TODO: CHANGE THE URLS
     return FlavorConfig(
       flavor: AppFlavor.EXP.name,
       baseUrl: 'https://exp.yourserver.com',
@@ -71,7 +91,6 @@ abstract class AppModule {
 
   @Singleton(env: [AppFlavor.FLAVOR_NAME_STAGE])
   FlavorConfig getStageFlavorConfig() {
-    // TODO: CHANGE THE URLS
     return FlavorConfig(
       flavor: AppFlavor.STAGE.name,
       baseUrl: 'https://stage.yourserver.com',
@@ -81,7 +100,6 @@ abstract class AppModule {
 
   @Singleton(env: [AppFlavor.FLAVOR_NAME_PROD])
   FlavorConfig getProdFlavorConfig() {
-    // TODO: CHANGE THE URLS
     return FlavorConfig(
       flavor: AppFlavor.PROD.name,
       baseUrl: 'https://yourserver.com',
@@ -106,7 +124,6 @@ abstract class AppModule {
     );
   }
 
-  @singleton
   BuildMetadata getBuildMetadata(
     FlavorConfig flavorConfig,
     PackageInfo packageInfo,
@@ -198,12 +215,117 @@ abstract class AppModule {
     );
   }
 
+  AppLocaleResolver getAppLocaleResolver() {
+    return AppLocaleResolver();
+  }
+
+  LocalComponentsMapper getLocalComponentsMapper() {
+    return LocalComponentsMapper();
+  }
+
+  FallbackLocaleSelector getFallbackLocaleSelector() {
+    return const FallbackLocaleSelector();
+  }
+
+  DataDomainConverter<SettingsDTO, AppSettings> getSettingsMapper() {
+    return SettingsMapper();
+  }
+
+  @singleton
+  SettingsDataSource getSettingsDataSource(PreferenceStore preferenceStore) {
+    return SettingsDataSourceImpl(preferenceStore);
+  }
+
+  @singleton
+  SettingsRepository getSettingsRepository(
+    DataDomainConverter<SettingsDTO, AppSettings> settingsMapper,
+    SettingsDataSource settingsDataSource,
+  ) {
+    return SettingsRepositoryImpl(
+      StreamController<AppSettings>.broadcast(),
+      settingsMapper,
+      settingsDataSource,
+    );
+  }
+
+  GetPlatformLocaleUseCase getPlatformLocaleUseCase() {
+    return GetPlatformLocaleUseCaseImpl(WidgetsBinding.instance);
+  }
+
+  WatchAuthStateUseCase getWatchAuthStateUseCase(
+    AuthDataService authDataService,
+  ) {
+    return WatchAuthStateUseCaseImpl(authDataService);
+  }
+
+  @injectable
+  GetLocaleUseCase getGetLocaleUseCase(SettingsRepository repository) {
+    return GetLocaleUseCase(repository);
+  }
+
+  @injectable
+  GetThemeModeUseCase getGetThemeModeUseCase(SettingsRepository repository) {
+    return GetThemeModeUseCase(repository);
+  }
+
+  @injectable
+  SetLocaleUseCase getSetLocaleUseCase(SettingsRepository repository) {
+    return SetLocaleUseCase(repository);
+  }
+
+  @injectable
+  SetThemeModeUseCase getSetThemeModeUseCase(SettingsRepository repository) {
+    return SetThemeModeUseCase(repository);
+  }
+
+  @injectable
+  WatchThemeModeUseCase getWatchThemeModeUseCase(
+    SettingsRepository repository,
+  ) {
+    return WatchThemeModeUseCase(repository);
+  }
+
+  @injectable
+  WatchLocaleUseCase getWatchLocaleUseCase(
+    SettingsRepository repository,
+    GetPlatformLocaleUseCase getPlatformLocale,
+    AppLocaleResolver appLocaleResolver,
+    LocalComponentsMapper localComponentsMapper,
+  ) {
+    return WatchLocaleUseCase(
+      repository,
+      getPlatformLocale,
+      appLocaleResolver,
+      localComponentsMapper,
+    );
+  }
+
+  @injectable
+  GetEffectiveLocaleUseCase getGetEffectiveLocaleUseCase(
+    AppLocaleResolver appLocaleResolver,
+    GetLocaleUseCase getLocale,
+    GetPlatformLocaleUseCase getPlatformLocale,
+  ) {
+    return GetEffectiveLocaleUseCase(
+      appLocaleResolver,
+      getLocale,
+      getPlatformLocale,
+    );
+  }
+
+  @injectable
+  GetEffectiveThemeModeUseCase getGetEffectiveThemeModeUseCase(
+    GetThemeModeUseCase getThemeMode,
+  ) {
+    return GetEffectiveThemeModeUseCase(getThemeMode);
+  }
+
   @singleton
   @Named(APP_SERVER_PUBLIC_API_CLIENT)
   NetClient getAppServerPublicApiClient(
     FlavorConfig flavorConfig,
     BuildMetadata buildMetadata,
-    SettingsService settingsService,
+    GetEffectiveLocaleUseCase getEffectiveLocale,
     AppLogger logger,
   ) {
     final client = NetClientFactory().create(
@@ -214,7 +336,7 @@ abstract class AppModule {
     );
 
     client.interceptors.addAll([
-      MetadataAdderInterceptor(buildMetadata, settingsService),
+      MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
       LoggerInterceptor(logger),
     ]);
 
@@ -228,7 +350,7 @@ abstract class AppModule {
     BuildMetadata buildMetadata,
     AppLogger logger,
     AuthDataService authDataService,
-    SettingsService settingsService,
+    GetEffectiveLocaleUseCase getEffectiveLocale,
     AppServerTokenRefreshApiClient tokenRefreshApiClient,
   ) {
     final client = NetClientFactory().create(
@@ -239,7 +361,7 @@ abstract class AppModule {
     );
 
     client.interceptors.addAll([
-      MetadataAdderInterceptor(buildMetadata, settingsService),
+      MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
       AuthInterceptor(client, authDataService),
       LoggerInterceptor(logger),
     ]);
@@ -251,7 +373,7 @@ abstract class AppModule {
     FlavorConfig flavorConfig,
     BuildMetadata buildMetadata,
     AppLogger logger,
-    SettingsService settingsService,
+    GetEffectiveLocaleUseCase getEffectiveLocale,
   ) {
     final client = NetClientFactory().create(
       ClientConfig(
@@ -261,34 +383,37 @@ abstract class AppModule {
     );
 
     client.interceptors.addAll([
-      MetadataAdderInterceptor(buildMetadata, settingsService),
+      MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
       LoggerInterceptor(logger),
     ]);
 
     return AppServerTokenRefreshApiClientImpl(client);
   }
 
-  @singleton
   Alerter getAlerter(GlobalKey<NavigatorState> navigatorKey) {
     return RouterNavigatorAlerter(navigatorKey);
   }
 
-  @singleton
   AnalyticsService getAnalyticsService() {
     return FirebaseAnalyticsService(FirebaseAnalytics.instance);
   }
 
-  @singleton
   CrashlyticsService getCrashlyticsService() {
     return FirebaseCrashlyticsService(FirebaseCrashlytics.instance);
   }
 
-  @singleton
   Snacker getSnacker(GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey) {
     return ScaffoldMessengerSnacker(scaffoldMessengerKey);
   }
 
-  @singleton
+  AppConfigFactory getAppConfigFactory(
+    PackageInfo packageInfo,
+    FallbackLocaleSelector fallbackLocaleSelector,
+  ) {
+    return AppConfigFactory(packageInfo, fallbackLocaleSelector);
+  }
+
+  @injectable
   InitializeAppUseCase getAppInitializerUseCase(
     AnalyticsService analyticsService,
     CrashlyticsService crashlyticsService,
@@ -317,32 +442,25 @@ abstract class AppModule {
   }
 
   @singleton
-  FallbackLocaleSelector getFallbackLocaleSelector() {
-    return const FallbackLocaleSelector();
-  }
-
-  @singleton
-  AppConfigFactory getAppConfigFactory(
-    PackageInfo packageInfo,
-    FallbackLocaleSelector fallbackLocaleSelector,
-  ) {
-    return AppConfigFactory(packageInfo, fallbackLocaleSelector);
-  }
-
-  @singleton
   AppRootBloc getAppRootBloc(
     AppLogger logger,
-    AuthDataService authDataService,
-    SettingsService settingsService,
-    InitializeAppUseCase appInitializerService,
-    InitializeSessionUseCase initializeSessionUseCase,
+    WatchAuthStateUseCase watchAuthState,
+    WatchLocaleUseCase watchLocale,
+    WatchThemeModeUseCase watchThemeMode,
+    GetEffectiveLocaleUseCase getEffectiveLocale,
+    GetEffectiveThemeModeUseCase getEffectiveThemeMode,
+    InitializeAppUseCase initializeApp,
+    InitializeSessionUseCase initializeSession,
   ) {
     return AppRootBloc(
       logger,
-      authDataService,
-      settingsService,
-      appInitializerService,
-      initializeSessionUseCase,
+      watchAuthState,
+      watchLocale,
+      watchThemeMode,
+      getEffectiveLocale,
+      getEffectiveThemeMode,
+      initializeApp,
+      initializeSession,
     );
   }
 

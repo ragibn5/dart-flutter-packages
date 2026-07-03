@@ -1,5 +1,20 @@
-import 'package:app_template/features/settings/domain/entities/app_locale.dart';
+import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
+import 'package:app_template/features/app/domain/entities/app_locale.dart';
+import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 
-abstract interface class SetLocaleUseCase {
-  Future<void> call(AppLocale locale);
+class SetLocaleUseCase {
+  final SettingsRepository _settingsRepository;
+
+  SetLocaleUseCase(this._settingsRepository);
+
+  /// Persists the user-selected app locale.
+  ///
+  /// This call will also add the [locale] to any stream obtained from
+  /// [WatchLocaleUseCase].
+  Future<void> call(AppLocale locale) async {
+    final persistedSettings = await _settingsRepository.getCurrentSettings();
+    await _settingsRepository.setCurrentSettings(
+      persistedSettings.copyWith(locale: locale),
+    );
+  }
 }

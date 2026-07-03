@@ -4,11 +4,11 @@ import 'package:app_template/features/app/application/use_cases/get_effective_th
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/watch_locale_selection_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/watch_theme_mode_selection_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart';
+import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/entities/locale_components.dart';
 import 'package:app_template/features/reporting/domain/entities/error_report.dart';
-import 'package:app_template/features/settings/domain/entities/app_locale.dart';
-import 'package:app_template/features/settings/domain/entities/app_theme_mode.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
@@ -20,18 +20,20 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AppLogger _logger;
 
   final WatchAuthStateUseCase _watchAuthState;
-  final WatchLocaleSelectionUseCase _watchLocaleSelection;
-  final WatchThemeModeSelectionUseCase _watchThemeModeSelection;
+
+  final WatchLocaleUseCase _watchLocale;
+  final WatchThemeModeUseCase _watchThemeMode;
   final GetEffectiveLocaleUseCase _getEffectiveLocale;
   final GetEffectiveThemeModeUseCase _getEffectiveThemeMode;
+
   final InitializeAppUseCase _initializeApp;
   final InitializeSessionUseCase _initializeSession;
 
   AppRootBloc(
     this._logger,
     this._watchAuthState,
-    this._watchLocaleSelection,
-    this._watchThemeModeSelection,
+    this._watchLocale,
+    this._watchThemeMode,
     this._getEffectiveLocale,
     this._getEffectiveThemeMode,
     this._initializeApp,
@@ -96,7 +98,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
 
     on<_LocaleChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
-        _watchLocaleSelection(),
+        _watchLocale(),
         onData: (newLocale) {
           final currentState = state;
           if (currentState is! AppInitializationSuccess) {
@@ -110,7 +112,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
 
     on<_ThemeModeChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
-        _watchThemeModeSelection(),
+        _watchThemeMode(),
         onData: (newThemeMode) {
           final currentState = state;
           if (currentState is! AppInitializationSuccess) {

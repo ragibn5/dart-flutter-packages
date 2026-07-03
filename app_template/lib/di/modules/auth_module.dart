@@ -25,14 +25,12 @@ abstract class AuthModule {
     return AuthRefreshErrorMapper();
   }
 
-  @singleton
   RemoteAuthDataSource getRemoteAuthDataSource(
     AppServerTokenRefreshApiClient client,
   ) {
     return RemoteAuthDataSourceImpl(client);
   }
 
-  @singleton
   LocalAuthDataSource getLocalAuthDataSource(PreferenceStore preferenceStore) {
     return LocalAuthDataSourceImpl(preferenceStore);
   }
@@ -53,7 +51,6 @@ abstract class AuthModule {
     );
   }
 
-  @singleton
   AuthDataService getAuthDataService(AuthDataRepository repository) {
     return AuthDataServiceImpl(repository);
   }
