@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
-import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -21,7 +21,7 @@ import 'package:app_template/features/app/data/models/settings_dto.dart';
 import 'package:app_template/features/app/data/repositories/settings_repository_impl.dart';
 import 'package:app_template/features/app/data/sources/settings_data_source.dart';
 import 'package:app_template/features/app/data/sources/settings_data_source_impl.dart';
-import 'package:app_template/features/app/domain/entities/app_settings.dart';
+import 'package:app_template/features/app/domain/models/app_settings.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart';

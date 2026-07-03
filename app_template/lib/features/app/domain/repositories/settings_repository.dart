@@ -1,4 +1,4 @@
-import 'package:app_template/features/app/domain/entities/app_settings.dart';
+import 'package:app_template/features/app/domain/models/app_settings.dart';
 import 'package:disposable/disposable.dart';
 
 abstract interface class SettingsRepository implements Disposable {

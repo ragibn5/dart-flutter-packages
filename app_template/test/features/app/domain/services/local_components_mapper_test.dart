@@ -1,5 +1,5 @@
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
-import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 

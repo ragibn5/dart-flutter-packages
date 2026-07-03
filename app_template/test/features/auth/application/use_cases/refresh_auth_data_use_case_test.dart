@@ -1,6 +1,6 @@
 import 'package:app_template/features/auth/application/use_cases/refresh_auth_data_use_case.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data_refresh_error.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 import 'package:core_models/core_models.dart';
 import 'package:flutter_test/flutter_test.dart';

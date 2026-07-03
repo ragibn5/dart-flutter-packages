@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:app_template/features/app/data/mappers/app_locale_mapper.dart';
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

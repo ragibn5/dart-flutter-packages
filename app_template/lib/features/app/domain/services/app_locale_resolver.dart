@@ -1,5 +1,5 @@
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
-import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 
 class AppLocaleResolver {
   /// Resolves an [AppLocale] from a [LocaleComponents] if possible, or null.

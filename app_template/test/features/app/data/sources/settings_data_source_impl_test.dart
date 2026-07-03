@@ -4,8 +4,8 @@ import 'dart:convert';
 
 import 'package:app_template/features/app/data/models/settings_dto.dart';
 import 'package:app_template/features/app/data/sources/settings_data_source_impl.dart';
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
-import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:preference_store/preference_store.dart';

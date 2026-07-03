@@ -2,7 +2,7 @@
 
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/repositories/auth_data_mapper.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

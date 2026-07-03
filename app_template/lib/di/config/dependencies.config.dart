@@ -43,7 +43,7 @@ import 'package:app_template/features/app/data/models/settings_dto.dart'
     as _i913;
 import 'package:app_template/features/app/data/sources/settings_data_source.dart'
     as _i1014;
-import 'package:app_template/features/app/domain/entities/app_settings.dart'
+import 'package:app_template/features/app/domain/models/app_settings.dart'
     as _i746;
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart'
     as _i1030;
@@ -83,7 +83,7 @@ import 'package:app_template/features/user_data/data/models/user_data_dto.dart'
     as _i1018;
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart'
     as _i257;
-import 'package:app_template/features/user_data/domain/entities/user_data.dart'
+import 'package:app_template/features/user_data/domain/models/user_data.dart'
     as _i414;
 import 'package:app_template/features/user_data/domain/repositories/user_data_repository.dart'
     as _i728;

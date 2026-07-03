@@ -1,5 +1,5 @@
 import 'package:app_template/features/app/application/use_cases/set_theme_mode_use_case.dart';
-import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 
 class WatchThemeModeUseCase {

@@ -10,8 +10,8 @@ import 'package:app_template/features/app/application/use_cases/initialize_sessi
 import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart';
-import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
-import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';

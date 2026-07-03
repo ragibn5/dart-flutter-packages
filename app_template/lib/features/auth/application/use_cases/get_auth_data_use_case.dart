@@ -1,4 +1,4 @@
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 
 class GetAuthDataUseCase {

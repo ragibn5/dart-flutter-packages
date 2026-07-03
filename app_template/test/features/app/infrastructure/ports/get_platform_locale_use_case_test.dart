@@ -1,4 +1,4 @@
-import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_platform_locale_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,6 +1,6 @@
 import 'package:app_template/features/app/infrastructure/ports/get_user_id_use_case_impl.dart';
 import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

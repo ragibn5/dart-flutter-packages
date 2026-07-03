@@ -1,5 +1,5 @@
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
 
 class AuthDataMapper implements DataDomainConverter<AuthDataDTO, AuthData> {

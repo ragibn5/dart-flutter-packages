@@ -4,9 +4,9 @@ import 'dart:async';
 
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
-import 'package:app_template/features/app/domain/entities/app_settings.dart';
-import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/app_settings.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart';

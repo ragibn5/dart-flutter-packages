@@ -3,8 +3,8 @@
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
-import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

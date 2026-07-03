@@ -1,5 +1,5 @@
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
-import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:equatable/equatable.dart';
 
 class AppSettings extends Equatable {

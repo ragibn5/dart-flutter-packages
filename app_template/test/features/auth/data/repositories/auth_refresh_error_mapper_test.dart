@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:app_template/features/auth/data/repositories/auth_refresh_error_mapper.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data_refresh_error.dart';
+import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 

@@ -3,7 +3,7 @@ import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_loader/startup_loader_page.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/features/reporting/domain/entities/error_report.dart';
+import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:app_template/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

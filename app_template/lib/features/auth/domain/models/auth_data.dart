@@ -2,13 +2,9 @@ import 'package:equatable/equatable.dart';
 
 class AuthData extends Equatable {
   final String userId;
-
   final String accessToken;
-
   final String refreshToken;
-
   final DateTime accessTokenExpiry;
-
   final DateTime refreshTokenExpiry;
 
   const AuthData({

@@ -1,5 +1,5 @@
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
-import 'package:app_template/features/app/domain/entities/locale_components.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:flutter/widgets.dart';
 
 class GetPlatformLocaleUseCaseImpl implements GetPlatformLocaleUseCase {

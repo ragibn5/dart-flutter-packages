@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:app_template/features/user_data/domain/entities/user_data.dart';
+import 'package:app_template/features/user_data/domain/models/user_data.dart';
 import 'package:app_template/features/user_data/domain/repositories/user_data_repository.dart';
 import 'package:app_template/features/user_data/domain/services/user_data_service.dart';
 

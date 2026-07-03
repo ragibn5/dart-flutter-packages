@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:app_template/features/app/infrastructure/ports/watch_auth_state_use_case_impl.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

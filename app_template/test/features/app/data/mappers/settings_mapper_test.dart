@@ -2,9 +2,9 @@
 
 import 'package:app_template/features/app/data/mappers/settings_mapper.dart';
 import 'package:app_template/features/app/data/models/settings_dto.dart';
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
-import 'package:app_template/features/app/domain/entities/app_settings.dart';
-import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/app_settings.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

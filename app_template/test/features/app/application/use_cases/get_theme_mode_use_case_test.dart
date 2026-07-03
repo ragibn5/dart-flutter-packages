@@ -1,8 +1,8 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:app_template/features/app/application/use_cases/get_theme_mode_use_case.dart';
-import 'package:app_template/features/app/domain/entities/app_settings.dart';
-import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/app_settings.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

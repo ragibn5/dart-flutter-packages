@@ -1,6 +1,6 @@
 import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_theme_mode_use_case.dart';
-import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

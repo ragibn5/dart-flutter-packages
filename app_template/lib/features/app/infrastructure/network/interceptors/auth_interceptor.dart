@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';

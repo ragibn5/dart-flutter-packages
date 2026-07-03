@@ -1,7 +1,7 @@
 import 'package:app_template/features/app/application/use_cases/set_locale_use_case.dart';
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
-import 'package:app_template/features/app/domain/entities/app_settings.dart';
-import 'package:app_template/features/app/domain/entities/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/app_settings.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

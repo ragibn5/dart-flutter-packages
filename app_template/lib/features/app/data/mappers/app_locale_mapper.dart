@@ -1,4 +1,4 @@
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
+import 'package:app_template/features/app/domain/models/app_locale.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 class AppLocaleMapper extends JsonConverter<AppLocale?, String?> {

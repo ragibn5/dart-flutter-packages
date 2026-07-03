@@ -1,6 +1,6 @@
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
 import 'package:app_template/features/app/infrastructure/router/guards/root_redirection_route_guard.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -3,7 +3,7 @@ import 'package:app_template/features/user_data/data/models/user_data_dto.dart';
 import 'package:app_template/features/user_data/data/repositories/user_data_repository_impl.dart';
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart';
 import 'package:app_template/features/user_data/data/sources/user_data_data_source_impl.dart';
-import 'package:app_template/features/user_data/domain/entities/user_data.dart';
+import 'package:app_template/features/user_data/domain/models/user_data.dart';
 import 'package:app_template/features/user_data/domain/repositories/user_data_repository.dart';
 import 'package:app_template/features/user_data/domain/services/user_data_service.dart';
 import 'package:app_template/features/user_data/domain/services/user_data_service_impl.dart';

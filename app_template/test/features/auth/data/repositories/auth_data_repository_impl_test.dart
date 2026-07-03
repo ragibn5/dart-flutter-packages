@@ -9,8 +9,8 @@ import 'package:app_template/features/auth/data/repositories/auth_data_repositor
 import 'package:app_template/features/auth/data/repositories/auth_refresh_error_mapper.dart';
 import 'package:app_template/features/auth/data/sources/local_auth_data_source.dart';
 import 'package:app_template/features/auth/data/sources/remote_auth_data_source.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data_refresh_error.dart';
+import 'package:app_template/features/auth/domain/models/auth_data.dart';
+import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:core_models/core_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
