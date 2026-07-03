@@ -3,20 +3,21 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
+import 'package:app_template/features/app/domain/entities/locale_components.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
-import 'package:app_template/features/settings/application/services/settings_service.dart';
-import 'package:app_template/features/app/domain/entities/app_locale.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
 
-class _MockSettingsService extends Mock implements SettingsService {}
+class _MockGetEffectiveLocaleUseCase extends Mock
+    implements GetEffectiveLocaleUseCase {}
 
 void main() {
-  const effectiveLocale = AppLocale.EN;
+  const effectiveLocale = LocaleComponents(languageCode: 'en');
 
-  late _MockSettingsService settingsService;
+  late _MockGetEffectiveLocaleUseCase getEffectiveLocaleUseCase;
   late MetadataAdderInterceptor interceptor;
 
   final buildMetadata = BuildMetadata(
@@ -46,11 +47,14 @@ void main() {
   }
 
   setUp(() {
-    settingsService = _MockSettingsService();
-    interceptor = MetadataAdderInterceptor(buildMetadata, settingsService);
+    getEffectiveLocaleUseCase = _MockGetEffectiveLocaleUseCase();
+    interceptor = MetadataAdderInterceptor(
+      buildMetadata,
+      getEffectiveLocaleUseCase,
+    );
 
     when(
-      () => settingsService.getEffectiveLocale(),
+      () => getEffectiveLocaleUseCase(),
     ).thenAnswer((_) async => effectiveLocale);
   });
 

@@ -31,7 +31,7 @@ void main() {
   });
 
   test('Should initialize all services in order', () async {
-    await sut.initialize();
+    await sut();
 
     verifyInOrder([
       () => mockCrashlytics.initialize(),

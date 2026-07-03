@@ -1,99 +1,79 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:analytics/analytics.dart';
+import 'package:app_template/features/app/application/use_cases/get_user_id_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
-import 'package:app_template/features/auth/domain/entities/auth_data.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:crashlytics/crashlytics.dart';
+import 'package:app_template/features/app/application/use_cases/set_analytics_session_data_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/set_crashlytics_session_data_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockAuthDataService extends Mock implements AuthDataService {}
+class _MockGetUserIdUseCase extends Mock implements GetUserIdUseCase {}
 
-class _MockAnalyticsService extends Mock implements AnalyticsService {}
+class _MockSetAnalyticsSessionDataUseCase extends Mock
+    implements SetAnalyticsSessionDataUseCase {}
 
-class _MockCrashlyticsService extends Mock implements CrashlyticsService {}
-
-class _FakeAuthDataService extends Fake implements AuthDataService {}
+class _MockSetCrashlyticsSessionDataUseCase extends Mock
+    implements SetCrashlyticsSessionDataUseCase {}
 
 void main() {
   const anonymousUserId = 'anonymous-user';
 
-  final authData = AuthData(
-    userId: 'userId',
-    accessToken: 'accessToken',
-    refreshToken: 'refreshToken',
-    accessTokenExpiry: DateTime.now(),
-    refreshTokenExpiry: DateTime.now(),
-  );
+  late _MockGetUserIdUseCase mockGetUserId;
+  late _MockSetAnalyticsSessionDataUseCase mockSetAnalyticsSessionData;
+  late _MockSetCrashlyticsSessionDataUseCase mockSetCrashlyticsSessionData;
 
-  late _MockAuthDataService mockAuthDataService;
-  late _MockAnalyticsService mockAnalyticsService;
-  late _MockCrashlyticsService mockCrashlyticsService;
-
-  late SessionInitializerUseCase sut;
-
-  setUpAll(() {
-    registerFallbackValue(_FakeAuthDataService());
-  });
+  late InitializeSessionUseCase sut;
 
   setUp(() {
-    mockAuthDataService = _MockAuthDataService();
-    mockAnalyticsService = _MockAnalyticsService();
-    mockCrashlyticsService = _MockCrashlyticsService();
+    mockGetUserId = _MockGetUserIdUseCase();
+    mockSetAnalyticsSessionData = _MockSetAnalyticsSessionDataUseCase();
+    mockSetCrashlyticsSessionData = _MockSetCrashlyticsSessionDataUseCase();
 
-    sut = SessionInitializerUseCase(
-      mockAuthDataService,
-      mockAnalyticsService,
-      mockCrashlyticsService,
+    sut = InitializeSessionUseCase(
+      mockGetUserId,
+      mockSetAnalyticsSessionData,
+      mockSetCrashlyticsSessionData,
       anonymousUserId: anonymousUserId,
     );
 
     when(
-      () => mockAnalyticsService.setSessionData(any(), collectionEnabled: true),
+      () => mockSetAnalyticsSessionData.call(
+        any(),
+        collectionEnabled: any(named: 'collectionEnabled'),
+      ),
     ).thenAnswer((_) async {});
     when(
+      () => mockSetCrashlyticsSessionData.call(
+        any(),
+        collectionEnabled: any(named: 'collectionEnabled'),
+      ),
+    ).thenAnswer((_) async {});
+  });
+
+  test('Should set correct user id if user id is not null', () async {
+    when(() => mockGetUserId()).thenAnswer((_) async => 'userId');
+
+    await sut();
+
+    verify(
+      () => mockSetAnalyticsSessionData('userId', collectionEnabled: true),
+    );
+    verify(
+      () => mockSetCrashlyticsSessionData('userId', collectionEnabled: true),
+    );
+  });
+
+  test('Should set anonymous user if user id is null', () async {
+    when(() => mockGetUserId()).thenAnswer((_) async => null);
+
+    await sut();
+
+    verify(
       () =>
-          mockCrashlyticsService.setSessionData(any(), collectionEnabled: true),
-    ).thenAnswer((_) async => authData);
-  });
-
-  test('Should set correct user id if auth data is not null', () async {
-    when(
-      () => mockAuthDataService.getCurrentAuthData(),
-    ).thenAnswer((_) async => authData);
-
-    await sut.initialize();
-
-    verify(
-      () => mockAnalyticsService.setSessionData(
-        authData.userId,
-        collectionEnabled: true,
-      ),
+          mockSetAnalyticsSessionData(anonymousUserId, collectionEnabled: true),
     );
     verify(
-      () => mockCrashlyticsService.setSessionData(
-        authData.userId,
-        collectionEnabled: true,
-      ),
-    );
-  });
-
-  test('Should set anonymous user if auth data is null', () async {
-    when(
-      () => mockAuthDataService.getCurrentAuthData(),
-    ).thenAnswer((_) async => null);
-
-    await sut.initialize();
-
-    verify(
-      () => mockAnalyticsService.setSessionData(
-        anonymousUserId,
-        collectionEnabled: true,
-      ),
-    );
-    verify(
-      () => mockCrashlyticsService.setSessionData(
+      () => mockSetCrashlyticsSessionData(
         anonymousUserId,
         collectionEnabled: true,
       ),
