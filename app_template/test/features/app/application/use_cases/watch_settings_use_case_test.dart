@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:app_template/features/app/application/use_cases/watch_settings_use_case.dart';
-import 'package:app_template/features/app/domain/models/app_settings.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -27,16 +26,5 @@ void main() {
     sut();
 
     verify(() => mockSettingsRepository.getSettingsStream()).called(1);
-  });
-
-  test('Should emit distinct values', () async {
-    const settings = AppSettings();
-    when(
-      () => mockSettingsRepository.getSettingsStream(),
-    ).thenAnswer((_) => Stream.fromIterable([settings, settings, settings]));
-
-    final result = await sut().toList();
-
-    expect(result, [settings]);
   });
 }

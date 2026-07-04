@@ -29,6 +29,8 @@ void main() {
     locale: AppLocale.EN,
     themeMode: AppThemeMode.LIGHT,
   );
+  const settingsStream = Stream<AppSettings>.empty();
+
   late _MockSettingsStreamController mockSettingsStreamController;
   late _MockSettingsConverter mockSettingsConverter;
   late _MockSettingsDataSource mockSettingsDataSource;
@@ -51,7 +53,6 @@ void main() {
       mockSettingsDataSource,
     );
 
-    when(() => mockSettingsStreamController.close()).thenAnswer((_) async {});
     when(
       () => mockSettingsConverter.convertDataToDomain(settingsDto),
     ).thenReturn(settings);
@@ -65,6 +66,10 @@ void main() {
     when(
       () => mockSettingsDataSource.setCurrentSettings(settingsDto),
     ).thenAnswer((_) async {});
+    when(
+      () => mockSettingsStreamController.stream,
+    ).thenAnswer((_) => settingsStream);
+    when(() => mockSettingsStreamController.close()).thenAnswer((_) async {});
   });
 
   test(
@@ -108,15 +113,11 @@ void main() {
   );
 
   test(
-    '`getSettingsStream` should return distinct stream from controller',
+    'getSettingsStream` should return a stream from the stream controller',
     () async {
-      when(
-        () => mockSettingsStreamController.stream,
-      ).thenAnswer((_) => Stream.fromIterable([settings, settings, settings]));
-
       final result = sut.getSettingsStream();
 
-      expect(await result.toList(), [settings]);
+      expect(result, settingsStream);
     },
   );
 

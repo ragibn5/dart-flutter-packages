@@ -6,6 +6,5 @@ class WatchSettingsUseCase {
 
   WatchSettingsUseCase(this._settingsRepository);
 
-  Stream<AppSettings> call() =>
-      _settingsRepository.getSettingsStream().distinct();
+  Stream<AppSettings> call() => _settingsRepository.getSettingsStream();
 }
