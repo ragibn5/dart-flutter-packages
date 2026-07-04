@@ -2,7 +2,7 @@
 
 ## Architecture
 
-This project follows clean architecture. Conventions for architectural consistency are described in the following sections, grouped by layer. Refer to the official [clean architecture][clean-arch] documentation for more details, or see existing features for a deeper understanding.
+This project follows clean architecture. Conventions for architectural consistency are described in the following sections, grouped by layer. Refer to the official [clean architecture][clean-arch] documentation for more details or see existing features for a deeper understanding.
 
 Overall structure of the project:
 
@@ -44,7 +44,7 @@ Data sources live in `data/sources/` (both abstract and their implementations). 
 
 - **Remote sources**: should use the [Per-endpoint API clients](#per-endpoint-api-clients) to
   perform HTTP calls.
-- **Local sources**: should use the pre-built first class packages, like -
+- **Local sources**: should use the pre-built first-class packages, like
     - [`PreferenceStore`][preference_store]
     - [`FileStore`][file_store]
     - [`SQLiteDb`][sqlite_db]
@@ -67,7 +67,7 @@ They convert between DTOs and domain models by implementing base mapper interfac
 
 Repository implementations live in `data/repositories/`.
 
-They implement the abstract contract defined in [`domain/repositories/`](#domain-layer), orchestrating calls to data sources and mappers to return domain entities (or a composite of the domain entities).
+They implement the abstract contract defined in [`domain/repositories/`](#domain-layer), orchestrating calls to data sources and mappers to return domain models, or entities (or a composite of the domain entities).
 
 ### Domain layer
 
@@ -77,13 +77,23 @@ Entities live in [`domain/entities/`](#entities).
 
 These are pure Dart classes that represent and hold core business logic. Be aware of what logic you put in here. The only case when logic belongs to the entity is when the logic is entirely composed of the entity's own components. For example, if `UserEntity` has fields `age` and `gender`, then `userEntity.isAdultMale()` belongs here.
 
+#### Domain models
+
+Domain models live in [`domain/models/`](#domain-models).
+
+These are [entities](#entities) without any business logic.
+
+They are typically used to represent typed domain information. For example, in these data types, prefer using enums whenever possible – rather than raw data (e.g., coming from the transport layer).
+
+Another reason we introduced the domain model concept is to give them a separate space. Entities with business logic are probably one of the most important things we should include in test coverage, but domain models are value objects and are generally excluded from test coverage. So, when we keep entities and domain models in separate spaces.
+
 #### Domain services
 
 Domain services live in [`domain/services/`](#domain-services).
 
-These are pure Dart classes that are used in cases when the business logic is not quite the part of one single entity. For example, when the business logic is composed of components scattered between multiple entities of same domain. This also applies when the business logic is composed with multiple instances of the same, or different entities of the same domain.
+These are pure Dart classes that are used in cases when the business logic is not quite the part of one single entity. For example, when the business logic is composed of components scattered between multiple entities of the same domain. This also applies when the business logic is composed with multiple instances of the same, or different entities of the same domain.
 
-These domain services should not use [entities](#entities) from different domains, or be used to orchestrate application logic. These are **not** [use cases](#use-cases), or any application layer components.
+These domain services should not use [entities](#entities) from different domains or be used to orchestrate application logic. These are **not** [use cases](#use-cases), or any application layer components.
 
 ### Application layer
 
@@ -94,19 +104,19 @@ Use cases live in [`application/use_cases/`](#use-cases) and orchestrate a singl
 Keep in mind the following while designing use cases:
 
 - One class per use case, named after the operation (e.g., `RefreshAuthDataUseCase`, `SubmitOrderUseCase`).
-- Has exactly one public method named `call` (so that it is a callable class - can have any return type and/or any parameters).
+- Has exactly one public method named `call` (so that it is a callable class – can have any return type and/or any parameters).
 - Keeps orchestration logic (validation, precondition checks, fallback) — not business rules (those belong in [domain entities](#entities), or [domain services](#domain-services)).
 
 A use case may receive its dependencies from two places:
 
-1. From within same feature: Repositories, [domain services](#domain-services), other [use cases](#use-cases) etc., from the same feature.
-2. From within other feature: Define an abstract use case (ports) and use that as dependency. See the [`Ports`](#ports) section for more information.
+1. From within the same feature: Repositories, [domain services](#domain-services), other [use cases](#use-cases) etc., from the same feature.
+2. From within another feature: Define an abstract use case (ports) and use that as a dependency. See the [`Ports`](#ports) section for more information.
 
 Note:
 
-- If multiple use cases of the same feature end up with the same repeated logic, may be it belongs to a [domain service](#domain-services).
-- Within same feature, avoid using the use cases as dependencies of other use cases as much as possible and use [domain services](#domain-services) instead. For cross feature uses, it is inevitable and is actually the way.
-- [Use cases](#use-cases) should be the only component that can cross features, i.e. other features can use them.
+- If multiple use cases of the same feature end up with the same repeated logic, maybe it belongs to a [domain service](#domain-services).
+- Within the same feature, avoid using the use cases as dependencies of other use cases as much as possible and use [domain services](#domain-services) instead. For cross-feature uses, it is inevitable and is actually the way.
+- [Use cases](#use-cases) should be the only component that can cross features, i.e., other features can use them.
 
 #### Ports
 
@@ -114,7 +124,7 @@ Ports are abstract use cases and lives together with concrete ones in `applicati
 
 These are interfaces used as dependencies of other use cases and BLoC(s) to abstract away external communications such as (but not a complete list):
 
-- 3rd party library usages
+- Third party library usages
 - Cross-feature communications
 - Accessing flutter components
 - Communication with underlying native platforms
@@ -139,12 +149,12 @@ Feature specific database components live in [`infrastructure/database/`](#datab
 
 Follow the following convention:
 
-- Table specific constants live in `constants/<table_name>_table_constants.dart`.
+- Table-specific constants live in `constants/<table_name>_table_constants.dart`.
   This file contains a single privately constructed class with multiple static constants that are used to build queries. The convention is to contain the following static fields:
     - `NAME`: A static constant specifying the name of the table.
     - `COLUMN_<XYZ>`: Static constants specifying each column names.
 - Scripts live in `scripts/`.
-  These are generally instances of `DbScript` defined in the [`sqlite_db`][sqlite_db] package. The scripts are used to perform database migrations, initialization and many more. See the `DbScript` types in `sqlite_db` package for more details.
+  These are generally instances of `DbScript` defined in the [`sqlite_db`][sqlite_db] package. The scripts are used to perform database migrations, initialization, and many more. See the `DbScript` types in `sqlite_db` package for more details.
 
 ### Presentation layer
 
@@ -177,7 +187,7 @@ widgets/
 Each BLoC receives events, calls a use case, and creates sealed state classes. For remote network calls, the flow is:
 
 ```
-Event ──> BLoC ──> Use Case ──> Either<ApiError, Either<DomainErr, DomainEntity>>
+Event ──> BLoC ──> Use Case ──> Either<ApiError, Either<DomainErr, DomainEntity/DomainModel>>
                     │
                     ▼
               BLoC folds result:
@@ -226,16 +236,16 @@ Data Source
   ▼
 Repository
   │  ── map DataErr → DomainErr
-  │  ── map DataDTO → DomainEntity
+  │  ── map DataDTO → DomainEntity/DomainModel
   │
-  │  Future<Either<ApiError, Either<DomainErr, DomainEntity>>>
+  │  Future<Either<ApiError, Either<DomainErr, DomainEntity/DomainModel>>>
   ▼
 Use Case (application layer)
   │  ── adds validation & domain logic
   │  ── orchestrates one business operation
   │  ── may call multiple repositories (own feature) / services (cross-feature)
   │
-  │  Future<Either<ApiError, Either<DomainErr, DomainEntity>>>
+  │  Future<Either<ApiError, Either<DomainErr, DomainEntity/DomainModel>>>
   ▼
 BLoC
   │  ── folds Either into sealed states
@@ -262,6 +272,8 @@ Create `lib/features/<feature>/` with the layers in the following order:
 
 1. **Domain layer**
     - Feature entities in [`domain/entities/`](#entities).
+    - Domain models in [`domain/models/`](#domain-models).
+    - Domain services in [`domain/services/`](#domain-services).
     - Repository contracts in [`domain/repositories/`](#domain-layer).
 
 2. **Application layer**
@@ -275,7 +287,8 @@ Create `lib/features/<feature>/` with the layers in the following order:
 
 4. **Infrastructure layer**
     - Database component definitions in [`infrastructure/database/`](#database).
-    - Per-endpoint client abstractions & implementations in [`infrastructure/clients/`](#per-endpoint-api-client-implementations).
+    - Per-endpoint client abstractions and implementations in [`infrastructure/clients/`](#per-endpoint-api-client-implementations).
+    - Port implementations in [`infrastructure/ports/`](#port-implementations).
     - Interceptors in `infrastructure/interceptors/`.
     - Platform components in `infrastructure/platform/`.
 
@@ -330,7 +343,7 @@ Four build flavors are supported:
 - `dev`: For you, the developer, to do daily development work.
 - `exp`: For testers or QA people.
 - `stage`: For testing release candidates in production mirrors.
-- `prod`: For end users - final destination.
+- `prod`: For end users – final destination.
 
 Each flavor has its own Firebase project, launcher icon, splash screen, and app name. Entry points are defined in [`lib/main_<flavor>.dart`][main_flavor], with corresponding run configurations in [`.run/`][run_dir] (IDEA).
 
