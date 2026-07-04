@@ -2,6 +2,7 @@ import 'package:analytics/analytics.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:sqlite_db/sqlite_db.dart';
 
+/// Initializes the app.
 class InitializeAppUseCase {
   final CrashlyticsService _crashlyticsService;
   final AnalyticsService _analyticsService;
@@ -13,7 +14,6 @@ class InitializeAppUseCase {
     this._appDatabase,
   );
 
-  /// Initializes the app.
   Future<void> call() async {
     final initializables = [
       _crashlyticsService,

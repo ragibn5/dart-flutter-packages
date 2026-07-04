@@ -2,6 +2,7 @@ import 'package:app_template/features/app/application/use_cases/get_user_id_use_
 import 'package:app_template/features/app/application/use_cases/set_analytics_session_data_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/set_crashlytics_session_data_use_case.dart';
 
+/// Initializes the session.
 class InitializeSessionUseCase {
   final String _anonymousUserId;
 
@@ -16,7 +17,6 @@ class InitializeSessionUseCase {
     String anonymousUserId = 'anonymous',
   }) : _anonymousUserId = anonymousUserId;
 
-  /// Initializes the session.
   Future<void> call() async {
     final userId = await _getUserId();
 

@@ -1,19 +1,19 @@
 import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 
+/// Watch theme-mode selection changes.
+///
+/// This emits a new value whenever the user changes the app-theme-mode,
+/// for example, by calling `SetSettingsUseCase`.
+///
+/// **Please note**: Do not call `SetSettingsUseCase` in response to events
+/// received from the stream return by this method, as it will result in an
+/// infinite loop.
 class WatchThemeModeUseCase {
   final SettingsRepository _settingsRepository;
 
   WatchThemeModeUseCase(this._settingsRepository);
 
-  /// Watch theme-mode selection changes.
-  ///
-  /// This emits a new value whenever the user changes the app-theme-mode,
-  /// for example, by calling `SetSettingsUseCase`.
-  ///
-  /// **Please note**: Do not call `SetSettingsUseCase` in response to events
-  /// received from the stream return by this method, as it will result in an
-  /// infinite loop.
   Stream<AppThemeMode> call() {
     return _settingsRepository
         .getSettingsStream()
