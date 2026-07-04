@@ -54,6 +54,8 @@ dependencies:
   flutter_native_splash: ^2.4.7
 
   # App-private packages
+  enum_parser:
+    path: packages/enum_parser
   shared_models:
     path: packages/shared_models
   app_logger:

@@ -44,11 +44,11 @@ import 'package:app_template/features/app/data/models/settings_dto.dart'
 import 'package:app_template/features/app/data/sources/settings_data_source.dart'
     as _i1014;
 import 'package:app_template/features/app/domain/models/app_settings.dart'
-    as _i746;
+    as _i233;
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart'
     as _i1030;
 import 'package:app_template/features/app/domain/services/app_locale_resolver.dart'
-    as _i79;
+    as _i791;
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart'
     as _i1034;
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart'
@@ -84,7 +84,7 @@ import 'package:app_template/features/user_data/data/models/user_data_dto.dart'
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart'
     as _i257;
 import 'package:app_template/features/user_data/domain/models/user_data.dart'
-    as _i414;
+    as _i436;
 import 'package:app_template/features/user_data/domain/repositories/user_data_repository.dart'
     as _i728;
 import 'package:app_template/features/user_data/domain/services/user_data_service.dart'
@@ -117,7 +117,7 @@ extension GetItInjectableX on _i174.GetIt {
     final appModule = _$AppModule();
     final authModule = _$AuthModule();
     final userDataModule = _$UserDataModule();
-    gh.factory<_i79.AppLocaleResolver>(() => appModule.getAppLocaleResolver());
+    gh.factory<_i791.AppLocaleResolver>(() => appModule.getAppLocaleResolver());
     gh.factory<_i1034.LocalComponentsMapper>(
       () => appModule.getLocalComponentsMapper(),
     );
@@ -125,7 +125,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.getFallbackLocaleSelector(),
     );
     gh.factory<
-      _i1003.DataDomainConverter<_i913.SettingsDTO, _i746.AppSettings>
+      _i1003.DataDomainConverter<_i913.SettingsDTO, _i233.AppSettings>
     >(() => appModule.getSettingsMapper());
     gh.factory<_i846.GetPlatformLocaleUseCase>(
       () => appModule.getPlatformLocaleUseCase(),
@@ -138,7 +138,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i82.AuthRefreshErrorMapper>(
       () => authModule.getAuthRefreshErrorMapper(),
     );
-    gh.factory<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i414.UserData>>(
+    gh.factory<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>>(
       () => userDataModule.getUserDataMapper(),
     );
     await gh.singletonAsync<_i655.PackageInfo>(
@@ -198,26 +198,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i30.LocalAuthDataSource>(
       () => authModule.getLocalAuthDataSource(gh<_i300.PreferenceStore>()),
     );
-    gh.singleton<_i1030.SettingsRepository>(
-      () => appModule.getSettingsRepository(
-        gh<_i1003.DataDomainConverter<_i913.SettingsDTO, _i746.AppSettings>>(),
-        gh<_i1014.SettingsDataSource>(),
-      ),
-    );
     gh.singleton<_i860.SQLiteDb>(
       () => appModule.getAppDatabase(gh<_i527.AppDirectories>()),
     );
     gh.factory<_i1020.Snacker>(
       () => appModule.getSnacker(
         gh<_i409.GlobalKey<_i409.ScaffoldMessengerState>>(),
-      ),
-    );
-    gh.factory<_i625.WatchLocaleUseCase>(
-      () => appModule.getWatchLocaleUseCase(
-        gh<_i1030.SettingsRepository>(),
-        gh<_i846.GetPlatformLocaleUseCase>(),
-        gh<_i79.AppLocaleResolver>(),
-        gh<_i1034.LocalComponentsMapper>(),
       ),
     );
     gh.factory<_i656.InitializeAppUseCase>(
@@ -235,6 +221,27 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i257.UserDataDataSource>(
       () => userDataModule.getUserDataDataSource(gh<_i860.SQLiteDb>()),
+    );
+    gh.singleton<_i1030.SettingsRepository>(
+      () => appModule.getSettingsRepository(
+        gh<_i1003.DataDomainConverter<_i913.SettingsDTO, _i233.AppSettings>>(),
+        gh<_i1014.SettingsDataSource>(),
+      ),
+    );
+    gh.factory<_i625.WatchLocaleUseCase>(
+      () => appModule.getWatchLocaleUseCase(
+        gh<_i1030.SettingsRepository>(),
+        gh<_i1034.LocalComponentsMapper>(),
+      ),
+    );
+    gh.factory<_i728.UserDataRepository>(
+      () => userDataModule.getUserDataRepository(
+        gh<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>>(),
+        gh<_i257.UserDataDataSource>(),
+      ),
+    );
+    gh.factory<_i84.UserDataService>(
+      () => userDataModule.getUserDataService(gh<_i728.UserDataRepository>()),
     );
     gh.factory<_i217.GetLocaleUseCase>(
       () => appModule.getGetLocaleUseCase(gh<_i1030.SettingsRepository>()),
@@ -258,19 +265,10 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i999.GetEffectiveLocaleUseCase>(
       () => appModule.getGetEffectiveLocaleUseCase(
-        gh<_i79.AppLocaleResolver>(),
+        gh<_i791.AppLocaleResolver>(),
         gh<_i217.GetLocaleUseCase>(),
         gh<_i846.GetPlatformLocaleUseCase>(),
       ),
-    );
-    gh.factory<_i728.UserDataRepository>(
-      () => userDataModule.getUserDataRepository(
-        gh<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i414.UserData>>(),
-        gh<_i257.UserDataDataSource>(),
-      ),
-    );
-    gh.factory<_i84.UserDataService>(
-      () => userDataModule.getUserDataService(gh<_i728.UserDataRepository>()),
     );
     gh.factory<_i524.AppServerTokenRefreshApiClient>(
       () => appModule.getAppServerTokenRefresherApiClient(

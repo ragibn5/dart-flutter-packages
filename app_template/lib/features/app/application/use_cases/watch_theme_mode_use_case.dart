@@ -18,7 +18,7 @@ class WatchThemeModeUseCase {
   Stream<AppThemeMode> call() {
     return _settingsRepository
         .getSettingsStream()
-        .map((settings) => settings.themeMode ?? AppThemeMode.SYSTEM)
+        .map((settings) => settings.themeMode)
         .distinct();
   }
 }

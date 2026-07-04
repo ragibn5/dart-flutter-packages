@@ -404,6 +404,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  enum_parser:
+    dependency: "direct main"
+    description:
+      path: "packages/enum_parser"
+      relative: true
+    source: path
+    version: "0.0.0"
   equatable:
     dependency: "direct main"
     description:

@@ -9,6 +9,6 @@ class GetThemeModeUseCase {
   /// Returns the current app theme mode.
   Future<AppThemeMode> call() async {
     final persistedSettings = await _settingsRepository.getCurrentSettings();
-    return persistedSettings.themeMode ?? AppThemeMode.SYSTEM;
+    return persistedSettings.themeMode;
   }
 }

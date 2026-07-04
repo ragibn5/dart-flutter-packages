@@ -9,6 +9,6 @@ class GetLocaleUseCase {
   /// Returns the current locale.
   Future<AppLocale> call() async {
     final persistedSettings = await _settingsRepository.getCurrentSettings();
-    return persistedSettings.locale ?? AppLocale.SYSTEM;
+    return persistedSettings.locale;
   }
 }

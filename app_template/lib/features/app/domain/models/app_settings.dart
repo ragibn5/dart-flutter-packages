@@ -3,10 +3,16 @@ import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 import 'package:equatable/equatable.dart';
 
 class AppSettings extends Equatable {
-  final AppLocale? locale;
-  final AppThemeMode? themeMode;
+  static const defaultLocale = AppLocale.SYSTEM;
+  static const defaultThemeMode = AppThemeMode.SYSTEM;
 
-  const AppSettings({this.locale, this.themeMode});
+  final AppLocale locale;
+  final AppThemeMode themeMode;
+
+  const AppSettings({
+    this.locale = defaultLocale,
+    this.themeMode = defaultThemeMode,
+  });
 
   AppSettings copyWith({AppLocale? locale, AppThemeMode? themeMode}) {
     return AppSettings(

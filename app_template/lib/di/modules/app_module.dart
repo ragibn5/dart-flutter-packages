@@ -288,16 +288,9 @@ abstract class AppModule {
   @injectable
   WatchLocaleUseCase getWatchLocaleUseCase(
     SettingsRepository repository,
-    GetPlatformLocaleUseCase getPlatformLocale,
-    AppLocaleResolver appLocaleResolver,
     LocalComponentsMapper localComponentsMapper,
   ) {
-    return WatchLocaleUseCase(
-      repository,
-      getPlatformLocale,
-      appLocaleResolver,
-      localComponentsMapper,
-    );
+    return WatchLocaleUseCase(repository, localComponentsMapper);
   }
 
   @injectable
