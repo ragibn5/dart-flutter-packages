@@ -15,6 +15,8 @@ import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/di/modules/app_module.dart' as _i384;
 import 'package:app_template/di/modules/auth_module.dart' as _i228;
 import 'package:app_template/di/modules/user_data_module.dart' as _i201;
+import 'package:app_template/features/app/application/use_cases/get_auth_state_use_case.dart'
+    as _i79;
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart'
     as _i999;
 import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart'
@@ -63,6 +65,8 @@ import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart'
     as _i873;
 import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart'
     as _i969;
+import 'package:app_template/features/auth/application/use_cases/watch_auth_data_use_case.dart'
+    as _i692;
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart'
     as _i524;
 import 'package:app_template/features/auth/data/repositories/auth_data_mapper.dart'
@@ -301,6 +305,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i969.GetAuthDataUseCase>(
       () => authModule.getGetAuthDataUseCase(gh<_i731.AuthDataRepository>()),
     );
+    gh.factory<_i692.WatchAuthDataUseCase>(
+      () => authModule.getWatchAuthDataUseCase(gh<_i731.AuthDataRepository>()),
+    );
+    gh.factory<_i884.WatchAuthStateUseCase>(
+      () =>
+          appModule.getWatchAuthStateUseCase(gh<_i692.WatchAuthDataUseCase>()),
+    );
     gh.singleton<_i535.NetClient>(
       () => appModule.getAppServerPrivateApiClient(
         gh<_i821.FlavorConfig>(),
@@ -312,14 +323,8 @@ extension GetItInjectableX on _i174.GetIt {
       ),
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
     );
-    gh.singleton<_i251.NavRouter>(
-      () => appModule.getAppRouter(
-        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
-        gh<_i374.AuthDataService>(),
-      ),
-    );
-    gh.factory<_i884.WatchAuthStateUseCase>(
-      () => appModule.getWatchAuthStateUseCase(gh<_i374.AuthDataService>()),
+    gh.factory<_i79.GetAuthStateUseCase>(
+      () => appModule.getGetAuthStateUseCase(gh<_i969.GetAuthDataUseCase>()),
     );
     gh.factory<_i1052.InitializeSessionUseCase>(
       () =>
@@ -335,6 +340,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i363.GetEffectiveThemeModeUseCase>(),
         gh<_i656.InitializeAppUseCase>(),
         gh<_i1052.InitializeSessionUseCase>(),
+      ),
+    );
+    gh.singleton<_i251.NavRouter>(
+      () => appModule.getAppRouter(
+        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+        gh<_i79.GetAuthStateUseCase>(),
       ),
     );
     return this;

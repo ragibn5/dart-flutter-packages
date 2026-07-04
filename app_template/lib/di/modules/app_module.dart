@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:alerter/alerter.dart';
 import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
+import 'package:app_template/features/app/application/use_cases/get_auth_state_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
@@ -33,6 +34,7 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:app_template/features/app/infrastructure/ports/get_auth_state_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_platform_locale_use_case.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_user_id_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/set_analytics_session_data_use_case_impl.dart';
@@ -43,6 +45,7 @@ import 'package:app_template/features/app/infrastructure/services/app_config_fac
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart';
+import 'package:app_template/features/auth/application/use_cases/watch_auth_data_use_case.dart';
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
@@ -251,10 +254,16 @@ abstract class AppModule {
     return GetPlatformLocaleUseCaseImpl(WidgetsBinding.instance);
   }
 
-  WatchAuthStateUseCase getWatchAuthStateUseCase(
-    AuthDataService authDataService,
+  GetAuthStateUseCase getGetAuthStateUseCase(
+    GetAuthDataUseCase getAuthDataUseCase,
   ) {
-    return WatchAuthStateUseCaseImpl(authDataService);
+    return GetAuthStateUseCaseImpl(getAuthDataUseCase);
+  }
+
+  WatchAuthStateUseCase getWatchAuthStateUseCase(
+    WatchAuthDataUseCase watchAuthDataUseCase,
+  ) {
+    return WatchAuthStateUseCaseImpl(watchAuthDataUseCase);
   }
 
   @injectable
@@ -454,12 +463,12 @@ abstract class AppModule {
   @singleton
   NavRouter getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
-    AuthDataService authDataService,
+    GetAuthStateUseCase getAuthStateUseCase,
   ) {
     return NavRouterFactory().create(
       navigatorKey: navigatorKey,
       initialRoute: AppRoute.ROOT.routeInfo,
-      routes: getAppRouteDefs(authDataService),
+      routes: getAppRouteDefs(getAuthStateUseCase),
       guards: [RouterLogger()],
     );
   }

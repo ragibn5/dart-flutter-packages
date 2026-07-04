@@ -1,34 +1,27 @@
+import 'package:app_template/features/app/application/use_cases/get_auth_state_use_case.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
 import 'package:app_template/features/app/infrastructure/router/guards/root_redirection_route_guard.dart';
-import 'package:app_template/features/auth/domain/models/auth_data.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:nav_router/nav_router.dart';
 
-class _MockAuthDataService extends Mock implements AuthDataService {}
-
-class _FakeAuthData extends Fake implements AuthData {}
+class _MockGetAuthStateUseCase extends Mock implements GetAuthStateUseCase {}
 
 class _FakeBuildContext extends Fake implements BuildContext {}
 
 void main() {
-  final fakeAuthData = _FakeAuthData();
-
-  late _MockAuthDataService mockAuthDataService;
+  late _MockGetAuthStateUseCase mockGetAuthState;
 
   late RootRedirectRouteGuard sut;
 
   setUp(() {
-    mockAuthDataService = _MockAuthDataService();
-    sut = RootRedirectRouteGuard(mockAuthDataService);
+    mockGetAuthState = _MockGetAuthStateUseCase();
+    sut = RootRedirectRouteGuard(mockGetAuthState);
   });
 
   test('If not authenticated should redirect to login', () async {
-    when(
-      () => mockAuthDataService.getCurrentAuthData(),
-    ).thenAnswer((_) async => null);
+    when(() => mockGetAuthState()).thenAnswer((_) async => true);
 
     final result = await sut.onNavigationRequest(
       _FakeBuildContext(),
@@ -44,9 +37,7 @@ void main() {
   });
 
   test('If authenticated should redirect to home', () async {
-    when(
-      () => mockAuthDataService.getCurrentAuthData(),
-    ).thenAnswer((_) async => fakeAuthData);
+    when(() => mockGetAuthState()).thenAnswer((_) async => false);
 
     final result = await sut.onNavigationRequest(
       _FakeBuildContext(),

@@ -10,5 +10,4 @@ class WatchAuthDataUseCase {
   Stream<AuthData?> call() {
     return _authRepository.getAuthDataStream().distinct();
   }
-
 }
