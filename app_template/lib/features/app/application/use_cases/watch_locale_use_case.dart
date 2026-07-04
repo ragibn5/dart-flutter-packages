@@ -1,25 +1,25 @@
-import 'package:app_template/features/app/application/use_cases/set_settings_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/watch_settings_use_case.dart';
 import 'package:app_template/features/app/domain/models/locale_components.dart';
+import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart';
 
 class WatchLocaleUseCase {
-  final WatchSettingsUseCase _watchSettings;
+  final SettingsRepository _settingsRepository;
 
   final LocalComponentsMapper _localComponentsMapper;
 
-  WatchLocaleUseCase(this._watchSettings, this._localComponentsMapper);
+  WatchLocaleUseCase(this._settingsRepository, this._localComponentsMapper);
 
   /// Watch locale selection changes.
   ///
   /// This emits a new value whenever the user changes the app-locale,
-  /// specifically, by calling the [SetSettingsUseCase].
+  /// specifically, by calling `SetSettingsUseCase`.
   ///
-  /// **Please note**: Do not call [SetSettingsUseCase] in response to events
+  /// **Please note**: Do not call `SetSettingsUseCase` in response to events
   /// received from the stream return by this method, as it will result in an
   /// infinite loop.
   Stream<LocaleComponents> call() {
-    return _watchSettings()
+    return _settingsRepository
+        .getSettingsStream()
         .asyncMap(
           (settings) =>
               _localComponentsMapper.mapLocaleComponents(settings.locale),

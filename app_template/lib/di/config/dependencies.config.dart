@@ -226,10 +226,31 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1014.SettingsDataSource>(),
       ),
     );
+    gh.factory<_i625.WatchLocaleUseCase>(
+      () => appModule.getWatchLocaleUseCase(
+        gh<_i1030.SettingsRepository>(),
+        gh<_i1034.LocalComponentsMapper>(),
+      ),
+    );
     gh.factory<_i728.UserDataRepository>(
       () => userDataModule.getUserDataRepository(
         gh<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>>(),
         gh<_i257.UserDataDataSource>(),
+      ),
+    );
+    gh.factory<_i999.GetEffectiveLocaleUseCase>(
+      () => appModule.getGetEffectiveLocaleUseCase(
+        gh<_i791.AppLocaleResolver>(),
+        gh<_i1030.SettingsRepository>(),
+        gh<_i846.GetPlatformLocaleUseCase>(),
+      ),
+    );
+    gh.factory<_i44.WatchThemeModeUseCase>(
+      () => appModule.getWatchThemeModeUseCase(gh<_i1030.SettingsRepository>()),
+    );
+    gh.factory<_i363.GetEffectiveThemeModeUseCase>(
+      () => appModule.getGetEffectiveThemeModeUseCase(
+        gh<_i1030.SettingsRepository>(),
       ),
     );
     gh.factory<_i84.UserDataService>(
@@ -243,28 +264,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i170.WatchSettingsUseCase>(
       () => appModule.getWatchSettingsUseCase(gh<_i1030.SettingsRepository>()),
-    );
-    gh.factory<_i363.GetEffectiveThemeModeUseCase>(
-      () => appModule.getGetEffectiveThemeModeUseCase(
-        gh<_i393.GetSettingsUseCase>(),
-      ),
-    );
-    gh.factory<_i44.WatchThemeModeUseCase>(
-      () =>
-          appModule.getWatchThemeModeUseCase(gh<_i170.WatchSettingsUseCase>()),
-    );
-    gh.factory<_i625.WatchLocaleUseCase>(
-      () => appModule.getWatchLocaleUseCase(
-        gh<_i170.WatchSettingsUseCase>(),
-        gh<_i1034.LocalComponentsMapper>(),
-      ),
-    );
-    gh.factory<_i999.GetEffectiveLocaleUseCase>(
-      () => appModule.getGetEffectiveLocaleUseCase(
-        gh<_i791.AppLocaleResolver>(),
-        gh<_i393.GetSettingsUseCase>(),
-        gh<_i846.GetPlatformLocaleUseCase>(),
-      ),
     );
     gh.factory<_i524.AppServerTokenRefreshApiClient>(
       () => appModule.getAppServerTokenRefresherApiClient(

@@ -2,15 +2,15 @@
 
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/get_settings_use_case.dart';
 import 'package:app_template/features/app/domain/models/app_locale.dart';
 import 'package:app_template/features/app/domain/models/app_settings.dart';
 import 'package:app_template/features/app/domain/models/locale_components.dart';
+import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockGetSettingsUseCase extends Mock implements GetSettingsUseCase {}
+class _MockSettingsRepository extends Mock implements SettingsRepository {}
 
 class _MockGetPlatformLocaleUseCase extends Mock
     implements GetPlatformLocaleUseCase {}
@@ -18,7 +18,7 @@ class _MockGetPlatformLocaleUseCase extends Mock
 class _MockAppLocaleResolver extends Mock implements AppLocaleResolver {}
 
 void main() {
-  late _MockGetSettingsUseCase mockGetSettings;
+  late _MockSettingsRepository mockSettingsRepository;
   late _MockGetPlatformLocaleUseCase mockGetPlatformLocale;
   late _MockAppLocaleResolver mockAppLocaleResolver;
 
@@ -29,18 +29,18 @@ void main() {
   });
 
   setUp(() {
-    mockGetSettings = _MockGetSettingsUseCase();
+    mockSettingsRepository = _MockSettingsRepository();
     mockGetPlatformLocale = _MockGetPlatformLocaleUseCase();
     mockAppLocaleResolver = _MockAppLocaleResolver();
 
     sut = GetEffectiveLocaleUseCase(
+      mockSettingsRepository,
       mockAppLocaleResolver,
-      mockGetSettings,
       mockGetPlatformLocale,
     );
 
     when(
-      () => mockGetSettings(),
+      () => mockSettingsRepository.getCurrentSettings(),
     ).thenAnswer((_) async => const AppSettings(locale: AppLocale.EN));
     when(
       () => mockGetPlatformLocale(),
@@ -51,7 +51,7 @@ void main() {
     'If locale is not ${AppLocale.SYSTEM}, returns corresponding LocaleComponents',
     () async {
       when(
-        () => mockGetSettings(),
+        () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => const AppSettings(locale: AppLocale.EN));
 
       final result = await sut();
@@ -71,7 +71,7 @@ void main() {
       );
 
       when(
-        () => mockGetSettings(),
+        () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => const AppSettings(locale: AppLocale.SYSTEM));
       when(
         () => mockGetPlatformLocale(),
@@ -92,7 +92,7 @@ void main() {
       const unsupportedComponents = LocaleComponents(languageCode: 'fr');
 
       when(
-        () => mockGetSettings(),
+        () => mockSettingsRepository.getCurrentSettings(),
       ).thenAnswer((_) async => const AppSettings(locale: AppLocale.SYSTEM));
       when(
         () => mockGetPlatformLocale(),

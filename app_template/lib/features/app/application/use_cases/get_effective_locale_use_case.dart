@@ -1,18 +1,19 @@
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/get_settings_use_case.dart';
 import 'package:app_template/features/app/domain/models/app_locale.dart';
 import 'package:app_template/features/app/domain/models/locale_components.dart';
+import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
 
 class GetEffectiveLocaleUseCase {
+  final SettingsRepository _settingsRepository;
+
   final AppLocaleResolver _appLocaleResolver;
 
-  final GetSettingsUseCase _getSettings;
   final GetPlatformLocaleUseCase _getPlatformLocale;
 
   GetEffectiveLocaleUseCase(
+    this._settingsRepository,
     this._appLocaleResolver,
-    this._getSettings,
     this._getPlatformLocale,
   );
 
@@ -27,7 +28,7 @@ class GetEffectiveLocaleUseCase {
   /// 3. If none of the above works out, [AppLocale.EN]'s corresponding
   ///    locale components are returned.
   Future<LocaleComponents> call() async {
-    final settings = await _getSettings();
+    final settings = await _settingsRepository.getCurrentSettings();
     if (settings.locale != AppLocale.SYSTEM) {
       return _mapToLocaleComponents(settings.locale);
     }

@@ -274,37 +274,37 @@ abstract class AppModule {
 
   @injectable
   WatchThemeModeUseCase getWatchThemeModeUseCase(
-    WatchSettingsUseCase watchSettings,
+    SettingsRepository settingsRepository,
   ) {
-    return WatchThemeModeUseCase(watchSettings);
+    return WatchThemeModeUseCase(settingsRepository);
   }
 
   @injectable
   WatchLocaleUseCase getWatchLocaleUseCase(
-    WatchSettingsUseCase watchSettings,
+    SettingsRepository settingsRepository,
     LocalComponentsMapper localComponentsMapper,
   ) {
-    return WatchLocaleUseCase(watchSettings, localComponentsMapper);
+    return WatchLocaleUseCase(settingsRepository, localComponentsMapper);
   }
 
   @injectable
   GetEffectiveLocaleUseCase getGetEffectiveLocaleUseCase(
     AppLocaleResolver appLocaleResolver,
-    GetSettingsUseCase getSettings,
+    SettingsRepository settingsRepository,
     GetPlatformLocaleUseCase getPlatformLocale,
   ) {
     return GetEffectiveLocaleUseCase(
+      settingsRepository,
       appLocaleResolver,
-      getSettings,
       getPlatformLocale,
     );
   }
 
   @injectable
   GetEffectiveThemeModeUseCase getGetEffectiveThemeModeUseCase(
-    GetSettingsUseCase getSettings,
+    SettingsRepository settingsRepository,
   ) {
-    return GetEffectiveThemeModeUseCase(getSettings);
+    return GetEffectiveThemeModeUseCase(settingsRepository);
   }
 
   @singleton

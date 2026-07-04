@@ -1,13 +1,13 @@
-import 'package:app_template/features/app/application/use_cases/get_settings_use_case.dart';
 import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 
 class GetEffectiveThemeModeUseCase {
-  final GetSettingsUseCase _getSettings;
+  final SettingsRepository _settingsRepository;
 
-  GetEffectiveThemeModeUseCase(this._getSettings);
+  GetEffectiveThemeModeUseCase(this._settingsRepository);
 
   Future<AppThemeMode> call() async {
-    final settings = await _getSettings();
+    final settings = await _settingsRepository.getCurrentSettings();
     return settings.themeMode;
   }
 }
