@@ -3,21 +3,21 @@
 import 'dart:async';
 
 import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_settings_use_case.dart';
 import 'package:app_template/features/app/domain/models/app_locale.dart';
 import 'package:app_template/features/app/domain/models/app_settings.dart';
 import 'package:app_template/features/app/domain/models/locale_components.dart';
-import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockSettingsRepository extends Mock implements SettingsRepository {}
+class _MockWatchSettingsUseCase extends Mock implements WatchSettingsUseCase {}
 
 class _MockLocalComponentsMapper extends Mock
     implements LocalComponentsMapper {}
 
 void main() {
-  late _MockSettingsRepository mockSettingsRepository;
+  late _MockWatchSettingsUseCase mockWatchSettings;
   late _MockLocalComponentsMapper mockLocalComponentsMapper;
 
   late WatchLocaleUseCase sut;
@@ -28,47 +28,54 @@ void main() {
   });
 
   setUp(() {
-    mockSettingsRepository = _MockSettingsRepository();
+    mockWatchSettings = _MockWatchSettingsUseCase();
     mockLocalComponentsMapper = _MockLocalComponentsMapper();
 
-    sut = WatchLocaleUseCase(mockSettingsRepository, mockLocalComponentsMapper);
-
-    when(
-      () => mockSettingsRepository.getSettingsStream(),
-    ).thenAnswer((_) => const Stream.empty());
+    sut = WatchLocaleUseCase(mockWatchSettings, mockLocalComponentsMapper);
   });
 
-  Future<void> testLocaleStream(
-    AppSettings appSettings,
-    LocaleComponents expectedComponents,
-  ) async {
+  test('Should call WatchSettingsUseCase', () {
+    when(() => mockWatchSettings()).thenAnswer((_) => const Stream.empty());
+
+    sut();
+
+    verify(() => mockWatchSettings()).called(1);
+  });
+
+  test('Should map locale using LocalComponentsMapper', () async {
+    const appSettings = AppSettings(locale: AppLocale.AR);
+    const expectedComponents = LocaleComponents(languageCode: 'ar');
     when(
-      () => mockSettingsRepository.getSettingsStream(),
+      () => mockWatchSettings(),
     ).thenAnswer((_) => Stream.fromIterable([appSettings]));
     when(
-      () => mockLocalComponentsMapper.mapLocaleComponents(
-        appSettings.locale ?? AppLocale.SYSTEM,
-      ),
+      () => mockLocalComponentsMapper.mapLocaleComponents(AppLocale.AR),
     ).thenReturn(expectedComponents);
 
-    final result = sut();
-    expect(await result.first, expectedComponents);
-  }
+    final result = await sut().first;
 
-  test(
-    'Stream emits mapped LocaleComponents when locale is set in settings',
-    () async {
-      await testLocaleStream(
-        const AppSettings(locale: AppLocale.AR),
-        const LocaleComponents(languageCode: 'ar'),
-      );
-    },
-  );
+    expect(result, expectedComponents);
+    verify(() => mockLocalComponentsMapper.mapLocaleComponents(AppLocale.AR));
+  });
 
-  test('Stream emits SYSTEM LocaleComponents when locale is null', () async {
-    await testLocaleStream(
-      const AppSettings(),
-      const LocaleComponents(languageCode: 'en'),
+  test('Should emit distinct values', () async {
+    const arSettings = AppSettings(locale: AppLocale.AR);
+    const enSettings = AppSettings(locale: AppLocale.EN);
+    const arComponents = LocaleComponents(languageCode: 'ar');
+    const enComponents = LocaleComponents(languageCode: 'en');
+
+    when(
+      () => mockLocalComponentsMapper.mapLocaleComponents(AppLocale.AR),
+    ).thenReturn(arComponents);
+    when(
+      () => mockLocalComponentsMapper.mapLocaleComponents(AppLocale.EN),
+    ).thenReturn(enComponents);
+    when(() => mockWatchSettings()).thenAnswer(
+      (_) => Stream.fromIterable([arSettings, arSettings, enSettings]),
     );
+
+    final result = await sut().toList();
+
+    expect(result, [arComponents, enComponents]);
   });
 }

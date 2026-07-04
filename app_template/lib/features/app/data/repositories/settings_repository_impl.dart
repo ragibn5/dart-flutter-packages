@@ -41,7 +41,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
 
   @override
   Stream<AppSettings> getSettingsStream() {
-    return _settingsStreamController.stream;
+    return _settingsStreamController.stream.distinct();
   }
 
   @override

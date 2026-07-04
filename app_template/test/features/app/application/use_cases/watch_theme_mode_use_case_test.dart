@@ -2,17 +2,17 @@
 
 import 'dart:async';
 
+import 'package:app_template/features/app/application/use_cases/watch_settings_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart';
 import 'package:app_template/features/app/domain/models/app_settings.dart';
 import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
-import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockSettingsRepository extends Mock implements SettingsRepository {}
+class _MockWatchSettingsUseCase extends Mock implements WatchSettingsUseCase {}
 
 void main() {
-  late _MockSettingsRepository mockSettingsRepository;
+  late _MockWatchSettingsUseCase mockWatchSettings;
 
   late WatchThemeModeUseCase sut;
 
@@ -21,38 +21,40 @@ void main() {
   });
 
   setUp(() {
-    mockSettingsRepository = _MockSettingsRepository();
+    mockWatchSettings = _MockWatchSettingsUseCase();
 
-    sut = WatchThemeModeUseCase(mockSettingsRepository);
-
-    when(
-      () => mockSettingsRepository.getSettingsStream(),
-    ).thenAnswer((_) => const Stream.empty());
+    sut = WatchThemeModeUseCase(mockWatchSettings);
   });
 
-  Future<void> testThemeModeStream(
-    AppSettings appSettings,
-    AppThemeMode expected,
-  ) async {
+  test('Should call WatchSettingsUseCase', () {
+    when(() => mockWatchSettings()).thenAnswer((_) => const Stream.empty());
+
+    sut();
+
+    verify(() => mockWatchSettings()).called(1);
+  });
+
+  test('Should map settings to theme mode', () async {
+    const appSettings = AppSettings(themeMode: AppThemeMode.DARK);
     when(
-      () => mockSettingsRepository.getSettingsStream(),
+      () => mockWatchSettings(),
     ).thenAnswer((_) => Stream.fromIterable([appSettings]));
 
-    final result = sut();
-    expect(await result.first, expected);
-  }
+    final result = await sut().first;
 
-  test(
-    'Stream obtained from `call` emits SYSTEM when no theme mode is set',
-    () async {
-      await testThemeModeStream(const AppSettings(), AppThemeMode.SYSTEM);
-    },
-  );
+    expect(result, AppThemeMode.DARK);
+  });
 
-  test('Stream obtained from `call` emits persisted theme mode', () async {
-    await testThemeModeStream(
-      const AppSettings(themeMode: AppThemeMode.DARK),
-      AppThemeMode.DARK,
-    );
+  test('Should emit distinct theme modes', () async {
+    const darkA = AppSettings(themeMode: AppThemeMode.DARK);
+    const darkB = AppSettings(themeMode: AppThemeMode.DARK);
+    const light = AppSettings(themeMode: AppThemeMode.LIGHT);
+    when(
+      () => mockWatchSettings(),
+    ).thenAnswer((_) => Stream.fromIterable([darkA, darkB, light]));
+
+    final result = await sut().toList();
+
+    expect(result, [AppThemeMode.DARK, AppThemeMode.LIGHT]);
   });
 }

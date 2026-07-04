@@ -6,15 +6,14 @@ import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/get_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/get_theme_mode_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_settings_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/set_locale_use_case.dart';
-import 'package:app_template/features/app/application/use_cases/set_theme_mode_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/set_settings_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_settings_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart';
 import 'package:app_template/features/app/data/mappers/settings_mapper.dart';
 import 'package:app_template/features/app/data/models/settings_dto.dart';
@@ -259,58 +258,53 @@ abstract class AppModule {
   }
 
   @injectable
-  GetLocaleUseCase getGetLocaleUseCase(SettingsRepository repository) {
-    return GetLocaleUseCase(repository);
+  GetSettingsUseCase getGetSettingsUseCase(SettingsRepository repository) {
+    return GetSettingsUseCase(repository);
   }
 
   @injectable
-  GetThemeModeUseCase getGetThemeModeUseCase(SettingsRepository repository) {
-    return GetThemeModeUseCase(repository);
+  SetSettingsUseCase getSetSettingsUseCase(SettingsRepository repository) {
+    return SetSettingsUseCase(repository);
   }
 
   @injectable
-  SetLocaleUseCase getSetLocaleUseCase(SettingsRepository repository) {
-    return SetLocaleUseCase(repository);
-  }
-
-  @injectable
-  SetThemeModeUseCase getSetThemeModeUseCase(SettingsRepository repository) {
-    return SetThemeModeUseCase(repository);
+  WatchSettingsUseCase getWatchSettingsUseCase(SettingsRepository repository) {
+    return WatchSettingsUseCase(repository);
   }
 
   @injectable
   WatchThemeModeUseCase getWatchThemeModeUseCase(
-    SettingsRepository repository,
+    WatchSettingsUseCase watchSettings,
   ) {
-    return WatchThemeModeUseCase(repository);
+    return WatchThemeModeUseCase(watchSettings);
   }
 
   @injectable
   WatchLocaleUseCase getWatchLocaleUseCase(
-    SettingsRepository repository,
+    WatchSettingsUseCase watchSettings,
     LocalComponentsMapper localComponentsMapper,
   ) {
-    return WatchLocaleUseCase(repository, localComponentsMapper);
+    return WatchLocaleUseCase(watchSettings, localComponentsMapper);
   }
 
   @injectable
   GetEffectiveLocaleUseCase getGetEffectiveLocaleUseCase(
     AppLocaleResolver appLocaleResolver,
-    GetLocaleUseCase getLocale,
+    GetSettingsUseCase getSettings,
     GetPlatformLocaleUseCase getPlatformLocale,
   ) {
     return GetEffectiveLocaleUseCase(
       appLocaleResolver,
-      getLocale,
+      getSettings,
       getPlatformLocale,
     );
   }
 
   @injectable
   GetEffectiveThemeModeUseCase getGetEffectiveThemeModeUseCase(
-    GetThemeModeUseCase getThemeMode,
+    GetSettingsUseCase getSettings,
   ) {
-    return GetEffectiveThemeModeUseCase(getThemeMode);
+    return GetEffectiveThemeModeUseCase(getSettings);
   }
 
   @singleton

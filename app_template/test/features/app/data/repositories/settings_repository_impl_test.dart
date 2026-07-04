@@ -21,16 +21,14 @@ class _MockSettingsConverter extends Mock
 class _MockSettingsDataSource extends Mock implements SettingsDataSource {}
 
 void main() {
-  const settingsDto = SettingsDTO(
-    locale: AppLocale.EN,
-    themeMode: AppThemeMode.LIGHT,
+  final settingsDto = SettingsDTO(
+    locale: AppLocale.EN.name,
+    themeMode: AppThemeMode.LIGHT.name,
   );
   const settings = AppSettings(
     locale: AppLocale.EN,
     themeMode: AppThemeMode.LIGHT,
   );
-  const settingsStream = Stream<AppSettings>.empty();
-
   late _MockSettingsStreamController mockSettingsStreamController;
   late _MockSettingsConverter mockSettingsConverter;
   late _MockSettingsDataSource mockSettingsDataSource;
@@ -53,9 +51,6 @@ void main() {
       mockSettingsDataSource,
     );
 
-    when(
-      () => mockSettingsStreamController.stream,
-    ).thenAnswer((_) => settingsStream);
     when(() => mockSettingsStreamController.close()).thenAnswer((_) async {});
     when(
       () => mockSettingsConverter.convertDataToDomain(settingsDto),
@@ -91,8 +86,8 @@ void main() {
     () async {
       final result = await sut.getCurrentSettings();
 
-      expect(result.locale, settingsDto.locale);
-      expect(result.themeMode, settingsDto.themeMode);
+      expect(result.locale.name, settingsDto.locale);
+      expect(result.themeMode.name, settingsDto.themeMode);
       verify(() => mockSettingsDataSource.getCurrentSettings()).called(1);
       verify(
         () => mockSettingsConverter.convertDataToDomain(settingsDto),
@@ -113,11 +108,15 @@ void main() {
   );
 
   test(
-    '`getSettingsStream` should return a stream from the stream controller',
+    '`getSettingsStream` should return distinct stream from controller',
     () async {
+      when(
+        () => mockSettingsStreamController.stream,
+      ).thenAnswer((_) => Stream.fromIterable([settings, settings, settings]));
+
       final result = sut.getSettingsStream();
 
-      expect(result, settingsStream);
+      expect(await result.toList(), [settings]);
     },
   );
 

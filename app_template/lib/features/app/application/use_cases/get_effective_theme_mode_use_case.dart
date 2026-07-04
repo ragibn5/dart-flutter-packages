@@ -1,11 +1,13 @@
-import 'package:app_template/features/app/application/use_cases/get_theme_mode_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_settings_use_case.dart';
 import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
 
 class GetEffectiveThemeModeUseCase {
-  final GetThemeModeUseCase _getThemeMode;
+  final GetSettingsUseCase _getSettings;
 
-  GetEffectiveThemeModeUseCase(this._getThemeMode);
+  GetEffectiveThemeModeUseCase(this._getSettings);
 
-  /// Returns the current app theme mode.
-  Future<AppThemeMode> call() => _getThemeMode();
+  Future<AppThemeMode> call() async {
+    final settings = await _getSettings();
+    return settings.themeMode;
+  }
 }

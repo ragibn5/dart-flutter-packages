@@ -20,12 +20,10 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AppLogger _logger;
 
   final WatchAuthStateUseCase _watchAuthState;
-
   final WatchLocaleUseCase _watchLocale;
   final WatchThemeModeUseCase _watchThemeMode;
   final GetEffectiveLocaleUseCase _getEffectiveLocale;
   final GetEffectiveThemeModeUseCase _getEffectiveThemeMode;
-
   final InitializeAppUseCase _initializeApp;
   final InitializeSessionUseCase _initializeSession;
 

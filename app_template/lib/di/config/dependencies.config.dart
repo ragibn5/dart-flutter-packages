@@ -19,24 +19,22 @@ import 'package:app_template/features/app/application/use_cases/get_effective_lo
     as _i999;
 import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart'
     as _i363;
-import 'package:app_template/features/app/application/use_cases/get_locale_use_case.dart'
-    as _i217;
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart'
     as _i846;
-import 'package:app_template/features/app/application/use_cases/get_theme_mode_use_case.dart'
-    as _i739;
+import 'package:app_template/features/app/application/use_cases/get_settings_use_case.dart'
+    as _i393;
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart'
     as _i656;
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart'
     as _i1052;
-import 'package:app_template/features/app/application/use_cases/set_locale_use_case.dart'
-    as _i929;
-import 'package:app_template/features/app/application/use_cases/set_theme_mode_use_case.dart'
-    as _i390;
+import 'package:app_template/features/app/application/use_cases/set_settings_use_case.dart'
+    as _i78;
 import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart'
     as _i884;
 import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart'
     as _i625;
+import 'package:app_template/features/app/application/use_cases/watch_settings_use_case.dart'
+    as _i170;
 import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart'
     as _i44;
 import 'package:app_template/features/app/data/models/settings_dto.dart'
@@ -228,12 +226,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1014.SettingsDataSource>(),
       ),
     );
-    gh.factory<_i625.WatchLocaleUseCase>(
-      () => appModule.getWatchLocaleUseCase(
-        gh<_i1030.SettingsRepository>(),
-        gh<_i1034.LocalComponentsMapper>(),
-      ),
-    );
     gh.factory<_i728.UserDataRepository>(
       () => userDataModule.getUserDataRepository(
         gh<_i1003.DataDomainConverter<_i1018.UserDataDTO, _i436.UserData>>(),
@@ -243,30 +235,34 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i84.UserDataService>(
       () => userDataModule.getUserDataService(gh<_i728.UserDataRepository>()),
     );
-    gh.factory<_i217.GetLocaleUseCase>(
-      () => appModule.getGetLocaleUseCase(gh<_i1030.SettingsRepository>()),
+    gh.factory<_i393.GetSettingsUseCase>(
+      () => appModule.getGetSettingsUseCase(gh<_i1030.SettingsRepository>()),
     );
-    gh.factory<_i739.GetThemeModeUseCase>(
-      () => appModule.getGetThemeModeUseCase(gh<_i1030.SettingsRepository>()),
+    gh.factory<_i78.SetSettingsUseCase>(
+      () => appModule.getSetSettingsUseCase(gh<_i1030.SettingsRepository>()),
     );
-    gh.factory<_i929.SetLocaleUseCase>(
-      () => appModule.getSetLocaleUseCase(gh<_i1030.SettingsRepository>()),
-    );
-    gh.factory<_i390.SetThemeModeUseCase>(
-      () => appModule.getSetThemeModeUseCase(gh<_i1030.SettingsRepository>()),
-    );
-    gh.factory<_i44.WatchThemeModeUseCase>(
-      () => appModule.getWatchThemeModeUseCase(gh<_i1030.SettingsRepository>()),
+    gh.factory<_i170.WatchSettingsUseCase>(
+      () => appModule.getWatchSettingsUseCase(gh<_i1030.SettingsRepository>()),
     );
     gh.factory<_i363.GetEffectiveThemeModeUseCase>(
       () => appModule.getGetEffectiveThemeModeUseCase(
-        gh<_i739.GetThemeModeUseCase>(),
+        gh<_i393.GetSettingsUseCase>(),
+      ),
+    );
+    gh.factory<_i44.WatchThemeModeUseCase>(
+      () =>
+          appModule.getWatchThemeModeUseCase(gh<_i170.WatchSettingsUseCase>()),
+    );
+    gh.factory<_i625.WatchLocaleUseCase>(
+      () => appModule.getWatchLocaleUseCase(
+        gh<_i170.WatchSettingsUseCase>(),
+        gh<_i1034.LocalComponentsMapper>(),
       ),
     );
     gh.factory<_i999.GetEffectiveLocaleUseCase>(
       () => appModule.getGetEffectiveLocaleUseCase(
         gh<_i791.AppLocaleResolver>(),
-        gh<_i217.GetLocaleUseCase>(),
+        gh<_i393.GetSettingsUseCase>(),
         gh<_i846.GetPlatformLocaleUseCase>(),
       ),
     );

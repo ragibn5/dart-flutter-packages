@@ -13,9 +13,9 @@ import 'package:preference_store/preference_store.dart';
 class _MockPreferenceStore extends Mock implements PreferenceStore {}
 
 void main() {
-  const settingsDto = SettingsDTO(
-    locale: AppLocale.EN,
-    themeMode: AppThemeMode.LIGHT,
+  final settingsDto = SettingsDTO(
+    locale: AppLocale.EN.name,
+    themeMode: AppThemeMode.LIGHT.name,
   );
   final encodedSettingsDto = jsonEncode(settingsDto.toJson());
 
