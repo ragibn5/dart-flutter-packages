@@ -1,4 +1,4 @@
-import 'package:app_template/features/app/infrastructure/ports/get_auth_state_use_case_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/is_authed_use_case_impl.dart';
 import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,12 +17,12 @@ void main() {
 
   late _MockGetAuthDataUseCase mockGetAuthData;
 
-  late GetAuthStateUseCaseImpl sut;
+  late IsAuthedUseCaseImpl sut;
 
   setUp(() {
     mockGetAuthData = _MockGetAuthDataUseCase();
 
-    sut = GetAuthStateUseCaseImpl(mockGetAuthData);
+    sut = IsAuthedUseCaseImpl(mockGetAuthData);
   });
 
   test(

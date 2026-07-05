@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart';
+import 'package:app_template/features/auth/application/use_cases/refresh_auth_data_use_case.dart';
 import 'package:app_template/features/auth/application/use_cases/watch_auth_data_use_case.dart';
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/data/repositories/auth_data_mapper.dart';
@@ -62,5 +63,11 @@ abstract class AuthModule {
 
   WatchAuthDataUseCase getWatchAuthDataUseCase(AuthDataRepository repository) {
     return WatchAuthDataUseCase(repository);
+  }
+
+  RefreshAuthDataUseCase getRefreshAuthDataUseCase(
+    AuthDataRepository repository,
+  ) {
+    return RefreshAuthDataUseCase(repository);
   }
 }

@@ -4,13 +4,15 @@ import 'dart:io';
 import 'package:alerter/alerter.dart';
 import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/features/app/application/use_cases/get_auth_state_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_auth_info_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_refreshed_auth_info_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/get_settings_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/is_authed_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/set_settings_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
@@ -34,9 +36,11 @@ import 'package:app_template/features/app/infrastructure/models/flavor_config.da
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
-import 'package:app_template/features/app/infrastructure/ports/get_auth_state_use_case_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/get_auth_info_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_platform_locale_use_case.dart';
+import 'package:app_template/features/app/infrastructure/ports/get_refreshed_auth_info_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_user_id_use_case_impl.dart';
+import 'package:app_template/features/app/infrastructure/ports/is_authed_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/set_analytics_session_data_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/set_crashlytics_session_data_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/watch_auth_state_use_case_impl.dart';
@@ -45,9 +49,9 @@ import 'package:app_template/features/app/infrastructure/services/app_config_fac
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart';
+import 'package:app_template/features/auth/application/use_cases/refresh_auth_data_use_case.dart';
 import 'package:app_template/features/auth/application/use_cases/watch_auth_data_use_case.dart';
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
 import 'package:crashlytics/crashlytics.dart';
@@ -254,10 +258,20 @@ abstract class AppModule {
     return GetPlatformLocaleUseCaseImpl(WidgetsBinding.instance);
   }
 
-  GetAuthStateUseCase getGetAuthStateUseCase(
+  IsAuthedUseCase getIsAuthedUseCase(GetAuthDataUseCase getAuthDataUseCase) {
+    return IsAuthedUseCaseImpl(getAuthDataUseCase);
+  }
+
+  GetAuthInfoUseCase getGetAuthInfoUseCase(
     GetAuthDataUseCase getAuthDataUseCase,
   ) {
-    return GetAuthStateUseCaseImpl(getAuthDataUseCase);
+    return GetAuthInfoUseCaseImpl(getAuthDataUseCase);
+  }
+
+  GetRefreshedAuthInfoUseCase getGetRefreshedAuthInfoUseCase(
+    RefreshAuthDataUseCase refreshAuthDataUseCase,
+  ) {
+    return GetRefreshedAuthInfoUseCaseImpl(refreshAuthDataUseCase);
   }
 
   WatchAuthStateUseCase getWatchAuthStateUseCase(
@@ -345,7 +359,8 @@ abstract class AppModule {
     FlavorConfig flavorConfig,
     BuildMetadata buildMetadata,
     AppLogger logger,
-    AuthDataService authDataService,
+    GetAuthInfoUseCase getAuthInfo,
+    GetRefreshedAuthInfoUseCase getRefreshedAuthInfo,
     GetEffectiveLocaleUseCase getEffectiveLocale,
     AppServerTokenRefreshApiClient tokenRefreshApiClient,
   ) {
@@ -358,7 +373,7 @@ abstract class AppModule {
 
     client.interceptors.addAll([
       MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
-      AuthInterceptor(client, authDataService),
+      AuthInterceptor(client, getAuthInfo, getRefreshedAuthInfo),
       LoggerInterceptor(logger),
     ]);
 
@@ -463,12 +478,12 @@ abstract class AppModule {
   @singleton
   NavRouter getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
-    GetAuthStateUseCase getAuthStateUseCase,
+    IsAuthedUseCase isAuthedUseCase,
   ) {
     return NavRouterFactory().create(
       navigatorKey: navigatorKey,
       initialRoute: AppRoute.ROOT.routeInfo,
-      routes: getAppRouteDefs(getAuthStateUseCase),
+      routes: getAppRouteDefs(isAuthedUseCase),
       guards: [RouterLogger()],
     );
   }

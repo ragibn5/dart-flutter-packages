@@ -15,20 +15,24 @@ import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/di/modules/app_module.dart' as _i384;
 import 'package:app_template/di/modules/auth_module.dart' as _i228;
 import 'package:app_template/di/modules/user_data_module.dart' as _i201;
-import 'package:app_template/features/app/application/use_cases/get_auth_state_use_case.dart'
-    as _i79;
+import 'package:app_template/features/app/application/use_cases/get_auth_info_use_case.dart'
+    as _i656;
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart'
     as _i999;
 import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart'
     as _i363;
 import 'package:app_template/features/app/application/use_cases/get_platform_locale_use_case.dart'
     as _i846;
+import 'package:app_template/features/app/application/use_cases/get_refreshed_auth_info_use_case.dart'
+    as _i641;
 import 'package:app_template/features/app/application/use_cases/get_settings_use_case.dart'
     as _i393;
 import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart'
     as _i656;
 import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart'
     as _i1052;
+import 'package:app_template/features/app/application/use_cases/is_authed_use_case.dart'
+    as _i97;
 import 'package:app_template/features/app/application/use_cases/set_settings_use_case.dart'
     as _i78;
 import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart'
@@ -65,6 +69,8 @@ import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart'
     as _i873;
 import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart'
     as _i969;
+import 'package:app_template/features/auth/application/use_cases/refresh_auth_data_use_case.dart'
+    as _i930;
 import 'package:app_template/features/auth/application/use_cases/watch_auth_data_use_case.dart'
     as _i692;
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart'
@@ -308,23 +314,24 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i692.WatchAuthDataUseCase>(
       () => authModule.getWatchAuthDataUseCase(gh<_i731.AuthDataRepository>()),
     );
+    gh.factory<_i930.RefreshAuthDataUseCase>(
+      () =>
+          authModule.getRefreshAuthDataUseCase(gh<_i731.AuthDataRepository>()),
+    );
     gh.factory<_i884.WatchAuthStateUseCase>(
       () =>
           appModule.getWatchAuthStateUseCase(gh<_i692.WatchAuthDataUseCase>()),
     );
-    gh.singleton<_i535.NetClient>(
-      () => appModule.getAppServerPrivateApiClient(
-        gh<_i821.FlavorConfig>(),
-        gh<_i143.BuildMetadata>(),
-        gh<_i519.AppLogger>(),
-        gh<_i374.AuthDataService>(),
-        gh<_i999.GetEffectiveLocaleUseCase>(),
-        gh<_i524.AppServerTokenRefreshApiClient>(),
+    gh.factory<_i641.GetRefreshedAuthInfoUseCase>(
+      () => appModule.getGetRefreshedAuthInfoUseCase(
+        gh<_i930.RefreshAuthDataUseCase>(),
       ),
-      instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
     );
-    gh.factory<_i79.GetAuthStateUseCase>(
-      () => appModule.getGetAuthStateUseCase(gh<_i969.GetAuthDataUseCase>()),
+    gh.factory<_i97.IsAuthedUseCase>(
+      () => appModule.getIsAuthedUseCase(gh<_i969.GetAuthDataUseCase>()),
+    );
+    gh.factory<_i656.GetAuthInfoUseCase>(
+      () => appModule.getGetAuthInfoUseCase(gh<_i969.GetAuthDataUseCase>()),
     );
     gh.factory<_i1052.InitializeSessionUseCase>(
       () =>
@@ -342,10 +349,22 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1052.InitializeSessionUseCase>(),
       ),
     );
+    gh.singleton<_i535.NetClient>(
+      () => appModule.getAppServerPrivateApiClient(
+        gh<_i821.FlavorConfig>(),
+        gh<_i143.BuildMetadata>(),
+        gh<_i519.AppLogger>(),
+        gh<_i656.GetAuthInfoUseCase>(),
+        gh<_i641.GetRefreshedAuthInfoUseCase>(),
+        gh<_i999.GetEffectiveLocaleUseCase>(),
+        gh<_i524.AppServerTokenRefreshApiClient>(),
+      ),
+      instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
+    );
     gh.singleton<_i251.NavRouter>(
       () => appModule.getAppRouter(
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
-        gh<_i79.GetAuthStateUseCase>(),
+        gh<_i97.IsAuthedUseCase>(),
       ),
     );
     return this;

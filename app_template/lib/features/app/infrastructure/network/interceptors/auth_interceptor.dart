@@ -1,45 +1,38 @@
 import 'dart:io';
 
-import 'package:app_template/features/auth/domain/models/auth_data.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
+import 'package:app_template/features/app/application/use_cases/get_auth_info_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_refreshed_auth_info_use_case.dart';
+import 'package:app_template/features/app/domain/models/auth_info.dart';
 import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:net_kit/net_kit.dart';
 
 /// Interceptor to handle authentication request/response/error.
-class AuthInterceptor extends BaseAuthInterceptor<AuthData> {
-  /// {@template field_target_client}
-  /// The client where this interceptor is being attached to.
-  /// This is required to perform retry requests.
-  /// {@endtemplate}
+class AuthInterceptor extends BaseAuthInterceptor<AuthInfo> {
   final NetClient _targetClient;
+  final GetAuthInfoUseCase _getAuthInfo;
+  final GetRefreshedAuthInfoUseCase _getRefreshedAuthInfo;
 
-  /// {@template field_auth_data_service}
-  /// From where we can read, update and refresh the auth data.
-  /// {@endtemplate}
-  final AuthDataService _authDataService;
-
-  /// Create an instance of [AuthInterceptor].
-  /// - [_targetClient]:
-  ///   {@macro field_target_client}
-  /// - [_authDataService]
-  ///   {@macro field_auth_data_service}
-  AuthInterceptor(this._targetClient, this._authDataService);
+  AuthInterceptor(
+    this._targetClient,
+    this._getAuthInfo,
+    this._getRefreshedAuthInfo,
+  );
 
   @override
-  Future<AuthData?> getAuthData() {
-    return _authDataService.getCurrentAuthData();
+  Future<AuthInfo?> getAuthData() {
+    return _getAuthInfo();
   }
 
   @override
   Future<RequestSpec> transformRequestWithAuthData(
     RequestSpec request,
-    AuthData authData,
+    AuthInfo authInfo,
   ) async {
     return request.copyWith(
       headers: {
         ...request.headers,
-        ...{HttpHeaders.authorizationHeader: 'Bearer ${authData.accessToken}'},
+        ...{HttpHeaders.authorizationHeader: 'Bearer ${authInfo.accessToken}'},
       },
     );
   }
@@ -63,24 +56,20 @@ class AuthInterceptor extends BaseAuthInterceptor<AuthData> {
   }
 
   @override
-  bool shouldRefreshAuthData(RequestSpec request, AuthData authData) {
+  bool shouldRefreshAuthData(RequestSpec request, AuthInfo authInfo) {
     final requestToken = _getRequestToken(request);
-    return requestToken == null || requestToken == authData.accessToken;
+    return requestToken == null || requestToken == authInfo.accessToken;
   }
 
   @override
-  Future<AuthData?> requestAuthDataRefresh(AuthData oldAuthData) async {
-    final response = await _authDataService.refreshCurrentAuthData();
-    return response.fold(
-      onLeft: (e) => null,
-      onRight: (r) => r.fold(onLeft: (l) => null, onRight: (r) => r),
-    );
+  Future<AuthInfo?> requestAuthDataRefresh(AuthInfo oldAuthData) async {
+    return _getRefreshedAuthInfo();
   }
 
   @override
   Future<ApiCallResult> retryRequest(
     RequestSpec request,
-    AuthData refreshedAuthData,
+    AuthInfo refreshedAuthData,
   ) {
     return _targetClient.execute(spec: request);
   }
