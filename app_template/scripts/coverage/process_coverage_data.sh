@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "$(dirname "$0")/exclusions.sh"
-source "$(dirname "$0")/../../../scripts/project_utils.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/sources.sh"
 
 PROJECT_ROOT=$(find_project_root)
 cd "$PROJECT_ROOT" || { echo "Error: could not cd to $PROJECT_ROOT." >&2; exit 1; }

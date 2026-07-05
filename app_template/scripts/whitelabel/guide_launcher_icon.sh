@@ -1,0 +1,31 @@
+#!/bin/bash
+
+function showLauncherIconChangeGuide() {
+  echo "📁 • Locate the flavor-specific config files used by the launcher icon generator tool."
+  echo "     These files are named like: **flutter_launcher_icons-<flavor-name>.yaml**"
+  echo "     where <flavor-name> can be 'dev', 'exp', 'stage', or 'prod'."
+  echo "🛠️ • Open each config file and customize settings as needed, such as:"
+  echo "     - Update image paths"
+  echo "     - Set background colors"
+  echo "     - Enable or disable specific options"
+  echo "     - Or anything else, see https://pub.dev/packages/flutter_launcher_icons."
+  echo "     Follow the detailed documentation on the config files to provide proper images and other configs."
+  echo "     Also, you do not have to run any commands separately, even if the doc mentions to run any."
+  echo "🎯 • Before continuing, make sure:"
+  echo "     - The image paths are valid and points to the desired images."
+  echo "     - The images follow the strict requirements described inside the config files."
+  echo "⚠️  • iOS-specific warning (launcher generator package bug):"
+  echo "     The tool used to generate launcher may corrupt the file at: ios/Runner.xcodeproj/project.pbxproj."
+  echo "     After running the generation command, open this file and:"
+  echo "     • Remove any gibberish or unexpected content added at the end of the file."
+  echo "     • Replace any lines like:"
+  echo "         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon-<flavor-name>;"
+  echo "       with:"
+  echo "         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;"
+  echo "       (Replace <flavor-name> with: dev, exp, stage, or prod)"
+  echo "     • Then, in Xcode, go to the *Build Settings* tab."
+  echo "       Search for *Primary App Icon Set Name* and make sure its value matches the expected one shown here:"
+  echo "       assets/external/guides/ios_launcher_icon_flavored_values.jpeg"
+
+  confirm_and_execute "Generate launcher icons?" "$(get_dart_cmd) run flutter_launcher_icons"
+}
