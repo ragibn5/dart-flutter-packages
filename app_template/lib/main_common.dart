@@ -7,7 +7,6 @@ import 'package:app_template/features/app/infrastructure/services/firebase_optio
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/app_root/app_root.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -62,7 +61,6 @@ Future<void> runFlavoredApp({required AppFlavor flavor}) async {
               di.get<AppRootBloc>()..add(AppInitializationRequested()),
           child: AppRoot(
             appRouter: di.get<NavRouter>(),
-            authDataService: di.get<AuthDataService>(),
             scaffoldMessengerKey: di.get<GlobalKey<ScaffoldMessengerState>>(),
             appConfig: di.get<AppConfigFactory>().create(platformDispatcher),
           ),

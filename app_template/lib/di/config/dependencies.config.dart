@@ -71,6 +71,8 @@ import 'package:app_template/features/auth/application/use_cases/get_auth_data_u
     as _i969;
 import 'package:app_template/features/auth/application/use_cases/refresh_auth_data_use_case.dart'
     as _i930;
+import 'package:app_template/features/auth/application/use_cases/set_auth_data_use_case.dart'
+    as _i21;
 import 'package:app_template/features/auth/application/use_cases/watch_auth_data_use_case.dart'
     as _i692;
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart'
@@ -85,8 +87,6 @@ import 'package:app_template/features/auth/data/sources/remote_auth_data_source.
     as _i156;
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart'
     as _i731;
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart'
-    as _i374;
 import 'package:app_template/features/user_data/data/models/user_data_dto.dart'
     as _i1018;
 import 'package:app_template/features/user_data/data/sources/user_data_data_source.dart'
@@ -305,11 +305,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i156.RemoteAuthDataSource>(),
       ),
     );
-    gh.factory<_i374.AuthDataService>(
-      () => authModule.getAuthDataService(gh<_i731.AuthDataRepository>()),
-    );
     gh.factory<_i969.GetAuthDataUseCase>(
       () => authModule.getGetAuthDataUseCase(gh<_i731.AuthDataRepository>()),
+    );
+    gh.factory<_i21.SetAuthDataUseCase>(
+      () => authModule.getSetAuthDataUseCase(gh<_i731.AuthDataRepository>()),
     );
     gh.factory<_i692.WatchAuthDataUseCase>(
       () => authModule.getWatchAuthDataUseCase(gh<_i731.AuthDataRepository>()),
