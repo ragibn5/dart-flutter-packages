@@ -36,7 +36,7 @@ lib/
 
 Per-endpoint API client abstractions live in [`data/clients/`](#per-endpoint-api-clients).
 
-These are exclusively for remote (HTTP) data fetching and inherits the [`FeatureApiClient`][feature_api_client] class from the [`feature_api_client`][feature_api_client] package. The feature_api_client allows us to maintain a consistent API client contract for all the features.
+These are exclusively for remote (HTTP) data fetching and inherit the [`FeatureApiClient`][feature_api_client] class from the [`feature_api_client`][feature_api_client] package. The feature_api_client allows us to maintain a consistent API client contract for all the features.
 
 #### Data sources
 
@@ -61,7 +61,7 @@ We use JSON format for serializing and deserializing data. Also, we use the [`js
 
 Mappers live in `data/mappers/`.
 
-They convert between DTOs and domain models by implementing base mapper interfaces defined in [`data_domain_converters`][data_domain_converters] package.
+They convert between DTOs and domain models by implementing base mapper interfaces defined in the [`data_domain_converters`][data_domain_converters] package.
 
 #### Repository implementations
 
@@ -85,7 +85,7 @@ These are [entities](#entities) without any business logic.
 
 They are typically used to represent typed domain information. For example, in these data types, prefer using enums whenever possible – rather than raw data (e.g., coming from the transport layer).
 
-Another reason we introduced the domain model concept is to give them a separate space. Entities with business logic are probably one of the most important things we should include in test coverage, but domain models are value objects and are generally excluded from test coverage. So, when we keep entities and domain models in separate spaces.
+Another reason we introduced the domain model concept is to give them a separate space. Entities with business logic are probably one of the most important things we should include in test coverage, but domain models are value objects and are generally excluded from test coverage. So, we keep entities and domain models in separate spaces.
 
 #### Domain services
 
@@ -213,7 +213,7 @@ class TransportError extends MyState { final ApiError error; ... }
 
 ### Folder organization in the project
 
-Bellow is the convention you should follow when structuring features the project:
+Below is the convention you should follow when structuring features in the project:
 
 | Layer            | Purpose                                                                                                      |
 |------------------|--------------------------------------------------------------------------------------------------------------|
