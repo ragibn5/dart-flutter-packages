@@ -8,14 +8,16 @@ function main() {
   local template_root
   local target_dir
 
-  template_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+  template_root="$(find_project_root)"
+  cd "$template_root" || exit 1
+  echo "Changed working dir to current project root: $template_root"
 
-  target_dir="$(resolveTarget "$template_root")"
+  target_dir="$(resolveTarget "$template_root")" || exit 1
   cd "$target_dir" || {
     echo "Error: Failed to change to target directory '$target_dir'."
     exit 1
   }
-  echo "Working directory: $target_dir"
+  echo "Changed working dir to new project root: $target_dir"
 
   if [ ! -f "pubspec.yaml" ]; then
     echo "Error: Not a flutter project root, exiting."

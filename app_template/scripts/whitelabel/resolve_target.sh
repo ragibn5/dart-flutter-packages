@@ -5,32 +5,28 @@ function resolveTarget() {
   local input_target_dir
   local resolved_target_dir
 
-  echo "Template source: $template_root"
-  read -rp "Enter project path: " input_target_dir
+  read -rp "New project path (absolute/relative - must be outside the template): " input_target_dir
 
   if [ -z "$input_target_dir" ]; then
-    echo "Error: No input provided, exiting."
+    echo "Error: No input provided, exiting." >&2
     exit 1
   fi
 
-  if ! resolved_target_dir=$(realpath "$input_target_dir" 2>/dev/null); then
-    resolved_target_dir="$input_target_dir"
+  resolved_target_dir=$(realpath -m "$input_target_dir" 2>/dev/null) || resolved_target_dir=$(python3 -c "import os.path; print(os.path.abspath('$input_target_dir'))" 2>/dev/null) || resolved_target_dir="$input_target_dir"
+
+  if [[ "$resolved_target_dir" == "$template_root"* ]]; then
+    echo "Error: Target path '$resolved_target_dir' is inside the template project. Choose a path outside." >&2
+    exit 1
   fi
 
-  if [ "$resolved_target_dir" = "$template_root" ]; then
-    echo "Operating on the template project directly."
-
-  elif [ ! -d "$resolved_target_dir" ]; then
-    echo "Copying template to '$resolved_target_dir' ..."
+  if [ ! -d "$resolved_target_dir" ]; then
+    echo "Copying template to '$resolved_target_dir' ..." >&2
     mkdir -p "$(dirname "$resolved_target_dir")"
     cp -a "$template_root" "$resolved_target_dir"
-    echo "✅ Template copied."
-
-  elif [ -d "$resolved_target_dir" ]; then
-    echo "Operating on existing project at '$resolved_target_dir'."
+    echo "✅ Template copied." >&2
 
   else
-    echo "Error: Invalid path, exiting."
+    echo "Error: Target directory is not empty - if you are selecting an existing dir, make sure it is empty." >&2
     exit 1
   fi
 
