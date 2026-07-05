@@ -7,8 +7,8 @@ import 'package:app_template/features/app/application/use_cases/watch_auth_state
 import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
 import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart';
 import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/error_report.dart';
 import 'package:app_template/features/app/domain/models/locale_components.dart';
-import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';

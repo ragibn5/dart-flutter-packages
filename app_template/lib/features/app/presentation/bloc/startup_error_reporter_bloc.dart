@@ -1,4 +1,4 @@
-import 'package:app_template/features/reporting/domain/models/error_report.dart';
+import 'package:app_template/features/app/domain/models/error_report.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
