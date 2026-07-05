@@ -5,31 +5,17 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/sources.sh"
 function main() {
   echo -e "\n[Project Setup]"
 
-  local input_target_dir
-  local resolved_target_dir
+  local template_root
+  local target_dir
 
-  read -rp "Enter project root: " input_target_dir
+  template_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 
-  if [ -z "$input_target_dir" ]; then
-    echo "Error: No input provided, exiting."
-    exit 1
-  fi
-
-  if ! [ -d "$input_target_dir" ]; then
-    echo "Error: '$input_target_dir' is not a valid directory, exiting."
-    exit 1
-  fi
-
-  if ! resolved_target_dir=$(realpath "$input_target_dir"); then
-    echo "Error: Could not resolve path '$input_target_dir', exiting."
-    exit 1
-  fi
-
-  cd "$resolved_target_dir" || {
-    echo "Error: Failed to change to target directory '$resolved_target_dir'."
+  target_dir="$(resolveTarget "$template_root")"
+  cd "$target_dir" || {
+    echo "Error: Failed to change to target directory '$target_dir'."
     exit 1
   }
-  echo "Changed working directory to: $resolved_target_dir"
+  echo "Working directory: $target_dir"
 
   if [ ! -f "pubspec.yaml" ]; then
     echo "Error: Not a flutter project root, exiting."
