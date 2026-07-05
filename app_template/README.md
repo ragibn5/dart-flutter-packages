@@ -18,7 +18,7 @@ A template to start new applications from.
     - [Translation](https://plugins.jetbrains.com/plugin/8579-translation)
 3. Restart Android Studio afterward for the plugins to work properly.
 
-### Setup Flutter & Dart runtime
+### Set up Flutter & Dart runtime
 
 1. Install [FVM](https://fvm.app/documentation/getting-started) if not already installed.
 2. From the project root, install and pin the supported SDK version (see [`.fvmrc`](.fvmrc)):
@@ -28,7 +28,7 @@ A template to start new applications from.
 
 ### Setup localization
 
-1. The project relies on `Flutter Intl` to manage localization in this project. In Android Studio, go to `Tools` >> `Flutter Intl` >> `Initialize for the project`. This may already be initialized, but running it ensures proper setup on your machine.
+1. The project relies on `Flutter Intl` to manage localization in this project. In Android Studio, go to `Tools` >> `Flutter Intl` >> `Initialize for the project`. This may already be initialized, but running it ensures a proper setup on your machine.
 2. The Flutter Intl plugin requires global activation of `intl_utils`. If not already activated, you may need to run the following command to activate the `intl_utils` globally.
    ```bash
    fvm flutter pub global activate intl_utils
@@ -41,7 +41,7 @@ Four build flavors are supported:
 - `dev`: For you, the developer, to do daily development work.
 - `exp`: For testers or QA people.
 - `stage`: For testing release candidates in production mirrors.
-- `prod`: For end users - final destination.
+- `prod`: For end users – final destination.
 
 ```bash
 # Development
@@ -67,7 +67,7 @@ Or, from Android Studio, use the pre-configured run configurations.
 
 ## Code generation
 
-The project uses code generation to generate many of its components. Run the following commands to regenerate all generated code, specially when setting up for the first time.
+The project uses code generation to generate many of its components. Run the following commands to regenerate all generated code, especially when setting up for the first time.
 
 ```bash
 # Generate dart codes
@@ -100,7 +100,7 @@ Or, with coverage:
 fvm flutter test --coverage
 ```
 
-Even better, you can run the tests, generate and view the coverage report via pre-configured Makefile commands:
+Even better, you can run the tests, generate, and view the coverage report via pre-configured Makefile commands:
 
 ```bash
 make view-coverage
