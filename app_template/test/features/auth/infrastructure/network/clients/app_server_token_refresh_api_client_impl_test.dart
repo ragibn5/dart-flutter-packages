@@ -2,7 +2,7 @@
 
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
-import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
+import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
 import 'package:core_models/core_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

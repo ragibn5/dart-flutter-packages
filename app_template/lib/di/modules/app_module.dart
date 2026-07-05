@@ -52,7 +52,7 @@ import 'package:app_template/features/auth/application/use_cases/get_auth_data_u
 import 'package:app_template/features/auth/application/use_cases/refresh_auth_data_use_case.dart';
 import 'package:app_template/features/auth/application/use_cases/watch_auth_data_use_case.dart';
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
-import 'package:app_template/features/auth/infrastructure/app_server_token_refresh_client/app_server_token_refresh_api_client_impl.dart';
+import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';

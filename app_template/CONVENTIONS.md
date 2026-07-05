@@ -135,25 +135,29 @@ There is no such thing as an application service; it is another use case.
 
 ### Infrastructure layer
 
-#### Per-endpoint API client implementations
-
-Per-endpoint API client abstractions defined in [`data/clients/`](#per-endpoint-api-clients) are implemented here in [`infrastructure/clients/`](#per-endpoint-api-client-implementations).
-
 #### Port implementations
 
 Port abstractions defined in [`application/use_cases/`](#ports) are implemented here in [`infrastructure/ports/`](#port-implementations).
+
+#### Network
+
+Network components in infra layer live in [`infrastructure/network/`](#network).
+
+- [Per-endpoint API client abstractions](#per-endpoint-api-clients) defined in [`data/clients/`] are implemented here in `infrastructure/network/clients/`.
+- Interceptors are defined here in `infrastructure/network/interceptors/` and are used in per-endpoint API client implementations in `infrastructure/network/clients/`.
 
 #### Database
 
 Feature specific database components live in [`infrastructure/database/`](#database).
 
-Follow the following convention:
-
 - Table-specific constants live in `constants/<table_name>_table_constants.dart`.
-  This file contains a single privately constructed class with multiple static constants that are used to build queries. The convention is to contain the following static fields:
+
+  Each table-specific constant file contains a single privately constructed class with multiple static constants that are used to build queries. The convention is to contain the following static fields:
     - `NAME`: A static constant specifying the name of the table.
     - `COLUMN_<XYZ>`: Static constants specifying each column names.
-- Scripts live in `scripts/`.
+
+- Scripted queries live in `scripts/`.
+
   These are generally instances of `DbScript` defined in the [`sqlite_db`][sqlite_db] package. The scripts are used to perform database migrations, initialization, and many more. See the `DbScript` types in `sqlite_db` package for more details.
 
 ### Presentation layer
@@ -211,13 +215,13 @@ class TransportError extends MyState { final ApiError error; ... }
 
 Bellow is the convention you should follow when structuring features the project:
 
-| Layer            | Purpose                                                                                                                                                     |
-|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `data`           | Repository implementations, DTOs, [data sources](#data-sources), [mappers](#data-mappers), etc.                                                             |
-| `domain`         | Pure Dart — [entities](#entities), [domain services](#domain-services), repository contracts, etc.                                                          |
-| `application`    | [Use cases](#use-cases) and [ports](#ports) (abstract use cases).                                                                                           |
-| `infrastructure` | [Api clients](#per-endpoint-api-client-implementations), interceptors, [database](#database) components, [port implementations](#port-implementations) etc. |
-| `presentation`   | State management, [widgets](#widgets), etc.                                                                                                                 |
+| Layer            | Purpose                                                                                                      |
+|------------------|--------------------------------------------------------------------------------------------------------------|
+| `data`           | Repository implementations, DTOs, [data sources](#data-sources), [mappers](#data-mappers), etc.              |
+| `domain`         | Pure Dart — [entities](#entities), [domain services](#domain-services), repository contracts, etc.           |
+| `application`    | [Use cases](#use-cases) and [ports](#ports) (abstract use cases).                                            |
+| `infrastructure` | [Network](#network) and [database](#database) components, [port implementations](#port-implementations) etc. |
+| `presentation`   | State management, [widgets](#widgets), etc.                                                                  |
 
 Note: The `Purpose` column is not a complete list of components. You may have more or fewer types according to your needs.
 
@@ -286,10 +290,9 @@ Create `lib/features/<feature>/` with the layers in the following order:
     - Repository implementations in `data/repositories/`.
 
 4. **Infrastructure layer**
-    - Database component definitions in [`infrastructure/database/`](#database).
-    - Per-endpoint client abstractions and implementations in [`infrastructure/clients/`](#per-endpoint-api-client-implementations).
     - Port implementations in [`infrastructure/ports/`](#port-implementations).
-    - Interceptors in `infrastructure/interceptors/`.
+    - Database component definitions in [`infrastructure/database/`](#database).
+    - Network components in `infrastructure/network/`.
     - Platform components in `infrastructure/platform/`.
 
 5. **Presentation layer**
