@@ -26,8 +26,20 @@ function resolveTarget() {
     echo "✅ Template copied." >&2
 
   else
-    echo "Error: Target directory is not empty - if you are selecting an existing dir, make sure it is empty." >&2
-    exit 1
+    echo "⚠️Target directory '$resolved_target_dir' already exists." >&2
+    if [ -n "$(ls -A "$resolved_target_dir" 2>/dev/null)" ]; then
+      local response
+      read -rp "Are you sure you want to continue? [y/n]: " response
+      case "$response" in
+        [yY]|[yY][eE][sS])
+          echo "Continuing with existing directory..." >&2
+          ;;
+        *)
+          echo "Exiting." >&2
+          exit 1
+          ;;
+      esac
+    fi
   fi
 
   echo "$resolved_target_dir"
