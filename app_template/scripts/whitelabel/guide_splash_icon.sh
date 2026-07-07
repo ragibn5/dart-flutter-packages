@@ -15,5 +15,7 @@ function showSplashIconChangeGuide() {
   echo "     - The image paths are valid and points to the desired images."
   echo "     - The images follow the strict requirements described inside the config files."
 
-  confirm_and_execute "Generate splash icons?" "$(get_dart_cmd) run flutter_native_splash:create --all-flavors"
+  if confirm_yes_no "Generate splash icons?"; then
+    $(get_dart_cmd) run flutter_native_splash:create --all-flavors
+  fi
 }
