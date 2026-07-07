@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function task_launcher_icons() {
+function showLauncherIconChangeGuide() {
   # ── Guide ──────────────────────────────────────────────
   echo "📁 • Locate the flavor-specific config files used by the launcher icon generator tool."
   echo "     These files are named like: **flutter_launcher_icons-<flavor-name>.yaml**"
@@ -71,14 +71,4 @@ function task_launcher_icons() {
       return 1
     fi
   fi
-}
-
-function showLauncherIconChangeGuide() {
-  local tasks=(
-    task_launcher_icons
-  )
-
-  for task_func in "${tasks[@]}"; do
-    $task_func
-  done
 }
