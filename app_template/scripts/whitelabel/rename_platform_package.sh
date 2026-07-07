@@ -68,6 +68,8 @@ _rename_platform_package_ios() {
 }
 
 function renamePlatformPackage() {
+  echo "▶️ Platform package name replacement"
+
   local src_package
   local target_package
 

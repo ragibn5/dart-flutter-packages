@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function showAppNameChangeGuide() {
+  echo "▶️ App name change guide"
   echo "🤖 ANDROID:"
   echo "   • Open android/app/src/<flavor-name>/res/values/strings.xml."
   echo "     <flavor-name> can be one of 'dev', 'exp', 'stage', or 'prod'."

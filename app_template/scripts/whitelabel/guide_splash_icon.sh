@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function showSplashIconChangeGuide() {
+  echo "▶️ Splash icon change guide"
   echo "📁 • Locate the flavor-specific config files used by the splash icon generator tool."
   echo "     These files are named like: **flutter_native_splash-<flavor-name>.yaml**"
   echo "     where <flavor-name> can be 'dev', 'exp', 'stage', or 'prod'."
@@ -18,4 +19,5 @@ function showSplashIconChangeGuide() {
   if confirm_yes_no "Generate splash icons?"; then
     $(get_dart_cmd) run flutter_native_splash:create --all-flavors
   fi
+  echo "✅ Splash icon change guide"
 }

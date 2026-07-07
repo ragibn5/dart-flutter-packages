@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function showLauncherIconChangeGuide() {
+  echo "▶️ Launcher icon change guide"
+
   # ── Guide ──────────────────────────────────────────────
   echo "📁 • Locate the flavor-specific config files used by the launcher icon generator tool."
   echo "     These files are named like: **flutter_launcher_icons-<flavor-name>.yaml**"
@@ -72,4 +74,5 @@ function showLauncherIconChangeGuide() {
       fi
     fi
   fi
+  echo "✅ Launcher icon change guide"
 }

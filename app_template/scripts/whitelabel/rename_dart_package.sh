@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function renameDartPackage() {
+  echo "▶️ Dart package name replacement"
+
   local src_package
   local target_package
 

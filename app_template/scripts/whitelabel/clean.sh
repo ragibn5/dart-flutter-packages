@@ -4,7 +4,7 @@ function cleanProject() {
   local flutter_cmd
   flutter_cmd=$(get_flutter_cmd)
 
-  echo "Removing build directories and generated files ..."
+  echo "▶️ Project Cleanup"
   rm -rf \
     build/ \
     pubspec.lock \

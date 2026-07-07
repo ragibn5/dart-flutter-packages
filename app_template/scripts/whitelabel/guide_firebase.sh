@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function showFirebaseProjectSetupGuide() {
+  echo "▶️ Firebase project setup guide"
   echo "📁 • Locate and open the firebase_setup.sh file."
   echo "🛠️ • Modify the default value for the following (inside the switch case block where existing defaults are defined):"
   echo " ️   - Firebase project id: Specified by 'default_project'"
