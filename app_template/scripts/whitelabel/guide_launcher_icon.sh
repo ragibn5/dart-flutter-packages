@@ -52,8 +52,8 @@ function showLauncherIconChangeGuide() {
     current_line=$(sed -n "${line_num}p" "$pbxproj_file" 2>/dev/null)
 
     if [[ -z "$current_line" || ! "$current_line" =~ $key ]]; then
-      echo "    ❌ Line $line_num in $pbxproj_file does not match expected state."
-      echo "       The file structure may have changed. Please revert it manually."
+      echo " ❌ Line $line_num in $pbxproj_file does not match expected state."
+      echo "    The file structure may have changed. Please revert it manually."
       echo "✅ Launcher icon change guide"
       return 1
     fi
@@ -66,7 +66,7 @@ function showLauncherIconChangeGuide() {
   done
 
   if [[ "$fixed" -gt 0 ]]; then
-    echo "    ✅ Restored $fixed corrupted entries for $key."
+    echo "✅ Restored $fixed corrupted entries for $key."
   fi
 
   echo "✅ Launcher icon change guide"
