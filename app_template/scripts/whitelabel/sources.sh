@@ -6,6 +6,7 @@ WLABEL_SHARED="$(cd "$WLABEL_DIR/../../../scripts" && pwd)"
 source "$WLABEL_SHARED/flutter_utils.sh"
 source "$WLABEL_SHARED/prompt_utils.sh"
 source "$WLABEL_SHARED/project_utils.sh"
+source "$WLABEL_SHARED/text_utils.sh"
 
 source "$WLABEL_DIR/resolve_target.sh"
 source "$WLABEL_DIR/clean.sh"
