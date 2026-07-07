@@ -19,60 +19,55 @@ function showLauncherIconChangeGuide() {
   echo "     - The images follow the strict requirements described inside the config files."
 
   # ── Command + Fix ──────────────────────────────────────
-  if confirm_yes_no "Generate launcher icons?"; then
-    local pbxproj_file="ios/Runner.xcodeproj/project.pbxproj"
-    local key="ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS"
-    local backup_file=""
+  ! confirm_yes_no "Generate launcher icons?" && echo "✅ Launcher icon change guide" && return
 
-    if [[ -f "$pbxproj_file" ]]; then
-      backup_file=$(mktemp)
-      while IFS= read -r line; do
-        line_num="${line%%:*}"
-        rest="${line#*:}"
-        value="${rest#*= }"
-        value="${value%;}"
-        echo "$line_num:$value"
-      done < <(grep -n "$key" "$pbxproj_file") > "$backup_file"
-    fi
+  local pbxproj_file="ios/Runner.xcodeproj/project.pbxproj"
+  local key="ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS"
+  local backup_entries=()
 
-    $(get_dart_cmd) run flutter_launcher_icons
-
-    if [[ -n "$backup_file" && -f "$backup_file" ]]; then
-      echo ""
-      echo "🔧 Performing known bug fixes..."
-      local fixed=0
-      local had_error=0
-
-      while IFS=: read -r line_num original_value; do
-        [[ -z "$line_num" ]] && continue
-
-        local current_line
-        current_line=$(sed -n "${line_num}p" "$pbxproj_file" 2>/dev/null)
-
-        if [[ -z "$current_line" || ! "$current_line" =~ $key ]]; then
-          echo "    ❌ Line $line_num in $pbxproj_file does not match expected state."
-          echo "       The file structure may have changed. Please revert it manually."
-          had_error=1
-          break
-        fi
-
-        local corrupted_regex="${key}"'[[:space:]]*=[[:space:]]*AppIcon-'
-        if [[ "$current_line" =~ $corrupted_regex ]]; then
-          sed -i "" "${line_num}s/$key = AppIcon-[^;]*;/$key = $original_value;/" "$pbxproj_file"
-          ((fixed++))
-        fi
-      done < "$backup_file"
-
-      if [[ "$fixed" -gt 0 ]]; then
-        echo "    ✅ Restored $fixed corrupted entries for $key."
-      fi
-
-      rm -f "$backup_file"
-
-      if [[ "$had_error" -eq 1 ]]; then
-        return 1
-      fi
-    fi
+  if [[ -f "$pbxproj_file" ]]; then
+    while IFS= read -r line; do
+      local line_num="${line%%:*}"
+      local rest="${line#*:}"
+      local value="${rest#*= }"
+      backup_entries+=("${line_num}:${value%;}")
+    done < <(grep -n "$key" "$pbxproj_file")
   fi
+
+  $(get_dart_cmd) run flutter_launcher_icons
+
+  if [[ ${#backup_entries[@]} -eq 0 ]]; then
+    echo "✅ Launcher icon change guide"
+    return
+  fi
+
+  echo ""
+  echo "🔧 Performing known bug fixes..."
+  local fixed=0
+
+  for entry in "${backup_entries[@]}"; do
+    local line_num="${entry%%:*}"
+    local original_value="${entry#*:}"
+    local current_line
+    current_line=$(sed -n "${line_num}p" "$pbxproj_file" 2>/dev/null)
+
+    if [[ -z "$current_line" || ! "$current_line" =~ $key ]]; then
+      echo "    ❌ Line $line_num in $pbxproj_file does not match expected state."
+      echo "       The file structure may have changed. Please revert it manually."
+      echo "✅ Launcher icon change guide"
+      return 1
+    fi
+
+    local corrupted_regex="${key}"'[[:space:]]*=[[:space:]]*AppIcon-'
+    if [[ "$current_line" =~ $corrupted_regex ]]; then
+      sed -i "" "${line_num}s/$key = AppIcon-[^;]*;/$key = $original_value;/" "$pbxproj_file"
+      ((fixed++))
+    fi
+  done
+
+  if [[ "$fixed" -gt 0 ]]; then
+    echo "    ✅ Restored $fixed corrupted entries for $key."
+  fi
+
   echo "✅ Launcher icon change guide"
 }

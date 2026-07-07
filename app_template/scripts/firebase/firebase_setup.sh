@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/sources.sh"
+
 # Interactive script to generate Firebase configuration files for different environments/flavors
 #
 # Assuming you already created firebase projects for each flavor.

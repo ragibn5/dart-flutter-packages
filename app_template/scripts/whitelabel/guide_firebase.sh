@@ -14,34 +14,32 @@ function showFirebaseProjectSetupGuide() {
   echo "       Read the project README if you want to go through the installation process of these tools."
   echo "📝 NOTE: Please select 'Debug-<flavor-name>' variants as the build configuration if asked."
 
-  if confirm_yes_no "▶️ Press 'y' to run the script, 'n' to skip?"; then
-      firebase login
-      if [ -f "../firebase/firebase_setup.sh" ]; then
-        chmod +x ../firebase/firebase_setup.sh
+  ! confirm_yes_no "▶️ Press 'y' to run the script, 'n' to skip?" && echo "⏭️ Firebase project setup skipped." && return
 
-        firebase login:list
-        echo "0 to continue"
-        echo "1 to logout and login and continue"
-        read -rp "Enter choice [0/1]: " choice
-
-        if [[ "$choice" == "1" ]]; then
-          firebase logout
-          firebase login
-        else
-          firebase login
-        fi
-
-        if confirm_yes_no "Run firebase_setup.sh script for DEV flavor?"; then ../firebase/firebase_setup.sh dev; fi
-        if confirm_yes_no "Run firebase_setup.sh script for EXP flavor?"; then ../firebase/firebase_setup.sh exp; fi
-        if confirm_yes_no "Run firebase_setup.sh script for STAGE flavor?"; then ../firebase/firebase_setup.sh stage; fi
-        if confirm_yes_no "Run firebase_setup.sh script for PROD flavor?"; then ../firebase/firebase_setup.sh prod; fi
-
-        echo "✅ Firebase project setup completed."
-      else
-        echo "❌ Error: firebase_setup.sh not found in the current directory."
-        echo "Please ensure the file exists in $(pwd) and try again."
-      fi
-  else
-      echo "⏭️ Firebase project setup skipped."
+  firebase login
+  if [ ! -f "../firebase/firebase_setup.sh" ]; then
+    echo "❌ Error: firebase_setup.sh not found in the current directory."
+    echo "Please ensure the file exists in $(pwd) and try again."
+    return
   fi
+
+  chmod +x ../firebase/firebase_setup.sh
+  firebase login:list
+  echo "0 to continue"
+  echo "1 to logout and login and continue"
+  read -rp "Enter choice [0/1]: " choice
+
+  if [[ "$choice" == "1" ]]; then
+    firebase logout
+    firebase login
+  else
+    firebase login
+  fi
+
+  confirm_yes_no "Run firebase_setup.sh script for DEV flavor?" && ../firebase/firebase_setup.sh dev
+  confirm_yes_no "Run firebase_setup.sh script for EXP flavor?" && ../firebase/firebase_setup.sh exp
+  confirm_yes_no "Run firebase_setup.sh script for STAGE flavor?" && ../firebase/firebase_setup.sh stage
+  confirm_yes_no "Run firebase_setup.sh script for PROD flavor?" && ../firebase/firebase_setup.sh prod
+
+  echo "✅ Firebase project setup completed."
 }
