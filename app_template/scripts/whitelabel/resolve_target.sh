@@ -28,17 +28,12 @@ function resolveTarget() {
   else
     echo "⚠️Target directory '$resolved_target_dir' already exists." >&2
     if [ -n "$(ls -A "$resolved_target_dir" 2>/dev/null)" ]; then
-      local response
-      read -rp "Are you sure you want to continue? [y/n]: " response
-      case "$response" in
-        [yY]|[yY][eE][sS])
-          echo "Continuing with existing directory..." >&2
-          ;;
-        *)
-          echo "Exiting." >&2
-          exit 1
-          ;;
-      esac
+      if confirm_yes_no "Are you sure you want to continue?"; then
+        echo "Continuing with existing directory..." >&2
+      else
+        echo "Exiting." >&2
+        exit 1
+      fi
     fi
   fi
 
