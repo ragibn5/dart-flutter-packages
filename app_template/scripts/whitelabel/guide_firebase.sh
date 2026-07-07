@@ -30,10 +30,10 @@ function showFirebaseProjectSetupGuide() {
           firebase login
         fi
 
-        confirm_and_execute "Run firebase_setup.sh script for DEV flavor?: " "../firebase/firebase_setup.sh dev"
-        confirm_and_execute "Run firebase_setup.sh script for EXP flavor?: " "../firebase/firebase_setup.sh exp"
-        confirm_and_execute "Run firebase_setup.sh script for STAGE flavor?: " "../firebase/firebase_setup.sh stage"
-        confirm_and_execute "Run firebase_setup.sh script for PROD flavor?: " "../firebase/firebase_setup.sh prod"
+        if confirm_yes_no "Run firebase_setup.sh script for DEV flavor?"; then ../firebase/firebase_setup.sh dev; fi
+        if confirm_yes_no "Run firebase_setup.sh script for EXP flavor?"; then ../firebase/firebase_setup.sh exp; fi
+        if confirm_yes_no "Run firebase_setup.sh script for STAGE flavor?"; then ../firebase/firebase_setup.sh stage; fi
+        if confirm_yes_no "Run firebase_setup.sh script for PROD flavor?"; then ../firebase/firebase_setup.sh prod; fi
 
         echo "✅ Firebase project setup completed."
       else
