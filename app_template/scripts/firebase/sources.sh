@@ -1,8 +1,8 @@
 #!/bin/bash
 
-FIREBASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FIREBASE_SHARED="$(cd "$FIREBASE_DIR/../../../scripts" && pwd)"
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_SCRIPTS_DIR="$(cd "$SELF_DIR/../../../scripts" && pwd)"
 
-source "$FIREBASE_SHARED/prompt_utils.sh"
+source "$ROOT_SCRIPTS_DIR/prompt_utils.sh"
 
-unset FIREBASE_DIR FIREBASE_SHARED
+unset SELF_DIR ROOT_SCRIPTS_DIR

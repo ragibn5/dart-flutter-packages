@@ -1,10 +1,10 @@
 #!/bin/bash
 
-COV_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COV_SHARED="$(cd "$COV_DIR/../../../scripts" && pwd)"
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_SCRIPTS_DIR="$(cd "$SELF_DIR/../../../scripts" && pwd)"
 
-source "$COV_SHARED/project_utils.sh"
-source "$COV_SHARED/flutter_utils.sh"
-source "$COV_DIR/exclusions.sh"
+source "$ROOT_SCRIPTS_DIR/project_utils.sh"
+source "$ROOT_SCRIPTS_DIR/flutter_utils.sh"
+source "$SELF_DIR/exclusions.sh"
 
-unset COV_DIR COV_SHARED
+unset SELF_DIR ROOT_SCRIPTS_DIR
