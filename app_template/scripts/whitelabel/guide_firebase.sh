@@ -13,15 +13,7 @@ function showFirebaseProjectSetupGuide() {
   echo "       Read the project README if you want to go through the installation process of these tools."
   echo "📝 NOTE: Please select 'Debug-<flavor-name>' variants as the build configuration if asked."
 
-  local response
-  read -rp "▶️ Press 'y' to run the script, 'n' to skip, or 'q' to quit: " response
-
-  case "$response" in
-    [qQ])
-      echo "Exiting..."
-      exit 0
-      ;;
-    [yY])
+  if confirm_yes_no "▶️ Press 'y' to run the script, 'n' to skip?"; then
       firebase login
       if [ -f "../firebase/firebase_setup.sh" ]; then
         chmod +x ../firebase/firebase_setup.sh
@@ -48,9 +40,7 @@ function showFirebaseProjectSetupGuide() {
         echo "❌ Error: firebase_setup.sh not found in the current directory."
         echo "Please ensure the file exists in $(pwd) and try again."
       fi
-      ;;
-    *)
+  else
       echo "⏭️ Firebase project setup skipped."
-      ;;
-  esac
+  fi
 }

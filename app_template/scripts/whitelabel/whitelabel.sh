@@ -33,6 +33,8 @@ select_step() {
   local choice
   read -rp "Enter choice [1-$((num_steps + 2))]: " choice
 
+  echo ""
+
   if [[ "$choice" =~ ^[0-9]+$ ]]; then
     return "$choice"
   else

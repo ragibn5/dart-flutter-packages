@@ -12,7 +12,9 @@ function renameDartPackage() {
       return 1
   fi
 
-  replace_text_in_files "$src_package" "$target_package"
-
-  echo "✅ Dart package name replacement completed."
+  if replace_text_in_files "$src_package" "$target_package"; then
+    echo "✅ Dart package name replacement completed."
+  else
+    echo "⏭️ Dart package name replacement cancelled."
+  fi
 }

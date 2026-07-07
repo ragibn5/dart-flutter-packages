@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Interactive script to generate Firebase configuration files for different environments/flavors
 #
 # Assuming you already created firebase projects for each flavor.
@@ -79,8 +80,7 @@ echo "iOS Output: $ios_out"
 echo "Android Output: $android_out"
 echo "Dart Output: $dart_out"
 
-read -rp "Continue? (y/n): " confirm
-if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+if ! confirm_yes_no "Continue?"; then
   echo "Aborted."
   exit 0
 fi

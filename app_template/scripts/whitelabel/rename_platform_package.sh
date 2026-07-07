@@ -79,9 +79,11 @@ function renamePlatformPackage() {
       return 1
   fi
 
-  _rename_platform_package_common "$src_package" "$target_package"
-  _rename_platform_package_android "$src_package" "$target_package"
-  _rename_platform_package_ios "$src_package" "$target_package"
-
-  echo "✅ Platform package name replacement completed."
+  if _rename_platform_package_common "$src_package" "$target_package"; then
+    _rename_platform_package_android "$src_package" "$target_package"
+    _rename_platform_package_ios "$src_package" "$target_package"
+    echo "✅ Platform package name replacement completed."
+  else
+    echo "⏭️ Platform package name replacement cancelled."
+  fi
 }

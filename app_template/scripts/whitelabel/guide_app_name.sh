@@ -16,13 +16,6 @@ function showAppNameChangeGuide() {
   echo "   6. Set your desired names for each flavor."
   echo "📝 NOTE: We have not covered localized app name in this guide."
 
-  local response
-  read -rp "Press 'Enter' to continue or 'q' to quit: " response
-
-  if [[ "$response" == "q" || "$response" == "Q" ]]; then
-    echo "Exiting..."
-    exit 0
-  fi
-
+  read -rp "Press 'Enter' to continue... "
   echo "✅ App name change guide completed."
 }

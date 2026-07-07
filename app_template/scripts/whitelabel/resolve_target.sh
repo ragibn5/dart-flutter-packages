@@ -31,7 +31,7 @@ function resolveTarget() {
       if confirm_yes_no "Are you sure you want to continue?"; then
         echo "Continuing with existing directory..." >&2
       else
-        echo "Exiting." >&2
+        echo "Exiting..." >&2
         exit 1
       fi
     fi
