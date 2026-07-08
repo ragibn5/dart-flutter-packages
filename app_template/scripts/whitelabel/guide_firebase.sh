@@ -14,6 +14,7 @@ function showFirebaseProjectSetupGuide() {
   echo "       Read the project README if you want to go through the installation process of these tools."
   echo "📝 NOTE: Please select 'Debug-<flavor-name>' variants as the build configuration if asked."
 
+  echo
   ! confirm_yes_no "▶️ Press 'y' to run the script, 'n' to skip?" && echo "⏭️ Firebase project setup skipped." && return
 
   firebase login

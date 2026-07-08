@@ -24,6 +24,7 @@ function showLauncherIconChangeGuide() {
   echo "     - The images follow the strict requirements described inside the config files."
 
   # ── Command + Fix ──────────────────────────────────────
+  echo
   ! confirm_yes_no "Generate launcher icons?" && echo "✅ Launcher icon change guide" && return
 
   local pbxproj_file="ios/Runner.xcodeproj/project.pbxproj"

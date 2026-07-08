@@ -21,6 +21,7 @@ function showAppNameChangeGuide() {
   echo "   6. Set your desired names for each flavor."
   echo "📝 NOTE: We have not covered localized app name in this guide."
 
+  echo
   read -rp "Press 'Enter' to continue... "
   echo "✅ App name change guide completed."
 }

@@ -81,7 +81,7 @@ main() {
     fi
   done
 
-  echo -e "\nCleaning the project again, just in case they were automatically recreated by IDE..."
+  echo -e "\n▶️ Performing final cleanup and other operations...\n"
   cleanProject
 
   echo -e "\nRunning pub get ..."
