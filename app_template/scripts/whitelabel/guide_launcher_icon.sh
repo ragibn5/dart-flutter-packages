@@ -2,12 +2,17 @@
 
 function showLauncherIconChangeGuide() {
   echo "▶️ Launcher icon change guide"
+  echo "⚠️ IMPORTANT: All changes below must be done in the target (copied) project, not the template."
+  echo "📁 Target project: $PWD"
+  echo
 
   # ── Guide ──────────────────────────────────────────────
-  echo "📁 • Locate the flavor-specific config files used by the launcher icon generator tool."
-  echo "     These files are named like: **flutter_launcher_icons-<flavor-name>.yaml**"
-  echo "     where <flavor-name> can be 'dev', 'exp', 'stage', or 'prod'."
-  echo "🛠️ • Open each config file and customize settings as needed, such as:"
+  echo "📁 • Open each flavor's config file:"
+  echo "     - $PWD/flutter_launcher_icons-dev.yaml   (for the 'dev' flavor)"
+  echo "     - $PWD/flutter_launcher_icons-exp.yaml   (for the 'exp' flavor)"
+  echo "     - $PWD/flutter_launcher_icons-stage.yaml (for the 'stage' flavor)"
+  echo "     - $PWD/flutter_launcher_icons-prod.yaml  (for the 'prod' flavor)"
+  echo "🛠️ • Customize settings in each file, such as:"
   echo "     - Update image paths"
   echo "     - Set background colors"
   echo "     - Enable or disable specific options"

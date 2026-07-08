@@ -2,7 +2,10 @@
 
 function showFirebaseProjectSetupGuide() {
   echo "▶️ Firebase project setup guide"
-  echo "📁 • Open scripts/firebase/firebase.env in the new project."
+  echo "⚠️ IMPORTANT: All changes below must be done in the target (copied) project, not the template."
+  echo "📁 Target project: $PWD"
+  echo
+  echo "📁 • Open $PWD/scripts/firebase/firebase.env"
   echo "🛠️ • Modify the default values for each flavor: project ID, iOS bundle ID, and Android package name."
   echo "🎯 • Before continuing, make sure:"
   echo "     - You have created the Firebase projects."

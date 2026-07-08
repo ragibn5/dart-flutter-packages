@@ -2,10 +2,15 @@
 
 function showSplashIconChangeGuide() {
   echo "▶️ Splash icon change guide"
-  echo "📁 • Locate the flavor-specific config files used by the splash icon generator tool."
-  echo "     These files are named like: **flutter_native_splash-<flavor-name>.yaml**"
-  echo "     where <flavor-name> can be 'dev', 'exp', 'stage', or 'prod'."
-  echo "🛠️ • Open each config file and customize settings as needed, such as:"
+  echo "⚠️ IMPORTANT: All changes below must be done in the target (copied) project, not the template."
+  echo "📁 Target project: $PWD"
+  echo
+  echo "📁 • Open each flavor's config file:"
+  echo "     - $PWD/flutter_native_splash-dev.yaml   (for the 'dev' flavor)"
+  echo "     - $PWD/flutter_native_splash-exp.yaml   (for the 'exp' flavor)"
+  echo "     - $PWD/flutter_native_splash-stage.yaml (for the 'stage' flavor)"
+  echo "     - $PWD/flutter_native_splash-prod.yaml  (for the 'prod' flavor)"
+  echo "🛠️ • Customize settings in each file, such as:"
   echo "     - Update image paths"
   echo "     - Set background colors"
   echo "     - Enable or disable specific options"
