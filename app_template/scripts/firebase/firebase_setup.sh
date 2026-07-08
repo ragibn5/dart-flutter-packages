@@ -58,7 +58,7 @@ runFirebaseSetup() {
 
   local ios_out="ios/Config/Firebase/${flavor}/GoogleService-Info.plist"
   local android_out="android/app/src/${flavor}/google-services.json"
-  local dart_out="lib/app/infrastructure/firebase/firebase_options_${flavor}.dart"
+  local dart_out="lib/features/app/infrastructure/config/firebase/firebase_options_${flavor}.dart"
 
   echo -e "\nGenerating Firebase configuration with:"
   echo "Project: $project"
