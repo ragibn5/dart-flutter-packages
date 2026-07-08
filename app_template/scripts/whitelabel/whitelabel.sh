@@ -11,6 +11,7 @@ STEPS=(
   "showSplashIconChangeGuide:Splash icon change guide"
   "showFirebaseProjectSetupGuide:Firebase project setup guide"
   "finalizeProject:Done - finalize setup"
+  "exitProject:Exit"
 )
 
 run_step() {
@@ -28,10 +29,9 @@ select_step() {
     local display="${STEPS[$i]#*:}"
     echo "  $((i + 1))) $display"
   done
-  echo "  $((num_steps + 1))) Exit"
 
   local choice
-  read -rp "Enter choice [1-$((num_steps + 1))]: " choice
+  read -rp "Enter choice [1-$num_steps]: " choice
 
   echo ""
 
@@ -71,9 +71,6 @@ main() {
 
     if [ "$choice" -ge 1 ] && [ "$choice" -le "${#STEPS[@]}" ]; then
       run_step $((choice - 1))
-    elif [ "$choice" -eq "$((${#STEPS[@]} + 1))" ]; then
-      echo "Exiting."
-      exit 0
     else
       echo "Invalid choice."
     fi

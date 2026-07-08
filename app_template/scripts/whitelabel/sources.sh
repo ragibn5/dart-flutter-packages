@@ -19,6 +19,7 @@ source "$SELF_DIR/guide_splash_icon.sh"
 source "$SELF_DIR/guide_firebase.sh"
 source "$SELF_DIR/finalize.sh"
 source "$SELF_DIR/show_final_todos.sh"
+source "$SELF_DIR/exit.sh"
 
 source "$FIREBASE_SCRIPTS_DIR/firebase_setup.sh"
 
