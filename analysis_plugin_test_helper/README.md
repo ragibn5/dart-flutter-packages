@@ -4,30 +4,11 @@ Dump of reusable utilities to help test analyzer plugins.
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
-
-Add this to your `pubspec.yaml`
+Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  analysis_plugin_test_helper: ^0.0.1
+  analysis_plugin_test_helper: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
-
-```yaml
-dependencies:
-  analysis_plugin_test_helper:
-    git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: analysis_plugin_test_helper
-      ref: main
-```
-
-## Example
-
-See the [example](example/example.dart) for a complete demonstration.
-
-## License
-
-Click [here](../LICENSE) to see the license.
+For more information, see the [package on pub.dev](https://pub.dev/packages/analysis_plugin_test_helper) or the [GitHub repository](https://github.com/Ragibn5/dart-flutter-packages/tree/main/analysis_plugin_test_helper).

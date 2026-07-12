@@ -4,16 +4,16 @@ Analysis server plugin to enforce clean architecture.
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dev_dependencies:
-  clean_arch_lint: ^0.0.1
+  clean_arch_lint: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dev_dependencies:
@@ -96,7 +96,3 @@ config (including initial setup).
 ## Example
 
 See the [`app_template`](../app_template) project for a complete demonstration.
-
-## License
-
-Click [here](../LICENSE) to see the license.

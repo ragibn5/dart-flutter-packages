@@ -4,16 +4,16 @@ A simple and extensible logging solution for dart and flutter apps with handy pr
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  dlogger: ^0.0.1
+  dlogger: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dependencies:
@@ -178,7 +178,3 @@ For most projects, a good progression is:
 2. Add `FileLogger` if you need persisted logs.
 3. Wrap them in `CompositeLogger` when one log should go to multiple places.
 4. Add `PolicyBasedLogFilter` when you need runtime control over what gets logged.
-
-## License
-
-Click [here](../LICENSE) to see the license.

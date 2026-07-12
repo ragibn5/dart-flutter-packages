@@ -10,16 +10,16 @@ A lightweight & flexible JSON parser for encoding and decoding data in Dart & Fl
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  json_parser: ^0.0.1
+  json_parser: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dependencies:
@@ -154,7 +154,3 @@ Additional tooling is available for `json_parser`:
 ### Example
 
 See the [example](example/example.dart) for a complete demonstration.
-
-## License
-
-Click [here](../LICENSE) to see the license.

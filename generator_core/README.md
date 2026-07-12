@@ -4,16 +4,16 @@ Core components to build a custom dart generator package.
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  generator_core: ^0.0.1
+  generator_core: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dependencies:
@@ -160,7 +160,3 @@ built on top of them.
 - [yaml](https://pub.dev/packages/yaml)
   Useful when you need to read or interpret YAML-based configuration such as custom project files or
   parts of `build.yaml`.
-
-## License
-
-Click [here](../LICENSE) to see the license.

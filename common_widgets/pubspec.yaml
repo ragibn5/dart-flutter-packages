@@ -5,9 +5,8 @@ repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/common_widgets
 
-publish_to: 'none'
 
-version: 0.0.1
+version: 1.0.0
 
 environment:
   sdk: ^3.11.0
