@@ -1,0 +1,33 @@
+name: Create release tag
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  create-tag:
+    if: >
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract tag from branch name
+        id: extract
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          # release/<package>-v<X.Y.Z> → <package>-v<X.Y.Z>
+          TAG="${BRANCH#release/}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Extracted tag: $TAG"
+
+      - name: Create and push tag
+        run: |
+          git tag "${{ steps.extract.outputs.tag }}"
+          git push origin "${{ steps.extract.outputs.tag }}"
