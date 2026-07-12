@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:app_template/features/auth/application/use_cases/set_auth_data_use_case.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
@@ -10,9 +10,9 @@ part 'login_event.dart';
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final AuthDataService _authDataService;
+  final SetAuthDataUseCase _setAuthData;
 
-  LoginBloc(this._authDataService) : super(LoginInitial()) {
+  LoginBloc(this._setAuthData) : super(LoginInitial()) {
     on<LoginRequested>(_handleLoginEvent);
   }
 
@@ -23,7 +23,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginInProgress());
 
     try {
-      await _authDataService.setCurrentAuthData(
+      await _setAuthData(
         AuthData(
           userId: event.username,
           accessToken: 'accessToken',

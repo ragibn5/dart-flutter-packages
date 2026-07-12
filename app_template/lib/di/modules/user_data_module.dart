@@ -17,12 +17,10 @@ abstract class UserDataModule {
     return UserDataMapper();
   }
 
-  @singleton
   UserDataDataSource getUserDataDataSource(SQLiteDb sqliteDb) {
     return UserDataDataSourceImpl(sqliteDb);
   }
 
-  @singleton
   UserDataRepository getUserDataRepository(
     DataDomainConverter<UserDataDTO, UserData> userDataMapper,
     UserDataDataSource userDataDataSource,
@@ -30,7 +28,6 @@ abstract class UserDataModule {
     return UserDataRepositoryImpl(userDataMapper, userDataDataSource);
   }
 
-  @singleton
   UserDataService getUserDataService(UserDataRepository userDataRepository) {
     return UserDataServiceImpl(userDataRepository);
   }

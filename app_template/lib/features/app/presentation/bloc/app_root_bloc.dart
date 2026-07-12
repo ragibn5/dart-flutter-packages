@@ -1,11 +1,14 @@
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/features/app/application/services/app_initializer_service.dart';
-import 'package:app_template/features/app/application/services/session_initializer_service.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/features/reporting/domain/models/error_report.dart';
-import 'package:app_template/features/settings/application/services/settings_service.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/error_report.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
@@ -15,24 +18,31 @@ part 'app_root_state.dart';
 
 class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
   final AppLogger _logger;
-  final AuthDataService _authDataService;
-  final SettingsService _settingsService;
-  final AppInitializerService _appInitializerService;
-  final SessionInitializerService _sessionInitializerService;
+
+  final WatchAuthStateUseCase _watchAuthState;
+  final WatchLocaleUseCase _watchLocale;
+  final WatchThemeModeUseCase _watchThemeMode;
+  final GetEffectiveLocaleUseCase _getEffectiveLocale;
+  final GetEffectiveThemeModeUseCase _getEffectiveThemeMode;
+  final InitializeAppUseCase _initializeApp;
+  final InitializeSessionUseCase _initializeSession;
 
   AppRootBloc(
     this._logger,
-    this._authDataService,
-    this._settingsService,
-    this._appInitializerService,
-    this._sessionInitializerService,
+    this._watchAuthState,
+    this._watchLocale,
+    this._watchThemeMode,
+    this._getEffectiveLocale,
+    this._getEffectiveThemeMode,
+    this._initializeApp,
+    this._initializeSession,
   ) : super(AppInitializationInitial()) {
     on<AppInitializationRequested>((event, emit) async {
       emit(AppInitializationInProgress());
 
       try {
-        await _appInitializerService.initialize();
-        await _sessionInitializerService.initialize();
+        await _initializeApp();
+        await _initializeSession();
 
         add(_LocaleChangeListenerInitRequested());
         add(_ThemeModeChangeListenerInitRequested());
@@ -40,8 +50,8 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
 
         emit(
           AppInitializationSuccess(
-            locale: await _settingsService.getEffectiveLocale(),
-            themeMode: await _settingsService.getEffectiveThemeMode(),
+            locale: await _getEffectiveLocale(),
+            themeMode: await _getEffectiveThemeMode(),
           ),
         );
       } catch (e, st) {
@@ -70,7 +80,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
         return;
       }
 
-      final effectiveLocale = await _settingsService.getEffectiveLocale();
+      final effectiveLocale = await _getEffectiveLocale();
       emit(currentState.copyWith(locale: effectiveLocale));
     });
 
@@ -80,13 +90,13 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
         return;
       }
 
-      final effectiveThemeMode = await _settingsService.getEffectiveThemeMode();
+      final effectiveThemeMode = await _getEffectiveThemeMode();
       emit(currentState.copyWith(themeMode: effectiveThemeMode));
     });
 
     on<_LocaleChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
-        _settingsService.watchLocale(),
+        _watchLocale(),
         onData: (newLocale) {
           final currentState = state;
           if (currentState is! AppInitializationSuccess) {
@@ -100,7 +110,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
 
     on<_ThemeModeChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
-        _settingsService.watchThemeMode(),
+        _watchThemeMode(),
         onData: (newThemeMode) {
           final currentState = state;
           if (currentState is! AppInitializationSuccess) {
@@ -114,7 +124,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
 
     on<_SessionChangeListenerInitRequested>((event, emit) {
       return emit.onEach(
-        _authDataService.watchAuthData(),
+        _watchAuthState(),
         onData: (data) {
           add(_SessionDataRefreshRequested());
         },
@@ -122,7 +132,7 @@ class AppRootBloc extends Bloc<AppRootEvent, AppRootState> {
     });
 
     on<_SessionDataRefreshRequested>((event, emit) {
-      return _sessionInitializerService.initialize();
+      return _initializeSession();
     });
   }
 }

@@ -1,5 +1,5 @@
 enum LogoutRequestType {
-  authDataUnavailable,
-  failedToRefreshAuthData,
-  userInitiated,
+  AUTH_DATA_UNAVAILABLE,
+  FAILED_TO_REFRESH_AUTH_DATA,
+  USER_INITIATED,
 }

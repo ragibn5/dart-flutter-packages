@@ -24,8 +24,8 @@ EXCLUDE=(
   'lib/**/presentation/widgets/**'
 
   # BLoC boilerplate
-  'lib/**/*_event.dart'
-  'lib/**/*_state.dart'
+  'lib/**/bloc/*_event.dart'
+  'lib/**/bloc/*_state.dart'
 
   # Feature specifics - [app]
   'lib/features/app/infrastructure/config/**'

@@ -1,12 +1,12 @@
+import 'package:app_template/features/app/application/use_cases/is_authed_use_case.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 
 class RootRedirectRouteGuard implements RouteGuard {
-  final AuthDataService _authDataService;
+  final IsAuthedUseCase _isAuthed;
 
-  RootRedirectRouteGuard(this._authDataService);
+  RootRedirectRouteGuard(this._isAuthed);
 
   @override
   Future<GuardResult> onNavigationRequest(
@@ -14,8 +14,8 @@ class RootRedirectRouteGuard implements RouteGuard {
     RouteContext current,
     RouteContext next,
   ) async {
-    final currentAuthData = await _authDataService.getCurrentAuthData();
-    if (currentAuthData == null) {
+    final currentAuthData = await _isAuthed();
+    if (currentAuthData) {
       return RedirectNavigation(RouteContext(info: AppRoute.LOGIN.routeInfo));
     } else {
       return RedirectNavigation(RouteContext(info: AppRoute.HOME.routeInfo));

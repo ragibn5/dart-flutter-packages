@@ -96,10 +96,6 @@ void main() {
     );
 
     when(
-      () => mockAuthDataStreamController.stream,
-    ).thenAnswer((_) => authDataStream);
-    when(() => mockAuthDataStreamController.close()).thenAnswer((_) async {});
-    when(
       () => mockAuthDataMapper.convertDataToDomain(authDataDTO),
     ).thenAnswer((_) => authData);
     when(
@@ -120,6 +116,10 @@ void main() {
     when(
       () => mockLocalAuthDataSource.setCurrentAuthData(any()),
     ).thenAnswer((_) async {});
+    when(
+      () => mockAuthDataStreamController.stream,
+    ).thenAnswer((_) => authDataStream);
+    when(() => mockAuthDataStreamController.close()).thenAnswer((_) async {});
   });
 
   tearDown(() {
@@ -281,11 +281,14 @@ void main() {
     },
   );
 
-  test('getAuthDataStream should return the auth data stream', () async {
-    final result = sut.getAuthDataStream();
+  test(
+    'getAuthDataStream should return the stream from the auth data stream',
+    () async {
+      final result = sut.getAuthDataStream();
 
-    expect(result, authDataStream);
-  });
+      expect(result, authDataStream);
+    },
+  );
 
   test('Dispose should close the auth data stream', () async {
     sut.dispose();

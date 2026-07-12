@@ -34,26 +34,28 @@ dependencies:
   firebase_crashlytics: ^4.3.5
 
   # Others (3rd party)
-  flutter_native_splash: ^2.4.6
   path: ^1.9.1
   recase: ^4.1.0
+  equatable: ^2.0.8
+  jwt_decoder: ^2.0.1
   json_annotation: ^4.9.0
-  get_it: ^8.0.3
-  injectable: ^2.7.1+4
+  path_provider: ^2.1.5
+  package_info_plus: ^8.3.0
   bloc: ^9.2.0
   flutter_bloc: ^9.1.0
+  get_it: ^8.0.3
+  injectable: ^2.7.1+4
+  go_router: ^17.3.0
   auto_route: 10.1.2
   shared_preferences: ^2.5.4
   sqflite: ^2.4.2
   flutter_svg: ^2.1.0
   flutter_screenutil: ^5.9.3
-  package_info_plus: ^8.3.0
-  jwt_decoder: ^2.0.1
-  equatable: ^2.0.8
-  path_provider: ^2.1.5
-  go_router: ^17.3.0
+  flutter_native_splash: ^2.4.7
 
   # App-private packages
+  enum_parser:
+    path: packages/enum_parser
   shared_models:
     path: packages/shared_models
   app_logger:
@@ -122,8 +124,8 @@ dev_dependencies:
   # Generators
   build_runner: ^2.4.15
 
-  # Others
-  flutter_launcher_icons: ^0.14.3
+  # Other tools
+  flutter_launcher_icons: ^0.14.4
   json_serializable: ^6.9.4
   injectable_generator: ^2.7.0
   flutter_gen_runner: ^5.10.0
@@ -139,12 +141,12 @@ flutter:
   generate: true
 
   # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
+  # included with your application so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
   # Add assets to your application.
-  # To conditionally binding assets, for example based on flavors, see:
+  # To conditionally binding assets, for example, based on flavors, see:
   # https://docs.flutter.dev/deployment/flavors#conditionally-bundling-assets-based-on-flavor
   #
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -161,8 +163,8 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font.
   #
-  # All the common variants of the `Roboto` font is added for demonstration.
-  # (i.e. w100 to w900, regular and italic versions for all weight variants)
+  # All the common variants of the `Roboto` font are added for demonstration.
+  # (i.e., w100 to w900, regular and italic versions for all weight variants)
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

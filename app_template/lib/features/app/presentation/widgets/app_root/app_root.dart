@@ -1,9 +1,8 @@
+import 'package:app_template/features/app/domain/models/error_report.dart';
 import 'package:app_template/features/app/infrastructure/models/app_config.dart';
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_error/startup_error_page.dart';
 import 'package:app_template/features/app/presentation/widgets/startup_loader/startup_loader_page.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/features/reporting/domain/models/error_report.dart';
 import 'package:app_template/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,9 +19,6 @@ class AppRoot extends StatefulWidget {
   /// The router to use.
   final NavRouter appRouter;
 
-  /// The AuthDataService to set up the router config.
-  final AuthDataService authDataService;
-
   /// Global scaffold messenger key.
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
@@ -30,7 +26,6 @@ class AppRoot extends StatefulWidget {
     super.key,
     required this.appConfig,
     required this.appRouter,
-    required this.authDataService,
     required this.scaffoldMessengerKey,
   });
 

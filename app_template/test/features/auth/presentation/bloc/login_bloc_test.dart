@@ -1,13 +1,13 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'package:app_template/features/auth/application/use_cases/set_auth_data_use_case.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
 import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockAuthDataService extends Mock implements AuthDataService {}
+class _MockSetAuthDataUseCase extends Mock implements SetAuthDataUseCase {}
 
 void main() {
   final authData = AuthData(
@@ -18,7 +18,7 @@ void main() {
     refreshTokenExpiry: DateTime.now().add(const Duration(days: 3)),
   );
 
-  late _MockAuthDataService mockAuthDataService;
+  late _MockSetAuthDataUseCase mockSetAuthDataUseCase;
 
   late LoginBloc sut;
 
@@ -27,13 +27,11 @@ void main() {
   });
 
   setUp(() {
-    mockAuthDataService = _MockAuthDataService();
+    mockSetAuthDataUseCase = _MockSetAuthDataUseCase();
 
-    sut = LoginBloc(mockAuthDataService);
+    sut = LoginBloc(mockSetAuthDataUseCase);
 
-    when(
-      () => mockAuthDataService.setCurrentAuthData(any()),
-    ).thenAnswer((_) async {});
+    when(() => mockSetAuthDataUseCase(any())).thenAnswer((_) async {});
   });
 
   tearDown(() {
@@ -45,10 +43,10 @@ void main() {
   });
 
   blocTest<LoginBloc, LoginState>(
-    'Emits LoginInProgress -> LoginError when AuthDataService throws exception',
+    'Emits LoginInProgress -> LoginError when SetAuthDataUseCase throws exception',
     build: () {
       when(
-        () => mockAuthDataService.setCurrentAuthData(any()),
+        () => mockSetAuthDataUseCase(any()),
       ).thenThrow(Exception('test_error'));
       return sut;
     },
@@ -57,13 +55,8 @@ void main() {
   );
 
   blocTest<LoginBloc, LoginState>(
-    'Emits LoginInProgress -> LoginComplete when AuthDataService DOES NOT throw any exception',
-    build: () {
-      when(
-        () => mockAuthDataService.setCurrentAuthData(any()),
-      ).thenAnswer((_) async => authData);
-      return sut;
-    },
+    'Emits LoginInProgress -> LoginComplete when SetAuthDataUseCase DOES NOT throw any exception',
+    build: () => sut,
     act: (bloc) => bloc.add(LoginRequested(username: 'test_user')),
     expect: () => [isA<LoginInProgress>(), isA<LoginComplete>()],
   );

@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
-import 'package:app_template/features/settings/application/services/settings_service.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
 import 'package:net_kit/net_kit.dart';
 
 class MetadataHeaderKeys {
@@ -20,13 +20,13 @@ class MetadataHeaderKeys {
 
 class MetadataAdderInterceptor extends NetKitInterceptor {
   final BuildMetadata _buildMetadata;
-  final SettingsService _settingsService;
+  final GetEffectiveLocaleUseCase _getEffectiveLocale;
 
-  MetadataAdderInterceptor(this._buildMetadata, this._settingsService);
+  MetadataAdderInterceptor(this._buildMetadata, this._getEffectiveLocale);
 
   @override
   Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
-    final locale = await _settingsService.getEffectiveLocale();
+    final locale = await _getEffectiveLocale();
     return ContinueWithRequest(
       request.copyWith(
         headers: request.headers
@@ -37,7 +37,7 @@ class MetadataAdderInterceptor extends NetKitInterceptor {
     );
   }
 
-  Map<String, String> _buildLocaleHeaders(AppLocale locale) {
+  Map<String, String> _buildLocaleHeaders(LocaleComponents locale) {
     final platformLocale = Locale.fromSubtags(
       languageCode: locale.languageCode,
       scriptCode: locale.scriptCode,

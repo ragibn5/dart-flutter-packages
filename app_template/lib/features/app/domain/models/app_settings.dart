@@ -1,0 +1,26 @@
+import 'package:app_template/features/app/domain/models/app_locale.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
+import 'package:equatable/equatable.dart';
+
+class AppSettings extends Equatable {
+  static const defaultLocale = AppLocale.SYSTEM;
+  static const defaultThemeMode = AppThemeMode.SYSTEM;
+
+  final AppLocale locale;
+  final AppThemeMode themeMode;
+
+  const AppSettings({
+    this.locale = defaultLocale,
+    this.themeMode = defaultThemeMode,
+  });
+
+  AppSettings copyWith({AppLocale? locale, AppThemeMode? themeMode}) {
+    return AppSettings(
+      locale: locale ?? this.locale,
+      themeMode: themeMode ?? this.themeMode,
+    );
+  }
+
+  @override
+  List<Object?> get props => [locale, themeMode];
+}

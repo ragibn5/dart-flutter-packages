@@ -3,54 +3,71 @@
 import 'dart:async';
 
 import 'package:app_logger/app_logger.dart';
-import 'package:app_template/features/app/application/services/app_initializer_service.dart';
-import 'package:app_template/features/app/application/services/session_initializer_service.dart';
+import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/get_effective_theme_mode_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_app_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/initialize_session_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_auth_state_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_locale_use_case.dart';
+import 'package:app_template/features/app/application/use_cases/watch_theme_mode_use_case.dart';
+import 'package:app_template/features/app/domain/models/app_theme_mode.dart';
+import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
-import 'package:app_template/features/auth/domain/models/auth_data.dart';
-import 'package:app_template/features/auth/domain/services/auth_data_service.dart';
-import 'package:app_template/features/settings/application/services/settings_service.dart';
-import 'package:app_template/features/settings/domain/models/app_locale.dart';
-import 'package:app_template/features/settings/domain/models/app_theme_mode.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockLogger extends Mock implements AppLogger {}
 
-class _MockAuthDataService extends Mock implements AuthDataService {}
+class _MockWatchAuthStateUseCase extends Mock
+    implements WatchAuthStateUseCase {}
 
-class _MockAppPreferenceService extends Mock implements SettingsService {}
+class _MockWatchLocaleUseCase extends Mock implements WatchLocaleUseCase {}
 
-class _MockAppInitializerService extends Mock
-    implements AppInitializerService {}
+class _MockWatchThemeModeUseCase extends Mock
+    implements WatchThemeModeUseCase {}
 
-class _MockSessionInitializerService extends Mock
-    implements SessionInitializerService {}
+class _MockGetEffectiveLocaleUseCase extends Mock
+    implements GetEffectiveLocaleUseCase {}
+
+class _MockGetEffectiveThemeModeUseCase extends Mock
+    implements GetEffectiveThemeModeUseCase {}
+
+class _MockInitializeAppUseCase extends Mock implements InitializeAppUseCase {}
+
+class _MockInitializeSessionUseCase extends Mock
+    implements InitializeSessionUseCase {}
 
 void main() {
   late _MockLogger logger;
-  late _MockAuthDataService authDataService;
-  late _MockAppPreferenceService appPreferenceService;
-  late _MockAppInitializerService appInitializerService;
-  late _MockSessionInitializerService sessionInitializerService;
+  late _MockWatchAuthStateUseCase watchAuthStateUseCase;
+  late _MockWatchLocaleUseCase watchLocaleUseCase;
+  late _MockWatchThemeModeUseCase watchThemeModeUseCase;
+  late _MockGetEffectiveLocaleUseCase getEffectiveLocaleUseCase;
+  late _MockGetEffectiveThemeModeUseCase getEffectiveThemeModeUseCase;
+  late _MockInitializeAppUseCase initializeAppUseCase;
+  late _MockInitializeSessionUseCase initializeSessionUseCase;
 
-  late StreamController<AppLocale> localeController;
+  late StreamController<LocaleComponents> localeController;
   late StreamController<AppThemeMode> themeController;
-  late StreamController<AuthData?> authController;
+  late StreamController<bool> authController;
 
   late AppRootBloc bloc;
 
   setUpAll(() {
-    registerFallbackValue(AppLocale.EN);
+    registerFallbackValue(const LocaleComponents(languageCode: 'en'));
     registerFallbackValue(AppThemeMode.LIGHT);
   });
 
   setUp(() {
     logger = _MockLogger();
-    authDataService = _MockAuthDataService();
-    appPreferenceService = _MockAppPreferenceService();
-    appInitializerService = _MockAppInitializerService();
-    sessionInitializerService = _MockSessionInitializerService();
+    watchAuthStateUseCase = _MockWatchAuthStateUseCase();
+    watchLocaleUseCase = _MockWatchLocaleUseCase();
+    watchThemeModeUseCase = _MockWatchThemeModeUseCase();
+    getEffectiveLocaleUseCase = _MockGetEffectiveLocaleUseCase();
+    getEffectiveThemeModeUseCase = _MockGetEffectiveThemeModeUseCase();
+    initializeAppUseCase = _MockInitializeAppUseCase();
+    initializeSessionUseCase = _MockInitializeSessionUseCase();
 
     localeController = StreamController.broadcast();
     themeController = StreamController.broadcast();
@@ -58,10 +75,13 @@ void main() {
 
     bloc = AppRootBloc(
       logger,
-      authDataService,
-      appPreferenceService,
-      appInitializerService,
-      sessionInitializerService,
+      watchAuthStateUseCase,
+      watchLocaleUseCase,
+      watchThemeModeUseCase,
+      getEffectiveLocaleUseCase,
+      getEffectiveThemeModeUseCase,
+      initializeAppUseCase,
+      initializeSessionUseCase,
     );
 
     when(
@@ -74,24 +94,22 @@ void main() {
     ).thenAnswer((_) {});
 
     when(
-      () => appPreferenceService.getEffectiveLocale(),
-    ).thenAnswer((_) async => .EN);
+      () => getEffectiveLocaleUseCase(),
+    ).thenAnswer((_) async => const LocaleComponents(languageCode: 'en'));
     when(
-      () => appPreferenceService.getEffectiveThemeMode(),
-    ).thenAnswer((_) async => .LIGHT);
+      () => getEffectiveThemeModeUseCase(),
+    ).thenAnswer((_) async => AppThemeMode.LIGHT);
 
+    when(() => watchLocaleUseCase()).thenAnswer((_) => localeController.stream);
     when(
-      () => appPreferenceService.watchLocale(),
-    ).thenAnswer((_) => localeController.stream);
-    when(
-      () => appPreferenceService.watchThemeMode(),
+      () => watchThemeModeUseCase(),
     ).thenAnswer((_) => themeController.stream);
     when(
-      () => authDataService.watchAuthData(),
+      () => watchAuthStateUseCase(),
     ).thenAnswer((_) => authController.stream);
 
-    when(() => appInitializerService.initialize()).thenAnswer((_) async {});
-    when(() => sessionInitializerService.initialize()).thenAnswer((_) async {});
+    when(() => initializeAppUseCase()).thenAnswer((_) async {});
+    when(() => initializeSessionUseCase()).thenAnswer((_) async {});
   });
 
   tearDown(() async {
@@ -108,12 +126,16 @@ void main() {
     expect: () => [
       isA<AppInitializationInProgress>(),
       isA<AppInitializationSuccess>()
-          .having((s) => s.locale, 'locale', AppLocale.EN)
+          .having(
+            (s) => s.locale,
+            'locale',
+            const LocaleComponents(languageCode: 'en'),
+          )
           .having((s) => s.themeMode, 'themeMode', AppThemeMode.LIGHT),
     ],
     verify: (_) async {
-      verify(() => appInitializerService.initialize()).called(1);
-      verify(() => sessionInitializerService.initialize()).called(1);
+      verify(() => initializeAppUseCase()).called(1);
+      verify(() => initializeSessionUseCase()).called(1);
     },
   );
 
@@ -123,18 +145,16 @@ void main() {
     act: (bloc) => bloc.add(AppInitializationRequested()),
     wait: const Duration(milliseconds: 100),
     verify: (_) async {
-      verify(() => appPreferenceService.watchLocale()).called(1);
-      verify(() => appPreferenceService.watchThemeMode()).called(1);
-      verify(() => authDataService.watchAuthData()).called(1);
+      verify(() => watchLocaleUseCase()).called(1);
+      verify(() => watchThemeModeUseCase()).called(1);
+      verify(() => watchAuthStateUseCase()).called(1);
     },
   );
 
   blocTest<AppRootBloc, AppRootState>(
     'Emits AppInitializationError when app initializer throws',
     build: () {
-      when(
-        () => appInitializerService.initialize(),
-      ).thenThrow(Exception('fail'));
+      when(() => initializeAppUseCase()).thenThrow(Exception('fail'));
 
       return bloc;
     },
@@ -148,9 +168,7 @@ void main() {
   blocTest<AppRootBloc, AppRootState>(
     'Re-initializes session when auth stream emits new value',
     build: () {
-      when(
-        () => sessionInitializerService.initialize(),
-      ).thenAnswer((_) async {});
+      when(() => initializeSessionUseCase()).thenAnswer((_) async {});
 
       return bloc;
     },
@@ -158,26 +176,23 @@ void main() {
       bloc.add(AppInitializationRequested());
       await Future<dynamic>.delayed(const Duration(milliseconds: 50));
 
-      authController.add(null);
+      authController.add(true);
     },
     wait: const Duration(milliseconds: 100),
     expect: () => [
-      // On initial AppInitializationRequested
       isA<AppInitializationInProgress>(),
       isA<AppInitializationSuccess>(),
-      // No state changes when new auth data received
     ],
     verify: (_) {
-      verify(
-        () => sessionInitializerService.initialize(),
-      ).called(greaterThan(1)); // once at init + once due to stream
+      verify(() => initializeSessionUseCase()).called(greaterThan(1));
     },
   );
 
   blocTest<AppRootBloc, AppRootState>(
     'Does not update locale when locale stream emits a value and state is not AppInitializationSuccess',
     build: () => bloc,
-    act: (_) => localeController.add(.AR),
+    act: (_) =>
+        localeController.add(const LocaleComponents(languageCode: 'ar')),
     expect: () => <AppRootState>[],
   );
 
@@ -187,7 +202,7 @@ void main() {
     act: (bloc) async {
       bloc.add(AppInitializationRequested());
       await Future<dynamic>.delayed(const Duration(milliseconds: 50));
-      localeController.add(.AR);
+      localeController.add(const LocaleComponents(languageCode: 'ar'));
     },
     wait: const Duration(milliseconds: 100),
     expect: () => [
@@ -195,12 +210,12 @@ void main() {
       isA<AppInitializationSuccess>().having(
         (s) => s.locale,
         'locale',
-        AppLocale.EN,
+        const LocaleComponents(languageCode: 'en'),
       ),
       isA<AppInitializationSuccess>().having(
         (s) => s.locale,
         'locale',
-        AppLocale.AR,
+        const LocaleComponents(languageCode: 'ar'),
       ),
     ],
   );
@@ -208,7 +223,7 @@ void main() {
   blocTest<AppRootBloc, AppRootState>(
     'Does not update theme when theme stream emits a value and state is not AppInitializationSuccess',
     build: () => bloc,
-    act: (_) => themeController.add(.DARK),
+    act: (_) => themeController.add(AppThemeMode.DARK),
     expect: () => <AppRootState>[],
   );
 
@@ -218,7 +233,7 @@ void main() {
     act: (bloc) async {
       bloc.add(AppInitializationRequested());
       await Future<dynamic>.delayed(const Duration(milliseconds: 50));
-      themeController.add(.DARK);
+      themeController.add(AppThemeMode.DARK);
     },
     wait: const Duration(milliseconds: 100),
     expect: () => [
@@ -247,14 +262,12 @@ void main() {
     'Updates locale on SystemLocaleChanged after init success',
     build: () {
       var callCount = 0;
-      when(() => appPreferenceService.getEffectiveLocale()).thenAnswer((
-        _,
-      ) async {
+      when(() => getEffectiveLocaleUseCase()).thenAnswer((_) async {
         callCount++;
         if (callCount == 1) {
-          return AppLocale.EN;
+          return const LocaleComponents(languageCode: 'en');
         } else {
-          return AppLocale.AR;
+          return const LocaleComponents(languageCode: 'ar');
         }
       });
       return bloc;
@@ -270,12 +283,12 @@ void main() {
       isA<AppInitializationSuccess>().having(
         (s) => s.locale,
         'locale',
-        AppLocale.EN,
+        const LocaleComponents(languageCode: 'en'),
       ),
       isA<AppInitializationSuccess>().having(
         (s) => s.locale,
         'locale',
-        AppLocale.AR,
+        const LocaleComponents(languageCode: 'ar'),
       ),
     ],
   );
@@ -291,9 +304,7 @@ void main() {
     'Updates theme mode on SystemBrightnessModeChanged after init success',
     build: () {
       var callCount = 0;
-      when(() => appPreferenceService.getEffectiveThemeMode()).thenAnswer((
-        _,
-      ) async {
+      when(() => getEffectiveThemeModeUseCase()).thenAnswer((_) async {
         callCount++;
         if (callCount == 1) {
           return AppThemeMode.LIGHT;

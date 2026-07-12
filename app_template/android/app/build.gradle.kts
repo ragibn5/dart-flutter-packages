@@ -103,11 +103,14 @@ android {
     }
 }
 
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.14.0")
+}
+
 flutter {
     source = "../.."
     target = project.getDartEntrypoint()
 }
-
 fun configureSigningConfig(config: SigningConfig, props: Properties) {
     config.apply {
         keyAlias = props["keyAlias"]?.toString()

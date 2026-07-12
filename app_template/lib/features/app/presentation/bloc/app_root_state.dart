@@ -23,13 +23,13 @@ final class AppInitializationError extends AppRootState {
 }
 
 final class AppInitializationSuccess extends AppRootState {
-  final AppLocale locale;
+  final LocaleComponents locale;
   final AppThemeMode themeMode;
 
   AppInitializationSuccess({required this.locale, required this.themeMode});
 
   AppInitializationSuccess copyWith({
-    AppLocale? locale,
+    LocaleComponents? locale,
     AppThemeMode? themeMode,
   }) {
     return AppInitializationSuccess(
