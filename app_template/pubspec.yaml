@@ -141,12 +141,12 @@ flutter:
   generate: true
 
   # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
+  # included with your application so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
   # Add assets to your application.
-  # To conditionally binding assets, for example based on flavors, see:
+  # To conditionally binding assets, for example, based on flavors, see:
   # https://docs.flutter.dev/deployment/flavors#conditionally-bundling-assets-based-on-flavor
   #
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -163,8 +163,8 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font.
   #
-  # All the common variants of the `Roboto` font is added for demonstration.
-  # (i.e. w100 to w900, regular and italic versions for all weight variants)
+  # All the common variants of the `Roboto` font are added for demonstration.
+  # (i.e., w100 to w900, regular and italic versions for all weight variants)
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

@@ -52,6 +52,24 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
   end
+
+  # Work around a build-breaking bug in sqflite_darwin 2.4.2: an undefined
+  # `connection` variable (should be `db`) in a debug-only code path fails to
+  # compile under ARC. Fixed upstream in sqflite_darwin 2.4.3, which
+  # requires Dart SDK ^3.12.0 / Flutter >=3.44.0 - until this project's
+  # Flutter version is upgraded, patch the vendored source directly.
+  queue_file = File.expand_path(
+    '../.symlinks/plugins/sqflite_darwin/darwin/sqflite_darwin/Sources/sqflite_darwin/SqfliteDarwinDatabaseQueue.m',
+    __FILE__
+  )
+  if File.exist?(queue_file)
+    contents = File.read(queue_file)
+    patched = contents.sub(
+      '[connection valueForKey:@"_openResultSets"]',
+      '[db valueForKey:@"_openResultSets"]'
+    )
+    File.write(queue_file, patched) if patched != contents
+  end
 end
 
 pod 'SQLCipher', '~> 4.6'
