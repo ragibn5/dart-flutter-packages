@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  create-tag:
+  create-release-tag:
     if: >
       github.event.pull_request.merged == true &&
       startsWith(github.event.pull_request.head.ref, 'release/')
@@ -22,8 +22,19 @@ jobs:
         id: extract
         run: |
           BRANCH="${{ github.event.pull_request.head.ref }}"
-          # release/<package>-v<X.Y.Z> → <package>-v<X.Y.Z>
-          TAG="${BRANCH#release/}"
+          # release/<package-path>-<version> → <package-path>-<version>
+          REST="${BRANCH#release/}"
+
+          # Extract version (last -X.Y.Z)
+          if [[ "$REST" =~ ^(.+)-([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            PKG_PATH="${BASH_REMATCH[1]}"
+            VERSION="${BASH_REMATCH[2]}"
+            TAG="${PKG_PATH}-${VERSION}"
+          else
+            echo "Error: Could not parse branch name"
+            exit 1
+          fi
+
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "Extracted tag: $TAG"
 

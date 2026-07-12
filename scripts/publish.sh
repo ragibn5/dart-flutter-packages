@@ -10,57 +10,71 @@ source "$SCRIPT_DIR/publish_utils.sh"
 
 usage() {
   echo ""
-  echo "Usage: $0 [options] <package-path>"
-  echo ""
-  echo "  <package-path>   Relative path from repo root to package directory"
+  echo "Usage: $0 [options]"
   echo ""
   echo "Options:"
   echo "  --dry-run   Only run dry-run checks, don't actually publish"
   echo "  -h, --help  Show this help message"
   echo ""
+  echo "Must be run from a release branch (release/<package-path>-<version>)."
+  echo ""
   echo "Examples:"
-  echo "  $0 dlogger              # Publish dlogger"
-  echo "  $0 packages/core_utils  # Publish a nested package"
-  echo "  $0 --dry-run dlogger    # Dry-run only"
+  echo "  $0              # Publish package from current branch"
+  echo "  $0 --dry-run    # Dry-run only"
   echo ""
   exit 0
 }
 
 # --- Parse args ---
 DRY_RUN=false
-PACKAGE_PATH=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) DRY_RUN=true; shift ;;
     -h|--help) usage ;;
     -*)        echo "Unknown option: $1"; usage ;;
-    *)         PACKAGE_PATH="$1"; shift ;;
+    *)         echo "Unknown argument: $1"; usage ;;
   esac
 done
 
-if [[ -z "$PACKAGE_PATH" ]]; then
-  echo "Error: No package path specified."
-  usage
-fi
+# --- Early checks ---
+BRANCH_INFO=$(run_early_checks) || exit 1
 
-if ! validate_package_path "$PACKAGE_PATH"; then
-  exit 1
-fi
+PACKAGE_PATH=$(echo "$BRANCH_INFO" | cut -d' ' -f1)
+BRANCH_VER=$(echo "$BRANCH_INFO" | cut -d' ' -f2)
+CURRENT_BRANCH=$(git -C "$REPO_ROOT" branch --show-current)
 
 # --- Pre-flight checks ---
 echo ""
-echo "=== Pre-flight checks ==="
+echo "PRE-FLIGHT CHECKS"
 
-echo "Checking working tree..."
-ensure_clean_working_tree || exit 1
-echo "  OK: clean."
+WARNINGS=0
 
 PKG_NAME=$(get_package_name "$PACKAGE_PATH")
 PKG_VERSION=$(get_package_version "$PACKAGE_PATH")
 echo "  Package: $PKG_NAME"
 echo "  Version: $PKG_VERSION"
+echo "  Branch:  $CURRENT_BRANCH"
+
+if [[ "$BRANCH_VER" != "$PKG_VERSION" ]]; then
+  echo ""
+  echo "Error: Version mismatch — branch says $BRANCH_VER, pubspec says $PKG_VERSION."
+  exit 1
+fi
+
+if ! check_clean_working_tree; then
+  echo "  WARNING: You have uncommitted changes."
+  WARNINGS=$((WARNINGS + 1))
+fi
+
 echo ""
+
+if [[ $WARNINGS -gt 0 ]]; then
+  if ! confirm_yes_no "Continue despite warnings?"; then
+    echo "Cancelled."
+    exit 0
+  fi
+fi
 
 # --- Dry-run ---
 if dry_run_publish "$PACKAGE_PATH"; then

@@ -1,0 +1,27 @@
+name: Validate release for merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+jobs:
+  validate-release-merge:
+    if: startsWith(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate release branch
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          source scripts/publish_utils.sh
+          branch_info=$(parse_release_branch "$BRANCH" 2>&1) || {
+            echo "Error: Branch name '$BRANCH' does not match format release/<package-path>-<version>"
+            exit 1
+          }
+          PKG_PATH=$(echo "$branch_info" | cut -d' ' -f1)
+          validate_package_path "$PKG_PATH" || exit 1
+          echo "Branch name and package validated."
