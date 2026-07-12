@@ -8,7 +8,6 @@ on:
 
 jobs:
   validate-release-merge:
-    if: startsWith(github.head_ref, 'release/')
     runs-on: ubuntu-latest
 
     steps:
@@ -18,8 +17,8 @@ jobs:
         run: |
           BRANCH="${{ github.head_ref }}"
           source scripts/publish_utils.sh
-          branch_info=$(parse_release_branch "$BRANCH" 2>&1) || {
-            echo "Error: Branch name '$BRANCH' does not match format release/<package-path>-<version>"
+          branch_info=$(parse_release_branch "$BRANCH") || {
+            echo "Error: Branch '$BRANCH' does not match format release/<package-path>-<version>"
             exit 1
           }
           PKG_PATH=$(echo "$branch_info" | cut -d' ' -f1)
