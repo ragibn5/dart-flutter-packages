@@ -16,6 +16,7 @@ environment:
 # (Bundled in executable artifact)
 dependencies:
   path: ^1.9.0
+  test: ^1.25.6
   analysis_server_plugin: ^0.3.0
   analyzer_plugin: ^0.13.0
   analyzer: ^8.0.0
@@ -24,7 +25,6 @@ dependencies:
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
-  test: ^1.25.6
   mocktail: ^1.0.4
   lints: ^6.0.0
   very_good_analysis: ^7.0.0
