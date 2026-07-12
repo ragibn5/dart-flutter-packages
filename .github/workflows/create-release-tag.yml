@@ -1,0 +1,41 @@
+name: Create release tag
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  create-release-tag:
+    if: >
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract tag from branch name
+        id: extract
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          source scripts/publish_utils.sh
+          branch_info=$(parse_release_branch "$BRANCH") || {
+            echo "Error: Could not parse branch name"
+            exit 1
+          }
+          PKG_PATH=$(echo "$branch_info" | cut -d' ' -f1)
+          VERSION=$(echo "$branch_info" | cut -d' ' -f2)
+          TAG="${PKG_PATH}-${VERSION}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Extracted tag: $TAG"
+
+      - name: Create and push tag
+        run: |
+          git tag "${{ steps.extract.outputs.tag }}"
+          git push origin "${{ steps.extract.outputs.tag }}"
