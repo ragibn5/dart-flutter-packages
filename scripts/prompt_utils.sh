@@ -7,3 +7,10 @@ confirm_yes_no() {
     *) return 1 ;;
   esac
 }
+
+prompt_with_default() {
+  local prompt="$1"
+  local default_value="$2"
+  read -rp "${prompt} [${default_value}]: " input
+  echo "${input:-$default_value}"
+}

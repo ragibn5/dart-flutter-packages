@@ -3,10 +3,13 @@
 function renameDartPackage() {
   echo "▶️ Dart package name replacement"
 
+  local current_dart_pkg
+  current_dart_pkg=$(get_current_dart_package)
+
   local src_package
   local target_package
 
-  read -rp "Enter source package name (typically found in pubspec.yaml under 'name' key): " src_package
+  src_package=$(prompt_with_default "Enter source package name" "$current_dart_pkg")
   read -rp "Enter target package name: " target_package
 
   if [[ -z "$src_package" || -z "$target_package" ]]; then

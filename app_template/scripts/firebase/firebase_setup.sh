@@ -1,12 +1,5 @@
 #!/bin/bash
 
-prompt_with_default() {
-  local prompt="$1"
-  local default_value="$2"
-  read -rp "${prompt} [${default_value}]: " input
-  echo "${input:-$default_value}"
-}
-
 runFirebaseSetup() {
   local flavor="$1"
 
@@ -75,7 +68,7 @@ runFirebaseSetup() {
 
   mkdir -p "ios/Config/Firebase/${flavor}"
   mkdir -p "android/app/src/${flavor}"
-  mkdir -p "lib/app/infrastructure/firebase"
+  mkdir -p "lib/features/app/infrastructure/config/firebase"
 
   echo -e "\nRunning flutterfire configure..."
   flutterfire configure \

@@ -70,10 +70,13 @@ _rename_platform_package_ios() {
 function renamePlatformPackage() {
   echo "▶️ Platform package name replacement"
 
+  local current_platform_pkg
+  current_platform_pkg=$(get_current_platform_package)
+
   local src_package
   local target_package
 
-  read -rp "Enter source package name: " src_package
+  src_package=$(prompt_with_default "Enter source package name" "$current_platform_pkg")
   read -rp "Enter target package name: " target_package
 
   if [[ -z "$src_package" || -z "$target_package" ]]; then
