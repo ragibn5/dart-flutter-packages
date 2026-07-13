@@ -96,7 +96,3 @@ void main() async {
 ## Complete Example
 
 See the [example](example/example.dart) for a complete demonstration.
-
-## License
-
-Click [here](../LICENSE) to see the license.

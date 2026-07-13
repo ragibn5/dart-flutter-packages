@@ -4,16 +4,16 @@ Useful utils and extensions over Flutter's built-in `Color` data type.
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  color_utils: ^0.0.1
+  color_utils: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dependencies:
@@ -75,7 +75,3 @@ Generate a random color: Create a random color with a specified opacity.
 // Random color with 50% opacity
 final randomColor = RandomizationUtils.random(0.5);
 ```
-
-## License
-
-Click [here](../LICENSE) to see the license.

@@ -10,16 +10,16 @@ package.
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  json_parser_annotations: ^0.0.1
+  json_parser_annotations: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dependencies:
@@ -57,7 +57,3 @@ integrations.
 ### Example
 
 See the [example](example/example.dart) for a complete demonstration of all the annotations.
-
-## License
-
-Click [here](../../LICENSE) to see the license.

@@ -5,11 +5,8 @@ repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analytics
 
-# This prevents you from accidentally publish to pub.dev
-publish_to: 'none'
-
 # Library version
-version: 0.0.1
+version: 1.0.0
 
 # Range of compatible SDK versions
 environment:

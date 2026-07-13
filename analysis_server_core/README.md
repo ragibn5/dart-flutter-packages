@@ -4,16 +4,16 @@ Core components to build a custom dart analysis server plugin.
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analysis_server_core: ^0.0.1
+  analysis_server_core: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dependencies:
@@ -31,7 +31,3 @@ See the [example](example/example.dart) for a complete demonstration.
 You may also see real plugins developed by this library:
 - [clean_arch_lint](../clean_arch_lint)
 - [json_parser_analyzer](../json_parser/json_parser_analyzer)
-
-## License
-
-Click [here](../LICENSE) to see the license.

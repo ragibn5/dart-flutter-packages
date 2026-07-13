@@ -16,20 +16,20 @@ register those parsers.
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  json_parser_annotations: ^0.0.1
+  json_parser_annotations: ^1.0.0
 
 dev_dependencies:
   build_runner: ^2.4.15
-  json_parser_generator: ^0.0.1
+  json_parser_generator: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dependencies:
@@ -116,7 +116,3 @@ dart run build_runner build --delete-conflicting-outputs
 
 This generates `lib/generated/json_parser/parsers.dart`, which contains the generated parser and
 registry classes for your annotated models.
-
-## License
-
-Click [here](../../LICENSE) to see the license.

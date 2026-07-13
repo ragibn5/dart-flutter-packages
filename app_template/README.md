@@ -38,7 +38,7 @@ A template to start new applications from.
 
 Four build flavors are supported:
 
-- `dev`: For you, the developer, to do daily development work.
+- `dev`: For developer, to do the daily development work.
 - `exp`: For testers or QA people.
 - `stage`: For testing release candidates in production mirrors.
 - `prod`: For end users – final destination.

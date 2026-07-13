@@ -13,16 +13,16 @@ The current version has support for the following `Collection` types:
 
 ## Installation
 
-#### From pub.dev (Not yet available, use git based dependency management for now)
+#### From pub.dev
 
 Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  collection_extensions: ^0.0.1
+  collection_extensions: ^1.0.0
 ```
 
-#### Or, From Git repo (Internal members only)
+#### Or, From Git repo
 
 ```yaml
 dependencies:
@@ -36,7 +36,3 @@ dependencies:
 ## Example
 
 See the [example](example/example.dart) for a complete demonstration.
-
-## License
-
-Click [here](../LICENSE) to see the license.
