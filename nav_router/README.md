@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: nav_router
-      ref: 1.0.0
+      ref: nav_router-1.0.0
 ```
 
 ## Example

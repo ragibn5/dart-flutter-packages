@@ -21,7 +21,7 @@ dev_dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: clean_arch_lint
-      ref: 1.0.0
+      ref: clean_arch_lint-1.0.0
 ```
 
 ## Getting started

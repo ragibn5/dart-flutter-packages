@@ -30,7 +30,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: collection_extensions
-      ref: 1.0.0
+      ref: collection_extensions-1.0.0
 ```
 
 ## Example

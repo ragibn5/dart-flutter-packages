@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: string_extensions
-      ref: 1.0.0
+      ref: string_extensions-1.0.0
 ```
 
 ## Example

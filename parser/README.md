@@ -31,7 +31,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: parser
-      ref: 1.0.0
+      ref: parser-1.0.0
 ```
 
 ### Usage

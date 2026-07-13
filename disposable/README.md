@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: disposable
-      ref: 1.0.0
+      ref: disposable-1.0.0
 ```
 
 ## Example

@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_server_core
-      ref: 1.0.0
+      ref: analysis_server_core-1.0.0
 ```
 
 ## Example

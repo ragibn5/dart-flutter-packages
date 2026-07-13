@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: dlogger
-      ref: 1.0.0
+      ref: dlogger-1.0.0
 ```
 
 ## Get started
