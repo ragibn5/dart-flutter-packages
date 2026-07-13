@@ -23,14 +23,14 @@ packages:
       path: "../alerter"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   analysis_server_core:
     dependency: transitive
     description:
       path: "../analysis_server_core"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   analysis_server_plugin:
     dependency: transitive
     description:
@@ -45,7 +45,7 @@ packages:
       path: "../analytics"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   analyzer:
     dependency: transitive
     description:
@@ -123,7 +123,7 @@ packages:
       path: "../base_auth_interceptor"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   bloc:
     dependency: "direct main"
     description:
@@ -226,7 +226,7 @@ packages:
       path: "../clean_arch_lint"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   cli_config:
     dependency: transitive
     description:
@@ -289,7 +289,7 @@ packages:
       path: "../common_widgets"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   convert:
     dependency: transitive
     description:
@@ -304,7 +304,7 @@ packages:
       path: "../core_models"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   coverage:
     dependency: transitive
     description:
@@ -319,7 +319,7 @@ packages:
       path: "../crashlytics"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   crypto:
     dependency: transitive
     description:
@@ -358,14 +358,14 @@ packages:
       path: "../data_domain_converters"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   datetime_utils:
     dependency: "direct main"
     description:
       path: "../datetime_utils"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   diff_match_patch:
     dependency: transitive
     description:
@@ -396,14 +396,14 @@ packages:
       path: "../disposable"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   dlogger:
     dependency: transitive
     description:
       path: "../dlogger"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   enum_parser:
     dependency: "direct main"
     description:
@@ -433,7 +433,7 @@ packages:
       path: "../feature_api_client"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   ffi:
     dependency: transitive
     description:
@@ -456,7 +456,7 @@ packages:
       path: "../file_store"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   firebase_analytics:
     dependency: "direct main"
     description:
@@ -627,7 +627,7 @@ packages:
       path: "../functions"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   get_it:
     dependency: "direct main"
     description:
@@ -730,7 +730,7 @@ packages:
       path: "../initializable"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   injectable:
     dependency: "direct main"
     description:
@@ -801,7 +801,7 @@ packages:
       path: "../json_converters"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   json_serializable:
     dependency: "direct dev"
     description:
@@ -912,7 +912,7 @@ packages:
       path: "../mutex"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -927,7 +927,7 @@ packages:
       path: "../nav_router"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   nested:
     dependency: transitive
     description:
@@ -942,7 +942,7 @@ packages:
       path: "../net_kit"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   node_preamble:
     dependency: transitive
     description:
@@ -1101,7 +1101,7 @@ packages:
       path: "../preference_store"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   provider:
     dependency: transitive
     description:
@@ -1256,7 +1256,7 @@ packages:
       path: "../snacker"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   source_gen:
     dependency: transitive
     description:
@@ -1349,17 +1349,17 @@ packages:
     dependency: transitive
     description:
       name: sqlite3
-      sha256: "752d9d746052359a2022f588bb979f2e7c4e0f9e4b6a1c3121f7626a1574974b"
+      sha256: "61c7930bebf32c552ac5808c91bf33802e66711c9216090d3b5579c9f862e80c"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.4"
+    version: "3.4.0"
   sqlite_db:
     dependency: "direct main"
     description:
       path: "../sqlite_db"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -1390,7 +1390,7 @@ packages:
       path: "../string_extensions"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   string_scanner:
     dependency: transitive
     description:
