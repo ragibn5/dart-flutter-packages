@@ -1,4 +1,4 @@
-/// Dump of reusable utilities to help test analyzer plugins.
+/// Dump of reusable utilities to help write tests for the analyzer plugins developed by the analysis_server_core package.
 library;
 
 export 'src/parsers/annotation_parsers.dart';
