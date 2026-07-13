@@ -21,7 +21,7 @@ dev_dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_parser/json_parser_analyzer
-      ref: main
+      ref: 1.0.0
 ```
 
 ## Getting started

@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: menu
-      ref: main
+      ref: 1.0.0
 ```
 
 For more information, see the [package on pub.dev](https://pub.dev/packages/menu) or the [GitHub repository](https://github.com/Ragibn5/dart-flutter-packages/tree/main/menu).

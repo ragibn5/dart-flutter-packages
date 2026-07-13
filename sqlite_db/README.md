@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: sqlite_db
-      ref: main
+      ref: 1.0.0
 ```
 
 ## Example

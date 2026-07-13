@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: generator_core
-      ref: main
+      ref: 1.0.0
 ```
 
 ## Getting Started
