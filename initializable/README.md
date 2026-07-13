@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: initializable
-      ref: main
+      ref: initializable-1.0.0
 ```
 
 ## Example

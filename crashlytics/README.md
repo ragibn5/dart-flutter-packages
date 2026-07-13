@@ -27,7 +27,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: crashlytics
-      ref: main
+      ref: crashlytics-1.0.0
 ```
 
 ## Example

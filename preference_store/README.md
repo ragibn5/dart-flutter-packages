@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: preference_store
-      ref: main
+      ref: preference_store-1.0.0
 ```
 
 ## Example

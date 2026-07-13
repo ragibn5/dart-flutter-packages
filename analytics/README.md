@@ -27,7 +27,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analytics
-      ref: main
+      ref: analytics-1.0.0
 ```
 
 ## Example

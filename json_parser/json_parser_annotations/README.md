@@ -27,7 +27,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_parser/json_parser_annotations
-      ref: main
+      ref: json_parser/json_parser_annotations-1.0.0
 ```
 
 ## Usage

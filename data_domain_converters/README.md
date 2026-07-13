@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: data_domain_converters
-      ref: main
+      ref: data_domain_converters-1.0.0
 ```
 
 ## Example
