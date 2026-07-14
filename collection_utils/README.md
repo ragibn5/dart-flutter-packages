@@ -19,7 +19,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  collection_utils: ^1.0.0
+  collection_utils: ^1.0.1
 ```
 
 #### Or, From Git repo
@@ -30,7 +30,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: collection_utils
-      ref: collection_utils-1.0.0
+      ref: collection_utils-1.0.1
 ```
 
 ## Example
