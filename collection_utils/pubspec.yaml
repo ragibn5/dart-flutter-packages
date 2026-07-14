@@ -1,9 +1,9 @@
-name: collection_extensions
+name: collection_utils
 description: Useful extensions over dart's built-in `Collection` types.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/collection_extensions
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/collection_utils
 
 # Library version
 version: 1.0.0

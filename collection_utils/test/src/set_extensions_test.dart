@@ -1,6 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:collection_extensions/collection_extensions.dart';
+import 'package:collection_utils/collection_utils.dart';
 import 'package:test/test.dart';
 
 void main() {

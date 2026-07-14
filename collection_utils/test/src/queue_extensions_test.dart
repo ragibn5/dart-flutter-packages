@@ -2,7 +2,7 @@
 
 import 'dart:collection';
 
-import 'package:collection_extensions/collection_extensions.dart';
+import 'package:collection_utils/collection_utils.dart';
 import 'package:test/test.dart';
 
 void main() {

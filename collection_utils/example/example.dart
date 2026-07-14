@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:collection_extensions/collection_extensions.dart';
+import 'package:collection_utils/collection_utils.dart';
 
 void main() {
   // Example for ListExtension

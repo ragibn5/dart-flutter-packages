@@ -1,4 +1,4 @@
-# collection_extensions
+# collection_utils
 
 Useful extensions over dart's built-in `Collection` types.
 
@@ -19,18 +19,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  collection_extensions: ^1.0.0
+  collection_utils: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  collection_extensions:
+  collection_utils:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: collection_extensions
-      ref: collection_extensions-1.0.0
+      path: collection_utils
+      ref: collection_utils-1.0.0
 ```
 
 ## Example
