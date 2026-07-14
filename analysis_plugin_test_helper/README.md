@@ -1,6 +1,6 @@
 # analysis_plugin_test_helper
 
-Dump of reusable utilities to help write tests for the analyzer plugins developed by the [analysis_server_core](../analysis_server_core) package.
+Dump of reusable utilities to help write tests for the analyzer plugins - specially the ones developed by [analysis_server_core](../analysis_server_core) package.
 
 ## Installation
 
