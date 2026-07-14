@@ -14,7 +14,7 @@ the base layer and are intended to be reusable across all projects.
 
 - [`functions`](functions)
 - [`string_extensions`](string_extensions)
-- [`collection_extensions`](collection_extensions)
+- [`collection_utils`](collection_utils)
 - [`datetime_utils`](datetime_utils)
 - [`color_utils`](color_utils)
 - [`dlogger`](dlogger)
