@@ -1,4 +1,4 @@
-# alerter
+# alerty
 
 A top-level alert dialog presenter.
 
@@ -10,18 +10,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  alerter: ^1.0.0
+  alerty: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  alerter:
+  alerty:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: alerter
-      ref: alerter-1.0.0
+      path: alerty
+      ref: alerty-1.0.0
 ```
 
 ## Example

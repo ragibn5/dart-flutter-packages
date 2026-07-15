@@ -1,4 +1,4 @@
-import 'package:alerter/alerter.dart';
+import 'package:alerty/alerty.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,7 +11,7 @@ class AlerterExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Alerter Example',
+      title: 'Alerty Example',
       navigatorKey: _navigatorKey,
       home: const HomePage(),
     );
@@ -25,13 +25,13 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final alerter = RouterNavigatorAlerter(_navigatorKey);
+    final alerty = RouterNavigatorAlerty(_navigatorKey);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Alerter Example')),
+      appBar: AppBar(title: const Text('Alerty Example')),
       body: Center(
         child: ElevatedButton(
-          onPressed: () => alerter.showTextAlert(
+          onPressed: () => alerty.showTextAlert(
             AlertData.error(
               title: 'Alert Title',
               message: 'This is the alert message body.',

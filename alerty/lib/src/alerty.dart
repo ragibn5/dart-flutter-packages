@@ -1,10 +1,10 @@
-import 'package:alerter/src/models/alert_action.dart';
-import 'package:alerter/src/models/alert_data.dart';
+import 'package:alerty/src/models/alert_action.dart';
+import 'package:alerty/src/models/alert_data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-abstract class Alerter {
-  const Alerter();
+abstract class Alerty {
+  const Alerty();
 
   /// Shows a text alert.
   ///
