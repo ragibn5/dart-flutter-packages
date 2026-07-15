@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:alerter/alerter.dart';
+import 'package:alerty/alerty.dart';
 import 'package:analytics/analytics.dart';
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/application/use_cases/get_auth_info_use_case.dart';
@@ -401,8 +401,8 @@ abstract class AppModule {
     return AppServerTokenRefreshApiClientImpl(client);
   }
 
-  Alerter getAlerter(GlobalKey<NavigatorState> navigatorKey) {
-    return RouterNavigatorAlerter(navigatorKey);
+  Alerty getAlerty(GlobalKey<NavigatorState> navigatorKey) {
+    return RouterNavigatorAlerty(navigatorKey);
   }
 
   AnalyticsService getAnalyticsService() {
