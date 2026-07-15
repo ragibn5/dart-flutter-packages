@@ -94,8 +94,8 @@ dependencies:
     path: ../feature_api_client
   nav_router:
     path: ../nav_router
-  alerter:
-    path: ../alerter
+  alerty:
+    path: ../alerty
   snacker:
     path: ../snacker
   common_widgets:

@@ -1,4 +1,4 @@
-import 'package:alerter/src/enums/alert_type.dart';
+import 'package:alerty/src/enums/alert_type.dart';
 
 class AlertData {
   final String title;

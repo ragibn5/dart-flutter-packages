@@ -1,10 +1,10 @@
-import 'package:alerter/src/alerter.dart';
+import 'package:alerty/src/alerty.dart';
 import 'package:flutter/material.dart';
 
-class RouterNavigatorAlerter extends Alerter {
+class RouterNavigatorAlerty extends Alerty {
   final GlobalKey<NavigatorState> _navigatorKey;
 
-  const RouterNavigatorAlerter(this._navigatorKey);
+  const RouterNavigatorAlerty(this._navigatorKey);
 
   @override
   BuildContext getCurrentContext() {

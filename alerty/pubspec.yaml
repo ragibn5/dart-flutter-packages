@@ -1,9 +1,9 @@
-name: alerter
+name: alerty
 description: A top-level alert dialog presenter.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/alerter
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/alerty
 
 # Library version
 version: 1.0.0

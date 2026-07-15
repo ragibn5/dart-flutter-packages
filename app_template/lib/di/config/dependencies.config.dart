@@ -9,7 +9,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:alerter/alerter.dart' as _i103;
+import 'package:alerty/alerty.dart' as _i103;
 import 'package:analytics/analytics.dart' as _i548;
 import 'package:app_logger/app_logger.dart' as _i519;
 import 'package:app_template/di/modules/app_module.dart' as _i384;
@@ -193,8 +193,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i291.FallbackLocaleSelector>(),
       ),
     );
-    gh.factory<_i103.Alerter>(
-      () => appModule.getAlerter(gh<_i409.GlobalKey<_i409.NavigatorState>>()),
+    gh.factory<_i103.Alerty>(
+      () => appModule.getAlerty(gh<_i409.GlobalKey<_i409.NavigatorState>>()),
     );
     gh.singleton<_i821.FlavorConfig>(
       () => appModule.getProdFlavorConfig(),

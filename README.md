@@ -50,7 +50,7 @@ generation utilities, and architectural support.
 - [`radio_group`](radio_group)
 - [`selection_group`](selection_group)
 - [`menu`](menu)
-- [`alerter`](alerter)
+- [`alerty`](alerty)
 - [`snacker`](snacker)
 - [`common_widgets`](common_widgets)
 - [`clean_arch_lint`](clean_arch_lint)
