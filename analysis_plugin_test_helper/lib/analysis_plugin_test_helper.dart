@@ -1,4 +1,4 @@
-/// Dump of reusable utilities to help write tests for the analyzer plugins.
+/// Utilities to help write tests for the analyzer plugins.
 library;
 
 export 'src/parsers/annotation_parsers.dart';
