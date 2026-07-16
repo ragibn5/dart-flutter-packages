@@ -6,7 +6,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:path/path.dart' as path;
 
-/// A test utility that resolves Dart source strings into fully analyzed
+/// A test utility that resolves Dart source strings into fully resolved
 /// [ResolvedUnitResult] instances, enabling access to resolved elements,
 /// constant values, and type information.
 ///
@@ -36,7 +36,7 @@ import 'package:path/path.dart' as path;
 ///     class Foo {}
 ///   ''');
 ///
-///   final annotation = result.findAnnotation(annotationName: 'MyAnnotation');
+///   final annotation = findAnnotation(result.unit, annotationName: 'MyAnnotation');
 /// });
 /// ```
 class DartUnitResolver {
