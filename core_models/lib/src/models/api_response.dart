@@ -1,4 +1,4 @@
-import 'package:core_models/src/models/either.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 
 sealed class ApiResponse<Err, Res> {
   final int statusCode;

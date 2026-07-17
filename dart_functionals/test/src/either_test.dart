@@ -1,4 +1,4 @@
-import 'package:core_models/core_models.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:test/test.dart';
 
 void main() {

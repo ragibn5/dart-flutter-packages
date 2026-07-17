@@ -9,6 +9,7 @@ import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
 import 'package:app_template/features/auth/domain/repositories/auth_data_repository.dart';
 import 'package:core_models/core_models.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 
 class AuthDataRepositoryImpl implements AuthDataRepository {
   final StreamController<AuthData?> _authDataStreamController;

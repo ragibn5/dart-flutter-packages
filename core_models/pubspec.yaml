@@ -14,7 +14,8 @@ environment:
 
 # Regular dependencies
 dependencies:
-  # path: any
+  dart_functionals:
+    path: ../dart_functionals
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

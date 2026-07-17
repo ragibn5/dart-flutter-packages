@@ -21,8 +21,8 @@ dependencies:
     path: ../json_parser_annotations
   string_extensions:
     path: ../../string_extensions
-  functions:
-    path: ../../functions
+  dart_functionals:
+    path: ../../dart_functionals
   analysis_server_core:
     path: ../../analysis_server_core
 

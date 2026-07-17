@@ -336,6 +336,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  dart_functionals:
+    dependency: "direct main"
+    description:
+      path: "../dart_functionals"
+      relative: true
+    source: path
+    version: "1.0.0"
   dart_style:
     dependency: transitive
     description:
@@ -621,13 +628,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
-  functions:
-    dependency: transitive
-    description:
-      path: "../functions"
-      relative: true
-    source: path
-    version: "1.0.0"
   get_it:
     dependency: "direct main"
     description:

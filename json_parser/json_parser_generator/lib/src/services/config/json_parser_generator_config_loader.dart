@@ -1,4 +1,4 @@
-import 'package:functions/functions.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:generator_core/generator_core.dart';
 import 'package:json_parser_generator/src/models/default_config_options.dart';
 import 'package:json_parser_generator/src/models/json_parser_generator_context_config.dart';

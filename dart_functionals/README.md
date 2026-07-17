@@ -1,4 +1,4 @@
-# functions
+# dart_functionals
 
 A collection of reusable functions missing in core dart sdk.
 
@@ -10,18 +10,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  functions: ^1.0.0
+  dart_functionals: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  functions:
+  dart_functionals:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: functions
-      ref: functions-1.0.0
+      path: dart_functionals
+      ref: dart_functionals-1.0.0
 ```
 
 ## Example

@@ -1,9 +1,9 @@
-name: functions
-description: A collection of reusable functions missing in core dart sdk.
+name: dart_functionals
+description: A collection of reusable functions missing in core Dart sdk.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/functions
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/dart_functionals
 
 # Library version
 version: 1.0.0

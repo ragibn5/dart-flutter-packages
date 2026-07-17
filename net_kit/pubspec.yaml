@@ -16,8 +16,8 @@ environment:
 # (Bundled in executable artifact)
 dependencies:
   dio: ^5.8.0+1
-  functions:
-    path: ../functions
+  dart_functionals:
+    path: ../dart_functionals
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
