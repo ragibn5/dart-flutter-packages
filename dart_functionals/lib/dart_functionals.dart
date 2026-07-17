@@ -2,4 +2,5 @@
 library;
 
 export 'src/either.dart';
+export 'src/result.dart';
 export 'src/runners.dart';
