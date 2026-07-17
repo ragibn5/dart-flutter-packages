@@ -1,4 +1,5 @@
 import 'package:core_models/core_models.dart';
+import 'package:functionals/functionals.dart';
 
 void main() {
   final success = Success<String>(

@@ -621,10 +621,10 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
-  functions:
-    dependency: transitive
+  functionals:
+    dependency: "direct main"
     description:
-      path: "../functions"
+      path: "../functionals"
       relative: true
     source: path
     version: "1.0.0"

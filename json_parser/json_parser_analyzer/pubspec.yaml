@@ -21,8 +21,8 @@ dependencies:
     path: ../json_parser_annotations
   string_extensions:
     path: ../../string_extensions
-  functions:
-    path: ../../functions
+  functionals:
+    path: ../../functionals
   analysis_server_core:
     path: ../../analysis_server_core
 

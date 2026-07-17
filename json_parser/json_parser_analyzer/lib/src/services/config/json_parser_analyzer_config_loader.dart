@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_dynamic_calls
 
 import 'package:analysis_server_core/analysis_server_core.dart';
-import 'package:functions/functions.dart';
+import 'package:functionals/functionals.dart';
 import 'package:json_parser_analyzer/src/models/default_config_options.dart';
 import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:json_parser_analyzer/src/services/config/config_source_provider.dart';
