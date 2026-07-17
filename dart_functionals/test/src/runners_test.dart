@@ -29,7 +29,7 @@ void main() {
       final result = runCatching(
         () => throw Exception('oops'),
         defaultValue: 0,
-        printLog: true,
+        printErrorLog: true,
       );
       expect(result, 0);
     });
