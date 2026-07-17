@@ -3,6 +3,7 @@ import 'package:dart_functionals/dart_functionals.dart';
 void main() {
   runCatchingExample();
   eitherExample();
+  resultExample();
 }
 
 /// Demonstrates [runCatching].
@@ -27,7 +28,7 @@ void runCatchingExample() {
   final loggedFallback = runCatching(
     () => int.parse('hello'),
     defaultValue: 0,
-    printLog: true,
+    printErrorLog: true,
   );
   print(loggedFallback); // 0 (error logged)
 }
@@ -47,5 +48,23 @@ void eitherExample() {
   print(right.fold(
     onLeft: (l) => 'Error: $l',
     onRight: (r) => 'Value: $r',
+  )); // Value: 42
+}
+
+/// Demonstrates [Result]
+///
+/// A sealed type that is either [Failure] or [Success].
+void resultExample() {
+  final failure = Failure('oops');
+  final success = Success(42);
+
+  print(failure.fold(
+    onFailure: (f) => 'Error: $f',
+    onSuccess: (s) => 'Value: $s',
+  )); // Error: oops
+
+  print(success.fold(
+    onFailure: (f) => 'Error: $f',
+    onSuccess: (s) => 'Value: $s',
   )); // Value: 42
 }
