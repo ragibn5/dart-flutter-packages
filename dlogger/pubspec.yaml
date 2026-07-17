@@ -16,6 +16,7 @@ environment:
 # (Bundled in executable artifact)
 dependencies:
   path: ^1.8.0
+  meta: ^1.12.0
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

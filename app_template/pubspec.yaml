@@ -35,6 +35,7 @@ dependencies:
 
   # Others (3rd party)
   path: ^1.9.1
+  meta: ^1.12.0
   recase: ^4.1.0
   equatable: ^2.0.8
   jwt_decoder: ^2.0.1
