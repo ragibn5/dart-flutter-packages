@@ -22,8 +22,8 @@ dependencies:
   analyzer_plugin: ^0.13.0
   analyzer: ^8.0.0
   analyzer_testing: ^0.1.5
-  functionals:
-    path: ../functionals
+  dart_functionals:
+    path: ../dart_functionals
   dlogger:
     path: ../dlogger
 

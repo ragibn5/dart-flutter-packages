@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  functionals: ^1.0.0
+  dart_functionals: ^1.0.0
   feature_api_client: ^1.0.0
 ```
 
@@ -18,11 +18,11 @@ dependencies:
 
 ```yaml
 dependencies:
-  functionals:
+  dart_functionals:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: functionals
-      ref: functionals-1.0.0
+      path: dart_functionals
+      ref: dart_functionals-1.0.0
   feature_api_client:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
@@ -30,7 +30,7 @@ dependencies:
       ref: feature_api_client-1.0.0
 ```
 
-> **Note:** The `functionals` package is required.
+> **Note:** The `dart_functionals` package is required.
 
 ## Example
 
