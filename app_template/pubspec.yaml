@@ -68,6 +68,8 @@ dependencies:
     path: ../disposable
   core_models:
     path: ../core_models
+  functionals:
+    path: ../functionals
   mutex:
     path: ../mutex
   data_domain_converters:

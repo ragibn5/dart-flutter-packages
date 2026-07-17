@@ -12,7 +12,7 @@ reuse, enforce architectural consistency, and standardize best practices across 
 Foundational utilities and infrastructure packages with minimal dependencies. These packages form
 the base layer and are intended to be reusable across all projects.
 
-- [`functions`](functions)
+- [`functionals`](functionals)
 - [`string_extensions`](string_extensions)
 - [`collection_utils`](collection_utils)
 - [`datetime_utils`](datetime_utils)

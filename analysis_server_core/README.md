@@ -1,6 +1,6 @@
 # analysis_server_core
 
-Core components to build a custom dart analysis server plugin.
+Core components to build a custom Dart analysis server plugin.
 
 ## Installation
 

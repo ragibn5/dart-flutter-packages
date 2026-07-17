@@ -17,6 +17,8 @@ dependencies:
   equatable: ^2.0.8
   core_models:
     path: ../core_models
+  functionals:
+    path: ../functionals
   net_kit:
     path: ../net_kit
 

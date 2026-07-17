@@ -14,7 +14,8 @@ environment:
 
 # Regular dependencies
 dependencies:
-  # path: any
+  functionals:
+    path: ../functionals
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

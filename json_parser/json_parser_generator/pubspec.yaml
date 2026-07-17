@@ -23,8 +23,8 @@ dependencies:
     path: ../../generator_core
   json_parser_annotations:
     path: ../json_parser_annotations
-  functions:
-    path: ../../functions
+  functionals:
+    path: ../../functionals
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

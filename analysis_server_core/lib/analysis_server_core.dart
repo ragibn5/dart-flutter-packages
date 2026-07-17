@@ -1,4 +1,4 @@
-/// Core components to build a custom dart analysis server plugin.
+/// Core components to build a custom Dart analysis server plugin.
 library;
 
 export 'package:analysis_server_plugin/plugin.dart';
