@@ -5,7 +5,7 @@ import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/data/sources/remote_auth_data_source_impl.dart';
 import 'package:core_models/core_models.dart';
-import 'package:functionals/functionals.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

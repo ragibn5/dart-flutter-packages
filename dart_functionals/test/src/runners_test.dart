@@ -1,4 +1,4 @@
-import 'package:functionals/src/runners.dart';
+import 'package:dart_functionals/src/runners.dart';
 import 'package:test/test.dart';
 
 void main() {

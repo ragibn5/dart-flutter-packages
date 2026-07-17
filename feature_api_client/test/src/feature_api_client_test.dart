@@ -1,5 +1,5 @@
 import 'package:core_models/core_models.dart';
-import 'package:functionals/functionals.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:feature_api_client/feature_api_client.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';

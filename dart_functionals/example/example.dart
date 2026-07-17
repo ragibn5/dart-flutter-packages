@@ -1,4 +1,4 @@
-import 'package:functionals/functionals.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 
 void main() {
   runCatchingExample();
