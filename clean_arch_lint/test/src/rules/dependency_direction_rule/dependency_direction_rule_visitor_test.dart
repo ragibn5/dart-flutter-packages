@@ -2,7 +2,7 @@
 // ignore_for_file: avoid_redundant_argument_values
 
 import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
