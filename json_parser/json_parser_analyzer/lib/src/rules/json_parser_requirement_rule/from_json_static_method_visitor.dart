@@ -1,6 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:meta/meta.dart';

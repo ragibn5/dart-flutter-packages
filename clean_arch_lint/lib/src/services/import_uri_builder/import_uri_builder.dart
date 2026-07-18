@@ -1,4 +1,4 @@
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_lint/src/models/import_uri.dart';
 import 'package:string_extensions/string_extensions.dart';
 

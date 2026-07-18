@@ -1,4 +1,4 @@
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_lint/src/plugins/clean_arch_lint_plugin.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule.dart';
 import 'package:mocktail/mocktail.dart';
