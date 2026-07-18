@@ -99,7 +99,7 @@ import 'package:app_template/features/user_data/domain/services/user_data_servic
     as _i84;
 import 'package:crashlytics/crashlytics.dart' as _i35;
 import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
-import 'package:dlogger/dlogger.dart' as _i975;
+import 'package:loghub/loghub.dart' as _i975;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;

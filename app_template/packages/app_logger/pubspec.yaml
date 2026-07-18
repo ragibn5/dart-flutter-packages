@@ -8,8 +8,8 @@ environment:
 
 dependencies:
   meta: ^1.12.0
-  dlogger:
-    path: ../../../dlogger
+  loghub:
+    path: ../../../loghub
 
 dev_dependencies:
   mocktail: ^1.0.4

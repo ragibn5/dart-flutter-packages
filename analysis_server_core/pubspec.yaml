@@ -23,10 +23,9 @@ dependencies:
   analyzer_plugin: ^0.13.0
   analyzer: ^8.0.0
   analyzer_testing: ^0.1.5
-  dart_functionals:
-    path: ../dart_functionals
-  dlogger:
-    path: ../dlogger
+  dart_functionals: ^1.0.1
+  loghub:
+    path: ../loghub
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

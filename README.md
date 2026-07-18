@@ -17,7 +17,7 @@ the base layer and are intended to be reusable across all projects.
 - [`collection_utils`](collection_utils)
 - [`datetime_utils`](datetime_utils)
 - [`color_utils`](color_utils)
-- [`dlogger`](dlogger)
+- [`loghub`](loghub)
 - [`mutex`](mutex)
 - [`disposable`](disposable)
 - [`initializable`](initializable)
