@@ -1,4 +1,4 @@
-/// The `string_extensions` package.
+/// The `extended_string` package.
 /// Import this file to use the package in your project.
 library;
 

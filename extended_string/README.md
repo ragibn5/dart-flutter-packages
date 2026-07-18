@@ -1,4 +1,4 @@
-# string_extensions
+# extended_string
 
 Useful extensions over dart's built-in `String` data type.
 
@@ -10,18 +10,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  string_extensions: ^1.0.0
+  extended_string: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  string_extensions:
+  extended_string:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: string_extensions
-      ref: string_extensions-1.0.0
+      path: extended_string
+      ref: extended_string-1.0.0
 ```
 
 ## Example

@@ -1,9 +1,9 @@
-name: string_extensions
+name: extended_string
 description: Useful extensions over dart's built-in `String` data type.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/string_extensions
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/extended_string
 
 # Library version
 version: 1.0.0
