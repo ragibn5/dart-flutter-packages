@@ -20,9 +20,10 @@ packages:
   alerty:
     dependency: "direct main"
     description:
-      path: "../alerty"
-      relative: true
-    source: path
+      name: alerty
+      sha256: "23dcbc93524e506b8f4dd3660f81a68722760bba057fa6deed620464713d5ff1"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   analysis_server_core:
     dependency: transitive
@@ -856,9 +857,10 @@ packages:
   loghub:
     dependency: transitive
     description:
-      path: "../loghub"
-      relative: true
-    source: path
+      name: loghub
+      sha256: "2d7298a0ac0a1f59ddd695bbd43d7bd82b5eb5178b1403e2e6a630e0c791473a"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   matcher:
     dependency: transitive

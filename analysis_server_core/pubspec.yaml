@@ -24,8 +24,7 @@ dependencies:
   analyzer: ^8.0.0
   analyzer_testing: ^0.1.5
   dart_functionals: ^1.0.1
-  loghub:
-    path: ../loghub
+  loghub: ^1.0.0
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
@@ -34,5 +33,4 @@ dev_dependencies:
   mocktail: ^1.0.4
   lints: ^6.0.0
   very_good_analysis: ^7.0.0
-  analysis_plugin_test_helper:
-    path: ../analysis_plugin_test_helper
+  analysis_plugin_test_helper: ^1.0.4
