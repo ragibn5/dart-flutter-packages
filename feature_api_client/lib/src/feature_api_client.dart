@@ -1,10 +1,10 @@
-import 'package:core_models/core_models.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:feature_api_client/src/services/net_kit_exception_transformer.dart';
 import 'package:feature_api_client/src/services/net_kit_request_builder.dart';
 import 'package:feature_api_client/src/services/net_kit_response_decoder.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
+import 'package:net_models/net_models.dart';
 
 abstract class FeatureApiClient<Req, Res, Err>
     implements NetKitRequestBuilder<Req>, NetKitResponseDecoder<Err, Res> {
@@ -27,7 +27,7 @@ abstract class FeatureApiClient<Req, Res, Err>
     final rawResponse = await _client.execute(spec: requestSpec);
     return rawResponse.fold(
       onSuccess: (r) => Right(decodeResponse(r)),
-      onError: (e) => Left(_netKitExceptionTransformer.transformApiError(e)),
+      onFailure: (e) => Left(_netKitExceptionTransformer.transformApiError(e)),
     );
   }
 }

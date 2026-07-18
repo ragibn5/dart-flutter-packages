@@ -16,7 +16,6 @@ export 'src/models/raw_data.dart';
 export 'src/models/raw_response.dart';
 export 'src/models/request_body.dart';
 export 'src/models/request_spec.dart';
-export 'src/models/result.dart';
 export 'src/services/cancellation/request_canceller.dart';
 export 'src/services/interceptors/error_interceptor_result.dart';
 export 'src/services/interceptors/net_kit_interceptor.dart';

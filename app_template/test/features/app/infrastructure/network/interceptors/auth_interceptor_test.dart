@@ -6,6 +6,7 @@ import 'package:app_template/features/app/application/use_cases/get_auth_info_us
 import 'package:app_template/features/app/application/use_cases/get_refreshed_auth_info_use_case.dart';
 import 'package:app_template/features/app/domain/models/auth_info.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
@@ -135,7 +136,7 @@ void main() {
     test('Executes on target client', () async {
       final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
       when(() => mockClient.execute(spec: any(named: 'spec'))).thenAnswer(
-        (_) async => Result.success(
+        (_) async => Success(
           NetKitResponse(
             isError: false,
             statusCode: HttpStatus.ok,

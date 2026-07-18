@@ -1,6 +1,6 @@
-import 'package:core_models/core_models.dart';
 import 'package:feature_api_client/feature_api_client.dart';
 import 'package:net_kit/net_kit.dart';
+import 'package:net_models/net_models.dart';
 
 class MyRequest {
   final String id;
@@ -33,7 +33,7 @@ class MyClient extends FeatureApiClient<MyRequest, MyResponse, MyError> {
   ApiResponse<MyError, MyResponse> decodeResponse(
     NetKitResponse response,
   ) =>
-      Success(
+      SuccessResponse(
         data: MyResponse(response.data.toString()),
         statusCode: response.statusCode,
         headers: response.headers,

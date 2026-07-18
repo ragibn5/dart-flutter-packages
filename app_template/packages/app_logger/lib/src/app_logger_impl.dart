@@ -1,5 +1,5 @@
 import 'package:app_logger/src/app_logger.dart';
-import 'package:dlogger/dlogger.dart';
+import 'package:loghub/loghub.dart';
 import 'package:meta/meta.dart';
 
 class AppLoggerImpl implements AppLogger {

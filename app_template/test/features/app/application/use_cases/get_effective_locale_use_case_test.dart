@@ -72,7 +72,7 @@ void main() {
 
       when(
         () => mockSettingsRepository.getCurrentSettings(),
-      ).thenAnswer((_) async => const AppSettings(locale: AppLocale.SYSTEM));
+      ).thenAnswer((_) async => const AppSettings());
       when(
         () => mockGetPlatformLocale(),
       ).thenAnswer((_) async => platformComponents);
@@ -93,7 +93,7 @@ void main() {
 
       when(
         () => mockSettingsRepository.getCurrentSettings(),
-      ).thenAnswer((_) async => const AppSettings(locale: AppLocale.SYSTEM));
+      ).thenAnswer((_) async => const AppSettings());
       when(
         () => mockGetPlatformLocale(),
       ).thenAnswer((_) async => unsupportedComponents);

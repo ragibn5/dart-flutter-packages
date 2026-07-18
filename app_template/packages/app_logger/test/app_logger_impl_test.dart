@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:app_logger/src/app_logger_impl.dart';
-import 'package:dlogger/dlogger.dart';
+import 'package:loghub/loghub.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 

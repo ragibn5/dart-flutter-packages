@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:build/build.dart';
-import 'package:dlogger/dlogger.dart';
+import 'package:loghub/loghub.dart';
 import 'package:generator_core/src/models/session_data.dart';
 import 'package:generator_core/src/services/config/context_config_loader.dart';
 import 'package:generator_core/src/services/logger/session_logger.dart';
