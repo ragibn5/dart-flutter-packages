@@ -23,7 +23,7 @@ Future<void> main() async {
     onSuccess: (response) {
       print('Success: ${response.data}');
     },
-    onError: (error) {
+    onFailure: (error) {
       switch (error) {
         case TransportException(type: final type):
           print('Transport error: $type');

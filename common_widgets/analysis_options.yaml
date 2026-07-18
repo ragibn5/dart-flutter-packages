@@ -20,7 +20,7 @@ analyzer:
     strict-inference: true
 
   # Add all rules that you want to consider
-  # as error(regardless of their default level).
+  # as error (regardless of their default level).
   errors:
     camel_case_types: error
     camel_case_extensions: error

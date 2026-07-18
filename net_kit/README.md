@@ -9,12 +9,19 @@ This package is not published to pub.dev yet. Use the git dependency:
 
 ```yaml
 dependencies:
+  dart_functionals:
+  git:
+    url: https://github.com/Ragibn5/dart-flutter-packages.git
+    path: dart_functionals
+    ref: main
   net_kit:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: net_kit
       ref: main
 ```
+
+> **Note:** `dart_functionals` is required.
 
 ## Get started
 
@@ -48,7 +55,7 @@ final request = RequestSpec(
 
 #### Note
 
-The content type is automatically inferred for the following body types, and can also be provided
+The content type is automatically inferred for the following body types and can also be provided
 explicitly if you want to override the default ones.
 
 - `JsonBody` → `application/json`
@@ -62,9 +69,9 @@ types of data.
 
 `execute(...)` returns:
 
-- `Result.error(...)` contains infrastructure failures as `NetKitException`.
+- `Failure(NetKitException)` contains infrastructure failures.
   See `NetKitException` and its subtypes for more details.
-- `Result.success(ApiResponse(...))` contains the response data.
+- `Success(ApiResponse(...))` contains the response data.
   See the `ApiResponse` type for more details.
 
 For example:
@@ -76,10 +83,7 @@ void main() async {
 
   // Handle response as needed
   result.fold(
-    onSuccess: (response) {
-      print('Success: ${response.data}');
-    },
-    onError: (error) {
+    onFailure: (error) {
       switch (error) {
         case TransportException(type: final type):
           print('Transport/Network error: $type');
@@ -88,6 +92,9 @@ void main() async {
         case CancellationException():
           print('Cancelled');
       }
+    },
+    onSuccess: (response) {
+      print('Success: ${response.data}');
     },
   );
 }

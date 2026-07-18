@@ -1,3 +1,4 @@
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
@@ -48,7 +49,7 @@ class DioRequestAdapter implements NetworkRequestAdapter {
         ),
       );
 
-      return Result.success(
+      return Success(
         RawResponse(
           statusCode: response.statusCode ?? _defaultResponseCode,
           responseHeaders: Map.of(response.headers.map),
@@ -57,7 +58,7 @@ class DioRequestAdapter implements NetworkRequestAdapter {
         ),
       );
     } catch (e, st) {
-      return Result.error(
+      return Failure(
         _dioExceptionMapper.mapException(
           request: spec,
           exception: e,

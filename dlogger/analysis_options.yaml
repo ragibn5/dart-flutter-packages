@@ -22,7 +22,7 @@ analyzer:
 
 
   # Add all rules that you want to consider
-  # as error(regardless of their default level).
+  # as error (regardless of their default level).
   errors:
     camel_case_types: error
     camel_case_extensions: error
@@ -49,7 +49,6 @@ linter:
   # producing the lint.
   rules:
     avoid_print: false
-    document_ignores: false
     unnecessary_breaks: false
     flutter_style_todos: false
     one_member_abstracts: false

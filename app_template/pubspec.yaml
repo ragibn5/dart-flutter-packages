@@ -67,8 +67,8 @@ dependencies:
     path: ../initializable
   disposable:
     path: ../disposable
-  core_models:
-    path: ../core_models
+  net_models:
+    path: ../net_models
   dart_functionals:
     path: ../dart_functionals
   mutex:
