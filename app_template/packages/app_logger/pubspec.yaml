@@ -8,8 +8,7 @@ environment:
 
 dependencies:
   meta: ^1.12.0
-  loghub:
-    path: ../../../loghub
+  loghub: ^1.0.0
 
 dev_dependencies:
   mocktail: ^1.0.4
