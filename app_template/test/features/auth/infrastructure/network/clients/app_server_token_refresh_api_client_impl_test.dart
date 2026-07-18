@@ -3,10 +3,10 @@
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
-import 'package:net_models/net_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
+import 'package:net_models/net_models.dart';
 import 'package:shared_models/shared_models.dart';
 
 class _MockNetClient extends Mock implements NetClient {}
@@ -52,8 +52,8 @@ void main() {
 
     final result = sut.decodeResponse(response);
 
-    expect(result, isA<Success<AuthDataDTO>>());
-    expect((result as Success).data, sampleAuthData);
+    expect(result, isA<SuccessResponse<AuthDataDTO>>());
+    expect((result as SuccessResponse).data, sampleAuthData);
   });
 
   test('decodeResponse returns Failure from error response', () {
@@ -67,7 +67,7 @@ void main() {
 
     final result = sut.decodeResponse(response);
 
-    expect(result, isA<Failure<ServerMessage>>());
-    expect((result as Failure).error, sampleServerMessage);
+    expect(result, isA<FailureResponse<ServerMessage>>());
+    expect((result as FailureResponse).error, sampleServerMessage);
   });
 }

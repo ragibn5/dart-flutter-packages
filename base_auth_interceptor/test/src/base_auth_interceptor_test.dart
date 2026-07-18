@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:base_auth_interceptor/base_auth_interceptor.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:test/test.dart';
@@ -84,7 +85,7 @@ void main() {
         onAuthError: (_) => false,
         onShouldRefresh: (_, __) => false,
         onRefresh: (_) async => null,
-        onRetry: (_, __) async => Result.success(
+        onRetry: (_, __) async => Success(
           NetKitResponse(
             isError: false,
             statusCode: HttpStatus.ok,
@@ -191,7 +192,7 @@ void main() {
           onRefresh: (_) async => throw UnimplementedError(),
           onRetry: (_, __) async {
             retryCalled = true;
-            return Result.success(
+            return Success(
               NetKitResponse(
                 isError: false,
                 statusCode: HttpStatus.ok,
@@ -236,7 +237,7 @@ void main() {
           },
           onRetry: (_, __) async {
             retryCalled = true;
-            return Result.success(
+            return Success(
               NetKitResponse(
                 isError: false,
                 statusCode: HttpStatus.ok,
@@ -309,7 +310,7 @@ void main() {
           onAuthError: (_) => true,
           onShouldRefresh: (_, __) => false,
           onRefresh: (_) async => throw UnimplementedError(),
-          onRetry: (_, __) async => Result.error(
+          onRetry: (_, __) async => Failure(
             CancellationException(
               source: 'test',
               message: 'retry failed',
@@ -344,7 +345,7 @@ void main() {
           onAuthError: (_) => true,
           onShouldRefresh: (_, __) => true,
           onRefresh: (_) async => newAuthData,
-          onRetry: (_, __) async => Result.error(
+          onRetry: (_, __) async => Failure(
             CancellationException(
               source: 'test',
               message: 'retry failed',

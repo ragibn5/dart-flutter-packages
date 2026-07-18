@@ -1,5 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars, avoid_redundant_argument_values, cascade_invocations
 
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
@@ -126,15 +127,15 @@ void main() {
       expect(
           result,
           isA<Result<NetKitException, RawResponse>>()
-              .having((p) => p.isError, 'isError', false)
-              .having((p) => p.resultOrThrow, 'resultOrNull', isNotNull)
-              .having((p) => p.resultOrThrow.statusCode, 'statusCode',
+              .having((p) => p.isFailure, 'isFailure', false)
+              .having((p) => p.successOrThrow, 'successOrThrow', isNotNull)
+              .having((p) => p.successOrThrow.statusCode, 'statusCode',
                   rawResponse.statusCode)
-              .having((p) => p.resultOrThrow.responseHeaders, 'responseHeaders',
+              .having((p) => p.successOrThrow.responseHeaders, 'responseHeaders',
                   rawResponse.headers.map)
-              .having((p) => p.resultOrThrow.rawResponseBody, 'rawResponseBody',
+              .having((p) => p.successOrThrow.rawResponseBody, 'rawResponseBody',
                   rawResponse.data)
-              .having((p) => p.resultOrThrow.request, 'request', spec));
+              .having((p) => p.successOrThrow.request, 'request', spec));
     },
   );
 
@@ -148,7 +149,7 @@ void main() {
         onReceiveProgress: receiveListener,
       );
 
-      final modelResponse = result.resultOrThrow;
+      final modelResponse = result.successOrThrow;
       final dioMap = rawResponse.headers.map;
 
       expect(identical(modelResponse.responseHeaders, dioMap), isFalse);
@@ -171,10 +172,10 @@ void main() {
       expect(
         result,
         isA<Result<NetKitException, RawResponse>>()
-            .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrThrow, 'errorOrNull', netKitException)
-            .having((p) => p.errorOrThrow.cause, 'cause', errorCause)
-            .having((p) => p.errorOrThrow.stackTrace, 'stackTrace', stackTrace),
+            .having((p) => p.isFailure, 'isFailure', true)
+            .having((p) => p.failureOrThrow, 'failureOrThrow', netKitException)
+            .having((p) => p.failureOrThrow.cause, 'cause', errorCause)
+            .having((p) => p.failureOrThrow.stackTrace, 'stackTrace', stackTrace),
       );
     },
   );

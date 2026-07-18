@@ -105,7 +105,7 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
     if (!shouldRefreshAuthData(request, currentAuthData)) {
       final response = await retryRequest(request, currentAuthData);
       return response.fold(
-        onError: (e) => ShortResponseWithError(
+        onFailure: (e) => ShortResponseWithError(
           CancellationException(
             source: '$BaseAuthInterceptor:$onResponse',
             message: 'Cancelling `$method` request to `$uri`: '
@@ -138,7 +138,7 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedNetKitInterceptor {
 
     final retryResponse = await retryRequest(request, refreshedAuthData);
     return retryResponse.fold(
-      onError: (e) => ShortResponseWithError(
+      onFailure: (e) => ShortResponseWithError(
         CancellationException(
           source: '$BaseAuthInterceptor:$onResponse',
           message: 'Cancelling `$method` request to `$uri`: '

@@ -298,13 +298,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
-  core_models:
-    dependency: "direct main"
-    description:
-      path: "../core_models"
-      relative: true
-    source: path
-    version: "1.0.0"
   coverage:
     dependency: transitive
     description:
@@ -342,7 +335,7 @@ packages:
       path: "../dart_functionals"
       relative: true
     source: path
-    version: "1.0.0"
+    version: "1.0.1"
   dart_style:
     dependency: transitive
     description:
@@ -940,6 +933,13 @@ packages:
     dependency: transitive
     description:
       path: "../net_kit"
+      relative: true
+    source: path
+    version: "1.0.0"
+  net_models:
+    dependency: "direct main"
+    description:
+      path: "../net_models"
       relative: true
     source: path
     version: "1.0.0"

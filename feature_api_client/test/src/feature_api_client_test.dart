@@ -1,8 +1,8 @@
-import 'package:net_models/net_models.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:feature_api_client/feature_api_client.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
+import 'package:net_models/net_models.dart';
 import 'package:test/test.dart';
 
 class _MockNetClient extends Mock implements NetClient {}
@@ -17,7 +17,7 @@ class _TestApiClient extends FeatureApiClient<String, int, String> {
 
   @override
   ApiResponse<String, int> decodeResponse(NetKitResponse response) {
-    return Success(
+    return SuccessResponse(
       data: response.statusCode,
       statusCode: response.statusCode,
       headers: response.headers,
@@ -59,13 +59,13 @@ void main() {
         requestCanceller: any(named: 'requestCanceller'),
         responseClassifier: any(named: 'responseClassifier'),
       ),
-    ).thenAnswer((_) async => Result.success(netKitResponse));
+    ).thenAnswer((_) async => Success(netKitResponse));
 
     final result = await sut.request('/test');
 
     expect(result.isRight, true);
     final apiResponse = result.rightOrThrow;
-    expect(apiResponse, isA<Success<int>>());
+    expect(apiResponse, isA<SuccessResponse<int>>());
     expect(apiResponse.statusCode, statusCode);
   });
 
@@ -82,7 +82,7 @@ void main() {
         requestCanceller: any(named: 'requestCanceller'),
         responseClassifier: any(named: 'responseClassifier'),
       ),
-    ).thenAnswer((_) async => Result.error(exception));
+    ).thenAnswer((_) async => Failure(exception));
 
     final result = await sut.request('/test');
 

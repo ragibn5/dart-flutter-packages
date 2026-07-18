@@ -4,10 +4,10 @@ import 'package:app_template/features/auth/data/clients/app_server_token_refresh
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/data/sources/remote_auth_data_source_impl.dart';
-import 'package:net_models/net_models.dart';
-import 'package:dart_functionals/dart_functionals.dart' hide Failure, Success;
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:net_models/net_models.dart';
 
 class _MockAppServerTokenRefreshApiClient extends Mock
     implements AppServerTokenRefreshApiClient {}
@@ -22,7 +22,7 @@ void main() {
     refreshTokenExpiry: DateTime.now(),
   );
   final clientResponse = Right(
-    Success(data: authDataDTO, statusCode: 200, headers: null),
+    SuccessResponse(data: authDataDTO, statusCode: 200, headers: null),
   );
 
   late _MockAppServerTokenRefreshApiClient mockApiClient;

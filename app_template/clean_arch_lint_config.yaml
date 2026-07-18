@@ -40,3 +40,4 @@ clean_arch_dependency_direction:
     - equatable
     - disposable
     - net_models
+    - dart_functionals

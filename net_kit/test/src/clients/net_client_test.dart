@@ -1,5 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars, avoid_redundant_argument_values, cascade_invocations
 
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:net_kit/src/clients/net_client_impl.dart';
@@ -91,7 +92,7 @@ void main() {
         onReceiveProgress: any(named: 'onReceiveProgress'),
         requestCanceller: any(named: 'requestCanceller'),
       ),
-    ).thenAnswer((_) async => Result.success(rawResponse));
+    ).thenAnswer((_) async => Success(rawResponse));
   });
 
   test('execute returns success when request and response succeed', () async {
@@ -106,11 +107,11 @@ void main() {
       result,
       isA<Result<NetKitException, NetKitResponse>>()
           .having((p) => p.isSuccess, 'isSuccess', true)
-          .having((p) => p.resultOrThrow, 'resultOrNull', isNotNull),
+          .having((p) => p.successOrThrow, 'successOrThrow', isNotNull),
     );
-    expect(result.resultOrThrow.isError, false);
-    expect(result.resultOrThrow.statusCode, 200);
-    expect(result.resultOrThrow.data, {'id': 1});
+    expect(result.successOrThrow.isError, false);
+    expect(result.successOrThrow.statusCode, 200);
+    expect(result.successOrThrow.data, {'id': 1});
   });
 
   test(
@@ -140,8 +141,8 @@ void main() {
       expect(
         result,
         isA<Result<NetKitException, NetKitResponse>>()
-            .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrThrow, 'errorOrNull', rejectError),
+            .having((p) => p.isFailure, 'isFailure', true)
+            .having((p) => p.failureOrThrow, 'failureOrThrow', rejectError),
       );
       verifyNever(
         () => mockRequestAdapter.performRequest(
@@ -169,7 +170,7 @@ void main() {
         result,
         isA<Result<NetKitException, NetKitResponse>>()
             .having((p) => p.isSuccess, 'isSuccess', true)
-            .having((p) => p.resultOrThrow.statusCode, 'statusCode', 200),
+            .having((p) => p.successOrThrow.statusCode, 'statusCode', 200),
       );
       verifyNever(() => mockRequestAdapter.performRequest(
             spec: any(named: 'spec'),
@@ -219,8 +220,8 @@ void main() {
       expect(
         result,
         isA<Result<NetKitException, NetKitResponse>>()
-            .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrThrow, 'errorOrNull', rejectError),
+            .having((p) => p.isFailure, 'isFailure', true)
+            .having((p) => p.failureOrThrow, 'failureOrThrow', rejectError),
       );
     },
   );
@@ -263,8 +264,8 @@ void main() {
         responseClassifier: mockResponseClassifier,
       );
 
-      expect(result.resultOrThrow.statusCode, 201);
-      expect(result.resultOrThrow.data, {'id': 2, 'created': true});
+      expect(result.successOrThrow.statusCode, 201);
+      expect(result.successOrThrow.data, {'id': 2, 'created': true});
     },
   );
 
@@ -275,7 +276,7 @@ void main() {
           onReceiveProgress: any(named: 'onReceiveProgress'),
           requestCanceller: any(named: 'requestCanceller'),
         )).thenAnswer(
-      (_) async => Result.error(netKitException),
+      (_) async => Failure(netKitException),
     );
 
     final result = await sut.execute(
@@ -286,8 +287,8 @@ void main() {
     expect(
       result,
       isA<Result<NetKitException, NetKitResponse>>()
-          .having((p) => p.isError, 'isError', true)
-          .having((p) => p.errorOrThrow, 'errorOrNull', netKitException),
+          .having((p) => p.isFailure, 'isFailure', true)
+          .having((p) => p.failureOrThrow, 'failureOrThrow', netKitException),
     );
   });
 
@@ -304,7 +305,7 @@ void main() {
             onReceiveProgress: any(named: 'onReceiveProgress'),
             requestCanceller: any(named: 'requestCanceller'),
           )).thenAnswer(
-        (_) async => Result.error(netKitException),
+        (_) async => Failure(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
           .thenAnswer((_) async => ShortErrorWithFinalError(rejectedError));
@@ -317,8 +318,8 @@ void main() {
       expect(
         result,
         isA<Result<NetKitException, NetKitResponse>>()
-            .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrThrow, 'errorOrNull', rejectedError),
+            .having((p) => p.isFailure, 'isFailure', true)
+            .having((p) => p.failureOrThrow, 'failureOrThrow', rejectedError),
       );
     },
   );
@@ -332,7 +333,7 @@ void main() {
             onReceiveProgress: any(named: 'onReceiveProgress'),
             requestCanceller: any(named: 'requestCanceller'),
           )).thenAnswer(
-        (_) async => Result.error(netKitException),
+        (_) async => Failure(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
           .thenAnswer((_) async => ShortErrorWithResponse(rawResponse));
@@ -363,7 +364,7 @@ void main() {
             onReceiveProgress: any(named: 'onReceiveProgress'),
             requestCanceller: any(named: 'requestCanceller'),
           )).thenAnswer(
-        (_) async => Result.error(netKitException),
+        (_) async => Failure(netKitException),
       );
       when(() => mockInterceptor.onError(any()))
           .thenAnswer((_) async => ContinueWithError(modifiedError));
@@ -376,8 +377,8 @@ void main() {
       expect(
         result,
         isA<Result<NetKitException, NetKitResponse>>()
-            .having((p) => p.isError, 'isError', true)
-            .having((p) => p.errorOrThrow, 'errorOrNull', modifiedError),
+            .having((p) => p.isFailure, 'isFailure', true)
+            .having((p) => p.failureOrThrow, 'failureOrThrow', modifiedError),
       );
     },
   );
@@ -390,7 +391,7 @@ void main() {
       responseClassifier: mockResponseClassifier,
     );
 
-    expect(result.resultOrThrow.isError, true);
+    expect(result.successOrThrow.isError, true);
     verify(() => mockResponseClassifier.isError(rawResponse))
         .called(greaterThan(0));
   });
@@ -430,13 +431,13 @@ void main() {
           onReceiveProgress: any(named: 'onReceiveProgress'),
           requestCanceller: any(named: 'requestCanceller'),
         )).thenAnswer(
-      (_) async => Result.success(errorResponse),
+      (_) async => Success(errorResponse),
     );
 
     final result = await sut.execute(spec: spec);
 
-    expect(result.resultOrThrow.isError, true);
-    expect(result.resultOrThrow.statusCode, 404);
+    expect(result.successOrThrow.isError, true);
+    expect(result.successOrThrow.statusCode, 404);
   });
 
   test('close calls requestAdapter.close', () {
@@ -474,7 +475,7 @@ void main() {
         onReceiveProgress: any(named: 'onReceiveProgress'),
         requestCanceller: any(named: 'requestCanceller'),
       ),
-    ).thenAnswer((_) async => Result.success(rawResponse));
+    ).thenAnswer((_) async => Success(rawResponse));
 
     await sut.execute(spec: spec, responseClassifier: mockResponseClassifier);
 
@@ -492,7 +493,7 @@ void main() {
         onReceiveProgress: any(named: 'onReceiveProgress'),
         requestCanceller: any(named: 'requestCanceller'),
       ),
-    ).thenAnswer((_) async => Result.success(rawResponse));
+    ).thenAnswer((_) async => Success(rawResponse));
 
     await sut.execute(spec: spec, responseClassifier: mockResponseClassifier);
 

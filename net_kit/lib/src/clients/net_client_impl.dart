@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:net_kit/src/services/adapters/network_request_adapter.dart';
@@ -38,9 +39,9 @@ class NetClientImpl implements NetClient {
       case ContinueWithRequest(:final request):
         composedSpec = request;
       case ShortRequestWithError(:final error):
-        return Result.error(error);
+        return Failure(error);
       case ShortRequestWithResponse(:final response):
-        return Result.success(_buildResult(response, responseClassifier));
+        return Success(_buildResult(response, responseClassifier));
     }
 
     final result = await _requestAdapter.performRequest(
@@ -51,7 +52,7 @@ class NetClientImpl implements NetClient {
     );
     return result.fold(
       onSuccess: (r) => _processResponse(r, responseClassifier),
-      onError: (e) => _processError(e, composedSpec, responseClassifier),
+      onFailure: (e) => _processError(e, composedSpec, responseClassifier),
     );
   }
 
@@ -89,13 +90,13 @@ class NetClientImpl implements NetClient {
         case ContinueWithResponse(:final response):
           ctx = response;
         case ShortResponseWithError(:final error):
-          return Result.error(error);
+          return Failure(error);
         case ShortResponseWithFinalResponse(:final response):
-          return Result.success(_buildResult(response, responseClassifier));
+          return Success(_buildResult(response, responseClassifier));
       }
     }
 
-    return Result.success(_buildResult(ctx, responseClassifier));
+    return Success(_buildResult(ctx, responseClassifier));
   }
 
   Future<ApiCallResult> _processError(
@@ -111,13 +112,13 @@ class NetClientImpl implements NetClient {
         case ContinueWithError(:final error):
           currentError = error;
         case ShortErrorWithFinalError(:final error):
-          return Result.error(error);
+          return Failure(error);
         case ShortErrorWithResponse(:final response):
-          return Result.success(_buildResult(response, responseClassifier));
+          return Success(_buildResult(response, responseClassifier));
       }
     }
 
-    return Result.error(currentError);
+    return Failure(currentError);
   }
 
   NetKitResponse _buildResult(

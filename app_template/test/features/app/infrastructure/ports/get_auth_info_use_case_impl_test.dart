@@ -41,8 +41,8 @@ void main() {
 
     expect(result, isA<AuthInfo>());
     expect(result!.accessToken, authData.accessToken);
-    expect(result!.refreshToken, authData.refreshToken);
-    expect(result!.accessTokenExpiry, authData.accessTokenExpiry);
-    expect(result!.refreshTokenExpiry, authData.refreshTokenExpiry);
+    expect(result.refreshToken, authData.refreshToken);
+    expect(result.accessTokenExpiry, authData.accessTokenExpiry);
+    expect(result.refreshTokenExpiry, authData.refreshTokenExpiry);
   });
 }

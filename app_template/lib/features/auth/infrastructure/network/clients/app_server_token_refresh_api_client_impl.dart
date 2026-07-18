@@ -1,9 +1,9 @@
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
-import 'package:net_models/net_models.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
+import 'package:net_models/net_models.dart';
 import 'package:shared_models/shared_models.dart';
 
 class AppServerTokenRefreshApiClientImpl
@@ -27,14 +27,14 @@ class AppServerTokenRefreshApiClientImpl
     NetKitResponse response,
   ) {
     if (response.isError) {
-      return Failure(
+      return FailureResponse(
         error: ServerMessage.fromJson(response.data! as Map<String, dynamic>),
         statusCode: response.statusCode,
         headers: response.headers,
       );
     }
 
-    return Success(
+    return SuccessResponse(
       data: AuthDataDTO.fromJson(response.data! as Map<String, dynamic>),
       statusCode: response.statusCode,
       headers: response.headers,
