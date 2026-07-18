@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:dlogger/src/constants/log_level.dart';
 import 'package:dlogger/src/loggers/file_logger.dart';
 import 'package:dlogger/src/models/log_data.dart';
-import 'package:dlogger/src/models/result.dart';
 import 'package:dlogger/src/services/file_writer.dart';
 import 'package:dlogger/src/services/log_formatter.dart';
 import 'package:mocktail/mocktail.dart';
@@ -62,7 +62,7 @@ void main() {
     when(() => mockFormatter.format(any())).thenReturn(formattedMessage);
     when(() =>
             mockWriter.writeSync(any(), any(), mode: any(named: modeParamKey)))
-        .thenReturn(Result.success(null));
+        .thenReturn(Success(null));
   });
 
   tearDown(() {
@@ -188,7 +188,7 @@ void main() {
       sleep(Duration(milliseconds: count - index));
 
       // print('Logged: $message');
-      return Result.success(null);
+      return Success(null);
     });
 
     // Log all messages

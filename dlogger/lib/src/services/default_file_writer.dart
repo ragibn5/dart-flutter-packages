@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
-import 'package:dlogger/src/models/result.dart';
+import 'package:dart_functionals/dart_functionals.dart';
 import 'package:dlogger/src/services/file_writer.dart';
 
 /// Default implementation of [FileWriter].
@@ -13,7 +12,7 @@ class DefaultFileWriter implements FileWriter {
   const DefaultFileWriter(this.separator);
 
   @override
-  Result<void> writeSync(
+  Result<(Object, StackTrace), void> writeSync(
     File file,
     String content, {
     FileMode mode = FileMode.write,
@@ -33,9 +32,9 @@ class DefaultFileWriter implements FileWriter {
         flush: flush,
       );
 
-      return Result.success(null);
+      return Success(null);
     } catch (e, st) {
-      return Result.exception(e, st);
+      return Failure((e, st));
     }
   }
 }

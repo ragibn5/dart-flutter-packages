@@ -46,7 +46,7 @@ void main() {
 
     result.fold(
       onSuccess: (_) => fail('Expected exception, got success'),
-      onException: (e, st) => null,
+      onFailure: (_) => null,
     );
   });
 
@@ -109,6 +109,6 @@ void main() {
     );
 
     expect(result.isSuccess, true);
-    expect(result.isException, false);
+    expect(result.isFailure, false);
   });
 }

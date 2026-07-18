@@ -28,7 +28,7 @@ dependencies:
 
 ### 1. Use the built-in loggers
 
-If you do not need a custom implementations yet, start with the built-ins:
+If you do not need a custom implementation yet, start with the built-ins:
 
 - `ConsoleLogger` prints logs to the console.
 - `FileLogger` appends logs to a file.
@@ -85,7 +85,7 @@ Use `dispose()` when you are done with a `FileLogger`, since it manages an inter
 
 Both of these contain an optional param called `LogFormatter` that controls how the log data is
 formatted before being printed or written to a file. If not provided, it uses a default formatter
-which you can obtain via `DefaultLogFormatter()`.
+which you can get via `DefaultLogFormatter()`.
 
 ### 2. Create a custom logger implementation
 
@@ -129,7 +129,7 @@ a custom logger for tests or diagnostics.
 Filters are applied by `CompositeLogger` before a child logger receives a log.
 
 The built-in `PolicyBasedLogFilter` reads its rules from a `LogPolicyController`. The default
-implementation, `DefaultLogPolicyController`, lets you block logs by tag, log level, logger ID etc.
+implementation, `DefaultLogPolicyController`, lets you block logs by tag, log level, logger ID, etc.
 
 ```dart
 void main() {
@@ -167,7 +167,7 @@ void main() {
 }
 ```
 
-You may add multiple filters which are applied in the order they are provided, and can also be used
+You may add multiple filters which are applied in the order they are provided and can also be used
 as interceptors.
 
 ### 5. What to use first

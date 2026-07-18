@@ -34,6 +34,7 @@ class FileLogger implements Logger {
 
   /// {@template field_stream_controller}
   /// A stream controller to listen to the log stream.
+  /// {@endtemplate}
   final StreamController<LogData> _streamController;
 
   /// Create an instance of [FileLogger] with an optional formatter and a
@@ -91,8 +92,11 @@ class FileLogger implements Logger {
       _fileWriter
           .writeSync(file, _formatter.format(data), mode: FileMode.append)
           .fold(
-            onSuccess: (_) {},
-            onException: (e, st) => print('Error writing to file: $e\n$st'),
+            onSuccess: (_) {
+              // no-op
+            },
+            onFailure: (es) =>
+                print('Error writing to file: ${es.$1}\n${es.$2}'),
           );
     });
   }
