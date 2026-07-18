@@ -1,4 +1,4 @@
-import 'package:string_extensions/src/constants.dart';
+import 'package:extended_string/src/constants.dart';
 
 extension NonNullStringExtension on String {
   /// Determines whether this string is empty (length = 0),

@@ -1,4 +1,4 @@
-import 'package:string_extensions/src/non_nullable_string_extensions.dart';
+import 'package:extended_string/src/non_nullable_string_extensions.dart';
 
 extension NullableStringExtension on String? {
   /// Determines if this string is null, empty, or contains only whitespace.

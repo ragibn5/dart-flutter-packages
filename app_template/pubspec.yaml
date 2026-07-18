@@ -55,6 +55,7 @@ dependencies:
   flutter_native_splash: ^2.4.7
 
   # In-house published packages
+  extended_string: ^1.0.0
   dart_functionals: ^1.0.1
   alerty: ^1.0.0
 
@@ -79,8 +80,6 @@ dependencies:
     path: ../data_domain_converters
   json_converters:
     path: ../json_converters
-  string_extensions:
-    path: ../string_extensions
   datetime_utils:
     path: ../datetime_utils
   preference_store:

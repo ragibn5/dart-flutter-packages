@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_init_to_null
 // ignore_for_file: prefer_final_locals
 
-import 'package:string_extensions/string_extensions.dart';
+import 'package:extended_string/extended_string.dart';
 
 void main() {
   // Demonstrate NonNullStringExtension
