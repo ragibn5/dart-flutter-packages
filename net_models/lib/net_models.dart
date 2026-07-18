@@ -1,4 +1,4 @@
-/// Shared core models.
+/// Networking models for typed API error/response handling.
 library;
 
 export 'src/enums/transport_error_type.dart';

@@ -3,7 +3,7 @@ import 'package:app_template/features/app/infrastructure/ports/get_refreshed_aut
 import 'package:app_template/features/auth/application/use_cases/refresh_auth_data_use_case.dart';
 import 'package:app_template/features/auth/domain/models/auth_data.dart';
 import 'package:app_template/features/auth/domain/models/auth_data_refresh_error.dart';
-import 'package:core_models/core_models.dart';
+import 'package:net_models/net_models.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

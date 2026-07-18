@@ -265,8 +265,8 @@ Here is a list of each component referenced in the data flow. Use them throughou
 | Component                         | Location / Package                                                                                                         |
 |-----------------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | `Either<L, R>`                    | [`package:dart_functionals/dart_functionals.dart`][dart_functionals] — custom sealed class (`Left`, `Right`)                |
-| `ApiError`                        | [`package:core_models/core_models.dart`][core_models] — subtypes: `TransportError`, `CancellationError`, `UnexpectedError` |
-| `ApiResponse<Err, Res>`           | [`package:core_models/core_models.dart`][core_models] — subtypes: `Success<Res>`, `Failure<Err>`                           |
+| `ApiError`                        | [`package:net_models/net_models.dart`][net_models] — subtypes: `TransportError`, `CancellationError`, `UnexpectedError` |
+| `ApiResponse<Err, Res>`           | [`package:net_models/net_models.dart`][net_models] — subtypes: `Success<Res>`, `Failure<Err>`                           |
 | `FeatureApiClient<Req, Res, Err>` | [`package:feature_api_client/feature_api_client.dart`][feature_api_client] — base class for per-endpoint API clients       |
 | `NetClient` / `NetKitInterceptor` | [`package:net_kit/net_kit.dart`][net_kit] — HTTP client and interceptor interfaces, raw request/response models            |
 
@@ -388,7 +388,7 @@ Analyzer configuration is based on `very_good_analysis` and `bloc_lint`. See [`a
 
 [clean-arch]: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
 
-[core_models]: ../core_models/lib/core_models.dart
+[net_models]: ../net_models/lib/net_models.dart
 
 [dart_functionals]: ../dart_functionals/lib/dart_functionals.dart
 

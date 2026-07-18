@@ -1,4 +1,4 @@
-import 'package:core_models/core_models.dart';
+import 'package:net_models/net_models.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:feature_api_client/src/services/net_kit_exception_transformer.dart';
 import 'package:feature_api_client/src/services/net_kit_request_builder.dart';

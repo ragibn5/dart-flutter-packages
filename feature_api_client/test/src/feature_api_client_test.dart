@@ -1,4 +1,4 @@
-import 'package:core_models/core_models.dart';
+import 'package:net_models/net_models.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:feature_api_client/feature_api_client.dart';
 import 'package:mocktail/mocktail.dart';

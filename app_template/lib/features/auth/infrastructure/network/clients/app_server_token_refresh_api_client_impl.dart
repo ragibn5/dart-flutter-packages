@@ -1,7 +1,7 @@
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
-import 'package:core_models/core_models.dart';
+import 'package:net_models/net_models.dart';
 import 'package:meta/meta.dart';
 import 'package:net_kit/net_kit.dart';
 import 'package:shared_models/shared_models.dart';

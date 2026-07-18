@@ -1,10 +1,10 @@
-import 'package:core_models/core_models.dart';
+import 'package:net_models/net_models.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('Success', () {
     test('Should store data, statusCode, and headers', () {
-      final success = Success(data: 42, statusCode: 200, headers: {
+      final success = SuccessResponse(data: 42, statusCode: 200, headers: {
         'x-test': ['v']
       });
       expect(success.data, 42);
@@ -17,7 +17,7 @@ void main() {
 
   group('Failure', () {
     test('Should store error, statusCode, and headers', () {
-      final failure = Failure(
+      final failure = FailureResponse(
         error: 'err',
         statusCode: 400,
         headers: {
@@ -34,7 +34,7 @@ void main() {
 
   group('ApiResponse', () {
     test('Should call onFailure for Failure', () {
-      final failure = Failure(
+      final failure = FailureResponse(
         error: 404,
         statusCode: 404,
         headers: {
@@ -49,7 +49,7 @@ void main() {
     });
 
     test('Should call onSuccess for Success', () {
-      final success = Success(
+      final success = SuccessResponse(
         data: 'hello',
         statusCode: 200,
         headers: {

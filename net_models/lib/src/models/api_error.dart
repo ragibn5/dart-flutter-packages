@@ -1,4 +1,4 @@
-import 'package:core_models/src/enums/transport_error_type.dart';
+import 'package:net_models/src/enums/transport_error_type.dart';
 
 sealed class ApiError {
   const ApiError();

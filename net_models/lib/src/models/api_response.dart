@@ -12,10 +12,10 @@ sealed class ApiResponse<Err, Res> {
   }) {
     final self = this;
     return switch (self) {
-      Failure<Err>() => onFailure(self.error),
-      Success<Res>() => onSuccess(self.data),
+      FailureResponse<Err>() => onFailure(self.error),
+      SuccessResponse<Res>() => onSuccess(self.data),
       _ => throw StateError(
-          'Invalid state: should have been either $Failure, or $Success',
+          'Invalid state: should have been either $FailureResponse, or $SuccessResponse',
         ),
     };
   }
@@ -24,20 +24,20 @@ sealed class ApiResponse<Err, Res> {
       fold(onFailure: Left.new, onSuccess: Right.new);
 }
 
-final class Success<Res> extends ApiResponse<Never, Res> {
+final class SuccessResponse<Res> extends ApiResponse<Never, Res> {
   final Res data;
 
-  Success({
+  SuccessResponse({
     required this.data,
     required super.statusCode,
     required super.headers,
   });
 }
 
-final class Failure<Err> extends ApiResponse<Err, Never> {
+final class FailureResponse<Err> extends ApiResponse<Err, Never> {
   final Err error;
 
-  Failure({
+  FailureResponse({
     required this.error,
     required super.statusCode,
     required super.headers,

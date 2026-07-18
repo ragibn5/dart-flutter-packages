@@ -16,8 +16,8 @@ environment:
 dependencies:
   meta: ^1.12.0
   equatable: ^2.0.8
-  core_models:
-    path: ../core_models
+  net_models:
+    path: ../net_models
   dart_functionals:
     path: ../dart_functionals
   net_kit:

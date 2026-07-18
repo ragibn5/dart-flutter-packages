@@ -22,7 +22,7 @@ the base layer and are intended to be reusable across all projects.
 - [`disposable`](disposable)
 - [`initializable`](initializable)
 - [`data_domain_converters`](data_domain_converters)
-- [`core_models`](core_models)
+- [`net_models`](net_models)
 - [`generator_core`](generator_core)
 - [`analysis_server_core`](analysis_server_core)
 - [`analysis_plugin_test_helper`](analysis_plugin_test_helper)

@@ -1,6 +1,6 @@
-# core_models
+# net_models
 
-Shared core models.
+Networking models for typed API error/response handling.
 
 ## Installation
 
@@ -11,7 +11,7 @@ Add this to your `pubspec.yaml`
 ```yaml
 dependencies:
   dart_functionals: ^1.0.0
-  core_models: ^1.0.0
+  net_models: ^1.0.0
 ```
 
 #### Or, From Git repo
@@ -23,11 +23,11 @@ dependencies:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: dart_functionals
       ref: dart_functionals-1.0.0
-  core_models:
+  net_models:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: core_models
-      ref: core_models-1.0.0
+      path: net_models
+      ref: net_models-1.0.0
 ```
 
 > **Note:** The `dart_functionals` package is required.

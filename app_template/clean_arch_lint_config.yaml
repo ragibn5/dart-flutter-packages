@@ -39,4 +39,4 @@ clean_arch_dependency_direction:
   excluded_library_packages:
     - equatable
     - disposable
-    - core_models
+    - net_models
