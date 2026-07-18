@@ -81,6 +81,8 @@ void main() {
 
 Use `dispose()` when you are done with a `FileLogger`, since it manages an internal stream.
 
+> `FileLogger` processes logs sequentially in the order they are received — no manual synchronization needed.
+
 #### Tips
 
 Both of these contain an optional param called `LogFormatter` that controls how the log data is
@@ -140,7 +142,7 @@ void main() {
   final logger = CompositeLogger(
     {
       'primary': ConsoleLogger(),
-      'secondary': const MinimumLogger('secondary'),
+      'secondary': CustomLogger(),
     },
     [
       PolicyBasedLogFilter(controller),
@@ -164,7 +166,7 @@ void main() {
       message: 'This is blocked for every logger',
     ),
   );
-}
+}A
 ```
 
 You may add multiple filters which are applied in the order they are provided and can also be used
