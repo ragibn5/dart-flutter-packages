@@ -48,7 +48,6 @@ linter:
   # producing the lint.
   rules:
     avoid_print: false
-    document_ignores: false
     unnecessary_breaks: false
     flutter_style_todos: false
     one_member_abstracts: false

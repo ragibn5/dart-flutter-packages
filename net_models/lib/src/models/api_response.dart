@@ -15,7 +15,8 @@ sealed class ApiResponse<Err, Res> {
       FailureResponse<Err>() => onFailure(self.error),
       SuccessResponse<Res>() => onSuccess(self.data),
       _ => throw StateError(
-          'Invalid state: should have been either $FailureResponse, or $SuccessResponse',
+          'Invalid state: '
+          'should have been either $FailureResponse, or $SuccessResponse',
         ),
     };
   }
