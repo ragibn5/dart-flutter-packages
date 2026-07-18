@@ -13,7 +13,7 @@ Foundational utilities and infrastructure packages with minimal dependencies. Th
 the base layer and are intended to be reusable across all projects.
 
 - [`dart_functionals`](dart_functionals)
-- [`string_extensions`](string_extensions)
+- [`extended_string`](extended_string)
 - [`collection_utils`](collection_utils)
 - [`datetime_utils`](datetime_utils)
 - [`color_utils`](color_utils)

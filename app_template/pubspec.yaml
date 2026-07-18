@@ -79,8 +79,8 @@ dependencies:
     path: ../data_domain_converters
   json_converters:
     path: ../json_converters
-  string_extensions:
-    path: ../string_extensions
+  extended_string:
+    path: ../extended_string
   datetime_utils:
     path: ../datetime_utils
   preference_store:
