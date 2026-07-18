@@ -54,6 +54,9 @@ dependencies:
   flutter_screenutil: ^5.9.3
   flutter_native_splash: ^2.4.7
 
+  # In-house published packages
+  dart_functionals: ^1.0.1
+
   # App-private packages
   enum_parser:
     path: packages/enum_parser
@@ -62,15 +65,13 @@ dependencies:
   app_logger:
     path: packages/app_logger
 
-  # In-house packages
+  # In-house packages (path-based dependency)
   initializable:
     path: ../initializable
   disposable:
     path: ../disposable
   net_models:
     path: ../net_models
-  dart_functionals:
-    path: ../dart_functionals
   mutex:
     path: ../mutex
   data_domain_converters:

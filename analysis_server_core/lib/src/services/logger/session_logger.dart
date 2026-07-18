@@ -1,4 +1,4 @@
-import 'package:dlogger/dlogger.dart';
+import 'package:loghub/loghub.dart';
 import 'package:meta/meta.dart';
 
 enum SessionLogLevel { INFO, WARNING, ERROR }

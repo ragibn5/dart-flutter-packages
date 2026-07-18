@@ -56,7 +56,7 @@ import 'package:app_template/features/auth/infrastructure/network/clients/app_se
 import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
 import 'package:crashlytics/crashlytics.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
-import 'package:dlogger/dlogger.dart' hide Logger;
+import 'package:loghub/loghub.dart' hide Logger;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
