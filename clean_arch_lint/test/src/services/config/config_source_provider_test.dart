@@ -1,4 +1,4 @@
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_lint/src/services/config/config_source_provider.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;

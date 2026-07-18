@@ -1,4 +1,4 @@
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:json_parser_analyzer/src/plugins/json_parser_analyzer_plugin.dart';
 import 'package:json_parser_analyzer/src/services/config/json_parser_analyzer_config_loader.dart';
 

@@ -1,7 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars, avoid_positional_boolean_parameters
 
 import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:analyzer/dart/ast/token.dart';
 import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart';
 import 'package:json_parser_analyzer/src/rules/json_parser_requirement_rule/to_json_method_visitor.dart';

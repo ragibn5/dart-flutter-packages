@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:analysis_server_core/analysis_server_core.dart';
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:path/path.dart' as path;
 
 abstract interface class ConfigSourceProvider {
