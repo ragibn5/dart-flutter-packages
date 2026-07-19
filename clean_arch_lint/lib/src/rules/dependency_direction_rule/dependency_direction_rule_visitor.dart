@@ -80,7 +80,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     );
 
     if (importUri == null) {
-      sessionContext.logger.logWarning(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message:
             'Ignoring import (invalid/unsupported): ${node.uri.stringValue}',
@@ -108,7 +108,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
 
   void _checkDartCoreImport(ImportDirective node, ImportUri importUri) {
     if (sessionContext.config.ddrConfig.excludeCoreDartPackages) {
-      sessionContext.logger.logWarning(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Ignoring import (dart SDK): $importUri',
       );
@@ -131,7 +131,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     if (importUri.path.startsWith(
       domainUnitContext.domainDirPath.ensureTrailingPathSeparator,
     )) {
-      sessionContext.logger.logWarning(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Ignoring import (same domain): $importUri',
       );
@@ -143,7 +143,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     if (sessionContext.config.ddrConfig.excludedProjectPaths
         .map((p) => p.ensureTrailingPathSeparator)
         .any(importUri.path.startsWith)) {
-      sessionContext.logger.logWarning(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Ignoring import (excluded project path): $importUri',
       );
@@ -162,7 +162,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
         sessionContext.config.ddrConfig.excludedLibraryPackages.any(
           importedPackage.startsWith,
         )) {
-      sessionContext.logger.logWarning(
+      sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Ignoring import (excluded package): $importUri',
       );

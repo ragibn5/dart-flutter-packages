@@ -53,6 +53,15 @@ void main() {
     });
   }
 
+  void verifyInfoLoggedOnce() {
+    verify(
+      () => mockRuleSessionContext.logger.logInfo(
+        tag: any(named: 'tag'),
+        message: any(named: 'message'),
+      ),
+    ).called(1);
+  }
+
   void verifyWarningLoggedOnce() {
     verify(
       () => mockRuleSessionContext.logger.logWarning(
@@ -110,6 +119,12 @@ void main() {
     when(() => mockDDRConfig.excludedProjectPaths).thenReturn([]);
 
     when(
+      () => mockSessionLogger.logInfo(
+        tag: any(named: 'tag'),
+        message: any(named: 'message'),
+      ),
+    ).thenAnswer((_) {});
+    when(
       () => mockSessionLogger.logWarning(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
@@ -136,7 +151,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyWarningLoggedOnce();
+      verifyInfoLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -153,7 +168,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyWarningLoggedOnce();
+      verifyInfoLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -197,7 +212,7 @@ void main() {
         domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
-      verifyWarningLoggedOnce();
+      verifyInfoLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -224,10 +239,7 @@ void main() {
 
       verifyNodeReportedOnce(
         directive,
-        message:
-            'not within the same domain, or within the excluded paths.\n'
-            'Expected domain: lib/feature/auth/domain/\n'
-            'Imported path: lib/feature/auth/other/domain/models/other_data.dart\n',
+        message: 'not within the same domain.',
       );
     },
   );
@@ -253,7 +265,7 @@ void main() {
         mockImportUriBuilder,
       )..visitImportDirective(directive);
 
-      verifyWarningLoggedOnce();
+      verifyInfoLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -275,10 +287,7 @@ void main() {
 
       verifyNodeReportedOnce(
         directive,
-        message:
-            'not within the same domain, or within the excluded paths.\n'
-            'Expected domain: lib/features/x/domain/\n'
-            'Imported path: lib/features/x/data/sources/local_auth_data_source.dart\n',
+        message: 'not within the same domain.',
       );
     },
   );
@@ -304,7 +313,7 @@ void main() {
         domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
-      verifyWarningLoggedOnce();
+      verifyInfoLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -332,10 +341,7 @@ void main() {
 
       verifyNodeReportedOnce(
         directive,
-        message:
-            'not within the same domain, or within the excluded paths.\n'
-            'Expected domain: lib/feature/auth/domain/\n'
-            'Imported path: lib/feature/other/domain/models/other_data.dart\n',
+        message: 'not within the same domain.',
       );
     },
   );
@@ -356,7 +362,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyWarningLoggedOnce();
+      verifyInfoLoggedOnce();
       verifyNodeNeverReported();
     },
   );
@@ -376,7 +382,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyWarningLoggedOnce();
+      verifyInfoLoggedOnce();
       verifyNodeNeverReported();
     },
   );
