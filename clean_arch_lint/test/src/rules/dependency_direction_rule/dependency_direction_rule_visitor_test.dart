@@ -5,6 +5,7 @@ import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
+import 'package:clean_arch_lint/src/models/domain_unit_context.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
 import 'package:clean_arch_lint/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:mocktail/mocktail.dart';
@@ -28,6 +29,15 @@ class _MockSessionLogger extends Mock implements SessionLogger {}
 class _MockImportUriBuilder extends Mock implements ImportUriBuilder {}
 
 void main() {
+  const defaultContext = DomainUnitContext(
+    'lib/features/x/domain/a.dart',
+    'lib/features/x/domain/',
+  );
+  const authDomainContext = DomainUnitContext(
+    'lib/feature/auth/domain/services/src.dart',
+    'lib/feature/auth/domain/',
+  );
+
   final dartResolver = DartUnitResolver();
   final realImportUriBuilder = ImportUriBuilder();
 
@@ -56,15 +66,6 @@ void main() {
   void verifyInfoLoggedOnce() {
     verify(
       () => mockRuleSessionContext.logger.logInfo(
-        tag: any(named: 'tag'),
-        message: any(named: 'message'),
-      ),
-    ).called(1);
-  }
-
-  void verifyWarningLoggedOnce() {
-    verify(
-      () => mockRuleSessionContext.logger.logWarning(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
@@ -108,6 +109,7 @@ void main() {
 
     sut = DependencyDirectionRuleVisitor.test(
       mockAnalysisRule,
+      defaultContext,
       mockRuleSessionContext,
       mockImportUriBuilder,
     );
@@ -120,12 +122,6 @@ void main() {
 
     when(
       () => mockSessionLogger.logInfo(
-        tag: any(named: 'tag'),
-        message: any(named: 'message'),
-      ),
-    ).thenAnswer((_) {});
-    when(
-      () => mockSessionLogger.logWarning(
         tag: any(named: 'tag'),
         message: any(named: 'message'),
       ),
@@ -206,10 +202,9 @@ void main() {
 
       sut = DependencyDirectionRuleVisitor.test(
         mockAnalysisRule,
+        authDomainContext,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        unitPath: 'lib/feature/auth/domain/services/src.dart',
-        domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
       verifyInfoLoggedOnce();
@@ -231,16 +226,12 @@ void main() {
 
       sut = DependencyDirectionRuleVisitor.test(
         mockAnalysisRule,
+        authDomainContext,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        unitPath: 'lib/feature/auth/domain/services/src.dart',
-        domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
-      verifyNodeReportedOnce(
-        directive,
-        message: 'not within the same domain.',
-      );
+      verifyNodeReportedOnce(directive, message: 'not within the same domain.');
     },
   );
 
@@ -261,6 +252,7 @@ void main() {
 
       sut = DependencyDirectionRuleVisitor.test(
         mockAnalysisRule,
+        defaultContext,
         mockRuleSessionContext,
         mockImportUriBuilder,
       )..visitImportDirective(directive);
@@ -285,10 +277,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyNodeReportedOnce(
-        directive,
-        message: 'not within the same domain.',
-      );
+      verifyNodeReportedOnce(directive, message: 'not within the same domain.');
     },
   );
 
@@ -307,10 +296,9 @@ void main() {
 
       sut = DependencyDirectionRuleVisitor.test(
         mockAnalysisRule,
+        authDomainContext,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        unitPath: 'lib/feature/auth/domain/services/src.dart',
-        domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
       verifyInfoLoggedOnce();
@@ -333,16 +321,12 @@ void main() {
 
       sut = DependencyDirectionRuleVisitor.test(
         mockAnalysisRule,
+        authDomainContext,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        unitPath: 'lib/feature/auth/domain/services/src.dart',
-        domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
-      verifyNodeReportedOnce(
-        directive,
-        message: 'not within the same domain.',
-      );
+      verifyNodeReportedOnce(directive, message: 'not within the same domain.');
     },
   );
 

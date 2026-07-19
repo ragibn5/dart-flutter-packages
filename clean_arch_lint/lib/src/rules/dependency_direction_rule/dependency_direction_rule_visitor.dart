@@ -47,23 +47,17 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
 
   DependencyDirectionRuleVisitor(
     AnalysisRule rule,
+    DomainUnitContext domainUnitContext,
     RuleSessionContext<CleanArchLintConfig> sessionContext,
-    DomainUnitContext domainUnit,
-  ) : this._(rule, domainUnit, sessionContext, ImportUriBuilder());
+  ) : this._(rule, domainUnitContext, sessionContext, ImportUriBuilder());
 
   @visibleForTesting
   DependencyDirectionRuleVisitor.test(
     AnalysisRule rule,
+    DomainUnitContext domainUnitContext,
     RuleSessionContext<CleanArchLintConfig> sessionContext,
-    ImportUriBuilder importUriBuilder, {
-    String unitPath = 'lib/features/x/domain/a.dart',
-    String domainDirPath = 'lib/features/x/domain/',
-  }) : this._(
-         rule,
-         DomainUnitContext(unitPath, domainDirPath),
-         sessionContext,
-         importUriBuilder,
-       );
+    ImportUriBuilder importUriBuilder,
+  ) : this._(rule, domainUnitContext, sessionContext, importUriBuilder);
 
   DependencyDirectionRuleVisitor._(
     this.rule,
@@ -150,10 +144,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
       return;
     }
 
-    rule.reportAtNode(
-      node,
-      arguments: ['not within the same domain.'],
-    );
+    rule.reportAtNode(node, arguments: ['not within the same domain.']);
   }
 
   void _checkLibraryPackageImport(ImportDirective node, ImportUri importUri) {

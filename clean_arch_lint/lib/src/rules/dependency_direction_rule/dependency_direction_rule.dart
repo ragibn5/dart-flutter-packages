@@ -62,8 +62,8 @@ class DependencyDirectionRule
       this,
       DependencyDirectionRuleVisitor(
         this,
-        sessionContext,
         DomainUnitContext(pkgRelativeUnitPath, domainDirPath),
+        sessionContext,
       ),
     );
   }
