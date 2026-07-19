@@ -150,13 +150,10 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
       return;
     }
 
-    final expected = domainUnitContext.domainDirPath;
-    final imported = importUri.path;
-    final message =
-        'not within the same domain, or within the excluded paths.\n'
-        'Expected domain: $expected\n'
-        'Imported path: $imported\n';
-    rule.reportAtNode(node, arguments: [message]);
+    rule.reportAtNode(
+      node,
+      arguments: ['not within the same domain.'],
+    );
   }
 
   void _checkLibraryPackageImport(ImportDirective node, ImportUri importUri) {

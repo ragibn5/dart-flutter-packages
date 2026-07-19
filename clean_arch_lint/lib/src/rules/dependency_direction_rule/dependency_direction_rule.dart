@@ -9,11 +9,7 @@ class DependencyDirectionRule
     'clean_arch_dependency_direction',
     'Inappropriate dependency in domain component: {0}',
     correctionMessage: '''
-    Domain components should be as self-sufficient as possible.
-  
-    If you need to use an external dependency anyway (which should be
-    approved by tech leads), you can allow it through the configuration
-    file. Please refer to the documentation for more details.
+    Domain components should be as self-sufficient as possible. If you need to use an external dependency anyway, you can allow it through the configuration file. Please refer to the documentation for more details.
     ''',
     severity: DiagnosticSeverity.WARNING,
   );

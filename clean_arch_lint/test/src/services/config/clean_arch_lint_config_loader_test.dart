@@ -9,7 +9,6 @@ import 'package:clean_arch_lint/src/models/default_config_options.dart';
 import 'package:clean_arch_lint/src/services/config/clean_arch_lint_config_loader.dart';
 import 'package:clean_arch_lint/src/services/config/config_source_provider.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -302,12 +301,12 @@ void main() {
             .having(
               (p) => p.logConfig.logDirectoryRelativePathFromProjectRoot,
               'logConfig.logDirectoryRelativePathFromProjectRoot',
-              path.join('analysis_logs', 'analysis_plugins', 'clean_arch_lint'),
+              'analysis_logs/analysis_plugins/clean_arch_lint/',
             )
             .having(
               (p) => p.ddrConfig.excludedProjectPaths,
               'ddrConfig.excludedProjectPaths',
-              ['core${path.separator}', 'shard${path.separator}'],
+              ['core/', 'shard/'],
             ),
       );
     },

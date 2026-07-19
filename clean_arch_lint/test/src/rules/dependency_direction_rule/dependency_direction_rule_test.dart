@@ -1,6 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
+import 'package:analyzer/file_system/file_system.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/ddr_config.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule.dart';
@@ -32,9 +33,15 @@ class _MockDependencyDirectionRuleConfig extends Mock
 
 class _MockSessionLogger extends Mock implements SessionLogger {}
 
+class _MockWorkspacePackage extends Mock implements WorkspacePackage {}
+
+class _MockFolder extends Mock implements Folder {}
+
 void main() {
   const domainDirectoryNames = ['domain'];
-  const contextUnitLocation = 'a/b/c/lib/x.dart';
+  const packageRoot = '/Users/foo/project';
+  const contextUnitLocation =
+      '/Users/foo/project/lib/features/auth/domain/services/auth_data_service.dart';
 
   late _MockSessionDataManager mockSessionDataManager;
   late _MockRuleContext mockRuleContext;
@@ -45,6 +52,8 @@ void main() {
   late _MockCleanArchLintConfig mockCleanArchLintConfig;
   late _MockDependencyDirectionRuleConfig mockDDRConfig;
   late _MockSessionLogger mockSessionLogger;
+  late _MockWorkspacePackage mockWorkspacePackage;
+  late _MockFolder mockFolder;
 
   late DependencyDirectionRule sut;
 
@@ -62,12 +71,17 @@ void main() {
     mockCleanArchLintConfig = _MockCleanArchLintConfig();
     mockDDRConfig = _MockDependencyDirectionRuleConfig();
     mockSessionLogger = _MockSessionLogger();
+    mockWorkspacePackage = _MockWorkspacePackage();
+    mockFolder = _MockFolder();
 
     sut = DependencyDirectionRule(mockSessionDataManager);
 
     when(() => mockRuleContext.definingUnit).thenReturn(mockRuleContextUnit);
     when(() => mockRuleContextUnit.file).thenReturn(mockContextUnitFile);
     when(() => mockContextUnitFile.path).thenReturn(contextUnitLocation);
+    when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
+    when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
+    when(() => mockFolder.path).thenReturn(packageRoot);
     when(
       () => mockRuleSessionContext.config,
     ).thenReturn(mockCleanArchLintConfig);
@@ -86,7 +100,7 @@ void main() {
     'If source path does not contain domain directory name, we do not register any visitor',
     () {
       when(() => mockContextUnitFile.path).thenReturn(
-        'a/b/c/lib/features/auth/data/sources/local_auth_data_source.dart',
+        '/Users/foo/project/lib/features/auth/data/sources/local_auth_data_source.dart',
       );
 
       sut.registerSessionedNodeProcessors(
@@ -108,10 +122,6 @@ void main() {
   test(
     'If source path contains domain directory name, we register the directive visitor',
     () {
-      when(() => mockContextUnitFile.path).thenReturn(
-        'a/b/c/lib/features/auth/domain/services/auth_data_service.dart',
-      );
-
       sut.registerSessionedNodeProcessors(
         mockRuleContext,
         mockRuleVisitorRegistry,

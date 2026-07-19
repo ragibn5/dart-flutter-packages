@@ -45,11 +45,11 @@ void main() {
     when(
       () => mockImportUriBuilder.fromImportNode(
         directive,
-        hostPath: any(named: 'srcPath'),
+        hostPath: any(named: 'hostPath'),
       ),
     ).thenAnswer((invocation) {
-      final srcPath = invocation.namedArguments[#srcPath] as String?;
-      return realImportUriBuilder.fromImportNode(directive, hostPath: srcPath);
+      final hostPath = invocation.namedArguments[#hostPath] as String;
+      return realImportUriBuilder.fromImportNode(directive, hostPath: hostPath);
     });
   }
 
@@ -107,6 +107,7 @@ void main() {
     when(() => mockContextConfig.ddrConfig).thenReturn(mockDDRConfig);
     when(() => mockContextConfig.packageInfo).thenReturn(mockPackageInfo);
     when(() => mockRuleSessionContext.logger).thenReturn(mockSessionLogger);
+    when(() => mockDDRConfig.excludedProjectPaths).thenReturn([]);
 
     when(
       () => mockSessionLogger.logWarning(
@@ -129,7 +130,7 @@ void main() {
       when(
         () => mockImportUriBuilder.fromImportNode(
           directive,
-          hostPath: any(named: 'srcPath'),
+          hostPath: any(named: 'hostPath'),
         ),
       ).thenReturn(null);
 
@@ -187,13 +188,13 @@ void main() {
       givenImportUri(directive);
 
       when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
-      when(() => mockDDRConfig.excludedProjectPaths).thenReturn([]);
 
       sut = DependencyDirectionRuleVisitor.test(
         mockAnalysisRule,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        srcPath: 'lib/feature/auth/domain/services/src.dart',
+        unitPath: 'lib/feature/auth/domain/services/src.dart',
+        domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
       verifyWarningLoggedOnce();
@@ -217,12 +218,16 @@ void main() {
         mockAnalysisRule,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        srcPath: 'lib/feature/auth/domain/services/src.dart',
+        unitPath: 'lib/feature/auth/domain/services/src.dart',
+        domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
       verifyNodeReportedOnce(
         directive,
-        message: 'cross-feature domain import in domain layer.',
+        message:
+            'not within the same domain, or within the excluded paths.\n'
+            'Expected domain: lib/feature/auth/domain/\n'
+            'Imported path: lib/feature/auth/other/domain/models/other_data.dart\n',
       );
     },
   );
@@ -232,19 +237,20 @@ void main() {
     () async {
       final directive = getImportDirective(
         (await dartResolver.resolveSource(
-          "import 'core/models/auth_data.dart';",
+          "import '../data/sources/local_auth_data_source.dart';",
         )).unit,
       );
       givenImportUri(directive);
 
       when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
-      when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['core/']);
+      when(
+        () => mockDDRConfig.excludedProjectPaths,
+      ).thenReturn(['lib/features/x/data/']);
 
       sut = DependencyDirectionRuleVisitor.test(
         mockAnalysisRule,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        srcPath: 'lib/feature/auth/domain/services/src.dart',
       )..visitImportDirective(directive);
 
       verifyWarningLoggedOnce();
@@ -263,13 +269,16 @@ void main() {
       givenImportUri(directive);
 
       when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
-      when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['core/']);
+      when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['lib/core/']);
 
       sut.visitImportDirective(directive);
 
       verifyNodeReportedOnce(
         directive,
-        message: 'non-domain import in domain layer.',
+        message:
+            'not within the same domain, or within the excluded paths.\n'
+            'Expected domain: lib/features/x/domain/\n'
+            'Imported path: lib/features/x/data/sources/local_auth_data_source.dart\n',
       );
     },
   );
@@ -291,7 +300,8 @@ void main() {
         mockAnalysisRule,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        srcPath: 'lib/feature/auth/domain/services/src.dart',
+        unitPath: 'lib/feature/auth/domain/services/src.dart',
+        domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
       verifyWarningLoggedOnce();
@@ -316,12 +326,16 @@ void main() {
         mockAnalysisRule,
         mockRuleSessionContext,
         mockImportUriBuilder,
-        srcPath: 'lib/feature/auth/domain/services/src.dart',
+        unitPath: 'lib/feature/auth/domain/services/src.dart',
+        domainDirPath: 'lib/feature/auth/domain/',
       )..visitImportDirective(directive);
 
       verifyNodeReportedOnce(
         directive,
-        message: 'cross-feature domain import in domain layer.',
+        message:
+            'not within the same domain, or within the excluded paths.\n'
+            'Expected domain: lib/feature/auth/domain/\n'
+            'Imported path: lib/feature/other/domain/models/other_data.dart\n',
       );
     },
   );
@@ -338,7 +352,7 @@ void main() {
 
       when(() => mockPackageInfo.name).thenReturn('xyz');
       when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
-      when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['core/']);
+      when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['lib/core/']);
 
       sut.visitImportDirective(directive);
 

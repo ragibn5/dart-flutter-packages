@@ -30,7 +30,6 @@ clean_arch_dependency_direction:
   # Name(s) of domain folder(s) in the project (default: ['domain'])
   domain_dir_names:
     - domain
-    - application
   # Package-root-relative paths to exclude from analysis (default: [])
   # Example: To exclude `lib/core/*`, write `lib/core/`
   excluded_project_paths:
