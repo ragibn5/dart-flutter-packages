@@ -67,11 +67,12 @@ scan_config:
 
 # Config for `clean_arch_dependency_direction` rule
 clean_arch_dependency_direction:
-  # Name of the domain folder(s) in the project (default: 'domain')
-  domain_dir_name: domain
   # Exclude Dart core packages from analysis (default: true)
   # e.g., dart:core, dart:async, etc.
   exclude_core_dart_packages: true
+  # Name(s) of domain folder(s) in the project (default: ['domain'])
+  domain_dir_names:
+    - domain
   # Project paths to exclude from analysis (default: [])
   # Paths should be relative to `lib/` or `test/`.
   # Example: To exclude `lib/core/*`, write `core/*`

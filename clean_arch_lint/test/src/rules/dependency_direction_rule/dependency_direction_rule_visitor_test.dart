@@ -177,7 +177,7 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirName).thenReturn('domain');
+      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
 
       sut.visitImportDirective(directive);
 
@@ -196,7 +196,7 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirName).thenReturn('domain');
+      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['core/']);
 
       sut.visitImportDirective(directive);
@@ -216,7 +216,7 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirName).thenReturn('domain');
+      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['core/']);
 
       sut.visitImportDirective(directive);
@@ -238,7 +238,7 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirName).thenReturn('domain');
+      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(() => mockPackageInfo.name).thenReturn('xyz');
 
       sut.visitImportDirective(directive);
@@ -259,7 +259,7 @@ void main() {
       givenImportUri(directive);
 
       when(() => mockPackageInfo.name).thenReturn('xyz');
-      when(() => mockDDRConfig.domainDirName).thenReturn('domain');
+      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['core/']);
 
       sut.visitImportDirective(directive);

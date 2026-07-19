@@ -33,7 +33,7 @@ class _MockDependencyDirectionRuleConfig extends Mock
 class _MockSessionLogger extends Mock implements SessionLogger {}
 
 void main() {
-  const domainDirectoryName = 'domain';
+  const domainDirectoryNames = ['domain'];
   const contextUnitLocation = 'a/b/c/lib/x.dart';
 
   late _MockSessionDataManager mockSessionDataManager;
@@ -72,7 +72,7 @@ void main() {
       () => mockRuleSessionContext.config,
     ).thenReturn(mockCleanArchLintConfig);
     when(() => mockCleanArchLintConfig.ddrConfig).thenReturn(mockDDRConfig);
-    when(() => mockDDRConfig.domainDirName).thenReturn(domainDirectoryName);
+    when(() => mockDDRConfig.domainDirNames).thenReturn(domainDirectoryNames);
     when(() => mockRuleSessionContext.logger).thenReturn(mockSessionLogger);
     when(
       () => mockSessionLogger.logInfo(

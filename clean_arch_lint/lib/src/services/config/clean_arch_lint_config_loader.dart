@@ -167,15 +167,17 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
       return _defaultConfigOptions.ddrConfig;
     }
 
-    final defaultDomainDirName = _defaultConfigOptions.ddrConfig.domainDirName;
+    final defaultDomainDirNames =
+        _defaultConfigOptions.ddrConfig.domainDirNames;
     final defaultCoreDartPackageExclusionStatus =
         _defaultConfigOptions.ddrConfig.excludeCoreDartPackages;
 
     return DependencyDirectionRuleConfig(
-      domainDirName: runCatching(
+      domainDirNames: runCatching(
         () =>
-            ddrConfigYaml['domain_dir_name'] as String? ?? defaultDomainDirName,
-        defaultValue: defaultDomainDirName,
+            (ddrConfigYaml['domain_dir_names'] as List?)?.cast<String>() ??
+            defaultDomainDirNames,
+        defaultValue: defaultDomainDirNames,
       ),
       excludeCoreDartPackages: runCatching(
         () =>

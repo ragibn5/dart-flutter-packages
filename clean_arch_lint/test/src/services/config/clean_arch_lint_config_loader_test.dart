@@ -43,7 +43,7 @@ void main() {
   const defaultAllowErrorLog = true;
   const defaultScanLibDir = true;
   const defaultScanTestDir = false;
-  const defaultDomainDirName = 'domain';
+  const defaultDomainDirNames = ['domain'];
   const defaultExcludeCoreDartPackages = true;
   const defaultExcludedProjectPaths = <String>[];
   const defaultExcludedLibraryPackages = <String>[];
@@ -104,8 +104,8 @@ void main() {
       () => mockDefaultConfigOptions.ddrConfig,
     ).thenReturn(mockDefaultDDRConfig);
     when(
-      () => mockDefaultDDRConfig.domainDirName,
-    ).thenReturn(defaultDomainDirName);
+      () => mockDefaultDDRConfig.domainDirNames,
+    ).thenReturn(defaultDomainDirNames);
     when(
       () => mockDefaultDDRConfig.excludeCoreDartPackages,
     ).thenReturn(defaultExcludeCoreDartPackages);
@@ -205,7 +205,8 @@ void main() {
         scan_test_dir: true
     
       clean_arch_dependency_direction:
-        domain_dir_name: dmn
+        domain_dir_names:
+          - dmn
         exclude_core_dart_packages: false
         excluded_project_paths:
           - /core/
@@ -253,9 +254,9 @@ void main() {
               true,
             )
             .having(
-              (p) => p.ddrConfig.domainDirName,
-              'ddrConfig.domainDirName',
-              'dmn',
+              (p) => p.ddrConfig.domainDirNames,
+              'ddrConfig.domainDirNames',
+              ['dmn'],
             )
             .having(
               (p) => p.ddrConfig.excludeCoreDartPackages,

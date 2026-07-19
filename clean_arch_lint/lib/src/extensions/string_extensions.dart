@@ -1,6 +1,6 @@
 import 'dart:io';
 
-extension PathStringExtensions on String {
+extension PathExtensions on String {
   String surroundingPathSeparator({
     bool trimWhitespaces = true,
     bool trimExistingPathSeparator = true,
@@ -19,5 +19,11 @@ extension PathStringExtensions on String {
     }
 
     return '$pathSeparator$modifiableSubject$pathSeparator';
+  }
+}
+
+extension PathListExtensions on List<String> {
+  bool containsAnyAsPathSegment(String path) {
+    return any((name) => path.contains(name.surroundingPathSeparator()));
   }
 }

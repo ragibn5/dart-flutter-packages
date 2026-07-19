@@ -76,9 +76,9 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
   }
 
   void _checkOwnPackageImport(ImportDirective node, ImportUri importUri) {
-    final domainPathSegment = sessionContext.config.ddrConfig.domainDirName
-        .surroundingPathSeparator();
-    if (importUri.path.contains(domainPathSegment)) {
+    if (sessionContext.config.ddrConfig.domainDirNames.containsAnyAsPathSegment(
+      importUri.path,
+    )) {
       sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
         message: 'Domain import (ignoring): $importUri',

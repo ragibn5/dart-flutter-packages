@@ -36,7 +36,7 @@ class DependencyDirectionRule
     final srcPath = context.definingUnit.file.path;
 
     final ddrConfig = sessionContext.config.ddrConfig;
-    if (!srcPath.contains(ddrConfig.domainDirName.surroundingPathSeparator())) {
+    if (!ddrConfig.domainDirNames.containsAnyAsPathSegment(srcPath)) {
       sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRule',
         message: 'Ignoring non domain component: $srcPath',
