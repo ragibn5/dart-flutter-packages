@@ -29,3 +29,7 @@ dev_dependencies:
   lints: ^6.0.0
   very_good_analysis: ^7.0.0
   analysis_plugin_test_helper: ^1.0.4
+
+dependency_overrides:
+  analysis_server_plugin_core:
+    path: ../analysis_server_plugin_core

@@ -121,10 +121,11 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
         defaultValue: defaultErrorLogAllowed,
       ),
       logDirectoryRelativePathFromProjectRoot: runCatching(
-        () => _normalizePath(
-          logConfigYaml['log_dir_relative_path'] as String? ??
-              defaultLogDirectoryRelativePathFromProjectRoot,
-        ),
+        () =>
+            (logConfigYaml['log_dir_relative_path'] as String? ??
+                    defaultLogDirectoryRelativePathFromProjectRoot)
+                .normalizePathSeparators
+                .ensureTrailingPathSeparator,
         defaultValue: defaultLogDirectoryRelativePathFromProjectRoot,
       ),
     );
@@ -189,7 +190,9 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
         () =>
             (ddrConfigYaml['excluded_project_paths'] as List?)
                 ?.cast<String>()
-                .map(_normalizePath)
+                .map(
+                  (p) => p.normalizePathSeparators.ensureTrailingPathSeparator,
+                )
                 .toList() ??
             [],
         defaultValue: [],
@@ -202,13 +205,5 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
         defaultValue: [],
       ),
     );
-  }
-
-  String _normalizePath(String filePath) {
-    // Normalize to forward slashes for consistent comparison.
-    final normalized = filePath.replaceAll(RegExp(r'[\\/]'), '/');
-    final needsTrailingSlash =
-        normalized.endsWith('/') && !normalized.endsWith('//');
-    return needsTrailingSlash ? normalized : '$normalized/';
   }
 }
