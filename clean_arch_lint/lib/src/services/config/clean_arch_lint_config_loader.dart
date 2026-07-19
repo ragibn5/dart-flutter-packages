@@ -205,17 +205,10 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
   }
 
   String _normalizePath(String filePath) {
-    final platformSeparatorFixedPath = filePath.replaceAll(
-      RegExp(r'[\\/]'),
-      path.separator,
-    );
-
-    final normalizedFixedPath = path.normalize(platformSeparatorFixedPath);
-    final normalizedPathSuffix =
-        platformSeparatorFixedPath.endsWith(path.separator)
-        ? path.separator
-        : '';
-
-    return '$normalizedFixedPath$normalizedPathSuffix';
+    // Normalize to forward slashes for consistent comparison.
+    final normalized = filePath.replaceAll(RegExp(r'[\\/]'), '/');
+    final needsTrailingSlash =
+        normalized.endsWith('/') && !normalized.endsWith('//');
+    return needsTrailingSlash ? normalized : '$normalized/';
   }
 }

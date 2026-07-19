@@ -1,13 +1,44 @@
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
-import 'package:clean_arch_lint/src/extensions/string_extensions.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
+import 'package:clean_arch_lint/src/models/domain_unit_context.dart';
 import 'package:clean_arch_lint/src/models/import_uri.dart';
 import 'package:clean_arch_lint/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:meta/meta.dart';
 
+/// Visits import directives inside domain-layer files and reports violations.
+///
+/// This visitor is only registered for files that live inside a domain
+/// directory (e.g. `lib/features/auth/domain/...`). It inspects every
+/// import and decides whether it is allowed or not.
+///
+/// [ImportUri.path] is always a package-root-relative path
+/// (starting with `lib/` or `test/`) thanks to [ImportUriBuilder]
+/// resolving it at construction time.
+///
+/// Example project layout:
+/// ```text
+/// lib/
+///   features/
+///     auth/
+///       domain/          <-- domain layer (guarded)
+///         models/
+///           auth_data.dart
+///         services/
+///           auth_service.dart
+///       data/            <-- non-domain layer
+///         repositories/
+///           auth_repo_impl.dart
+///     user_data/
+///       domain/          <-- different feature's domain
+///         models/
+///           user_data.dart
+/// ```
 class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final AnalysisRule rule;
+
+  @visibleForTesting
+  final DomainUnitContext domainUnitContext;
 
   @visibleForTesting
   final RuleSessionContext<CleanArchLintConfig> sessionContext;
@@ -17,49 +48,61 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
   DependencyDirectionRuleVisitor(
     AnalysisRule rule,
     RuleSessionContext<CleanArchLintConfig> sessionContext,
-  ) : this._(rule, sessionContext, ImportUriBuilder());
+    DomainUnitContext domainUnit,
+  ) : this._(rule, domainUnit, sessionContext, ImportUriBuilder());
 
   @visibleForTesting
   DependencyDirectionRuleVisitor.test(
     AnalysisRule rule,
     RuleSessionContext<CleanArchLintConfig> sessionContext,
-    ImportUriBuilder importUriBuilder,
-  ) : this._(rule, sessionContext, importUriBuilder);
+    ImportUriBuilder importUriBuilder, {
+    String unitPath = 'lib/features/x/domain/a.dart',
+    String domainDirPath = 'lib/features/x/domain/',
+  }) : this._(
+         rule,
+         DomainUnitContext(unitPath, domainDirPath),
+         sessionContext,
+         importUriBuilder,
+       );
 
   DependencyDirectionRuleVisitor._(
     this.rule,
+    this.domainUnitContext,
     this.sessionContext,
     this._importUriBuilder,
   );
 
   @override
   void visitImportDirective(ImportDirective node) {
-    final importUri = _importUriBuilder.fromImportNode(node);
+    final importUri = _importUriBuilder.fromImportNode(
+      node,
+      hostPath: domainUnitContext.unitPath,
+    );
+
     if (importUri == null) {
       sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
         message:
-            'Invalid/Unsupported import uri (ignoring): ${node.uri.stringValue}',
+            'Ignoring import (invalid/unsupported): ${node.uri.stringValue}',
       );
       return;
     }
 
+    // Dart SDK imports (e.g. dart:core, dart:async)
     if (importUri.scheme == 'dart') {
       _checkDartCoreImport(node, importUri);
       return;
     }
 
-    if (importUri.scheme == null) {
+    // Own-package imports (no scheme = relative, or package:self/)
+    if (importUri.scheme == null ||
+        (importUri.scheme == 'package' &&
+            importUri.packageName == sessionContext.config.packageInfo.name)) {
       _checkOwnPackageImport(node, importUri);
       return;
     }
 
-    if (importUri.scheme == 'package' &&
-        importUri.packageName == sessionContext.config.packageInfo.name) {
-      _checkOwnPackageImport(node, importUri);
-      return;
-    }
-
+    // Third-party package imports (e.g. 'package:dartz/dartz.dart')
     _checkLibraryPackageImport(node, importUri);
   }
 
@@ -67,7 +110,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     if (sessionContext.config.ddrConfig.excludeCoreDartPackages) {
       sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
-        message: 'Core dart import (ignoring): $importUri',
+        message: 'Ignoring import (dart SDK): $importUri',
       );
       return;
     }
@@ -75,28 +118,43 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     rule.reportAtNode(node, arguments: ['core dart import in domain layer.']);
   }
 
+  /// Checks own-package imports (relative and package:self/).
+  ///
+  /// At this point, the import path is always a package-root-relative path
+  /// (e.g. `lib/feature/auth/domain/...`).
+  ///
+  /// The import is allowed if and only if it resolves to a file within
+  /// [DomainUnitContext.domainDirPath] (same feature's domain) or an
+  /// excluded project path.
   void _checkOwnPackageImport(ImportDirective node, ImportUri importUri) {
-    if (sessionContext.config.ddrConfig.domainDirNames.containsAnyAsPathSegment(
-      importUri.path,
-    )) {
+    // In the same domain.
+    if (importUri.path.startsWith(domainUnitContext.domainDirPath)) {
       sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
-        message: 'Domain import (ignoring): $importUri',
+        message: 'Ignoring import (same domain): $importUri',
       );
       return;
     }
 
+    // Not in same domain.
+    // Check excluded project paths.
     if (sessionContext.config.ddrConfig.excludedProjectPaths.any(
       importUri.path.startsWith,
     )) {
       sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
-        message: 'Excluded project import (ignoring): $importUri',
+        message: 'Ignoring import (excluded project path): $importUri',
       );
       return;
     }
 
-    rule.reportAtNode(node, arguments: ['non-domain import in domain layer.']);
+    final expected = domainUnitContext.domainDirPath;
+    final imported = importUri.path;
+    final message =
+        'not within the same domain, or within the excluded paths.\n'
+        'Expected domain: $expected\n'
+        'Imported path: $imported\n';
+    rule.reportAtNode(node, arguments: [message]);
   }
 
   void _checkLibraryPackageImport(ImportDirective node, ImportUri importUri) {
@@ -107,7 +165,7 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
         )) {
       sessionContext.logger.logWarning(
         tag: '$DependencyDirectionRuleVisitor',
-        message: 'Excluded package import (ignoring): $importUri',
+        message: 'Ignoring import (excluded package): $importUri',
       );
       return;
     }

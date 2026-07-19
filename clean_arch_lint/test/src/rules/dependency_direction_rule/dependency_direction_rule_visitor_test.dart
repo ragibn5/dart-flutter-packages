@@ -43,8 +43,14 @@ void main() {
 
   void givenImportUri(ImportDirective directive) {
     when(
-      () => mockImportUriBuilder.fromImportNode(directive),
-    ).thenReturn(realImportUriBuilder.fromImportNode(directive));
+      () => mockImportUriBuilder.fromImportNode(
+        directive,
+        hostPath: any(named: 'srcPath'),
+      ),
+    ).thenAnswer((invocation) {
+      final srcPath = invocation.namedArguments[#srcPath] as String?;
+      return realImportUriBuilder.fromImportNode(directive, hostPath: srcPath);
+    });
   }
 
   void verifyWarningLoggedOnce() {
@@ -121,7 +127,10 @@ void main() {
         (await dartResolver.resolveSource("import '';")).unit,
       );
       when(
-        () => mockImportUriBuilder.fromImportNode(directive),
+        () => mockImportUriBuilder.fromImportNode(
+          directive,
+          hostPath: any(named: 'srcPath'),
+        ),
       ).thenReturn(null);
 
       sut.visitImportDirective(directive);
@@ -168,21 +177,53 @@ void main() {
   );
 
   test(
-    'When a relative import points to a domain layer path inside the host package, the directive is allowed and not reported',
+    'When a relative import points to a domain layer path inside the same feature, the directive is allowed and not reported',
     () async {
       final directive = getImportDirective(
         (await dartResolver.resolveSource(
-          "import 'feature/auth/domain/services/auth_data_service.dart';",
+          "import '../models/auth_data.dart';",
+        )).unit,
+      );
+      givenImportUri(directive);
+
+      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
+      when(() => mockDDRConfig.excludedProjectPaths).thenReturn([]);
+
+      sut = DependencyDirectionRuleVisitor.test(
+        mockAnalysisRule,
+        mockRuleSessionContext,
+        mockImportUriBuilder,
+        srcPath: 'lib/feature/auth/domain/services/src.dart',
+      )..visitImportDirective(directive);
+
+      verifyWarningLoggedOnce();
+      verifyNodeNeverReported();
+    },
+  );
+
+  test(
+    'When a relative import points to a domain layer path inside a different feature, the directive is reported',
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import '../../other/domain/models/other_data.dart';",
         )).unit,
       );
       givenImportUri(directive);
 
       when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
 
-      sut.visitImportDirective(directive);
+      sut = DependencyDirectionRuleVisitor.test(
+        mockAnalysisRule,
+        mockRuleSessionContext,
+        mockImportUriBuilder,
+        srcPath: 'lib/feature/auth/domain/services/src.dart',
+      )..visitImportDirective(directive);
 
-      verifyWarningLoggedOnce();
-      verifyNodeNeverReported();
+      verifyNodeReportedOnce(
+        directive,
+        message: 'cross-feature domain import in domain layer.',
+      );
     },
   );
 
@@ -199,7 +240,12 @@ void main() {
       when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['core/']);
 
-      sut.visitImportDirective(directive);
+      sut = DependencyDirectionRuleVisitor.test(
+        mockAnalysisRule,
+        mockRuleSessionContext,
+        mockImportUriBuilder,
+        srcPath: 'lib/feature/auth/domain/services/src.dart',
+      )..visitImportDirective(directive);
 
       verifyWarningLoggedOnce();
       verifyNodeNeverReported();
@@ -211,7 +257,7 @@ void main() {
     () async {
       final directive = getImportDirective(
         (await dartResolver.resolveSource(
-          "import 'feature/auth/data/sources/local_auth_data_source.dart';",
+          "import '../data/sources/local_auth_data_source.dart';",
         )).unit,
       );
       givenImportUri(directive);
@@ -229,7 +275,7 @@ void main() {
   );
 
   test(
-    'When a package import targets the host package and points to a domain layer path, the directive is allowed',
+    'When a package import targets the host package and points to a domain layer path in the same feature, the directive is allowed',
     () async {
       final directive = getImportDirective(
         (await dartResolver.resolveSource(
@@ -241,10 +287,42 @@ void main() {
       when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(() => mockPackageInfo.name).thenReturn('xyz');
 
-      sut.visitImportDirective(directive);
+      sut = DependencyDirectionRuleVisitor.test(
+        mockAnalysisRule,
+        mockRuleSessionContext,
+        mockImportUriBuilder,
+        srcPath: 'lib/feature/auth/domain/services/src.dart',
+      )..visitImportDirective(directive);
 
       verifyWarningLoggedOnce();
       verifyNodeNeverReported();
+    },
+  );
+
+  test(
+    'When a package import targets the host package and points to a domain layer path in a different feature, the directive is reported',
+    () async {
+      final directive = getImportDirective(
+        (await dartResolver.resolveSource(
+          "import 'package:xyz/feature/other/domain/models/other_data.dart';",
+        )).unit,
+      );
+      givenImportUri(directive);
+
+      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
+      when(() => mockPackageInfo.name).thenReturn('xyz');
+
+      sut = DependencyDirectionRuleVisitor.test(
+        mockAnalysisRule,
+        mockRuleSessionContext,
+        mockImportUriBuilder,
+        srcPath: 'lib/feature/auth/domain/services/src.dart',
+      )..visitImportDirective(directive);
+
+      verifyNodeReportedOnce(
+        directive,
+        message: 'cross-feature domain import in domain layer.',
+      );
     },
   );
 

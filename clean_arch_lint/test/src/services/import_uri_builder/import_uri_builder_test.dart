@@ -76,7 +76,7 @@ void main() {
         isA<ImportUri>()
             .having((p) => p.scheme, 'scheme', 'package')
             .having((p) => p.packageName, 'packageName', 'foo')
-            .having((p) => p.path, 'path', 'bar.dart'),
+            .having((p) => p.path, 'path', 'lib/bar.dart'),
       );
     },
   );

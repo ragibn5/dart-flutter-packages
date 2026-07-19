@@ -1,24 +1,22 @@
-import 'dart:io';
-
 extension PathExtensions on String {
+  /// Wraps this string with `/` on both sides to match as a full path segment.
+  ///
+  /// e.g. `'domain'` → `'/domain/'`
   String surroundingPathSeparator({
     bool trimWhitespaces = true,
-    bool trimExistingPathSeparator = true,
+    bool trimExistingPathSeparators = true,
   }) {
-    final pathSeparator = Platform.pathSeparator;
-
     var modifiableSubject = this;
     if (trimWhitespaces) {
       modifiableSubject = modifiableSubject.trim();
     }
-    if (trimExistingPathSeparator) {
-      modifiableSubject = modifiableSubject.replaceAll(
-        Platform.pathSeparator,
-        '',
-      );
+    if (trimExistingPathSeparators) {
+      modifiableSubject = modifiableSubject
+          .replaceAll('/', '')
+          .replaceAll(r'\', '');
     }
 
-    return '$pathSeparator$modifiableSubject$pathSeparator';
+    return '/$modifiableSubject/';
   }
 }
 

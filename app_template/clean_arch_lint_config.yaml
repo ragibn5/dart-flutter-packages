@@ -5,7 +5,7 @@
 # Global Log Configuration: Controls logging for all rules.
 log_config:
   # Enable or disable logging for all rules (default: false)
-  enabled: false
+  enabled: true
   # Individual log levels (overrides `enabled`)
   # (Defaults - info: false, warning: true, error: true)
   allow_info: false
@@ -30,9 +30,9 @@ clean_arch_dependency_direction:
   # Name(s) of domain folder(s) in the project (default: ['domain'])
   domain_dir_names:
     - domain
-  # Project paths to exclude from analysis (default: [])
-  # Paths should be relative to `lib/` or `test/`.
-  # Example: To exclude `lib/core/*`, write `core/*`
+    - application
+  # Package-root-relative paths to exclude from analysis (default: [])
+  # Example: To exclude `lib/core/*`, write `lib/core/`
   excluded_project_paths:
   # External library packages to exclude from analysis (default: [])
   # Specify package names as strings
