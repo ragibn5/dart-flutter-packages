@@ -220,4 +220,4 @@ class _MyVisitor extends SimpleAstVisitor<void> {
 See the full [example](example/example.dart), or look at real plugins built with this library:
 
 - [clean_arch_linter](https://pub.dev/packages/clean_arch_linter) | [source](../clean_arch_linter)
-- [json_parser_analyzer](https://pub.dev/packages/json_parser_analyzer) | [source](../json_parser/json_parser_analyzer)
+- [json_parser_linter](https://pub.dev/packages/json_parser_linter) | [source](../json_parser/json_parser_linter)

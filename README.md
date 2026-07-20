@@ -38,7 +38,7 @@ generation utilities, and architectural support.
 - [`parser`](parser)
 - [`json_parser`](json_parser)
 - [`json_parser_annotations`](json_parser/json_parser_annotations)
-- [`json_parser_analyzer`](json_parser/json_parser_analyzer)
+- [`json_parser_linter`](json_parser/json_parser_linter)
 - [`json_parser_generator`](json_parser/json_parser_generator)
 - [`file_store`](file_store)
 - [`json_converters`](json_converters)
