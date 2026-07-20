@@ -8,7 +8,6 @@ import 'package:json_parser_analyzer/src/models/json_parser_analyzer_config.dart
 import 'package:json_parser_analyzer/src/services/config/config_source_provider.dart';
 import 'package:json_parser_analyzer/src/services/config/json_parser_analyzer_config_loader.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -238,11 +237,7 @@ void main() {
             .having(
               (p) => p.logConfig.logDirectoryRelativePathFromProjectRoot,
               'logConfig.logDirectoryRelativePathFromProjectRoot',
-              path.join(
-                'analysis_logs',
-                'analysis_plugins',
-                'json_parser_analyzer',
-              ),
+              'analysis_logs/analysis_plugins/json_parser_analyzer/',
             ),
       );
     },

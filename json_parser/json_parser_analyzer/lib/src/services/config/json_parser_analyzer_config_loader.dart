@@ -117,10 +117,13 @@ class JsonParserAnalyzerConfigLoader extends ContextConfigLoader {
       ),
       logDirectoryRelativePathFromProjectRoot: runCatching(
         () =>
+            // Ensuring usage of platform path separator,
+            // as this will be used to create actual file/folders.
+            // Also, this is not used in analysis (which exclusively uses /).
             (logConfigYaml['log_dir_relative_path'] as String? ??
                     defaultLogDirectoryRelativePathFromProjectRoot)
-                .normalizePathSeparators
-                .ensureTrailingPathSeparator,
+                .normalizePathSeparators(pathSeparator: path.separator)
+                .ensureTrailingPathSeparator(pathSeparator: path.separator),
         defaultValue: defaultLogDirectoryRelativePathFromProjectRoot,
       ),
     );
