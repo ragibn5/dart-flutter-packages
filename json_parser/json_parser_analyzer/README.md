@@ -55,7 +55,7 @@ log_config:
   allow_warning: true
   allow_error: true
   # Relative(to project root) path where logs will be saved
-  # (Default: logs/analysis_plugins/clean_arch_lint)
+  # (Default: logs/analysis_plugins/clean_arch_linter)
   log_dir_relative_path: logs/analyzer_plugins/json_parser_analyzer
 
 # Global Scan Configuration: Controls which project directories are scanned.

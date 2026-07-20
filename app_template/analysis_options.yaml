@@ -15,8 +15,8 @@ include:
   - package:bloc_lint/all.yaml
 
 plugins:
-  clean_arch_lint:
-    path: ../clean_arch_lint
+  clean_arch_linter:
+    path: ../clean_arch_linter
     diagnostics:
       clean_arch_dependency_direction: true
 
