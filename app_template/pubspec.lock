@@ -36,9 +36,10 @@ packages:
   analysis_server_plugin_core:
     dependency: transitive
     description:
-      path: "../analysis_server_plugin_core"
-      relative: true
-    source: path
+      name: analysis_server_plugin_core
+      sha256: "402d41c704e302e0a775de95d66fc8429a9b2d1ef03001b4ead8a7a8a03e6d2e"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.1"
   analytics:
     dependency: "direct main"
