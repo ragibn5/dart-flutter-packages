@@ -123,7 +123,9 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
   void _checkOwnPackageImport(ImportDirective node, ImportUri importUri) {
     // In the same domain.
     if (importUri.path.startsWith(
-      domainUnitContext.domainDirPath.ensureTrailingPathSeparator,
+      domainUnitContext.domainDirPath
+          .normalizePathSeparators(pathSeparator: '/')
+          .ensureTrailingPathSeparator(pathSeparator: '/'),
     )) {
       sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',
@@ -135,7 +137,11 @@ class DependencyDirectionRuleVisitor extends SimpleAstVisitor<void> {
     // Not in same domain.
     // Check excluded project paths.
     if (sessionContext.config.ddrConfig.excludedProjectPaths
-        .map((p) => p.ensureTrailingPathSeparator)
+        .map(
+          (p) => p
+              .normalizePathSeparators(pathSeparator: '/')
+              .ensureTrailingPathSeparator(pathSeparator: '/'),
+        )
         .any(importUri.path.startsWith)) {
       sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRuleVisitor',

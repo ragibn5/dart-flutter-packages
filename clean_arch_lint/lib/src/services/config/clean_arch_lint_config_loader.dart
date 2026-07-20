@@ -122,10 +122,13 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
       ),
       logDirectoryRelativePathFromProjectRoot: runCatching(
         () =>
+            // Ensuring usage of platform path separator,
+            // as this will be used to create actual file/folders.
+            // Also, this is not used in analysis (which exclusively uses /).
             (logConfigYaml['log_dir_relative_path'] as String? ??
                     defaultLogDirectoryRelativePathFromProjectRoot)
-                .normalizePathSeparators
-                .ensureTrailingPathSeparator,
+                .normalizePathSeparators(pathSeparator: path.separator)
+                .ensureTrailingPathSeparator(pathSeparator: path.separator),
         defaultValue: defaultLogDirectoryRelativePathFromProjectRoot,
       ),
     );
@@ -191,7 +194,12 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
             (ddrConfigYaml['excluded_project_paths'] as List?)
                 ?.cast<String>()
                 .map(
-                  (p) => p.normalizePathSeparators.ensureTrailingPathSeparator,
+                  // Ensuring usage of forward slash as the path separator.
+                  // In Dart analysis, the forward slash (`/`) is the standard,
+                  // and exclusive path separator.
+                  (p) => p
+                      .normalizePathSeparators(pathSeparator: '/')
+                      .ensureTrailingPathSeparator(pathSeparator: '/'),
                 )
                 .toList() ??
             [],

@@ -5,23 +5,31 @@ extension RuleContextExtensions on RuleContext {
   /// The defining unit's path, relative to the package root,
   /// or null if the defining unit is not part of any package.
   ///
-  /// e.g. `'/Users/foo/myproject/lib/bar.dart'` → `'lib/bar.dart'`
-  /// e.g. `'C:\Users\foo\myproject\lib\bar.dart'` → `'lib/bar.dart'`
+  /// For example,
+  /// - `'/Users/foo/myproject/lib/bar.dart'` → `'lib/bar.dart'`
   ///
-  /// > Note:
-  /// > The path separators are always converted to `/` (i.e., forward slash).
-  String? get packageRelativeUnitPath {
+  /// Returns null if:
+  /// - [RuleContext.package] is null, or
+  /// - the path is outside the package root.
+  ///
+  /// > Note: The returned path uses the given [pathSeparator] for
+  /// > all separators, regardless of the platform's native separator.
+  String? packageRelativeUnitPath({required String pathSeparator}) {
     final absPath = definingUnit.file.path;
     final packageRoot = package?.root.path;
     if (packageRoot == null) {
       return null;
     }
 
-    final normalizedRoot = packageRoot.normalizePathSeparators;
-    final normalizedPath = absPath.normalizePathSeparators;
-    final prefix = normalizedRoot.endsWith('/')
+    final normalizedRoot = packageRoot.normalizePathSeparators(
+      pathSeparator: pathSeparator,
+    );
+    final normalizedPath = absPath.normalizePathSeparators(
+      pathSeparator: pathSeparator,
+    );
+    final prefix = normalizedRoot.endsWith(pathSeparator)
         ? normalizedRoot
-        : '$normalizedRoot/';
+        : '$normalizedRoot$pathSeparator';
 
     if (!normalizedPath.startsWith(prefix)) {
       return null;

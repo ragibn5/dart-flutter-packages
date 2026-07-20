@@ -30,7 +30,9 @@ class ImportUriBuilder {
     // Case 2: no colon — relative import, resolve against source
     if (!uriString.contains(':')) {
       final resolved = p.normalize(p.join(p.dirname(hostPath), uriString));
-      return ImportUri(path: resolved.normalizePathSeparators);
+      return ImportUri(
+        path: resolved.normalizePathSeparators(pathSeparator: '/'),
+      );
     }
 
     // Case 3: colon exists, parse scheme:pkg/path or scheme:path
@@ -72,7 +74,7 @@ class ImportUriBuilder {
 
     // Normalize package imports to absolute package-relative paths.
     if (scheme == 'package' && packageName != null) {
-      path = p.join('lib', path).normalizePathSeparators;
+      path = p.join('lib', path).normalizePathSeparators(pathSeparator: '/');
     }
 
     return ImportUri(scheme: scheme, packageName: packageName, path: path);

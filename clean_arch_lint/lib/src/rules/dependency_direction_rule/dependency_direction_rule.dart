@@ -2,6 +2,7 @@ import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_lint/src/models/clean_arch_lint_config.dart';
 import 'package:clean_arch_lint/src/models/domain_unit_context.dart';
 import 'package:clean_arch_lint/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
+import 'package:path/path.dart' as path;
 
 class DependencyDirectionRule
     extends SessionManagedAnalysisRule<CleanArchLintConfig> {
@@ -29,8 +30,12 @@ class DependencyDirectionRule
     RuleVisitorRegistry registry,
     RuleSessionContext<CleanArchLintConfig> sessionContext,
   ) {
-    final absUnitPath = context.definingUnit.file.path.normalizePathSeparators;
-    final pkgRelativeUnitPath = context.packageRelativeUnitPath;
+    final absUnitPath = context.definingUnit.file.path.normalizePathSeparators(
+      pathSeparator: path.separator,
+    );
+    final pkgRelativeUnitPath = context.packageRelativeUnitPath(
+      pathSeparator: '/',
+    );
     if (pkgRelativeUnitPath == null) {
       sessionContext.logger.logInfo(
         tag: '$DependencyDirectionRule',
@@ -75,9 +80,11 @@ class DependencyDirectionRule
   ///
   /// e.g. `lib/feature/auth/domain/services/auth_service.dart`
   ///   → `lib/feature/auth/domain/`
+  ///
+  /// > Note: This method assumes the [hostUnitPath] is `/` normalized.
   String? _findDomainDirPath(String hostUnitPath, List<String> domainDirNames) {
     for (final name in domainDirNames) {
-      final segment = name.surroundingPathSeparator;
+      final segment = name.surroundingPathSeparator(pathSeparator: '/');
       final idx = hostUnitPath.lastIndexOf(segment);
       if (idx != -1) {
         return hostUnitPath.substring(0, idx + segment.length);

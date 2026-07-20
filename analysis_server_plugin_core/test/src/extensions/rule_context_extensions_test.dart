@@ -39,18 +39,22 @@ void main() {
       when(() => mockRuleContext.package).thenReturn(null);
       when(() => mockFile.path).thenReturn('/Users/foo/project/lib/bar.dart');
 
-      expect(mockRuleContext.packageRelativeUnitPath, isNull);
+      expect(
+        mockRuleContext.packageRelativeUnitPath(pathSeparator: '/'),
+        isNull,
+      );
     });
 
     test('Should return null if path is outside package root', () {
       when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
       when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
       when(() => mockFolder.path).thenReturn('/Users/foo/project');
-      when(
-        () => mockFile.path,
-      ).thenReturn('/other/path/lib/bar.dart');
+      when(() => mockFile.path).thenReturn('/other/path/lib/bar.dart');
 
-      expect(mockRuleContext.packageRelativeUnitPath, isNull);
+      expect(
+        mockRuleContext.packageRelativeUnitPath(pathSeparator: '/'),
+        isNull,
+      );
     });
 
     test('Should return package-relative path for POSIX paths', () {
@@ -59,69 +63,59 @@ void main() {
       when(() => mockFolder.path).thenReturn('/Users/foo/project');
       when(() => mockFile.path).thenReturn('/Users/foo/project/lib/bar.dart');
 
-      expect(mockRuleContext.packageRelativeUnitPath, 'lib/bar.dart');
+      expect(
+        mockRuleContext.packageRelativeUnitPath(pathSeparator: '/'),
+        'lib/bar.dart',
+      );
     });
 
     test('Should return package-relative path for Windows paths', () {
       when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
       when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
-      when(
-        () => mockFolder.path,
-      ).thenReturn(r'C:\Users\foo\project');
+      when(() => mockFolder.path).thenReturn(r'C:\Users\foo\project');
       when(
         () => mockFile.path,
       ).thenReturn(r'C:\Users\foo\project\lib\bar.dart');
 
-      expect(mockRuleContext.packageRelativeUnitPath, 'lib/bar.dart');
+      expect(
+        mockRuleContext.packageRelativeUnitPath(pathSeparator: '\\'),
+        r'lib\bar.dart',
+      );
     });
 
-    test(
-      'Should handle package root ending with trailing separator',
-      () {
-        when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
-        when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
-        when(
-          () => mockFolder.path,
-        ).thenReturn('/Users/foo/project/');
-        when(
-          () => mockFile.path,
-        ).thenReturn('/Users/foo/project/lib/bar.dart');
+    test('Should handle package root ending with trailing separator', () {
+      when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
+      when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
+      when(() => mockFolder.path).thenReturn('/Users/foo/project/');
+      when(() => mockFile.path).thenReturn('/Users/foo/project/lib/bar.dart');
 
-        expect(
-          mockRuleContext.packageRelativeUnitPath,
-          'lib/bar.dart',
-        );
-      },
-    );
+      expect(
+        mockRuleContext.packageRelativeUnitPath(pathSeparator: '/'),
+        'lib/bar.dart',
+      );
+    });
 
-    test(
-      'Should handle mixed separators in comparison',
-      () {
-        when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
-        when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
-        when(
-          () => mockFolder.path,
-        ).thenReturn(r'C:\Users\foo\project');
-        when(
-          () => mockFile.path,
-        ).thenReturn(r'C:\Users/foo/project/lib/bar.dart');
+    test('Should handle mixed separators in comparison', () {
+      when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
+      when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
+      when(() => mockFolder.path).thenReturn(r'C:\Users\foo\project');
+      when(
+        () => mockFile.path,
+      ).thenReturn(r'C:\Users/foo/project/lib/bar.dart');
 
-        expect(
-          mockRuleContext.packageRelativeUnitPath,
-          'lib/bar.dart',
-        );
-      },
-    );
+      expect(
+        mockRuleContext.packageRelativeUnitPath(pathSeparator: '\\'),
+        r'lib\bar.dart',
+      );
+    });
 
     test('Should return empty string when path equals package root', () {
       when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
       when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
       when(() => mockFolder.path).thenReturn('/Users/foo/project');
-      when(
-        () => mockFile.path,
-      ).thenReturn('/Users/foo/project/');
+      when(() => mockFile.path).thenReturn('/Users/foo/project/');
 
-      expect(mockRuleContext.packageRelativeUnitPath, '');
+      expect(mockRuleContext.packageRelativeUnitPath(pathSeparator: '/'), '');
     });
   });
 }
