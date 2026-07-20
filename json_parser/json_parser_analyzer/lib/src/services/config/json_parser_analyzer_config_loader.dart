@@ -116,10 +116,14 @@ class JsonParserAnalyzerConfigLoader extends ContextConfigLoader {
         defaultValue: defaultErrorLogAllowed,
       ),
       logDirectoryRelativePathFromProjectRoot: runCatching(
-        () => _normalizePath(
-          logConfigYaml['log_dir_relative_path'] as String? ??
-              defaultLogDirectoryRelativePathFromProjectRoot,
-        ),
+        () =>
+            // Ensuring usage of platform path separator,
+            // as this will be used to create actual file/folders.
+            // Also, this is not used in analysis (which exclusively uses /).
+            (logConfigYaml['log_dir_relative_path'] as String? ??
+                    defaultLogDirectoryRelativePathFromProjectRoot)
+                .normalizePathSeparators(pathSeparator: path.separator)
+                .ensureTrailingPathSeparator(pathSeparator: path.separator),
         defaultValue: defaultLogDirectoryRelativePathFromProjectRoot,
       ),
     );
@@ -150,20 +154,5 @@ class JsonParserAnalyzerConfigLoader extends ContextConfigLoader {
         defaultValue: defaultScanTestDirStatus,
       ),
     );
-  }
-
-  String _normalizePath(String filePath) {
-    final platformSeparatorFixedPath = filePath.replaceAll(
-      RegExp(r'[\\/]'),
-      path.separator,
-    );
-
-    final normalizedFixedPath = path.normalize(platformSeparatorFixedPath);
-    final normalizedPathSuffix =
-        platformSeparatorFixedPath.endsWith(path.separator)
-        ? path.separator
-        : '';
-
-    return '$normalizedFixedPath$normalizedPathSuffix';
   }
 }

@@ -5,7 +5,7 @@
 # Global Log Configuration: Controls logging for all rules.
 log_config:
   # Enable or disable logging for all rules (default: false)
-  enabled: false
+  enabled: true
   # Individual log levels (overrides `enabled`)
   # (Defaults - info: false, warning: true, error: true)
   allow_info: false
@@ -24,14 +24,14 @@ scan_config:
 
 # Config for `clean_arch_dependency_direction` rule
 clean_arch_dependency_direction:
-  # Name of the domain folder(s) in the project (default: 'domain')
-  domain_dir_name: domain
   # Exclude Dart core packages from analysis (default: true)
   # e.g., dart:core, dart:async, etc.
   exclude_core_dart_packages: true
-  # Project paths to exclude from analysis (default: [])
-  # Paths should be relative to `lib/` or `test/`.
-  # Example: To exclude `lib/core/*`, write `core/*`
+  # Name(s) of domain folder(s) in the project (default: ['domain'])
+  domain_dir_names:
+    - domain
+  # Package-root-relative paths to exclude from analysis (default: [])
+  # Example: To exclude `lib/core/*`, write `lib/core/`
   excluded_project_paths:
   # External library packages to exclude from analysis (default: [])
   # Specify package names as strings

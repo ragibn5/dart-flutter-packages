@@ -121,10 +121,14 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
         defaultValue: defaultErrorLogAllowed,
       ),
       logDirectoryRelativePathFromProjectRoot: runCatching(
-        () => _normalizePath(
-          logConfigYaml['log_dir_relative_path'] as String? ??
-              defaultLogDirectoryRelativePathFromProjectRoot,
-        ),
+        () =>
+            // Ensuring usage of platform path separator,
+            // as this will be used to create actual file/folders.
+            // Also, this is not used in analysis (which exclusively uses /).
+            (logConfigYaml['log_dir_relative_path'] as String? ??
+                    defaultLogDirectoryRelativePathFromProjectRoot)
+                .normalizePathSeparators(pathSeparator: path.separator)
+                .ensureTrailingPathSeparator(pathSeparator: path.separator),
         defaultValue: defaultLogDirectoryRelativePathFromProjectRoot,
       ),
     );
@@ -167,15 +171,17 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
       return _defaultConfigOptions.ddrConfig;
     }
 
-    final defaultDomainDirName = _defaultConfigOptions.ddrConfig.domainDirName;
+    final defaultDomainDirNames =
+        _defaultConfigOptions.ddrConfig.domainDirNames;
     final defaultCoreDartPackageExclusionStatus =
         _defaultConfigOptions.ddrConfig.excludeCoreDartPackages;
 
     return DependencyDirectionRuleConfig(
-      domainDirName: runCatching(
+      domainDirNames: runCatching(
         () =>
-            ddrConfigYaml['domain_dir_name'] as String? ?? defaultDomainDirName,
-        defaultValue: defaultDomainDirName,
+            (ddrConfigYaml['domain_dir_names'] as List?)?.cast<String>() ??
+            defaultDomainDirNames,
+        defaultValue: defaultDomainDirNames,
       ),
       excludeCoreDartPackages: runCatching(
         () =>
@@ -187,7 +193,14 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
         () =>
             (ddrConfigYaml['excluded_project_paths'] as List?)
                 ?.cast<String>()
-                .map(_normalizePath)
+                .map(
+                  // Ensuring usage of forward slash as the path separator.
+                  // In Dart analysis, the forward slash (`/`) is the standard,
+                  // and exclusive path separator.
+                  (p) => p
+                      .normalizePathSeparators(pathSeparator: '/')
+                      .ensureTrailingPathSeparator(pathSeparator: '/'),
+                )
                 .toList() ??
             [],
         defaultValue: [],
@@ -200,20 +213,5 @@ class CleanArchLintConfigLoader extends ContextConfigLoader {
         defaultValue: [],
       ),
     );
-  }
-
-  String _normalizePath(String filePath) {
-    final platformSeparatorFixedPath = filePath.replaceAll(
-      RegExp(r'[\\/]'),
-      path.separator,
-    );
-
-    final normalizedFixedPath = path.normalize(platformSeparatorFixedPath);
-    final normalizedPathSuffix =
-        platformSeparatorFixedPath.endsWith(path.separator)
-        ? path.separator
-        : '';
-
-    return '$normalizedFixedPath$normalizedPathSuffix';
   }
 }

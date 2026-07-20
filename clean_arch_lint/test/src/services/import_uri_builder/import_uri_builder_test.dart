@@ -11,6 +11,8 @@ void main() {
 
   late ImportUriBuilder sut;
 
+  const hostPath = 'lib/feature/auth/domain/services/src.dart';
+
   setUpAll(() async {
     await dartResolver.setUp();
   });
@@ -27,20 +29,25 @@ void main() {
     final importDirective = getImportDirective(
       (await dartResolver.resolveSource("import '';")).unit,
     );
-    expect(sut.fromImportNode(importDirective), isNull);
+    expect(sut.fromImportNode(importDirective, hostPath: hostPath), isNull);
   });
 
   test('If there is no `:`, the entire uri is just path', () async {
     final importDirective = getImportDirective(
       (await dartResolver.resolveSource("import 'a/b/c';")).unit,
     );
+    final result = sut.fromImportNode(importDirective, hostPath: hostPath);
     expect(
-      sut.fromImportNode(importDirective),
+      result,
       isA<ImportUri>()
           .having((p) => p.scheme, 'scheme', isNull)
           .having((p) => p.packageName, 'packageName', isNull)
           .having((p) => p.path, 'path', isNotNull)
-          .having((p) => p.path, 'path', 'a/b/c'),
+          .having(
+            (p) => p.path,
+            'path',
+            'lib/feature/auth/domain/services/a/b/c',
+          ),
     );
   });
 
@@ -57,7 +64,7 @@ void main() {
         final importDirective = getImportDirective(
           (await dartResolver.resolveSource("import '$uri';")).unit,
         );
-        expect(sut.fromImportNode(importDirective), isNull);
+        expect(sut.fromImportNode(importDirective, hostPath: hostPath), isNull);
       }
     },
   );
@@ -70,31 +77,24 @@ void main() {
           "import 'package:foo/bar.dart';",
         )).unit,
       );
-      final result = sut.fromImportNode(importDirective);
+      final result = sut.fromImportNode(importDirective, hostPath: hostPath);
       expect(
         result,
         isA<ImportUri>()
             .having((p) => p.scheme, 'scheme', 'package')
             .having((p) => p.packageName, 'packageName', 'foo')
-            .having((p) => p.path, 'path', 'bar.dart'),
+            .having((p) => p.path, 'path', 'lib/bar.dart'),
       );
     },
   );
 
   test(
-    'If uri string is of form `scheme:package` (no /), path = package',
+    'If uri string is of form `scheme:package` (no /), returns null (malformed)',
     () async {
       final importDirective = getImportDirective(
         (await dartResolver.resolveSource("import 'package:foo';")).unit,
       );
-      final result = sut.fromImportNode(importDirective);
-      expect(
-        result,
-        isA<ImportUri>()
-            .having((p) => p.scheme, 'scheme', 'package')
-            .having((p) => p.packageName, 'packageName', isNull)
-            .having((p) => p.path, 'path', 'foo'),
-      );
+      expect(sut.fromImportNode(importDirective, hostPath: hostPath), isNull);
     },
   );
 
@@ -104,7 +104,7 @@ void main() {
       final importDirective = getImportDirective(
         (await dartResolver.resolveSource("import ':foo/bar.dart';")).unit,
       );
-      final result = sut.fromImportNode(importDirective);
+      final result = sut.fromImportNode(importDirective, hostPath: hostPath);
       expect(
         result,
         isA<ImportUri>()
@@ -121,7 +121,7 @@ void main() {
       final importDirective = getImportDirective(
         (await dartResolver.resolveSource("import ':foo';")).unit,
       );
-      final result = sut.fromImportNode(importDirective);
+      final result = sut.fromImportNode(importDirective, hostPath: hostPath);
       expect(
         result,
         isA<ImportUri>()
@@ -138,7 +138,7 @@ void main() {
       final importDirective = getImportDirective(
         (await dartResolver.resolveSource("import 'package:';")).unit,
       );
-      expect(sut.fromImportNode(importDirective), isNull);
+      expect(sut.fromImportNode(importDirective, hostPath: hostPath), isNull);
     },
   );
 
@@ -148,7 +148,7 @@ void main() {
       final importDirective = getImportDirective(
         (await dartResolver.resolveSource("import 'x:y:z';")).unit,
       );
-      final result = sut.fromImportNode(importDirective);
+      final result = sut.fromImportNode(importDirective, hostPath: hostPath);
 
       expect(
         result,

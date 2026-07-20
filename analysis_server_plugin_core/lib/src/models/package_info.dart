@@ -12,10 +12,9 @@ class PackageInfo implements Mappable {
   /// The absolute path of the package being analyzed.
   ///
   ///
-  /// - For standard dart packages, this is the
-  ///   root of the project.
-  /// - In case of non-package dart code, or standalone dart
-  ///   files, this is the parent of the file.
+  /// - For standard dart packages, this is the root of the project.
+  /// - In case of non-package dart code, or standalone dart files,
+  ///   this is the parent of the file.
   final String location;
 
   const PackageInfo({required this.name, required this.location});

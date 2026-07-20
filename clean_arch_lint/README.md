@@ -67,16 +67,16 @@ scan_config:
 
 # Config for `clean_arch_dependency_direction` rule
 clean_arch_dependency_direction:
-  # Name of the domain folder(s) in the project (default: 'domain')
-  domain_dir_name: domain
   # Exclude Dart core packages from analysis (default: true)
   # e.g., dart:core, dart:async, etc.
   exclude_core_dart_packages: true
-  # Project paths to exclude from analysis (default: [])
-  # Paths should be relative to `lib/` or `test/`.
-  # Example: To exclude `lib/core/*`, write `core/*`
+  # Name(s) of domain folder(s) in the project (default: ['domain'])
+  domain_dir_names:
+    - domain
+  # Package-root-relative paths to exclude from analysis (default: [])
+  # Example: To exclude `lib/core/*`, write `lib/core/`
   excluded_project_paths:
-    - core/
+    - lib/core/
   # External library packages to exclude from analysis (default: [])
   # Specify package names as strings
   # Example: equatable, freezed, json_serializable
@@ -92,6 +92,20 @@ or invalid, default values are used.
 Run `flutter pub get`, then run `flutter analyze` to verify the plugin is enabled and reporting
 diagnostics. You may also want to restart the analysis server after each change to the analyzer
 config (including initial setup).
+
+## Violations
+
+The `clean_arch_dependency_direction` rule reports the following violations for files inside any
+directory listed in `domain_dir_names`:
+
+| Import type                                                       | Violation message                         | Condition                                                                             |
+|-------------------------------------------------------------------|-------------------------------------------|---------------------------------------------------------------------------------------|
+| Own-package (relative or `package:self/`) pointing outside domain | `non-domain import in domain layer.`      | Import target is not in the same domain directory and not in `excluded_project_paths` |
+| Third-party package                                               | `library package import in domain layer.` | Package not in `excluded_library_packages`                                            |
+| `dart:*` SDK                                                      | `core dart import in domain layer.`       | `exclude_core_dart_packages` is `false`                                               |
+
+Domain-to-domain imports within the **same domain directory** are allowed.
+Imports from other features' domain directories are also blocked (treated as non-domain).
 
 ## Example
 
