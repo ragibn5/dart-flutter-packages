@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analysis_server_plugin_core: ^1.0.0
+  analysis_server_plugin_core: ^1.0.1
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_server_plugin_core
-      ref: analysis_server_plugin_core-1.0.0
+      ref: analysis_server_plugin_core-1.0.1
 ```
 
 ## Why This Package Exists
@@ -180,30 +180,30 @@ class _MyVisitor extends SimpleAstVisitor<void> {
 
 ### Models
 
-| Class                   | Purpose                                                                                                            |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------|
+| Class                   | Purpose                                                                                                                    |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | `ContextConfig`         | Abstract base for plugin configuration. Bundles `PackageInfo`, `LogConfig`, and `ScanConfig`. Extend with your own fields. |
-| `PackageInfo`           | Package name and root path for the currently analyzed package.                                                     |
-| `LogConfig`             | Controls whether logging is enabled, which levels are allowed, and where log files are written.                    |
-| `ScanConfig`            | Controls whether `lib/`, `test/`, or both are scanned.                                                             |
-| `RuleMetadata`          | Name and description for a rule.                                                                                   |
-| `RuleSessionContext<T>` | Wraps a resolved config and a logger. Passed to your rule visitors.                                                |
-| `Mappable`              | Interface requiring `toMap()` for serializable config maps.                                                        |
+| `PackageInfo`           | Package name and root path for the currently analyzed package.                                                             |
+| `LogConfig`             | Controls whether logging is enabled, which levels are allowed, and where log files are written.                            |
+| `ScanConfig`            | Controls whether `lib/`, `test/`, or both are scanned.                                                                     |
+| `RuleMetadata`          | Name and description for a rule.                                                                                           |
+| `RuleSessionContext<T>` | Wraps a resolved config and a logger. Passed to your rule visitors.                                                        |
+| `Mappable`              | Interface requiring `toMap()` for serializable config maps.                                                                |
 
 ### Rules
 
-| Class                           | Purpose                                                                                                                                                        |
-|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Class                           | Purpose                                                                                                                                                                               |
+|---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `SessionManagedAnalysisRule<T>` | Abstract rule automating session lifecycle. Handles config loading, session caching, logger creation, and scan-scope checks before delegating to `registerSessionedNodeProcessors()`. |
 
 ### Services
 
-| Area        | Class                       | Purpose                                                                                                   |
-|-------------|-----------------------------|-----------------------------------------------------------------------------------------------------------|
-| **Config**  | `ContextConfigLoader<T>`    | Abstract loader. Subclass to extract `PackageInfo` from a `RuleContext` and build your config.            |
-| **Session** | `SessionDataManager`        | Caches `SessionData` per package per session. Returns cache-hit or newly-created results.                 |
-| **Session** | `SessionDataManagerFactory` | Static factory that wires the session data pipeline. Pass it your `ContextConfigLoader`.                  |
-| **Logger**  | `SessionLogger`             | Interface for level-aware logging (info/warning/error) with global and per-level toggles.                 |
+| Area        | Class                       | Purpose                                                                                        |
+|-------------|-----------------------------|------------------------------------------------------------------------------------------------|
+| **Config**  | `ContextConfigLoader<T>`    | Abstract loader. Subclass to extract `PackageInfo` from a `RuleContext` and build your config. |
+| **Session** | `SessionDataManager`        | Caches `SessionData` per package per session. Returns cache-hit or newly-created results.      |
+| **Session** | `SessionDataManagerFactory` | Static factory that wires the session data pipeline. Pass it your `ContextConfigLoader`.       |
+| **Logger**  | `SessionLogger`             | Interface for level-aware logging (info/warning/error) with global and per-level toggles.      |
 
 ### Helpers
 
@@ -212,12 +212,12 @@ class _MyVisitor extends SimpleAstVisitor<void> {
 | `AnnotationTypeResolver`                 | Resolves an `Annotation` AST node to its class name, handling const values and typedef aliases.                |
 | `CollectionTypeResolver`                 | Checks whether a `TypeAnnotation` is `List<T>` or `Map<K,V>`, with nullability matching and typedef support.   |
 | `PathStringExtensions` on `String`       | `normalizePathSeparators`, `ensureTrailingPathSeparator`, `surroundingPathSeparator` for cross-platform paths. |
-| `RuleContextExtensions` on `RuleContext` | `packageRelativeUnitPath(pathSeparator:)` for file paths relative to the package root.                          |
+| `RuleContextExtensions` on `RuleContext` | `packageRelativeUnitPath(pathSeparator:)` for file paths relative to the package root.                         |
 | `AnalyzerFile` / `AnalyzerFolder`        | Typedefs for `analyzer.file_system.File` and `analyzer.file_system.Folder`.                                    |
 
 ## Example
 
 See the full [example](example/example.dart), or look at real plugins built with this library:
 
-- [clean_arch_lint](../clean_arch_lint)
-- [json_parser_analyzer](../json_parser/json_parser_analyzer)
+- [clean_arch_linter](https://pub.dev/packages/clean_arch_linter) | [source](../clean_arch_linter)
+- [json_parser_linter](https://pub.dev/packages/json_parser_linter) | [source](../json_parser/json_parser_linter)
