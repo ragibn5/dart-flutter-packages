@@ -36,11 +36,10 @@ packages:
   analysis_server_plugin_core:
     dependency: transitive
     description:
-      name: analysis_server_plugin_core
-      sha256: "8bca288600179572114b8df147e5cd88a610912a396a66f21322832e5eceee19"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
+      path: "../analysis_server_plugin_core"
+      relative: true
+    source: path
+    version: "1.0.1"
   analytics:
     dependency: "direct main"
     description:
@@ -222,10 +221,10 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.4"
-  clean_arch_lint:
+  clean_arch_linter:
     dependency: "direct dev"
     description:
-      path: "../clean_arch_lint"
+      path: "../clean_arch_linter"
       relative: true
     source: path
     version: "1.0.0"

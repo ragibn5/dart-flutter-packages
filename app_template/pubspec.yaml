@@ -120,8 +120,8 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   very_good_analysis: ^7.0.0
   bloc_lint: ^0.3.7
-  clean_arch_lint:
-    path: ../clean_arch_lint
+  clean_arch_linter:
+    path: ../clean_arch_linter
 
   # Generators
   build_runner: ^2.4.15

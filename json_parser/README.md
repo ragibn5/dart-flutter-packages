@@ -148,7 +148,7 @@ Additional tooling is available for `json_parser`:
 
 - [`json_parser_generator`](json_parser_generator/README.md): Generates type-safe JSON parsers and
   parser registries for annotated models.
-- [`json_parser_analyzer`](json_parser_analyzer/README.md): Adds analyzer checks to enforce
+- [`json_parser_linter`](json_parser_linter/README.md): Adds analyzer checks to enforce
   `json_parser`-compatible model structures.
 
 ### Example

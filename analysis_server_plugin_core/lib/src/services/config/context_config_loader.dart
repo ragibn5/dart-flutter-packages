@@ -47,7 +47,7 @@ abstract class ContextConfigLoader<C extends ContextConfig> {
     if (package == null) {
       // Not from a dart package.
       // - Package name is null.
-      // - Package location unit's parent dir.
+      // - Package location (Compilation unit location tbh) is the parent dir.
       return PackageInfo(name: null, location: unitParentLocation);
     }
 
