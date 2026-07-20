@@ -78,7 +78,7 @@ void main() {
       ).thenReturn(r'C:\Users\foo\project\lib\bar.dart');
 
       expect(
-        mockRuleContext.packageRelativeUnitPath(pathSeparator: '\\'),
+        mockRuleContext.packageRelativeUnitPath(pathSeparator: r'\\'),
         r'lib\bar.dart',
       );
     });
@@ -104,7 +104,7 @@ void main() {
       ).thenReturn(r'C:\Users/foo/project/lib/bar.dart');
 
       expect(
-        mockRuleContext.packageRelativeUnitPath(pathSeparator: '\\'),
+        mockRuleContext.packageRelativeUnitPath(pathSeparator: r'\\'),
         r'lib\bar.dart',
       );
     });
