@@ -49,7 +49,7 @@ generation utilities, and architectural support.
 - [`nav_router`](nav_router)
 - [`radio_group`](radio_group)
 - [`selection_group`](selection_group)
-- [`menu`](menu)
+- [`infinity_menu`](infinity_menu)
 - [`alerty`](alerty)
 - [`snacker`](snacker)
 - [`common_widgets`](common_widgets)
