@@ -1,4 +1,4 @@
-/// A fully customizable menu for flutter apps
+/// An infinitely customizable Menu for flutter apps
 /// with support for nested menu and much more.
 library infinity_menu;
 

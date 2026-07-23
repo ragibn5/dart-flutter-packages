@@ -1,6 +1,6 @@
 # ∞ infinity_menu
 
-A fully customizable menu for flutter apps with support for nested menu and much more.
+An infinitely customizable Menu for flutter apps with support for nested menu and much more.
 
 ## Installation
 
@@ -28,7 +28,7 @@ dependencies:
 
 - **♾️ Infinite nesting** — nest submenus to any depth.
 - **🎨 UI-agnostic** — you control how everything looks via builder callbacks.
-- **📦 Strongly typed** — carry any data type through your menu and get it back on selection.
+- **📦 Type-safe** — carry any data type through your menu and get it back as a strongly typed value on selection.
 - **🔀 Wide compatibility** — works with Flutter 3.10.6+.
 
 ## 📸 Preview
