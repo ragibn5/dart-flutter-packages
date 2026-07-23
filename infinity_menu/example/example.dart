@@ -1,40 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:infinity_menu/menu.dart';
+import 'package:infinity_menu/infinity_menu.dart';
 
-void main() {
-  runApp(
-    const MaterialApp(title: 'Menu Example', home: ExampleHomePage()),
-  );
-}
+void main() => runApp(const App());
 
-class ExampleHomePage extends StatefulWidget {
-  const ExampleHomePage({super.key});
+class App extends StatelessWidget {
+  const App({super.key});
 
   @override
-  State<ExampleHomePage> createState() => _ExampleHomePageState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Infinity Menu',
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Infinity Menu')),
+        body: Center(child: Builder(builder: (context) {
+          return FilledButton(
+            onPressed: () => _openMenu(context, _menuData, null),
+            child: const Text('Open Menu'),
+          );
+        })),
+      ),
+    );
+  }
 }
 
-class _ExampleHomePageState extends State<ExampleHomePage> {
-  String _lastSelection = 'Nothing selected yet';
-
-  late final _menuData = MenuData<String>(menuItems: [
+final _menuData = MenuData<String>(
+  menuItems: [
     MenuItemData<String>(
       data: 'theme',
       itemTitle: 'Theme',
       itemIcon: IconFromIconData(Icons.palette),
-      // Adding the submenu as the child of this menu item
       subMenuData: MenuData<String>(
         menuItems: [
-          MenuItemData<String>(
-            data: 'light-theme',
-            itemTitle: 'Light Theme',
-            onItemAction: _onItemAction,
-          ),
-          MenuItemData<String>(
-            data: 'dark-theme',
-            itemTitle: 'Dark Theme',
-            onItemAction: _onItemAction,
-          ),
+          MenuItemData(data: 'light', itemTitle: 'Light'),
+          MenuItemData(data: 'dark', itemTitle: 'Dark'),
         ],
       ),
     ),
@@ -42,117 +40,53 @@ class _ExampleHomePageState extends State<ExampleHomePage> {
       data: 'settings',
       itemTitle: 'Settings',
       itemIcon: IconFromIconData(Icons.settings),
-      onItemAction: _onItemAction,
     ),
-  ]);
+    MenuItemData<String>(
+      data: 'about',
+      itemTitle: 'About',
+    ),
+  ],
+);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Menu Example'),
-      ),
-      body: Center(
-        child: Builder(builder: (context) {
-          return Column(
-            spacing: 16,
-            mainAxisAlignment: MainAxisAlignment.center,
+void _openMenu(
+  BuildContext context,
+  MenuData<String> menuData,
+  MenuItemData<String>? parent,
+) {
+  showModalBottomSheet<void>(
+    context: context,
+    builder: (_) => SafeArea(
+      child: Menu<String>(
+        parent: parent,
+        menuData: menuData,
+        menuItemBuilder: (_, __, item) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Row(
             children: [
-              FilledButton(
-                child: const Text('Show Menu'),
-                onPressed: () => _showMenu(
-                  context,
-                  _menuData,
-                  null,
-                ),
-              ),
-              Text(_lastSelection),
+              if (item.itemIcon case IconFromIconData(:final iconData))
+                Icon(iconData),
+              const SizedBox(width: 12),
+              Expanded(child: Text(item.itemTitle)),
+              if (item.subMenuData != null)
+                const Icon(Icons.chevron_right, size: 20),
             ],
-          );
-        }),
-      ),
-    );
-  }
-
-  void _onItemAction(String? data) {
-    setState(() {
-      _lastSelection = data == null ? 'Selected: null' : 'Selected: $data';
-    });
-  }
-
-  void _showMenu(
-    BuildContext context,
-    MenuData<String> menuData,
-    MenuItemData<String>? parentItemData,
-  ) {
-    showModalBottomSheet<String>(
-      context: context,
-      builder: (_) => SafeArea(
-        child: Menu(
-          parent: parentItemData,
-          menuData: menuData,
-          menuItemBuilder: (_, __, item) => MenuItem(item: item),
-          separatorBuilder: (_, __, item) => const Divider(height: 1),
-          menuHeaderBuilder: (_, parent) => MenuHeader(parentItemData: parent),
-          // Submenu request handler.
-          // We are calling the method itself to do the job.
-          onSubmenuRequest: (menuContext, submenu, parent) =>
-              _showMenu(menuContext, submenu, parent),
+          ),
         ),
+        menuHeaderBuilder: (_, parent) => Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(
+            parent?.itemTitle ?? 'Menu',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        separatorBuilder: (_, __, ___) => const Divider(height: 1),
+        onSubmenuRequest: (ctx, submenu, parent) =>
+            _openMenu(ctx, submenu, parent),
       ),
-    );
-  }
-}
-
-class MenuHeader extends StatelessWidget {
-  final MenuItemData<String>? parentItemData;
-
-  const MenuHeader({
-    super.key,
-    required this.parentItemData,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Text(
-        parentItemData?.itemTitle ?? 'Menu',
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-}
-
-class MenuItem extends StatelessWidget {
-  final MenuItemData<String> item;
-
-  const MenuItem({
-    super.key,
-    required this.item,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        spacing: 8,
-        children: [
-          switch (item.itemIcon) {
-            final IconFromPath path => Image.asset(path.iconPath),
-            final IconFromIconData iconData => Icon(iconData.iconData),
-            null => const SizedBox.shrink(),
-          },
-          Expanded(child: Text(item.itemTitle)),
-          if (item.subMenuData != null)
-            const Icon(Icons.arrow_right)
-          else
-            const SizedBox.shrink()
-        ],
-      ),
-    );
-  }
+    ),
+  );
 }
