@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  infinity_menu: ^1.0.0
+  infinity_menu: ^1.0.2
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: infinity_menu
-      ref: infinity_menu-1.0.0
+      ref: infinity_menu-1.0.2
 ```
 
 ## ✨ Features
@@ -33,23 +33,21 @@ dependencies:
 
 ## 📸 Preview
 
-<p style="text-align: center">
-  <img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/0.png" alt="Home screen" style="width: 45%">
-  &nbsp;&nbsp;
-  <img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/3.png" alt="Menu selected" style="width: 45%">
-</p>
-
-<p style="text-align: center">
-  <img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/1.1.png" alt="Deep nesting - level 1" style="width: 30%">
-  <img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/1.2.png" alt="Deep nesting - level 2" style="width: 30%">
-  <img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/1.3.png" alt="Deep nesting - level 3" style="width: 30%">
-</p>
-
-<p style="text-align: center">
-  <img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/2.1.png" alt="Settings menu" style="width: 45%">
-  &nbsp;&nbsp;
-  <img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/2.2.png" alt="Settings submenu" style="width: 45%">
-</p>
+<table>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/0.png" alt="Home screen"></td>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/3.png" alt="Menu selected"></td>
+  </tr>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/1.1.png" alt="Deep nesting - level 1"></td>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/1.2.png" alt="Deep nesting - level 2"></td>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/1.3.png" alt="Deep nesting - level 3"></td>
+  </tr>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/2.1.png" alt="Settings menu"></td>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_menu/assets/screenshots/2.2.png" alt="Settings submenu"></td>
+  </tr>
+</table>
 
 ## 🚀 Get Started
 
