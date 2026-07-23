@@ -1,6 +1,6 @@
 # ∞ infinity_menu
 
-A fully customizable menu for Flutter apps — nested menus, tap feedback, and more.
+A fully customizable menu for flutter apps with support for nested menu and much more.
 
 ## Installation
 
@@ -31,12 +31,11 @@ For more information, see the [package on pub.dev](https://pub.dev/packages/infi
 ## ✨ Features
 
 - **♾️ Infinite nesting** — nest submenus to any depth.
-- **🎨 UI-agnostic** — you control how every item looks via builder callbacks.
-- **👆 Built-in tap feedback** — opacity fade or color overlay, with configurable duration.
-- **📐 Customizable layout** — shrink wrap, padding, scroll physics.
-- **📦 Zero runtime dependencies** — only the Flutter SDK.
+- **🎨 UI-agnostic** — you control how everything looks via builder callbacks.
+- **📦 Strongly typed** — carry any data type through your menu and get it back on selection.
+- **🔀 Wide compatibility** — works with Flutter 3.10.6+.
 
-## 📸 Screenshots
+## 📸 Preview
 
 <p style="text-align: center">
   <img src="assets/screenshots/0.png" alt="Home screen" style="width: 45%">
@@ -56,7 +55,7 @@ For more information, see the [package on pub.dev](https://pub.dev/packages/infi
   <img src="assets/screenshots/2.2.png" alt="Settings submenu" style="width: 45%">
 </p>
 
-## 🚀 Usage
+## 🚀 Get Started
 
 ### 1. Define your menu data
 
@@ -121,6 +120,21 @@ void _openMenu(BuildContext context, MenuData<String> submenu) {
   );
 }
 ```
+
+## 📦 API
+
+All exported components from `package:infinity_menu/infinity_menu.dart`:
+
+| Component               | Description                                                                                                    |
+|-------------------------|----------------------------------------------------------------------------------------------------------------|
+| `Menu<D>`               | The main widget. Renders a `MenuData<D>` as a list, handling tap feedback, item actions, and submenu dispatch. |
+| `MenuData<D>`           | Holds a list of `MenuItemData<D>` items and a `MenuLayoutConfig`.                                              |
+| `MenuItemData<D>`       | A single menu item — title, optional icon, optional payload `D`, optional submenu, optional tap callback.      |
+| `IconFromIconData`      | Icon variant — wraps a Flutter `IconData`.                                                                     |
+| `IconFromPath`          | Icon variant — wraps an asset path string.                                                                     |
+| `MenuLayoutConfig`      | Layout options — shrink wrap, padding, scroll physics, selection feedback.                                     |
+| `OpacityFeedbackConfig` | Tap feedback — briefly dims the tapped item.                                                                   |
+| `OverlayFeedbackConfig` | Tap feedback — briefly shows a colored overlay on the tapped item.                                             |
 
 ## 🧪 Example
 

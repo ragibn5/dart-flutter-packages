@@ -1,4 +1,5 @@
-/// The `infinity_menu` package.
+/// A fully customizable menu for flutter apps
+/// with support for nested menu and much more.
 library infinity_menu;
 
 export 'src/configs/menu_layout_config.dart';
