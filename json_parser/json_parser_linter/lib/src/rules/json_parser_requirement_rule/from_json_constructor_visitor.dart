@@ -11,11 +11,12 @@ class FromJsonConstructorVisitorConfig {
 
   FromJsonConstructorVisitorConfig({
     this.wrongParamCountContextMessage =
-        'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+        'fromJson constructor must take exactly one parameter',
     this.wrongParamDeclarationTypeContextMessage =
-        'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+        'fromJson constructor parameter must be a normal positional parameter',
     this.invalidParamTypeContextMessage =
-        'fromJson constructor must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+        'fromJson constructor parameter must be '
+        'Map<String, dynamic> or Map<String, Object?>',
   });
 }
 

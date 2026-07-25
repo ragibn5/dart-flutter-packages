@@ -11,13 +11,12 @@ class ToJsonMethodVisitorConfig {
   final String invalidReturnTypeContextMessage;
 
   ToJsonMethodVisitorConfig({
-    this.getterNotAllowedContextMessage = 'toJson method must not be a getter.',
-    this.paramsNotAllowedContextMessage =
-        'toJson method must not have parameters.',
+    this.getterNotAllowedContextMessage = 'toJson must not be a getter',
+    this.paramsNotAllowedContextMessage = 'toJson must not take parameters',
     this.missingReturnTypeContextMessage =
-        'toJson method must have an explicit return type.',
+        'toJson must declare an explicit return type',
     this.invalidReturnTypeContextMessage =
-        'toJson method must return Map<String, dynamic> or Map<String, Object?>.',
+        'toJson must return Map<String, dynamic> or Map<String, Object?>',
   });
 }
 

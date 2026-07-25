@@ -16,19 +16,19 @@ class FromJsonStaticMethodVisitorConfig {
 
   FromJsonStaticMethodVisitorConfig({
     this.getterNotAllowedContextMessage =
-        'static fromJson must not be a getter.',
+        'static fromJson must not be a getter',
     this.missingParamDeclarationContextMessage =
-        'fromJson method must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+        'fromJson must take exactly one parameter',
     this.wrongParamCountContextMessage =
-        'fromJson method must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+        'fromJson must take exactly one parameter',
     this.wrongParamDeclarationTypeContextMessage =
-        'fromJson method must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+        'fromJson parameter must be a normal positional parameter',
     this.invalidParamTypeContextMessage =
-        'fromJson method must have only one positional parameter of type Map<String, dynamic> or Map<String, Object?>.',
+        'fromJson parameter must be Map<String, dynamic> or Map<String, Object?>',
     this.nonExplicitReturnTypeContextMessage =
-        'fromJson method must have an explicit return type.',
+        'fromJson must declare an explicit return type',
     this.nonEnclosingClassTypeReturnContextMessage =
-        'fromJson method must return the enclosing class type.',
+        'fromJson must return the enclosing class type',
   });
 }
 
