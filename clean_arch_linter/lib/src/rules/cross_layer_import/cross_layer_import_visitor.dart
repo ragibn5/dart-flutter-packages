@@ -5,6 +5,14 @@ import 'package:clean_arch_linter/src/models/import_uri.dart';
 import 'package:clean_arch_linter/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:meta/meta.dart';
 
+class CrossLayerImportVisitorConfig {
+  final String contextMessage;
+
+  CrossLayerImportVisitorConfig({
+    this.contextMessage = 'non-domain import in domain layer.',
+  });
+}
+
 class CrossLayerImportVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final AnalysisRule rule;
@@ -16,13 +24,16 @@ class CrossLayerImportVisitor extends SimpleAstVisitor<void> {
   final RuleSessionContext<CleanArchLinterConfig> sessionContext;
 
   final ImportUriBuilder _importUriBuilder;
+  final CrossLayerImportVisitorConfig _visitorConfig;
 
   CrossLayerImportVisitor(
     this.rule,
     this.domainUnitContext,
     this.sessionContext, {
+    @visibleForTesting CrossLayerImportVisitorConfig? visitorConfig,
     @visibleForTesting ImportUriBuilder? importUriBuilder,
-  }) : _importUriBuilder = importUriBuilder ?? ImportUriBuilder();
+  }) : _visitorConfig = visitorConfig ?? CrossLayerImportVisitorConfig(),
+       _importUriBuilder = importUriBuilder ?? ImportUriBuilder();
 
   @override
   void visitImportDirective(ImportDirective node) {
@@ -67,7 +78,7 @@ class CrossLayerImportVisitor extends SimpleAstVisitor<void> {
       return;
     }
 
-    rule.reportAtNode(node, arguments: ['non-domain import in domain layer.']);
+    rule.reportAtNode(node, arguments: [_visitorConfig.contextMessage]);
   }
 
   bool _isSamePackageImport(ImportUri importUri) {

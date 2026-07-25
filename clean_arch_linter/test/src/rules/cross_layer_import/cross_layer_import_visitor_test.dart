@@ -40,6 +40,7 @@ void main() {
 
   final dartResolver = DartUnitResolver();
   final realImportUriBuilder = ImportUriBuilder();
+  final visitorConfig = CrossLayerImportVisitorConfig();
 
   late _MockAnalysisRule mockAnalysisRule;
   late _MockRuleSessionContext mockRuleSessionContext;
@@ -112,6 +113,7 @@ void main() {
       mockAnalysisRule,
       defaultContext,
       mockRuleSessionContext,
+      visitorConfig: visitorConfig,
       importUriBuilder: mockImportUriBuilder,
     );
 
@@ -169,6 +171,7 @@ void main() {
         mockAnalysisRule,
         authDomainContext,
         mockRuleSessionContext,
+        visitorConfig: visitorConfig,
         importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
@@ -191,12 +194,13 @@ void main() {
         mockAnalysisRule,
         authDomainContext,
         mockRuleSessionContext,
+        visitorConfig: visitorConfig,
         importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
       verifyNodeReportedOnce(
         directive,
-        message: 'non-domain import in domain layer.',
+        message: visitorConfig.contextMessage,
       );
     },
   );
@@ -219,6 +223,7 @@ void main() {
         mockAnalysisRule,
         defaultContext,
         mockRuleSessionContext,
+        visitorConfig: visitorConfig,
         importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
@@ -245,7 +250,7 @@ void main() {
 
       verifyNodeReportedOnce(
         directive,
-        message: 'non-domain import in domain layer.',
+        message: visitorConfig.contextMessage,
       );
     },
   );
@@ -266,6 +271,7 @@ void main() {
         mockAnalysisRule,
         authDomainContext,
         mockRuleSessionContext,
+        visitorConfig: visitorConfig,
         importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
@@ -290,12 +296,13 @@ void main() {
         mockAnalysisRule,
         authDomainContext,
         mockRuleSessionContext,
+        visitorConfig: visitorConfig,
         importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
       verifyNodeReportedOnce(
         directive,
-        message: 'non-domain import in domain layer.',
+        message: visitorConfig.contextMessage,
       );
     },
   );

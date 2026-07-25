@@ -36,6 +36,7 @@ void main() {
 
   final dartResolver = DartUnitResolver();
   final realImportUriBuilder = ImportUriBuilder();
+  final visitorConfig = ThirdPartyImportVisitorConfig();
 
   late _MockAnalysisRule mockAnalysisRule;
   late _MockRuleSessionContext mockRuleSessionContext;
@@ -108,6 +109,7 @@ void main() {
       mockAnalysisRule,
       defaultContext,
       mockRuleSessionContext,
+      visitorConfig: visitorConfig,
       importUriBuilder: mockImportUriBuilder,
     );
 
@@ -194,7 +196,7 @@ void main() {
 
       verifyNodeReportedOnce(
         directive,
-        message: 'library package import in domain layer.',
+        message: visitorConfig.contextMessage,
       );
     },
   );

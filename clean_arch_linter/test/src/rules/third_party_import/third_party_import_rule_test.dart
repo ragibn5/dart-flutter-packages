@@ -116,10 +116,7 @@ void main() {
     () {
       when(() => mockContextUnitFile.path).thenReturn(nonDomainUnitLocation);
       when(
-        () => mockDomainDirPathResolver.findDomainDirPath(
-          any(),
-          any(),
-        ),
+        () => mockDomainDirPathResolver.findDomainDirPath(any(), any()),
       ).thenReturn(null);
 
       sut.registerSessionedNodeProcessors(
@@ -134,9 +131,7 @@ void main() {
           message: any(named: 'message'),
         ),
       ).called(1);
-      verifyNever(
-        () => mockRuleVisitorRegistry.addImportDirective(sut, any()),
-      );
+      verifyNever(() => mockRuleVisitorRegistry.addImportDirective(sut, any()));
     },
   );
 
@@ -144,10 +139,7 @@ void main() {
     'If source path contains domain directory name, we register the directive visitor',
     () {
       when(
-        () => mockDomainDirPathResolver.findDomainDirPath(
-          any(),
-          any(),
-        ),
+        () => mockDomainDirPathResolver.findDomainDirPath(any(), any()),
       ).thenReturn('lib/features/auth/domain/');
 
       sut.registerSessionedNodeProcessors(

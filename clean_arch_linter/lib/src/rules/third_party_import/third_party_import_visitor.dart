@@ -5,6 +5,14 @@ import 'package:clean_arch_linter/src/models/import_uri.dart';
 import 'package:clean_arch_linter/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:meta/meta.dart';
 
+class ThirdPartyImportVisitorConfig {
+  final String contextMessage;
+
+  ThirdPartyImportVisitorConfig({
+    this.contextMessage = 'library package import in domain layer.',
+  });
+}
+
 class ThirdPartyImportVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final AnalysisRule rule;
@@ -16,13 +24,16 @@ class ThirdPartyImportVisitor extends SimpleAstVisitor<void> {
   final RuleSessionContext<CleanArchLinterConfig> sessionContext;
 
   final ImportUriBuilder _importUriBuilder;
+  final ThirdPartyImportVisitorConfig _visitorConfig;
 
   ThirdPartyImportVisitor(
     this.rule,
     this.domainUnitContext,
     this.sessionContext, {
+    ThirdPartyImportVisitorConfig? visitorConfig,
     @visibleForTesting ImportUriBuilder? importUriBuilder,
-  }) : _importUriBuilder = importUriBuilder ?? ImportUriBuilder();
+  }) : _visitorConfig = visitorConfig ?? ThirdPartyImportVisitorConfig(),
+       _importUriBuilder = importUriBuilder ?? ImportUriBuilder();
 
   @override
   void visitImportDirective(ImportDirective node) {
@@ -67,10 +78,7 @@ class ThirdPartyImportVisitor extends SimpleAstVisitor<void> {
       return;
     }
 
-    rule.reportAtNode(
-      node,
-      arguments: ['library package import in domain layer.'],
-    );
+    rule.reportAtNode(node, arguments: [_visitorConfig.contextMessage]);
   }
 
   bool _isExcludedPackage(ImportUri importUri) {
