@@ -10,10 +10,11 @@ class DartSDKImportRule
     extends SessionManagedAnalysisRule<CleanArchLinterConfig> {
   static const LintCode lintCode = LintCode(
     'dart_sdk_import',
-    'Dart SDK import in domain component: {0}',
+    'External Dart library import in domain component: {0}',
     correctionMessage:
-        'Domain components should avoid Dart SDK imports when possible. '
-        'Allow via configuration if necessary.',
+        'Prefer keeping the domain self sufficient. '
+        'Common libraries (e.g. dart:core, dart:async) are fine and expected. '
+        'Allow via excluded_dart_packages if needed.',
     severity: DiagnosticSeverity.WARNING,
   );
 

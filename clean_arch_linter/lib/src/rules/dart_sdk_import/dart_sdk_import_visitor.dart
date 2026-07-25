@@ -57,6 +57,6 @@ class DartSDKImportVisitor extends SimpleAstVisitor<void> {
       return;
     }
 
-    rule.reportAtNode(node, arguments: ['core dart import in domain layer.']);
+    rule.reportAtNode(node, arguments: [importUri.toString()]);
   }
 }

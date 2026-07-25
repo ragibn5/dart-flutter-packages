@@ -151,10 +151,10 @@ Reports third-party package imports (`package:some_package/...`) from domain com
 
 Reports Dart SDK imports (`dart:...`) from domain components.
 
-| Import type            | Reported? | Why                              |
-|------------------------|-----------|----------------------------------|
-| Excluded dart packages | No        | Explicitly allowed               |
-| Other dart packages    | Yes       | Domain should avoid SDK coupling |
+| Import type            | Reported? | Why                                           |
+|------------------------|-----------|-----------------------------------------------|
+| Excluded dart packages | No        | Explicitly allowed                            |
+| Other dart packages    | Yes       | Prefer reviewing / allow via config if needed |
 
 ## 🐛 Debugging
 

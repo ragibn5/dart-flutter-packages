@@ -12,7 +12,8 @@ class CrossLayerImportRule
     'cross_layer_import',
     'Cross-layer import in domain component: {0}',
     correctionMessage:
-        'Domain components should only depend on their own domain layer. '
+        // ignore: lines_longer_than_80_chars
+        'Domain components should only depend on components within the same domain. '
         'Allow via excluded_project_paths configuration if necessary.',
     severity: DiagnosticSeverity.WARNING,
   );

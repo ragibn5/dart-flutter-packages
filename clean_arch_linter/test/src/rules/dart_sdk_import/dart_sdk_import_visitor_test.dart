@@ -178,7 +178,7 @@ void main() {
 
       verifyNodeReportedOnce(
         directive,
-        message: 'core dart import in domain layer.',
+        message: 'dart:core',
       );
     },
   );
