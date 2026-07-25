@@ -41,19 +41,13 @@ It provides:
 
 The core idea is straightforward:
 
-- write your config own model
-- write a config loader that loads the config
-- Write rules and visitors for processing those rules
-
-And, the package handles the repeated infrastructure around them.
-
 ## 🚀 Quick start
 
-This is the shape of a small analyzer plugin built with the package.
+A minimal analyzer plugin in 5 steps.
 
 ### 1. Build the plugin
 
-The analysis server looks for a top-level variable named `plugin`. For example,
+The analysis server looks for a top-level variable named `plugin`. Use `PluginBuilder` to create it.
 
 ```dart
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
@@ -65,19 +59,17 @@ final plugin = PluginBuilder<ExampleConfig>(
 ).build();
 ```
 
-Use `PluginBuilder` to build the plugin. It requires the following:
+| Parameter      | Description                                                                                     |
+|----------------|-------------------------------------------------------------------------------------------------|
+| `name`         | Plugin identifier reported to the Dart analysis server.                                         |
+| `configLoader` | A `ContextConfigLoader` that produces config for each analyzed package.                         |
+| `rules`        | A list of `SessionedRuleFactory` functions — typically constructor tear-offs like `MyRule.new`. |
 
-- `name`: Name of the plugin being created – used by the Dart analysis server to identify the plugin.
-- `configLoader`: A `ContextConfigLoader` instance that produces the plugin's config for each analyzed package.
-- `rules`: A list of `SessionedRuleFactory` functions. Each receives a shared `SessionDataManager` and returns a rule instance. Pass an empty list if the plugin has no rules yet.
-
-See the next steps to know how we create each of these.
+See the next steps for how to create each.
 
 ### 2. Define plugin config
 
-Define a config class extending `ContextConfig`, which bundles `PackageInfo`, `LogConfig`, and `ScanConfig`. Add your own fields on top.
-
-The `toMap()` method is used for debugging and logging. Override it to include your own fields and the base class fields.
+Extend `ContextConfig` to bundle your plugin's settings with the built-in `PackageInfo`, `LogConfig`, and `ScanConfig`.
 
 ```dart
 class ExampleConfig extends ContextConfig {
@@ -103,13 +95,12 @@ class ExampleConfig extends ContextConfig {
 
 ### 3. Load config per package
 
-The config loader reads your plugin's configuration from any source — pubspec.yaml, a standalone YAML file per plugin (recommended), or anything else. Extend `ContextConfigLoader` and implement `loadPluginConfig`. The base class extracts `PackageInfo` from `pubspec.yaml` for you.
+Extend `ContextConfigLoader` and implement `loadPluginConfig`. The base class extracts `PackageInfo` from `pubspec.yaml` for you — you fill in plugin-specific values.
 
 ```dart
 class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
   @override
-  ExampleConfig loadPluginConfig(RuleContext context,
-      PackageInfo packageInfo,) {
+  ExampleConfig loadPluginConfig(RuleContext context, PackageInfo packageInfo) {
     return ExampleConfig(
       packageInfo: packageInfo,
       logConfig: const LogConfig(
@@ -117,23 +108,15 @@ class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
         allowInfoLog: true,
         logDirectoryRelativePathFromProjectRoot: 'logs/analyzer_plugins/example',
       ),
-      scanConfig: const ScanConfig(
-        scanLibDir: true,
-        scanTestDir: false,
-      ),
+      scanConfig: const ScanConfig(scanLibDir: true, scanTestDir: false),
     );
   }
 }
 ```
 
-### 4. Write a session-managed rule
+### 4. Write a rule
 
-Define rule classes extending `SessionManagedAnalysisRule<T>`. Your `registerSessionedNodeProcessors` method runs only after:
-
-- config has been loaded
-- debug setup has been created
-- the config type has been verified
-- the current file passes `ScanConfig`
+Extend `SessionManagedAnalysisRule<T>`. By the time `registerSessionedNodeProcessors` runs, config is loaded, the type is verified, and `ScanConfig` filtering is done.
 
 ```dart
 class ExampleRule extends SessionManagedAnalysisRule<ExampleConfig> {
@@ -151,7 +134,7 @@ class ExampleRule extends SessionManagedAnalysisRule<ExampleConfig> {
   @override
   void registerSessionedNodeProcessors(RuleContext context,
       RuleVisitorRegistry registry,
-      RuleSessionContext<ExampleConfig> sessionContext) {
+      RuleSessionContext<ExampleConfig> sessionContext,) {
     registry.addClassDeclaration(
       this,
       _ExampleVisitor(rule: this, sessionContext: sessionContext),
@@ -160,27 +143,22 @@ class ExampleRule extends SessionManagedAnalysisRule<ExampleConfig> {
 }
 ```
 
-`LintCode` message arguments work as usual. In this example, `{0}` becomes the configured annotation name when the diagnostic is reported.
+### 5. Write a visitor
 
-### 6. Visitor
-
-The visitor contains the AST analysis logic. It receives `RuleSessionContext` to access the typed config and logger. Use the reporting methods on the `AnalysisRule` instance to emit diagnostics in the IDE and `dart analyze` output.
+The visitor contains the AST analysis logic. Use `sessionContext` for config and logging, and `rule.reportAtNode()` to emit diagnostics.
 
 ```dart
 class _ExampleVisitor extends SimpleAstVisitor<void> {
   final ExampleRule rule;
   final RuleSessionContext<ExampleConfig> sessionContext;
 
-  const _ExampleVisitor({
-    required this.rule,
-    required this.sessionContext,
-  });
+  const _ExampleVisitor({required this.rule, required this.sessionContext});
 
   @override
   void visitClassDeclaration(ClassDeclaration node) {
     final annotationName = sessionContext.config.requiredAnnotationName;
     final hasAnnotation = node.metadata.any(
-          (annotation) => annotation.name.name == annotationName,
+          (a) => a.name.name == annotationName,
     );
 
     if (hasAnnotation && node.name.lexeme.startsWith('_')) {
@@ -196,35 +174,21 @@ class _ExampleVisitor extends SimpleAstVisitor<void> {
 
 ## 🧰 Utilities
 
-The package also exports small helpers useful when writing analyzer rules.
-
 ### Resolve annotations
-
-`AnnotationTypeResolver` uses analyzer constant evaluation, so it can resolve direct annotations, const variables, and typedef aliases.
 
 ```dart
 
-final annotationResolver = AnnotationTypeResolverFactory.create();
-final annotationType = annotationResolver.resolveTypeName(annotation);
+final resolver = AnnotationTypeResolverFactory.create();
+final typeName = resolver.resolveTypeName(annotation);
 ```
 
 ### Match collection types
 
-`CollectionTypeResolver` checks exact `List<T>` and `Map<K, V>` types using analyzer type information. It supports typedef aliases and strict nullability matching.
-
 ```dart
 
-final collectionResolver = CollectionTypeResolverFactory.create();
-final isStringList = collectionResolver.isListOf(
-  returnType,
-  valueType: 'String',
-);
-
-final isJsonMap = collectionResolver.isMapOf(
-  returnType,
-  keyType: 'String',
-  valueType: 'dynamic',
-);
+final resolver = CollectionTypeResolverFactory.create();
+final isStringList = resolver.isListOf(returnType, valueType: 'String');
+final isJsonMap = resolver.isMapOf(returnType, keyType: 'String', valueType: 'dynamic');
 ```
 
 ### Work with paths
@@ -232,43 +196,39 @@ final isJsonMap = collectionResolver.isMapOf(
 ```dart
 
 final relativePath = context.packageRelativeUnitPath(pathSeparator: '/');
-final normalized = r'lib\src\rule.dart'.normalizePathSeparators(
-  pathSeparator: '/',
-);
+final normalized = r'lib\src\rule.dart'.normalizePathSeparators(pathSeparator: '/');
 ```
 
 ## 📦 API
 
-Everything commonly needed is exported from one import:
+Everything is exported from a single import:
 
 ```dart
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 ```
 
-| Component                       | Purpose                                                                                   |
-|---------------------------------|-------------------------------------------------------------------------------------------|
-| `PluginBuilder<C>`              | Type-safe builder that wires config loader, rules, and session manager into a `Plugin`.   |
-| `SessionedRuleFactory<C>`       | A function that creates a rule from a shared `SessionDataManager`.                        |
-| `SessionManagedAnalysisRule<T>` | Base class for rules that need typed config, logging, session reuse, and scan filtering.  |
-| `ContextConfig`                 | Base config model. Extend it with plugin-specific options.                                |
-| `ContextConfigLoader<T>`        | Loads config and resolves package metadata for the current `RuleContext`.                 |
-| `RuleSessionContext<T>`         | The object your visitors use to access typed config and the session logger.               |
-| `RuleMetadata`                  | Rule identity (code name and problem message).                                            |
-| `PackageInfo`                   | Package name and root path; falls back safely for standalone files.                       |
-| `LogConfig`                     | Enables/disables file logging and individual info/warning/error levels.                   |
-| `ScanConfig`                    | Controls whether `lib/` and `test/` are scanned. Defaults to `lib: true`, `test: false`.  |
-| `SessionDataManager`            | Caches `SessionData` per package root.                                                    |
-| `SessionLogger`                 | Session logger with global and per-level switches.                                        |
-| `AnnotationTypeResolver`        | Resolves annotation class names through constant values.                                  |
-| `AnnotationTypeResolverFactory` | Creates an [AnnotationTypeResolver].                                                      |
-| `CollectionTypeResolver`        | Matches exact `List<T>` and `Map<K, V>` annotations with typedef and nullability support. |
-| `CollectionTypeResolverFactory` | Creates a [CollectionTypeResolver].                                                       |
-| `PathStringExtensions`          | Normalizes, appends, and surrounds path separators.                                       |
-| `RuleContextExtensions`         | Converts the current unit path to a package-relative path.                                |
+| Component                       | Purpose                                                                              |
+|---------------------------------|--------------------------------------------------------------------------------------|
+| `PluginBuilder<C>`              | Type-safe builder — wires config loader, rules, and session manager into a `Plugin`. |
+| `SessionedRuleFactory<C>`       | Function signature: receives a `SessionDataManager`, returns a rule.                 |
+| `SessionManagedAnalysisRule<T>` | Base class for rules with typed config, logging, session reuse, and scan filtering.  |
+| `ContextConfig`                 | Base config model — extend with your plugin's options.                               |
+| `ContextConfigLoader<T>`        | Loads config and resolves package metadata per `RuleContext`.                        |
+| `RuleSessionContext<T>`         | Typed config + logger passed to visitors.                                            |
+| `RuleMetadata`                  | Rule identity (code name and problem message).                                       |
+| `PackageInfo`                   | Package name and root path.                                                          |
+| `LogConfig`                     | Enables/disables file logging and log levels.                                        |
+| `ScanConfig`                    | Controls `lib/` and `test/` scanning.                                                |
+| `SessionDataManager`            | Caches session data per package.                                                     |
+| `SessionLogger`                 | Logger with global and per-level switches.                                           |
+| `AnnotationTypeResolver`        | Resolves annotation class names through constant values.                             |
+| `CollectionTypeResolver`        | Matches `List<T>` and `Map<K, V>` with typedef and nullability support.              |
+| `PathStringExtensions`          | Normalizes and manipulates path separators.                                          |
+| `RuleContextExtensions`         | Converts unit paths to package-relative paths.                                       |
 
 ## 🧪 Examples
 
-See [example.dart](example/example.dart) for a minimal analyzer plugin using typed config, session logging, and one lint rule.
+See [example.dart](example/example.dart) for a complete minimal plugin.
 
 Real plugins built with this package:
 
