@@ -80,8 +80,8 @@ log_config:
   allow_warning: true  # Allow warning-level messages (default: true)
   allow_error: true    # Allow error-level messages (default: true)
   # Relative path (from project root) where log files are saved.
-  log_dir_relative_path: logs/analyzer_plugins/clean_arch_linter
   # default: logs/analyzer_plugins/clean_arch_linter
+  log_dir_relative_path: logs/analyzer_plugins/clean_arch_linter
 
 # Global scan configuration: controls which directories are scanned.
 scan_config:

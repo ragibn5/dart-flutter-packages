@@ -22,22 +22,36 @@ scan_config:
   # Scan the `test/` directory (default: false)
   scan_test_dir: false
 
-# Config for `clean_arch_dependency_direction` rule
-clean_arch_dependency_direction:
-  # Exclude Dart core packages from analysis (default: true)
-  # e.g., dart:core, dart:async, etc.
-  exclude_core_dart_packages: true
+# Domain configuration: Controls domain component detection.
+domain_config:
   # Name(s) of domain folder(s) in the project (default: ['domain'])
   domain_dir_names:
     - domain
-  # Package-root-relative paths to exclude from analysis (default: [])
-  # Example: To exclude `lib/core/*`, write `lib/core/`
-  excluded_project_paths:
-  # External library packages to exclude from analysis (default: [])
-  # Specify package names as strings
-  # Example: equatable, freezed, json_serializable
-  excluded_library_packages:
-    - equatable
-    - disposable
-    - net_models
-    - dart_functionals
+
+# Rule-specific configuration
+rules:
+  # Config for `dart_sdk_import` rule
+  dart_sdk_import:
+    # Dart SDK package names to exclude (default: []).
+    # These are the part after "dart:" — e.g. "core", "async", "io".
+    excluded_dart_packages:
+      - core
+      - async
+
+  # Config for `cross_layer_import` rule
+  cross_layer_import:
+    # Package-root-relative paths to exclude from analysis (default: [])
+    # Example: To exclude `lib/core/*`, write `lib/core/`
+    excluded_project_paths:
+      - lib/core/
+
+  # Config for `third_party_import` rule
+  third_party_import:
+    # External library packages to exclude from analysis (default: [])
+    # Specify package names as strings
+    # Example: equatable, freezed, json_serializable
+    excluded_library_packages:
+      - equatable
+      - disposable
+      - net_models
+      - dart_functionals

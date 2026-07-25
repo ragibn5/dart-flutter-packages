@@ -257,11 +257,11 @@ void main() {
       rules:
         dart_sdk_import:
           excluded_dart_packages:
-            - dart:core
+            - core
         cross_layer_import:
           excluded_project_paths:
-            - /core/
-            - /shard/
+            - lib/core/
+            - lib/shard/
         third_party_import:
           excluded_library_packages:
             - freezed
@@ -313,12 +313,12 @@ void main() {
             .having(
               (p) => p.dartSDKConfig.excludedDartPackages,
               'dartSDKConfig.excludedDartPackages',
-              ['dart:core'],
+              ['core'],
             )
             .having(
               (p) => p.crossLayerConfig.excludedProjectPaths,
               'crossLayerConfig.excludedProjectPaths',
-              ['/core/', '/shard/'],
+              ['lib/core/', 'lib/shard/'],
             )
             .having(
               (p) => p.thirdPartyConfig.excludedLibraryPackages,
@@ -339,8 +339,8 @@ void main() {
       rules:
         cross_layer_import:
           excluded_project_paths:
-            - core\
-            - shard\
+            - lib\core\
+            - lib\shard\
         third_party_import:
           excluded_library_packages:
             - freezed
@@ -361,7 +361,7 @@ void main() {
             .having(
               (p) => p.crossLayerConfig.excludedProjectPaths,
               'crossLayerConfig.excludedProjectPaths',
-              ['core/', 'shard/'],
+              ['lib/core/', 'lib/shard/'],
             ),
       );
     },

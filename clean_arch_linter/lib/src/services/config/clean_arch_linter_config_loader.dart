@@ -208,7 +208,8 @@ class CleanArchLinterConfigLoader
     return DartSDKImportConfig(
       excludedDartPackages: runCatching(
         () =>
-            (ruleYaml['excluded_dart_packages'] as List?)?.cast<String>() ?? [],
+            (ruleYaml['excluded_dart_packages'] as List?)?.cast<String>() ??
+            [],
         defaultValue: [],
       ),
     );
