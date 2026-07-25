@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_returning_this
+
 import 'package:analysis_server_plugin/plugin.dart';
 import 'package:analysis_server_plugin/registry.dart';
 import 'package:analysis_server_plugin_core/src/models/context_config.dart';
@@ -6,60 +8,79 @@ import 'package:analysis_server_plugin_core/src/services/config/context_config_l
 import 'package:analysis_server_plugin_core/src/services/session/session_data_manager.dart';
 import 'package:analysis_server_plugin_core/src/services/session/session_data_manager_factory.dart';
 
-/// A factory function that creates a [SessionManagedAnalysisRule]
-/// from a shared [SessionDataManager].
+/// A factory function that creates a [SessionManagedAnalysisRule] from
+/// a shared [SessionDataManager].
 ///
 /// The generic type [C] links the rule to a specific [ContextConfig]
 /// subclass, enforced at compile time by [PluginBuilder].
 typedef SessionedRuleFactory<C extends ContextConfig> =
     SessionManagedAnalysisRule<C> Function(SessionDataManager);
 
-/// A type-safe builder for constructing a [Plugin] backed by
-/// [SessionManagedAnalysisRule]s.
+/// A deferred registration callback that will be invoked with the
+/// [PluginRegistry] and shared [SessionDataManager] when the plugin
+/// is registered by the analysis server.
+typedef _RuleRegistrationCallback =
+    void Function(PluginRegistry, SessionDataManager);
+
+/// A type-safe builder for constructing a [Plugin].
 ///
-/// The generic type [C] flows through every parameter, providing a
-/// compile-time guarantee that the [ContextConfigLoader] and all registered
-/// rules share the same config type.
+/// The generic type [C] flows through the config loader,
+/// [addLintRule], and [addWarningRule], providing a compile-time
+/// guarantee that the config loader and session-managed rules share
+/// the same config type.
 ///
 /// Usage:
 /// ```dart
-/// final plugin = PluginBuilder<MyConfig>(
-///     name: 'MyPlugin',
-///     configLoader: MyConfigLoader(),
-///     rules: [MyRule.new],
-///   ).build();
+// ignore: lines_longer_than_80_chars
+/// final plugin = PluginBuilder<MyConfig>(name: 'MyPlugin', configLoader: MyConfigLoader())
+///   .addLintRule(MyLintRule.new)
+///   .addWarningRule(MyWarningRule.new)
+///   .build();
 /// ```
 class PluginBuilder<C extends ContextConfig> {
   final String _pluginName;
   final ContextConfigLoader<C> _configLoader;
-  final List<SessionedRuleFactory<C>> _ruleFactories;
+  final List<_RuleRegistrationCallback> _registrations = [];
 
   /// Creates a [PluginBuilder] for a plugin that uses config type [C].
   ///
-  /// The [name] is a human-readable identifier reported to the Dart
-  /// analysis server for error-reporting and insights-reporting.
-  ///
-  /// The [configLoader] produces the [ContextConfig] subclass of type [C]
-  /// for each analyzed package. The generic type [C] flows from here
-  /// through [rules], ensuring that all registered rules share the same
-  /// config type at compile time.
-  ///
-  /// The [rules] is a list of rule factories. Each factory receives the
-  /// shared [SessionDataManager] and must return a
-  /// [SessionManagedAnalysisRule] parameterized with the same config
-  /// type [C]. Pass an empty list if the plugin has no rules yet.
+  /// - [name]: A human-readable identifier used by the Dart analysis server.
+  /// - [configLoader]: Loads the config of type [C] for each analyzed package.
   PluginBuilder({
     required String name,
     required ContextConfigLoader<C> configLoader,
-    required List<SessionedRuleFactory<C>> rules,
   }) : _pluginName = name,
-       _configLoader = configLoader,
-       _ruleFactories = rules;
+       _configLoader = configLoader;
 
-  /// Builds a [Plugin] instance from the constructor parameters.
+  /// Registers a lint rule factory.
   ///
-  /// Creates a single shared [SessionDataManager] and registers all
-  /// rules added by this builder.
+  /// Each factory receives the shared [SessionDataManager] and must return a
+  /// [SessionManagedAnalysisRule] parameterized with the same config type [C].
+  PluginBuilder<C> addLintRule(SessionedRuleFactory<C> factory) {
+    _registrations.add(
+      (registry, sessionDataManager) =>
+          registry.registerLintRule(factory(sessionDataManager)),
+    );
+    return this;
+  }
+
+  /// Registers a warning rule factory.
+  ///
+  /// Each factory receives the shared [SessionDataManager] and must
+  /// return a [SessionManagedAnalysisRule] parameterized with the same
+  /// config type [C].
+  PluginBuilder<C> addWarningRule(SessionedRuleFactory<C> factory) {
+    _registrations.add(
+      (registry, sessionDataManager) =>
+          registry.registerWarningRule(factory(sessionDataManager)),
+    );
+    return this;
+  }
+
+  /// Builds a [Plugin] instance from the registered components.
+  ///
+  /// Creates a single shared [SessionDataManager] and returns a plugin
+  /// that registers everything via [PluginRegistry].
   Plugin build() {
     final sessionDataManager = SessionDataManagerFactory.createNewInstance(
       _configLoader,
@@ -68,7 +89,7 @@ class PluginBuilder<C extends ContextConfig> {
     return _BuiltPlugin<C>(
       pluginName: _pluginName,
       sessionDataManager: sessionDataManager,
-      ruleFactories: List.unmodifiable(_ruleFactories),
+      registrations: List.unmodifiable(_registrations),
     );
   }
 }
@@ -76,23 +97,23 @@ class PluginBuilder<C extends ContextConfig> {
 class _BuiltPlugin<C extends ContextConfig> extends Plugin {
   final String _name;
   final SessionDataManager _sessionDataManager;
-  final List<SessionedRuleFactory<C>> _ruleFactories;
+  final List<_RuleRegistrationCallback> _registrations;
 
   _BuiltPlugin({
     required String pluginName,
     required SessionDataManager sessionDataManager,
-    required List<SessionedRuleFactory<C>> ruleFactories,
+    required List<_RuleRegistrationCallback> registrations,
   }) : _name = pluginName,
        _sessionDataManager = sessionDataManager,
-       _ruleFactories = ruleFactories;
+       _registrations = registrations;
 
   @override
   String get name => _name;
 
   @override
   void register(PluginRegistry registry) {
-    for (final factory in _ruleFactories) {
-      registry.registerLintRule(factory(_sessionDataManager));
+    for (final registration in _registrations) {
+      registration(registry, _sessionDataManager);
     }
   }
 }

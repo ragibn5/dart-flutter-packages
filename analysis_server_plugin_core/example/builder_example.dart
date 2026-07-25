@@ -15,10 +15,11 @@ import 'package:path/path.dart' as path;
 /// [PluginBuilder] handles the wiring internally — a single
 /// [SessionDataManager] is created and shared across all rules.
 final plugin = PluginBuilder<ExampleConfig>(
-    name: 'ExamplePlugin',
-    configLoader: ExampleConfigLoader(),
-    rules: [ExampleAnnotatedModelRule.new],
-  ).build();
+  name: 'ExamplePlugin',
+  configLoader: ExampleConfigLoader(),
+)
+  .addLintRule(ExampleAnnotatedModelRule.new)
+  .build();
 
 /// #### Step 2: Define your plugin config
 ///

@@ -1,4 +1,5 @@
-// Minimal example of an analyzer plugin built with `analysis_server_plugin_core`.
+// Minimal example of an analyzer plugin built with
+// `analysis_server_plugin_core`.
 //
 // This file shows the smallest useful shape of a plugin library:
 // 1. expose a top-level `plugin`,
@@ -16,8 +17,9 @@ import 'package:path/path.dart' as path;
 final plugin = PluginBuilder<ExampleConfig>(
   name: 'ExamplePlugin',
   configLoader: ExampleConfigLoader(),
-  rules: [ExampleAnnotatedModelRule.new],
-).build();
+)
+  .addLintRule(ExampleAnnotatedModelRule.new)
+  .build();
 
 /// #### Step 2: Define your plugin config
 ///

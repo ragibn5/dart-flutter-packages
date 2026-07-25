@@ -12,8 +12,7 @@ class _TestConfig extends ContextConfig {
   Map<String, dynamic> toMap() => {};
 }
 
-class _TestConfigLoader
-    extends ContextConfigLoader<_TestConfig> {
+class _TestConfigLoader extends ContextConfigLoader<_TestConfig> {
   @override
   _TestConfig loadPluginConfig(
     RuleContext context,
@@ -22,24 +21,18 @@ class _TestConfigLoader
     return _TestConfig(
       packageInfo: packageInfo,
       logConfig: const LogConfig(
-        logDirectoryRelativePathFromProjectRoot:
-            'logs/test',
+        logDirectoryRelativePathFromProjectRoot: 'logs/test',
       ),
     );
   }
 }
 
-class _TestRule
-    extends SessionManagedAnalysisRule<_TestConfig> {
+class _TestRule extends SessionManagedAnalysisRule<_TestConfig> {
   _TestRule(SessionDataManager dm)
-    : super(
-        const RuleMetadata('test_rule', 'Test.'),
-        dm,
-      );
+    : super(const RuleMetadata('test_rule', 'Test.'), dm);
 
   @override
-  DiagnosticCode get diagnosticCode =>
-      const LintCode('test_rule', 'Test.');
+  DiagnosticCode get diagnosticCode => const LintCode('test_rule', 'Test.');
 
   @override
   void registerSessionedNodeProcessors(
@@ -49,20 +42,16 @@ class _TestRule
   ) {}
 }
 
-class _MockSessionDataManager extends Mock
-    implements SessionDataManager {}
+class _MockSessionDataManager extends Mock implements SessionDataManager {}
 
-class _MockPluginRegistry extends Mock
-    implements PluginRegistry {}
+class _MockPluginRegistry extends Mock implements PluginRegistry {}
 
 void main() {
   late _TestConfigLoader testConfigLoader;
   late _MockPluginRegistry mockRegistry;
 
   setUpAll(() {
-    registerFallbackValue(
-      _TestRule(_MockSessionDataManager()),
-    );
+    registerFallbackValue(_TestRule(_MockSessionDataManager()));
   });
 
   setUp(() {
@@ -75,18 +64,16 @@ void main() {
       final plugin = PluginBuilder<_TestConfig>(
         name: 'MyPlugin',
         configLoader: testConfigLoader,
-        rules: [_TestRule.new],
       ).build();
 
       expect(plugin, isA<Plugin>());
       expect(plugin.name, 'MyPlugin');
     });
 
-    test('succeeds with zero rules', () {
+    test('succeeds with no registrations', () {
       final plugin = PluginBuilder<_TestConfig>(
         name: 'EmptyPlugin',
         configLoader: testConfigLoader,
-        rules: [],
       ).build();
 
       expect(plugin, isA<Plugin>());
@@ -94,20 +81,34 @@ void main() {
     });
   });
 
-  group('register()', () {
+  group('addLintRule()', () {
     test('registers one rule per factory', () {
       final plugin = PluginBuilder<_TestConfig>(
         name: 'Test',
         configLoader: testConfigLoader,
-        rules: [_TestRule.new, _TestRule.new],
-      ).build();
+      )
+        .addLintRule(_TestRule.new)
+        .addLintRule(_TestRule.new)
+        .build();
 
-      // ignore: cascade_invocations
       plugin.register(mockRegistry);
 
-      verify(
-        () => mockRegistry.registerLintRule(any()),
-      ).called(2);
+      verify(() => mockRegistry.registerLintRule(any())).called(2);
+    });
+  });
+
+  group('addWarningRule()', () {
+    test('calls registerWarningRule for each factory', () {
+      final plugin = PluginBuilder<_TestConfig>(
+        name: 'Test',
+        configLoader: testConfigLoader,
+      )
+        .addWarningRule(_TestRule.new)
+        .build();
+
+      plugin.register(mockRegistry);
+
+      verify(() => mockRegistry.registerWarningRule(any())).called(1);
     });
   });
 }

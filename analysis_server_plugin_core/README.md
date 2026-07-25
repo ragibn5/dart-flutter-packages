@@ -39,9 +39,15 @@ It provides:
 - **Consistent scan scope** — define where your rules should run without repeating checks in every rule.
 - **Semantic rule helpers** — use analyzer-backed utilities for common rule logic instead of fragile manual checks.
 
-The core idea is straightforward:
-
 ## 🚀 Quick start
+
+The core idea is straightforward.
+
+- write your config own model
+- write a config loader that loads the config
+- Write rules and visitors for processing those rules
+
+And, the package handles the repeated infrastructure around them.
 
 A minimal analyzer plugin in 5 steps.
 
@@ -52,20 +58,18 @@ The analysis server looks for a top-level variable named `plugin`. Use `PluginBu
 ```dart
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 
-final plugin = PluginBuilder<ExampleConfig>(
-  name: 'ExamplePlugin',
-  configLoader: ExampleConfigLoader(),
-  rules: [ExampleRule.new],
-).build();
+final plugin = PluginBuilder<ExampleConfig>(name: 'ExamplePlugin', configLoader: ExampleConfigLoader())
+    .addLintRule((sessionDataManager) => ExampleLintRule(sessionDataManager))
+    .addWarningRule((sessionDataManager) => ExampleWarningRule(sessionDataManager))
+    .build();
 ```
 
-| Parameter      | Description                                                                                     |
-|----------------|-------------------------------------------------------------------------------------------------|
-| `name`         | Plugin identifier reported to the Dart analysis server.                                         |
-| `configLoader` | A `ContextConfigLoader` that produces config for each analyzed package.                         |
-| `rules`        | A list of `SessionedRuleFactory` functions — typically constructor tear-offs like `MyRule.new`. |
-
-See the next steps for how to create each.
+| Method             | Description                                                                         |
+|--------------------|-------------------------------------------------------------------------------------|
+| `name`             | Plugin identifier reported to the Dart analysis server.                             |
+| `configLoader`     | A `ContextConfigLoader` that produces config for each analyzed package.             |
+| `addLintRule()`    | Registers a lint rule factory — typically a constructor tear-off like `MyRule.new`. |
+| `addWarningRule()` | Registers a warning rule factory.                                                   |
 
 ### 2. Define plugin config
 
@@ -119,13 +123,13 @@ class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
 Extend `SessionManagedAnalysisRule<T>`. By the time `registerSessionedNodeProcessors` runs, config is loaded, the type is verified, and `ScanConfig` filtering is done.
 
 ```dart
-class ExampleRule extends SessionManagedAnalysisRule<ExampleConfig> {
+class ExampleLintRule extends SessionManagedAnalysisRule<ExampleConfig> {
   static const code = LintCode(
     'example_rule',
     'Classes annotated with @{0} must be public.',
   );
 
-  ExampleRule(SessionDataManager sessionDataManager)
+  ExampleLintRule(SessionDataManager sessionDataManager)
       : super(RuleMetadata(code.name, code.problemMessage), sessionDataManager);
 
   @override
@@ -149,7 +153,7 @@ The visitor contains the AST analysis logic. Use `sessionContext` for config and
 
 ```dart
 class _ExampleVisitor extends SimpleAstVisitor<void> {
-  final ExampleRule rule;
+  final ExampleLintRule rule;
   final RuleSessionContext<ExampleConfig> sessionContext;
 
   const _ExampleVisitor({required this.rule, required this.sessionContext});
@@ -163,7 +167,7 @@ class _ExampleVisitor extends SimpleAstVisitor<void> {
 
     if (hasAnnotation && node.name.lexeme.startsWith('_')) {
       sessionContext.logger.logWarning(
-        tag: 'ExampleRule',
+        tag: 'ExampleLintRule',
         message: 'Private annotated class: ${node.name.lexeme}',
       );
       rule.reportAtNode(node, arguments: [annotationName]);

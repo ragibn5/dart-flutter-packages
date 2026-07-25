@@ -11,7 +11,8 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
-class CleanArchLinterConfigLoader extends ContextConfigLoader {
+class CleanArchLinterConfigLoader
+    extends ContextConfigLoader<CleanArchLinterConfig> {
   final DefaultConfigOptions _defaultConfigOptions;
   final ConfigSourceProvider _configSourceProvider;
 
@@ -43,7 +44,10 @@ class CleanArchLinterConfigLoader extends ContextConfigLoader {
   );
 
   @override
-  ContextConfig loadPluginConfig(RuleContext context, PackageInfo packageInfo) {
+  CleanArchLinterConfig loadPluginConfig(
+    RuleContext context,
+    PackageInfo packageInfo,
+  ) {
     final fallbackConfig = CleanArchLinterConfig(
       packageInfo: packageInfo,
       logConfig: _defaultConfigOptions.logConfig,
