@@ -6,7 +6,7 @@ import 'package:clean_arch_linter/src/services/domain_dir_path_resolver/domain_d
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
-class DartSdkImportRule
+class DartSDKImportRule
     extends SessionManagedAnalysisRule<CleanArchLinterConfig> {
   static const LintCode lintCode = LintCode(
     'dart_sdk_import',
@@ -19,7 +19,7 @@ class DartSdkImportRule
 
   final DomainDirPathResolver _domainDirPathResolver;
 
-  DartSdkImportRule(
+  DartSDKImportRule(
     SessionDataManager sessionDataManager, {
     @visibleForTesting DomainDirPathResolver? domainDirPathResolver,
   }) : _domainDirPathResolver =
@@ -45,7 +45,7 @@ class DartSdkImportRule
       final absUnitPath = context.definingUnit.file.path
           .normalizePathSeparators(pathSeparator: path.separator);
       sessionContext.logger.logInfo(
-        tag: '$DartSdkImportRule',
+        tag: '$DartSDKImportRule',
         message: 'Skipping unit (no package root): $absUnitPath',
       );
       return;
@@ -57,7 +57,7 @@ class DartSdkImportRule
     );
     if (domainDirPath == null) {
       sessionContext.logger.logInfo(
-        tag: '$DartSdkImportRule',
+        tag: '$DartSDKImportRule',
         message: 'Skipping unit (not a domain component): $pkgRelativeUnitPath',
       );
       return;
@@ -65,7 +65,7 @@ class DartSdkImportRule
 
     registry.addImportDirective(
       this,
-      DartSdkImportVisitor(
+      DartSDKImportVisitor(
         this,
         DomainUnitContext(pkgRelativeUnitPath, domainDirPath),
         sessionContext,

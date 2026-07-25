@@ -21,7 +21,7 @@ class _MockContextConfig extends Mock implements CleanArchLinterConfig {}
 
 class _MockPackageInfo extends Mock implements PackageInfo {}
 
-class _MockDartSdkImportConfig extends Mock implements DartSdkImportConfig {}
+class _MockDartSDKImportConfig extends Mock implements DartSDKImportConfig {}
 
 class _MockSessionLogger extends Mock implements SessionLogger {}
 
@@ -40,11 +40,11 @@ void main() {
   late _MockRuleSessionContext mockRuleSessionContext;
   late _MockContextConfig mockContextConfig;
   late _MockPackageInfo mockPackageInfo;
-  late _MockDartSdkImportConfig mockDartSdkConfig;
+  late _MockDartSDKImportConfig mockDartSDKConfig;
   late _MockSessionLogger mockSessionLogger;
   late _MockImportUriBuilder mockImportUriBuilder;
 
-  late DartSdkImportVisitor sut;
+  late DartSDKImportVisitor sut;
 
   void givenImportUri(ImportDirective directive) {
     when(
@@ -70,25 +70,24 @@ void main() {
   void verifyNodeReportedOnce(
     ImportDirective directive, {
     required String message,
-  }) =>
-      verify(
-        () => mockAnalysisRule.reportAtNode(
-          directive,
-          arguments: any(
-            named: 'arguments',
-            that: predicate<List<Object>>(
-              (args) => args.length == 1 && args.first == message,
-            ),
-          ),
+  }) => verify(
+    () => mockAnalysisRule.reportAtNode(
+      directive,
+      arguments: any(
+        named: 'arguments',
+        that: predicate<List<Object>>(
+          (args) => args.length == 1 && args.first == message,
         ),
-      ).called(1);
+      ),
+    ),
+  ).called(1);
 
   void verifyNodeNeverReported() => verifyNever(
-        () => mockAnalysisRule.reportAtNode(
-          any(),
-          arguments: any(named: 'arguments'),
-        ),
-      );
+    () => mockAnalysisRule.reportAtNode(
+      any(),
+      arguments: any(named: 'arguments'),
+    ),
+  );
 
   setUpAll(() async {
     await dartResolver.setUp();
@@ -99,11 +98,11 @@ void main() {
     mockRuleSessionContext = _MockRuleSessionContext();
     mockContextConfig = _MockContextConfig();
     mockPackageInfo = _MockPackageInfo();
-    mockDartSdkConfig = _MockDartSdkImportConfig();
+    mockDartSDKConfig = _MockDartSDKImportConfig();
     mockSessionLogger = _MockSessionLogger();
     mockImportUriBuilder = _MockImportUriBuilder();
 
-    sut = DartSdkImportVisitor(
+    sut = DartSDKImportVisitor(
       mockAnalysisRule,
       defaultContext,
       mockRuleSessionContext,
@@ -111,10 +110,10 @@ void main() {
     );
 
     when(() => mockRuleSessionContext.config).thenReturn(mockContextConfig);
-    when(() => mockContextConfig.dartSdkConfig).thenReturn(mockDartSdkConfig);
+    when(() => mockContextConfig.dartSDKConfig).thenReturn(mockDartSDKConfig);
     when(() => mockContextConfig.packageInfo).thenReturn(mockPackageInfo);
     when(() => mockRuleSessionContext.logger).thenReturn(mockSessionLogger);
-    when(() => mockDartSdkConfig.excludedDartPackages).thenReturn([]);
+    when(() => mockDartSDKConfig.excludedDartPackages).thenReturn([]);
 
     when(
       () => mockSessionLogger.logInfo(
@@ -156,9 +155,7 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(
-        () => mockDartSdkConfig.excludedDartPackages,
-      ).thenReturn(['core']);
+      when(() => mockDartSDKConfig.excludedDartPackages).thenReturn(['core']);
 
       sut.visitImportDirective(directive);
 
@@ -175,7 +172,7 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDartSdkConfig.excludedDartPackages).thenReturn([]);
+      when(() => mockDartSDKConfig.excludedDartPackages).thenReturn([]);
 
       sut.visitImportDirective(directive);
 

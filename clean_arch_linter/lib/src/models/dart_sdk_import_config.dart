@@ -1,7 +1,7 @@
-class DartSdkImportConfig {
+class DartSDKImportConfig {
   final List<String> excludedDartPackages;
 
-  const DartSdkImportConfig({this.excludedDartPackages = const []});
+  const DartSDKImportConfig({this.excludedDartPackages = const []});
 
   Map<String, dynamic> toMap() => {
     'excludedDartPackages': excludedDartPackages,

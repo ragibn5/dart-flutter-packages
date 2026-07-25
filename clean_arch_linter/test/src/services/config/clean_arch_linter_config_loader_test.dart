@@ -27,7 +27,7 @@ class _MockScanConfig extends Mock implements ScanConfig {}
 
 class _MockDomainConfig extends Mock implements DomainConfig {}
 
-class _MockDartSdkImportConfig extends Mock implements DartSdkImportConfig {}
+class _MockDartSDKImportConfig extends Mock implements DartSDKImportConfig {}
 
 class _MockCrossLayerImportConfig extends Mock
     implements CrossLayerImportConfig {}
@@ -62,7 +62,7 @@ void main() {
   late _MockLogConfig mockDefaultLogConfig;
   late _MockScanConfig mockDefaultScanConfig;
   late _MockDomainConfig mockDefaultDomainConfig;
-  late _MockDartSdkImportConfig mockDefaultDartSdkConfig;
+  late _MockDartSDKImportConfig mockDefaultDartSDKConfig;
   late _MockCrossLayerImportConfig mockDefaultCrossLayerConfig;
   late _MockThirdPartyImportConfig mockDefaultThirdPartyConfig;
   late _MockDefaultConfigOptions mockDefaultConfigOptions;
@@ -77,7 +77,7 @@ void main() {
     mockDefaultLogConfig = _MockLogConfig();
     mockDefaultScanConfig = _MockScanConfig();
     mockDefaultDomainConfig = _MockDomainConfig();
-    mockDefaultDartSdkConfig = _MockDartSdkImportConfig();
+    mockDefaultDartSDKConfig = _MockDartSDKImportConfig();
     mockDefaultCrossLayerConfig = _MockCrossLayerImportConfig();
     mockDefaultThirdPartyConfig = _MockThirdPartyImportConfig();
     mockDefaultConfigOptions = _MockDefaultConfigOptions();
@@ -110,9 +110,7 @@ void main() {
     when(
       () => mockDefaultConfigOptions.scanConfig,
     ).thenReturn(mockDefaultScanConfig);
-    when(
-      () => mockDefaultScanConfig.scanLibDir,
-    ).thenReturn(defaultScanLibDir);
+    when(() => mockDefaultScanConfig.scanLibDir).thenReturn(defaultScanLibDir);
     when(
       () => mockDefaultScanConfig.scanTestDir,
     ).thenReturn(defaultScanTestDir);
@@ -123,10 +121,10 @@ void main() {
       () => mockDefaultDomainConfig.domainDirNames,
     ).thenReturn(defaultDomainDirNames);
     when(
-      () => mockDefaultConfigOptions.dartSdkConfig,
-    ).thenReturn(mockDefaultDartSdkConfig);
+      () => mockDefaultConfigOptions.dartSDKConfig,
+    ).thenReturn(mockDefaultDartSDKConfig);
     when(
-      () => mockDefaultDartSdkConfig.excludedDartPackages,
+      () => mockDefaultDartSDKConfig.excludedDartPackages,
     ).thenReturn(defaultExcludedDartPackages);
     when(
       () => mockDefaultConfigOptions.crossLayerConfig,
@@ -158,9 +156,9 @@ void main() {
             mockDefaultDomainConfig,
           )
           .having(
-            (p) => p.dartSdkConfig,
-            'dartSdkConfig',
-            mockDefaultDartSdkConfig,
+            (p) => p.dartSDKConfig,
+            'dartSDKConfig',
+            mockDefaultDartSDKConfig,
           )
           .having(
             (p) => p.crossLayerConfig,
@@ -313,8 +311,8 @@ void main() {
               ['dmn'],
             )
             .having(
-              (p) => p.dartSdkConfig.excludedDartPackages,
-              'dartSdkConfig.excludedDartPackages',
+              (p) => p.dartSDKConfig.excludedDartPackages,
+              'dartSDKConfig.excludedDartPackages',
               ['dart:core'],
             )
             .having(
@@ -432,8 +430,8 @@ void main() {
               defaultScanTestDir,
             )
             .having(
-              (p) => p.dartSdkConfig.excludedDartPackages,
-              'dartSdkConfig.excludedDartPackages',
+              (p) => p.dartSDKConfig.excludedDartPackages,
+              'dartSDKConfig.excludedDartPackages',
               defaultExcludedDartPackages,
             )
             .having(

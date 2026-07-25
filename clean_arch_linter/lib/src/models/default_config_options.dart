@@ -8,7 +8,7 @@ class DefaultConfigOptions {
   final LogConfig logConfig;
   final ScanConfig scanConfig;
   final DomainConfig domainConfig;
-  final DartSdkImportConfig dartSdkConfig;
+  final DartSDKImportConfig dartSDKConfig;
   final CrossLayerImportConfig crossLayerConfig;
   final ThirdPartyImportConfig thirdPartyConfig;
 
@@ -16,7 +16,7 @@ class DefaultConfigOptions {
     required this.logConfig,
     required this.scanConfig,
     required this.domainConfig,
-    required this.dartSdkConfig,
+    required this.dartSDKConfig,
     required this.crossLayerConfig,
     required this.thirdPartyConfig,
   });

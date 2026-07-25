@@ -4,7 +4,7 @@ import 'package:clean_arch_linter/src/models/domain_unit_context.dart';
 import 'package:clean_arch_linter/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:meta/meta.dart';
 
-class DartSdkImportVisitor extends SimpleAstVisitor<void> {
+class DartSDKImportVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final AnalysisRule rule;
 
@@ -16,7 +16,7 @@ class DartSdkImportVisitor extends SimpleAstVisitor<void> {
 
   final ImportUriBuilder _importUriBuilder;
 
-  DartSdkImportVisitor(
+  DartSDKImportVisitor(
     this.rule,
     this.domainUnitContext,
     this.sessionContext, {
@@ -33,7 +33,7 @@ class DartSdkImportVisitor extends SimpleAstVisitor<void> {
     // Invalid import
     if (importUri == null) {
       sessionContext.logger.logInfo(
-        tag: '$DartSdkImportVisitor',
+        tag: '$DartSDKImportVisitor',
         message: 'Ignoring import (invalid import node): $node',
       );
       return;
@@ -41,17 +41,17 @@ class DartSdkImportVisitor extends SimpleAstVisitor<void> {
 
     if (importUri.scheme != 'dart') {
       sessionContext.logger.logInfo(
-        tag: '$DartSdkImportVisitor',
+        tag: '$DartSDKImportVisitor',
         message: 'Ignoring import (not a dart SDK import): $importUri',
       );
       return;
     }
 
-    if (sessionContext.config.dartSdkConfig.excludedDartPackages.any(
+    if (sessionContext.config.dartSDKConfig.excludedDartPackages.any(
       importUri.path.startsWith,
     )) {
       sessionContext.logger.logInfo(
-        tag: '$DartSdkImportVisitor',
+        tag: '$DartSDKImportVisitor',
         message: 'Ignoring import (excluded dart package): $importUri',
       );
       return;

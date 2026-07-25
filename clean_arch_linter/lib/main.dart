@@ -15,7 +15,7 @@ final plugin =
           name: 'CleanArchLinterPlugin',
           configLoader: CleanArchLinterConfigLoader(),
         )
-        .addLintRule(DartSdkImportRule.new)
+        .addLintRule(DartSDKImportRule.new)
         .addLintRule(CrossLayerImportRule.new)
         .addLintRule(ThirdPartyImportRule.new)
         .build();

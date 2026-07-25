@@ -6,7 +6,7 @@ import 'package:clean_arch_linter/src/models/third_party_import_config.dart';
 
 class CleanArchLinterConfig extends ContextConfig {
   final DomainConfig domainConfig;
-  final DartSdkImportConfig dartSdkConfig;
+  final DartSDKImportConfig dartSDKConfig;
   final CrossLayerImportConfig crossLayerConfig;
   final ThirdPartyImportConfig thirdPartyConfig;
 
@@ -15,7 +15,7 @@ class CleanArchLinterConfig extends ContextConfig {
     required super.logConfig,
     super.scanConfig,
     this.domainConfig = const DomainConfig(),
-    this.dartSdkConfig = const DartSdkImportConfig(),
+    this.dartSDKConfig = const DartSDKImportConfig(),
     this.crossLayerConfig = const CrossLayerImportConfig(),
     this.thirdPartyConfig = const ThirdPartyImportConfig(),
   });
@@ -26,7 +26,7 @@ class CleanArchLinterConfig extends ContextConfig {
     'logConfig': logConfig.toMap(),
     'scanConfig': scanConfig.toMap(),
     'domainConfig': domainConfig.toMap(),
-    'dartSdkConfig': dartSdkConfig.toMap(),
+    'dartSDKConfig': dartSDKConfig.toMap(),
     'crossLayerConfig': crossLayerConfig.toMap(),
     'thirdPartyConfig': thirdPartyConfig.toMap(),
   };

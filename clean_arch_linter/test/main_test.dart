@@ -30,7 +30,7 @@ void main() {
 
     verify(
       () => mockPluginRegistry.registerLintRule(
-        any(that: isA<DartSdkImportRule>()),
+        any(that: isA<DartSDKImportRule>()),
       ),
     ).called(1);
     verify(

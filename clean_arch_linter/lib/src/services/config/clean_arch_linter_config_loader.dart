@@ -30,7 +30,7 @@ class CleanArchLinterConfigLoader
           ),
           scanConfig: const ScanConfig(),
           domainConfig: const DomainConfig(),
-          dartSdkConfig: const DartSdkImportConfig(),
+          dartSDKConfig: const DartSDKImportConfig(),
           crossLayerConfig: const CrossLayerImportConfig(),
           thirdPartyConfig: const ThirdPartyImportConfig(),
         ),
@@ -58,7 +58,7 @@ class CleanArchLinterConfigLoader
       logConfig: _defaultConfigOptions.logConfig,
       scanConfig: _defaultConfigOptions.scanConfig,
       domainConfig: _defaultConfigOptions.domainConfig,
-      dartSdkConfig: _defaultConfigOptions.dartSdkConfig,
+      dartSDKConfig: _defaultConfigOptions.dartSDKConfig,
       crossLayerConfig: _defaultConfigOptions.crossLayerConfig,
       thirdPartyConfig: _defaultConfigOptions.thirdPartyConfig,
     );
@@ -88,7 +88,7 @@ class CleanArchLinterConfigLoader
       logConfig: _extractLogConfig(parsedConfig),
       scanConfig: _extractScanConfig(parsedConfig),
       domainConfig: _extractDomainConfig(parsedConfig),
-      dartSdkConfig: _extractDartSdkConfig(parsedConfig),
+      dartSDKConfig: _extractDartSDKConfig(parsedConfig),
       crossLayerConfig: _extractCrossLayerConfig(parsedConfig),
       thirdPartyConfig: _extractThirdPartyConfig(parsedConfig),
     );
@@ -192,7 +192,7 @@ class CleanArchLinterConfigLoader
     );
   }
 
-  DartSdkImportConfig _extractDartSdkConfig(YamlMap rootConfigMap) {
+  DartSDKImportConfig _extractDartSDKConfig(YamlMap rootConfigMap) {
     final rulesYaml = runCatching(
       () => rootConfigMap['rules'] as YamlMap?,
       defaultValue: null,
@@ -202,10 +202,10 @@ class CleanArchLinterConfigLoader
       defaultValue: null,
     );
     if (ruleYaml == null) {
-      return _defaultConfigOptions.dartSdkConfig;
+      return _defaultConfigOptions.dartSDKConfig;
     }
 
-    return DartSdkImportConfig(
+    return DartSDKImportConfig(
       excludedDartPackages: runCatching(
         () =>
             (ruleYaml['excluded_dart_packages'] as List?)?.cast<String>() ?? [],

@@ -11,8 +11,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-class _FakeDartSdkImportVisitor extends Fake
-    implements DartSdkImportVisitor {}
+class _FakeDartSDKImportVisitor extends Fake implements DartSDKImportVisitor {}
 
 class _MockSessionDataManager extends Mock implements SessionDataManager {}
 
@@ -62,10 +61,10 @@ void main() {
   late _MockWorkspacePackage mockWorkspacePackage;
   late _MockFolder mockFolder;
 
-  late DartSdkImportRule sut;
+  late DartSDKImportRule sut;
 
   setUpAll(() {
-    registerFallbackValue(_FakeDartSdkImportVisitor());
+    registerFallbackValue(_FakeDartSDKImportVisitor());
   });
 
   setUp(() {
@@ -82,7 +81,7 @@ void main() {
     mockWorkspacePackage = _MockWorkspacePackage();
     mockFolder = _MockFolder();
 
-    sut = DartSdkImportRule(
+    sut = DartSDKImportRule(
       mockSessionDataManager,
       domainDirPathResolver: mockDomainDirPathResolver,
     );
@@ -116,10 +115,7 @@ void main() {
     () {
       when(() => mockContextUnitFile.path).thenReturn(nonDomainUnitLocation);
       when(
-        () => mockDomainDirPathResolver.findDomainDirPath(
-          any(),
-          any(),
-        ),
+        () => mockDomainDirPathResolver.findDomainDirPath(any(), any()),
       ).thenReturn(null);
 
       sut.registerSessionedNodeProcessors(
@@ -134,9 +130,7 @@ void main() {
           message: any(named: 'message'),
         ),
       ).called(1);
-      verifyNever(
-        () => mockRuleVisitorRegistry.addImportDirective(sut, any()),
-      );
+      verifyNever(() => mockRuleVisitorRegistry.addImportDirective(sut, any()));
     },
   );
 
@@ -144,10 +138,7 @@ void main() {
     'If source path contains domain directory name, we register the directive visitor',
     () {
       when(
-        () => mockDomainDirPathResolver.findDomainDirPath(
-          any(),
-          any(),
-        ),
+        () => mockDomainDirPathResolver.findDomainDirPath(any(), any()),
       ).thenReturn('lib/features/auth/domain/');
 
       sut.registerSessionedNodeProcessors(
@@ -160,7 +151,7 @@ void main() {
         () => mockRuleVisitorRegistry.addImportDirective(
           sut,
           any(
-            that: isA<DartSdkImportVisitor>()
+            that: isA<DartSDKImportVisitor>()
                 .having((p) => p.rule, 'rule', sut)
                 .having(
                   (p) => p.sessionContext,
