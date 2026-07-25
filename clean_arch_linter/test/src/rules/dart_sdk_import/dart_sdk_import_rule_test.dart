@@ -43,8 +43,10 @@ class _MockFolder extends Mock implements Folder {}
 void main() {
   const domainDirectoryNames = ['domain'];
   const projectRoot = '/Users/foo/project/';
-  const domainUnitLocation =
-      '/Users/foo/project/lib/features/auth/domain/services/auth_data_service.dart';
+  const domainDirPath = 'lib/features/auth/domain/';
+  const pkgRelativeUnitPath =
+      'lib/features/auth/domain/services/auth_data_service.dart';
+  const domainUnitLocation = '/Users/foo/project/$pkgRelativeUnitPath';
   const nonDomainUnitLocation =
       '/Users/foo/project/lib/features/auth/data/sources/local_auth_data_source.dart';
 
@@ -139,7 +141,7 @@ void main() {
     () {
       when(
         () => mockDomainDirPathResolver.findDomainDirPath(any(), any()),
-      ).thenReturn('lib/features/auth/domain/');
+      ).thenReturn(domainDirPath);
 
       sut.registerSessionedNodeProcessors(
         mockRuleContext,
@@ -153,6 +155,16 @@ void main() {
           any(
             that: isA<DartSDKImportVisitor>()
                 .having((p) => p.rule, 'rule', sut)
+                .having(
+                  (p) => p.domainUnitContext.unitPath,
+                  'domainUnitContext.unitPath',
+                  pkgRelativeUnitPath,
+                )
+                .having(
+                  (p) => p.domainUnitContext.domainDirPath,
+                  'domainUnitContext.domainDirPath',
+                  domainDirPath,
+                )
                 .having(
                   (p) => p.sessionContext,
                   'sessionContext',
