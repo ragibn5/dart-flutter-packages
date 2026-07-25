@@ -2,9 +2,11 @@
 
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_linter/src/models/clean_arch_linter_config.dart';
-import 'package:clean_arch_linter/src/models/ddr_config.dart';
+import 'package:clean_arch_linter/src/models/cross_layer_import_config.dart';
+import 'package:clean_arch_linter/src/models/dart_sdk_import_config.dart';
 import 'package:clean_arch_linter/src/models/default_config_options.dart';
-import 'package:clean_arch_linter/src/rules/dependency_direction_rule/dependency_direction_rule.dart';
+import 'package:clean_arch_linter/src/models/domain_config.dart';
+import 'package:clean_arch_linter/src/models/third_party_import_config.dart';
 import 'package:clean_arch_linter/src/services/config/config_source_provider.dart';
 import 'package:dart_functionals/dart_functionals.dart';
 import 'package:meta/meta.dart';
@@ -27,7 +29,10 @@ class CleanArchLinterConfigLoader
             ]),
           ),
           scanConfig: const ScanConfig(),
-          ddrConfig: const DependencyDirectionRuleConfig(),
+          domainConfig: const DomainConfig(),
+          dartSdkConfig: const DartSdkImportConfig(),
+          crossLayerConfig: const CrossLayerImportConfig(),
+          thirdPartyConfig: const ThirdPartyImportConfig(),
         ),
         ConfigSourceProviderImpl(),
       );
@@ -52,14 +57,13 @@ class CleanArchLinterConfigLoader
       packageInfo: packageInfo,
       logConfig: _defaultConfigOptions.logConfig,
       scanConfig: _defaultConfigOptions.scanConfig,
-      ddrConfig: _defaultConfigOptions.ddrConfig,
+      domainConfig: _defaultConfigOptions.domainConfig,
+      dartSdkConfig: _defaultConfigOptions.dartSdkConfig,
+      crossLayerConfig: _defaultConfigOptions.crossLayerConfig,
+      thirdPartyConfig: _defaultConfigOptions.thirdPartyConfig,
     );
 
     if (packageInfo.name == null) {
-      // If the context does not belong to a package
-      // (e.g. standalone dart script etc), then will
-      // use fallback config, as we are not expecting
-      // any configuration file in non-package environment.
       return fallbackConfig;
     }
 
@@ -68,7 +72,6 @@ class CleanArchLinterConfigLoader
       'clean_arch_linter_config.yaml',
     );
     if (!pluginConfigFile.existsSync()) {
-      // If the plugin config file doesn't exist, then will use fallback config.
       return fallbackConfig;
     }
 
@@ -77,7 +80,6 @@ class CleanArchLinterConfigLoader
       defaultValue: null,
     );
     if (parsedConfig == null) {
-      // If was not able to parse the config, then will use fallback config.
       return fallbackConfig;
     }
 
@@ -85,7 +87,10 @@ class CleanArchLinterConfigLoader
       packageInfo: packageInfo,
       logConfig: _extractLogConfig(parsedConfig),
       scanConfig: _extractScanConfig(parsedConfig),
-      ddrConfig: _extractDDRConfig(parsedConfig),
+      domainConfig: _extractDomainConfig(parsedConfig),
+      dartSdkConfig: _extractDartSdkConfig(parsedConfig),
+      crossLayerConfig: _extractCrossLayerConfig(parsedConfig),
+      thirdPartyConfig: _extractThirdPartyConfig(parsedConfig),
     );
   }
 
@@ -165,42 +170,69 @@ class CleanArchLinterConfigLoader
     );
   }
 
-  DependencyDirectionRuleConfig _extractDDRConfig(YamlMap rootConfigMap) {
-    final ddrConfigYaml = runCatching(
-      () =>
-          rootConfigMap[DependencyDirectionRule.DDR_LINT_CODE.name] as YamlMap?,
+  DomainConfig _extractDomainConfig(YamlMap rootConfigMap) {
+    final domainConfigYaml = runCatching(
+      () => rootConfigMap['domain_config'] as YamlMap?,
       defaultValue: null,
     );
-    if (ddrConfigYaml == null) {
-      return _defaultConfigOptions.ddrConfig;
+    if (domainConfigYaml == null) {
+      return _defaultConfigOptions.domainConfig;
     }
 
     final defaultDomainDirNames =
-        _defaultConfigOptions.ddrConfig.domainDirNames;
-    final defaultCoreDartPackageExclusionStatus =
-        _defaultConfigOptions.ddrConfig.excludeCoreDartPackages;
+        _defaultConfigOptions.domainConfig.domainDirNames;
 
-    return DependencyDirectionRuleConfig(
+    return DomainConfig(
       domainDirNames: runCatching(
         () =>
-            (ddrConfigYaml['domain_dir_names'] as List?)?.cast<String>() ??
+            (domainConfigYaml['domain_dir_names'] as List?)?.cast<String>() ??
             defaultDomainDirNames,
         defaultValue: defaultDomainDirNames,
       ),
-      excludeCoreDartPackages: runCatching(
+    );
+  }
+
+  DartSdkImportConfig _extractDartSdkConfig(YamlMap rootConfigMap) {
+    final rulesYaml = runCatching(
+      () => rootConfigMap['rules'] as YamlMap?,
+      defaultValue: null,
+    );
+    final ruleYaml = runCatching(
+      () => rulesYaml?['dart_sdk_import'] as YamlMap?,
+      defaultValue: null,
+    );
+    if (ruleYaml == null) {
+      return _defaultConfigOptions.dartSdkConfig;
+    }
+
+    return DartSdkImportConfig(
+      excludedDartPackages: runCatching(
         () =>
-            ddrConfigYaml['exclude_core_dart_packages'] as bool? ??
-            defaultCoreDartPackageExclusionStatus,
-        defaultValue: defaultCoreDartPackageExclusionStatus,
+            (ruleYaml['excluded_dart_packages'] as List?)?.cast<String>() ?? [],
+        defaultValue: [],
       ),
+    );
+  }
+
+  CrossLayerImportConfig _extractCrossLayerConfig(YamlMap rootConfigMap) {
+    final rulesYaml = runCatching(
+      () => rootConfigMap['rules'] as YamlMap?,
+      defaultValue: null,
+    );
+    final ruleYaml = runCatching(
+      () => rulesYaml?['cross_layer_import'] as YamlMap?,
+      defaultValue: null,
+    );
+    if (ruleYaml == null) {
+      return _defaultConfigOptions.crossLayerConfig;
+    }
+
+    return CrossLayerImportConfig(
       excludedProjectPaths: runCatching(
         () =>
-            (ddrConfigYaml['excluded_project_paths'] as List?)
+            (ruleYaml['excluded_project_paths'] as List?)
                 ?.cast<String>()
                 .map(
-                  // Ensuring usage of forward slash as the path separator.
-                  // In Dart analysis, the forward slash (`/`) is the standard,
-                  // and exclusive path separator.
                   (p) => p
                       .normalizePathSeparators(pathSeparator: '/')
                       .ensureTrailingPathSeparator(pathSeparator: '/'),
@@ -209,10 +241,26 @@ class CleanArchLinterConfigLoader
             [],
         defaultValue: [],
       ),
+    );
+  }
+
+  ThirdPartyImportConfig _extractThirdPartyConfig(YamlMap rootConfigMap) {
+    final rulesYaml = runCatching(
+      () => rootConfigMap['rules'] as YamlMap?,
+      defaultValue: null,
+    );
+    final ruleYaml = runCatching(
+      () => rulesYaml?['third_party_import'] as YamlMap?,
+      defaultValue: null,
+    );
+    if (ruleYaml == null) {
+      return _defaultConfigOptions.thirdPartyConfig;
+    }
+
+    return ThirdPartyImportConfig(
       excludedLibraryPackages: runCatching(
         () =>
-            (ddrConfigYaml['excluded_library_packages'] as List?)
-                ?.cast<String>() ??
+            (ruleYaml['excluded_library_packages'] as List?)?.cast<String>() ??
             [],
         defaultValue: [],
       ),

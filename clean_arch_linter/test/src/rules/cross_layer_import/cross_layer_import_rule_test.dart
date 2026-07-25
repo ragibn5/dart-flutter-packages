@@ -3,15 +3,16 @@
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:analyzer/file_system/file_system.dart';
 import 'package:clean_arch_linter/src/models/clean_arch_linter_config.dart';
-import 'package:clean_arch_linter/src/models/ddr_config.dart';
-import 'package:clean_arch_linter/src/rules/dependency_direction_rule/dependency_direction_rule.dart';
-import 'package:clean_arch_linter/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
+import 'package:clean_arch_linter/src/models/domain_config.dart';
+import 'package:clean_arch_linter/src/rules/cross_layer_import/cross_layer_import_rule.dart';
+import 'package:clean_arch_linter/src/rules/cross_layer_import/cross_layer_import_visitor.dart';
+import 'package:clean_arch_linter/src/services/domain_dir_path_resolver/domain_dir_path_resolver.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-class _FakeDependencyDirectionRuleVisitor extends Fake
-    implements DependencyDirectionRuleVisitor {}
+class _FakeCrossLayerImportVisitor extends Fake
+    implements CrossLayerImportVisitor {}
 
 class _MockSessionDataManager extends Mock implements SessionDataManager {}
 
@@ -24,14 +25,17 @@ class _MockAnalyzerFile extends Mock implements AnalyzerFile {}
 class _MockRuleVisitorRegistry extends Mock implements RuleVisitorRegistry {}
 
 class _MockRuleSessionContext extends Mock
-    implements RuleSessionContext<_MockCleanArchLinterConfig> {}
+    implements RuleSessionContext<CleanArchLinterConfig> {}
 
-class _MockCleanArchLinterConfig extends Mock implements CleanArchLinterConfig {}
+class _MockCleanArchLinterConfig extends Mock
+    implements CleanArchLinterConfig {}
 
-class _MockDependencyDirectionRuleConfig extends Mock
-    implements DependencyDirectionRuleConfig {}
+class _MockDomainConfig extends Mock implements DomainConfig {}
 
 class _MockSessionLogger extends Mock implements SessionLogger {}
+
+class _MockDomainDirPathResolver extends Mock
+    implements DomainDirPathResolver {}
 
 class _MockWorkspacePackage extends Mock implements WorkspacePackage {}
 
@@ -39,9 +43,11 @@ class _MockFolder extends Mock implements Folder {}
 
 void main() {
   const domainDirectoryNames = ['domain'];
-  const packageRoot = '/Users/foo/project';
-  const contextUnitLocation =
+  const projectRoot = '/Users/foo/project/';
+  const domainUnitLocation =
       '/Users/foo/project/lib/features/auth/domain/services/auth_data_service.dart';
+  const nonDomainUnitLocation =
+      '/Users/foo/project/lib/features/auth/data/sources/local_auth_data_source.dart';
 
   late _MockSessionDataManager mockSessionDataManager;
   late _MockRuleContext mockRuleContext;
@@ -50,15 +56,16 @@ void main() {
   late _MockRuleVisitorRegistry mockRuleVisitorRegistry;
   late _MockRuleSessionContext mockRuleSessionContext;
   late _MockCleanArchLinterConfig mockCleanArchLinterConfig;
-  late _MockDependencyDirectionRuleConfig mockDDRConfig;
+  late _MockDomainConfig mockDomainConfig;
   late _MockSessionLogger mockSessionLogger;
+  late _MockDomainDirPathResolver mockDomainDirPathResolver;
   late _MockWorkspacePackage mockWorkspacePackage;
   late _MockFolder mockFolder;
 
-  late DependencyDirectionRule sut;
+  late CrossLayerImportRule sut;
 
   setUpAll(() {
-    registerFallbackValue(_FakeDependencyDirectionRuleVisitor());
+    registerFallbackValue(_FakeCrossLayerImportVisitor());
   });
 
   setUp(() {
@@ -69,24 +76,32 @@ void main() {
     mockRuleVisitorRegistry = _MockRuleVisitorRegistry();
     mockRuleSessionContext = _MockRuleSessionContext();
     mockCleanArchLinterConfig = _MockCleanArchLinterConfig();
-    mockDDRConfig = _MockDependencyDirectionRuleConfig();
+    mockDomainConfig = _MockDomainConfig();
     mockSessionLogger = _MockSessionLogger();
+    mockDomainDirPathResolver = _MockDomainDirPathResolver();
     mockWorkspacePackage = _MockWorkspacePackage();
     mockFolder = _MockFolder();
 
-    sut = DependencyDirectionRule(mockSessionDataManager);
+    sut = CrossLayerImportRule(
+      mockSessionDataManager,
+      domainDirPathResolver: mockDomainDirPathResolver,
+    );
 
     when(() => mockRuleContext.definingUnit).thenReturn(mockRuleContextUnit);
     when(() => mockRuleContextUnit.file).thenReturn(mockContextUnitFile);
-    when(() => mockContextUnitFile.path).thenReturn(contextUnitLocation);
+    when(() => mockContextUnitFile.path).thenReturn(domainUnitLocation);
     when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
     when(() => mockWorkspacePackage.root).thenReturn(mockFolder);
-    when(() => mockFolder.path).thenReturn(packageRoot);
+    when(() => mockFolder.path).thenReturn(projectRoot);
     when(
       () => mockRuleSessionContext.config,
     ).thenReturn(mockCleanArchLinterConfig);
-    when(() => mockCleanArchLinterConfig.ddrConfig).thenReturn(mockDDRConfig);
-    when(() => mockDDRConfig.domainDirNames).thenReturn(domainDirectoryNames);
+    when(
+      () => mockCleanArchLinterConfig.domainConfig,
+    ).thenReturn(mockDomainConfig);
+    when(
+      () => mockDomainConfig.domainDirNames,
+    ).thenReturn(domainDirectoryNames);
     when(() => mockRuleSessionContext.logger).thenReturn(mockSessionLogger);
     when(
       () => mockSessionLogger.logInfo(
@@ -99,9 +114,13 @@ void main() {
   test(
     'If source path does not contain domain directory name, we do not register any visitor',
     () {
-      when(() => mockContextUnitFile.path).thenReturn(
-        '/Users/foo/project/lib/features/auth/data/sources/local_auth_data_source.dart',
-      );
+      when(() => mockContextUnitFile.path).thenReturn(nonDomainUnitLocation);
+      when(
+        () => mockDomainDirPathResolver.findDomainDirPath(
+          any(),
+          any(),
+        ),
+      ).thenReturn(null);
 
       sut.registerSessionedNodeProcessors(
         mockRuleContext,
@@ -115,13 +134,22 @@ void main() {
           message: any(named: 'message'),
         ),
       ).called(1);
-      verifyNever(() => mockRuleVisitorRegistry.addImportDirective(sut, any()));
+      verifyNever(
+        () => mockRuleVisitorRegistry.addImportDirective(sut, any()),
+      );
     },
   );
 
   test(
     'If source path contains domain directory name, we register the directive visitor',
     () {
+      when(
+        () => mockDomainDirPathResolver.findDomainDirPath(
+          any(),
+          any(),
+        ),
+      ).thenReturn('lib/features/auth/domain/');
+
       sut.registerSessionedNodeProcessors(
         mockRuleContext,
         mockRuleVisitorRegistry,
@@ -129,16 +157,10 @@ void main() {
       );
 
       verify(
-        () => mockSessionLogger.logInfo(
-          tag: any(named: 'tag'),
-          message: any(named: 'message'),
-        ),
-      ).called(1);
-      verify(
         () => mockRuleVisitorRegistry.addImportDirective(
           sut,
           any(
-            that: isA<DependencyDirectionRuleVisitor>()
+            that: isA<CrossLayerImportVisitor>()
                 .having((p) => p.rule, 'rule', sut)
                 .having(
                   (p) => p.sessionContext,

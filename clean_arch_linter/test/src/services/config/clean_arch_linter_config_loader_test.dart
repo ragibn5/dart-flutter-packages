@@ -4,8 +4,11 @@ import 'dart:io';
 
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_linter/src/models/clean_arch_linter_config.dart';
-import 'package:clean_arch_linter/src/models/ddr_config.dart';
+import 'package:clean_arch_linter/src/models/cross_layer_import_config.dart';
+import 'package:clean_arch_linter/src/models/dart_sdk_import_config.dart';
 import 'package:clean_arch_linter/src/models/default_config_options.dart';
+import 'package:clean_arch_linter/src/models/domain_config.dart';
+import 'package:clean_arch_linter/src/models/third_party_import_config.dart';
 import 'package:clean_arch_linter/src/services/config/clean_arch_linter_config_loader.dart';
 import 'package:clean_arch_linter/src/services/config/config_source_provider.dart';
 import 'package:mocktail/mocktail.dart';
@@ -22,15 +25,21 @@ class _MockLogConfig extends Mock implements LogConfig {}
 
 class _MockScanConfig extends Mock implements ScanConfig {}
 
-class _MockDDRConfig extends Mock implements DependencyDirectionRuleConfig {}
+class _MockDomainConfig extends Mock implements DomainConfig {}
+
+class _MockDartSdkImportConfig extends Mock implements DartSdkImportConfig {}
+
+class _MockCrossLayerImportConfig extends Mock
+    implements CrossLayerImportConfig {}
+
+class _MockThirdPartyImportConfig extends Mock
+    implements ThirdPartyImportConfig {}
 
 class _MockDefaultConfigOptions extends Mock implements DefaultConfigOptions {}
 
 class _MockConfigSourceProvider extends Mock implements ConfigSourceProvider {}
 
 void main() {
-  // Default config = default-log-dir-relative-path-parts + passed-package-config
-
   const packageName = 'xyz';
   const packageLocation = 'a/b/c';
   const defaultLogDirectoryRelativePathFromProjectRoot =
@@ -43,7 +52,7 @@ void main() {
   const defaultScanLibDir = true;
   const defaultScanTestDir = false;
   const defaultDomainDirNames = ['domain'];
-  const defaultExcludeCoreDartPackages = true;
+  const defaultExcludedDartPackages = <String>[];
   const defaultExcludedProjectPaths = <String>[];
   const defaultExcludedLibraryPackages = <String>[];
 
@@ -52,7 +61,10 @@ void main() {
   late _MockConfigFile mockConfigFile;
   late _MockLogConfig mockDefaultLogConfig;
   late _MockScanConfig mockDefaultScanConfig;
-  late _MockDDRConfig mockDefaultDDRConfig;
+  late _MockDomainConfig mockDefaultDomainConfig;
+  late _MockDartSdkImportConfig mockDefaultDartSdkConfig;
+  late _MockCrossLayerImportConfig mockDefaultCrossLayerConfig;
+  late _MockThirdPartyImportConfig mockDefaultThirdPartyConfig;
   late _MockDefaultConfigOptions mockDefaultConfigOptions;
   late _MockConfigSourceProvider mockConfigSourceProvider;
 
@@ -64,7 +76,10 @@ void main() {
     mockConfigFile = _MockConfigFile();
     mockDefaultLogConfig = _MockLogConfig();
     mockDefaultScanConfig = _MockScanConfig();
-    mockDefaultDDRConfig = _MockDDRConfig();
+    mockDefaultDomainConfig = _MockDomainConfig();
+    mockDefaultDartSdkConfig = _MockDartSdkImportConfig();
+    mockDefaultCrossLayerConfig = _MockCrossLayerImportConfig();
+    mockDefaultThirdPartyConfig = _MockThirdPartyImportConfig();
     mockDefaultConfigOptions = _MockDefaultConfigOptions();
     mockConfigSourceProvider = _MockConfigSourceProvider();
 
@@ -95,22 +110,36 @@ void main() {
     when(
       () => mockDefaultConfigOptions.scanConfig,
     ).thenReturn(mockDefaultScanConfig);
-    when(() => mockDefaultScanConfig.scanLibDir).thenReturn(defaultScanLibDir);
+    when(
+      () => mockDefaultScanConfig.scanLibDir,
+    ).thenReturn(defaultScanLibDir);
     when(
       () => mockDefaultScanConfig.scanTestDir,
     ).thenReturn(defaultScanTestDir);
     when(
-      () => mockDefaultConfigOptions.ddrConfig,
-    ).thenReturn(mockDefaultDDRConfig);
+      () => mockDefaultConfigOptions.domainConfig,
+    ).thenReturn(mockDefaultDomainConfig);
     when(
-      () => mockDefaultDDRConfig.domainDirNames,
+      () => mockDefaultDomainConfig.domainDirNames,
     ).thenReturn(defaultDomainDirNames);
     when(
-      () => mockDefaultDDRConfig.excludeCoreDartPackages,
-    ).thenReturn(defaultExcludeCoreDartPackages);
+      () => mockDefaultConfigOptions.dartSdkConfig,
+    ).thenReturn(mockDefaultDartSdkConfig);
     when(
-      () => mockDefaultDDRConfig.excludeCoreDartPackages,
-    ).thenReturn(defaultExcludeCoreDartPackages);
+      () => mockDefaultDartSdkConfig.excludedDartPackages,
+    ).thenReturn(defaultExcludedDartPackages);
+    when(
+      () => mockDefaultConfigOptions.crossLayerConfig,
+    ).thenReturn(mockDefaultCrossLayerConfig);
+    when(
+      () => mockDefaultCrossLayerConfig.excludedProjectPaths,
+    ).thenReturn(defaultExcludedProjectPaths);
+    when(
+      () => mockDefaultConfigOptions.thirdPartyConfig,
+    ).thenReturn(mockDefaultThirdPartyConfig);
+    when(
+      () => mockDefaultThirdPartyConfig.excludedLibraryPackages,
+    ).thenReturn(defaultExcludedLibraryPackages);
     when(
       () => mockConfigSourceProvider.getConfigSource(mockPackageInfo, any()),
     ).thenReturn(mockConfigFile);
@@ -123,7 +152,26 @@ void main() {
           .having((p) => p.packageInfo, 'packageInfo', mockPackageInfo)
           .having((p) => p.logConfig, 'logConfig', mockDefaultLogConfig)
           .having((p) => p.scanConfig, 'scanConfig', mockDefaultScanConfig)
-          .having((p) => p.ddrConfig, 'ddrConfig', mockDefaultDDRConfig),
+          .having(
+            (p) => p.domainConfig,
+            'domainConfig',
+            mockDefaultDomainConfig,
+          )
+          .having(
+            (p) => p.dartSdkConfig,
+            'dartSdkConfig',
+            mockDefaultDartSdkConfig,
+          )
+          .having(
+            (p) => p.crossLayerConfig,
+            'crossLayerConfig',
+            mockDefaultCrossLayerConfig,
+          )
+          .having(
+            (p) => p.thirdPartyConfig,
+            'thirdPartyConfig',
+            mockDefaultThirdPartyConfig,
+          ),
     );
   }
 
@@ -163,7 +211,7 @@ void main() {
   });
 
   test(
-    'If all went well, and log/scan/ddr config is not present, will use default configs',
+    'If all went well, and config sections are not present, will use default configs',
     () {
       when(() => mockConfigFile.readAsStringSync()).thenReturn('x: y');
 
@@ -174,12 +222,13 @@ void main() {
   );
 
   test(
-    'If all went well, and log/scan/ddr config is not in valid format, will use default configs',
+    'If all went well, and config sections are not in valid format, will use default configs',
     () {
       when(() => mockConfigFile.readAsStringSync()).thenReturn('''
       log_config: x
       scan_config: y
-      clean_arch_dependency_direction: z
+      domain_config: z
+      rules: w
       ''');
 
       final config = sut.loadPluginConfig(mockRuleContext, mockPackageInfo);
@@ -189,7 +238,7 @@ void main() {
   );
 
   test(
-    'If all went well, and log/scan/ddr config is in valid format, use appropriate values',
+    'If all went well, and config sections are in valid format, use appropriate values',
     () {
       when(() => mockConfigFile.readAsStringSync()).thenReturn('''
       log_config:
@@ -203,16 +252,22 @@ void main() {
         scan_lib_dir: true
         scan_test_dir: true
     
-      clean_arch_dependency_direction:
+      domain_config:
         domain_dir_names:
           - dmn
-        exclude_core_dart_packages: false
-        excluded_project_paths:
-          - /core/
-          - /shard/
-        excluded_library_packages:
-          - freezed
-          - equatable
+    
+      rules:
+        dart_sdk_import:
+          excluded_dart_packages:
+            - dart:core
+        cross_layer_import:
+          excluded_project_paths:
+            - /core/
+            - /shard/
+        third_party_import:
+          excluded_library_packages:
+            - freezed
+            - equatable
       ''');
 
       final config = sut.loadPluginConfig(mockRuleContext, mockPackageInfo);
@@ -253,23 +308,23 @@ void main() {
               true,
             )
             .having(
-              (p) => p.ddrConfig.domainDirNames,
-              'ddrConfig.domainDirNames',
+              (p) => p.domainConfig.domainDirNames,
+              'domainConfig.domainDirNames',
               ['dmn'],
             )
             .having(
-              (p) => p.ddrConfig.excludeCoreDartPackages,
-              'ddrConfig.excludeCoreDartPackages',
-              false,
+              (p) => p.dartSdkConfig.excludedDartPackages,
+              'dartSdkConfig.excludedDartPackages',
+              ['dart:core'],
             )
             .having(
-              (p) => p.ddrConfig.excludedProjectPaths,
-              'ddrConfig.excludedProjectPaths',
+              (p) => p.crossLayerConfig.excludedProjectPaths,
+              'crossLayerConfig.excludedProjectPaths',
               ['/core/', '/shard/'],
             )
             .having(
-              (p) => p.ddrConfig.excludedLibraryPackages,
-              'ddrConfig.excludedLibraryPackages',
+              (p) => p.thirdPartyConfig.excludedLibraryPackages,
+              'thirdPartyConfig.excludedLibraryPackages',
               ['freezed', 'equatable'],
             ),
       );
@@ -277,19 +332,21 @@ void main() {
   );
 
   test(
-    'If all went well, and log/scan/ddr config contains invalid platform separator, it is auto fixed',
+    'If all went well, and config sections contain invalid platform separator, it is auto fixed',
     () {
       when(() => mockConfigFile.readAsStringSync()).thenReturn(r'''
       log_config:
         log_dir_relative_path: analysis_logs\analysis_plugins\clean_arch_linter
     
-      clean_arch_dependency_direction:
-        excluded_project_paths:
-          - core\
-          - shard\
-        excluded_library_packages:
-          - freezed
-          - equatable
+      rules:
+        cross_layer_import:
+          excluded_project_paths:
+            - core\
+            - shard\
+        third_party_import:
+          excluded_library_packages:
+            - freezed
+            - equatable
       ''');
 
       final config = sut.loadPluginConfig(mockRuleContext, mockPackageInfo);
@@ -304,8 +361,8 @@ void main() {
               'analysis_logs/analysis_plugins/clean_arch_linter/',
             )
             .having(
-              (p) => p.ddrConfig.excludedProjectPaths,
-              'ddrConfig.excludedProjectPaths',
+              (p) => p.crossLayerConfig.excludedProjectPaths,
+              'crossLayerConfig.excludedProjectPaths',
               ['core/', 'shard/'],
             ),
       );
@@ -313,7 +370,7 @@ void main() {
   );
 
   test(
-    'If all went well, and log/scan/ddr config is in invalid format, use default values',
+    'If all went well, and config sections are in invalid format, use default values',
     () {
       when(() => mockConfigFile.readAsStringSync()).thenReturn('''
       log_config:
@@ -321,17 +378,21 @@ void main() {
         allow_info: 2
         allow_warning: 3
         allow_error: 4
-        # log_dir_relative_path: analysis_logs/analysis_plugins/clean_arch_linter
   
       scan_config:
         scan_lib_dir: 1
         scan_test_dir: 2
     
-      clean_arch_dependency_direction:
-        # domain_dir_name: dmn
-        exclude_core_dart_packages: 1
-        excluded_project_paths: 1
-        excluded_library_packages: 2
+      domain_config:
+        domain_dir_names: dmn
+    
+      rules:
+        dart_sdk_import:
+          excluded_dart_packages: 1
+        cross_layer_import:
+          excluded_project_paths: 1
+        third_party_import:
+          excluded_library_packages: 2
       ''');
 
       final config = sut.loadPluginConfig(mockRuleContext, mockPackageInfo);
@@ -371,18 +432,18 @@ void main() {
               defaultScanTestDir,
             )
             .having(
-              (p) => p.ddrConfig.excludeCoreDartPackages,
-              'ddrConfig.excludeCoreDartPackages',
-              defaultExcludeCoreDartPackages,
+              (p) => p.dartSdkConfig.excludedDartPackages,
+              'dartSdkConfig.excludedDartPackages',
+              defaultExcludedDartPackages,
             )
             .having(
-              (p) => p.ddrConfig.excludedProjectPaths,
-              'ddrConfig.excludedProjectPaths',
+              (p) => p.crossLayerConfig.excludedProjectPaths,
+              'crossLayerConfig.excludedProjectPaths',
               defaultExcludedProjectPaths,
             )
             .having(
-              (p) => p.ddrConfig.excludedLibraryPackages,
-              'ddrConfig.excludedLibraryPackages',
+              (p) => p.thirdPartyConfig.excludedLibraryPackages,
+              'thirdPartyConfig.excludedLibraryPackages',
               defaultExcludedLibraryPackages,
             ),
       );
