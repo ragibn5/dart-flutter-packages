@@ -23,14 +23,15 @@ class ThirdPartyImportVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final RuleSessionContext<CleanArchLinterConfig> sessionContext;
 
-  final ImportUriBuilder _importUriBuilder;
   final ThirdPartyImportVisitorConfig _visitorConfig;
+
+  final ImportUriBuilder _importUriBuilder;
 
   ThirdPartyImportVisitor(
     this.rule,
     this.domainUnitContext,
     this.sessionContext, {
-    ThirdPartyImportVisitorConfig? visitorConfig,
+    @visibleForTesting ThirdPartyImportVisitorConfig? visitorConfig,
     @visibleForTesting ImportUriBuilder? importUriBuilder,
   }) : _visitorConfig = visitorConfig ?? ThirdPartyImportVisitorConfig(),
        _importUriBuilder = importUriBuilder ?? ImportUriBuilder();

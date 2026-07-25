@@ -23,8 +23,9 @@ class CrossLayerImportVisitor extends SimpleAstVisitor<void> {
   @visibleForTesting
   final RuleSessionContext<CleanArchLinterConfig> sessionContext;
 
-  final ImportUriBuilder _importUriBuilder;
   final CrossLayerImportVisitorConfig _visitorConfig;
+
+  final ImportUriBuilder _importUriBuilder;
 
   CrossLayerImportVisitor(
     this.rule,
