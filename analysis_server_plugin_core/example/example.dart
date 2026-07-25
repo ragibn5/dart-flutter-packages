@@ -2,10 +2,9 @@
 //
 // This file shows the smallest useful shape of a plugin library:
 // 1. expose a top-level `plugin`,
-// 2. register one or more rules from a [Plugin],
-// 3. define plugin-specific config,
-// 4. load that config through [ContextConfigLoader],
-// 5. implement rule logic with [SessionManagedAnalysisRule].
+// 2. define plugin-specific config,
+// 3. load that config through [ContextConfigLoader],
+// 4. implement rule logic with [SessionManagedAnalysisRule].
 
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:path/path.dart' as path;
@@ -13,46 +12,14 @@ import 'package:path/path.dart' as path;
 /// #### Step 1: Expose a top-level `plugin`
 ///
 /// The analysis server looks for a top-level variable named `plugin`.
-/// So, we define a variable named `plugin` and assign it an instance
-/// of a plugin that we will create later on.
-///
-/// Note: We should create an instance of [SessionDataManager] here,
-/// and pass it to the plugin. It is the ideal place for creating the
-/// [SessionDataManager] so that only one copy of it is present in an
-/// analysis session.
-final plugin = ExamplePlugin(
-  SessionDataManagerFactory.createNewInstance(ExampleConfigLoader()),
-);
+/// [PluginBuilder] handles session management internally.
+final plugin = PluginBuilder<ExampleConfig>(
+  name: 'ExamplePlugin',
+  configLoader: ExampleConfigLoader(),
+  rules: [ExampleAnnotatedModelRule.new],
+).build();
 
-/// #### Step 2: Create the plugin class
-///
-/// A plugin is responsible for the identity of the plugin library, and
-/// registering the rules.
-///
-/// To be able to harness the features of this library, you want to
-/// register rules that extend [SessionManagedAnalysisRule]. Each of
-/// the [SessionManagedAnalysisRule] instances requires an instance of
-/// [SessionDataManager]. It is recommended to use a single instance of
-/// [SessionDataManager] for all the rules you register within the plugin.
-/// The proper way to do that is already shown in step 1.
-class ExamplePlugin extends Plugin {
-  final SessionDataManager _sessionDataManager;
-
-  ExamplePlugin(this._sessionDataManager);
-
-  @override
-  String get name => '$ExamplePlugin';
-
-  @override
-  void register(PluginRegistry registry) {
-    registry.registerLintRule(ExampleAnnotatedModelRule(_sessionDataManager));
-
-    // Other rules can be registered here.
-    // ...
-  }
-}
-
-/// #### Step 3: Define your plugin config
+/// #### Step 2: Define your plugin config
 ///
 /// Every plugin-specific config object extends [ContextConfig].
 ///
@@ -86,7 +53,7 @@ class ExampleConfig extends ContextConfig {
       };
 }
 
-/// #### Step 4: Load config for each analyzed package
+/// #### Step 3: Load config for each analyzed package
 ///
 /// A [ContextConfigLoader] is used to construct a plugin-specific config
 /// object.
@@ -119,7 +86,7 @@ class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
   }
 }
 
-/// #### Step 5: Implement a session-managed rule
+/// #### Step 4: Implement a session-managed rule
 ///
 /// [SessionManagedAnalysisRule] exists so that rule authors do not
 /// have to do the following things repeatedly for each visited file:
@@ -165,7 +132,7 @@ class ExampleAnnotatedModelRule
   }
 }
 
-/// #### Step 6: Write the AST visitor
+/// #### Step 5: Write the AST visitor
 ///
 /// Visitors contain the actual AST logic, and it is the place where you
 /// report anomalies found during analysis.
