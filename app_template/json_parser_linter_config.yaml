@@ -1,0 +1,15 @@
+# ==========================================
+# Configuration for `json_parser_linter` plugin
+# ==========================================
+
+# Global log configuration: controls diagnostic logging for all rules.
+log_config:
+  enabled: false       # Enable or disable logging (default: false)
+  allow_info: false    # Allow info-level messages (default: false)
+  allow_warning: true  # Allow warning-level messages (default: true)
+  allow_error: true    # Allow error-level messages (default: true)
+
+# Global scan configuration: controls which directories are scanned.
+scan_config:
+  scan_lib_dir: true   # Scan the lib/ directory (default: true)
+  scan_test_dir: false # Scan the test/ directory (default: false)
