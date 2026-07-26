@@ -22,7 +22,7 @@ plugins:
       cross_layer_import: true
       third_party_import: true
   json_parser_linter:
-    path: ../json_parser/json_parser_linter
+    version: ^1.0.0
     diagnostics:
       json_parser_requirements: true
 
