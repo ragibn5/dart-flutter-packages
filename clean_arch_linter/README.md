@@ -54,18 +54,6 @@ plugins:
       dart_sdk_import: true
 ```
 
-#### If installed from a local path
-
-```yaml
-plugins:
-  clean_arch_linter:
-    path: ../clean_arch_linter
-    diagnostics:
-      cross_layer_import: true
-      third_party_import: true
-      dart_sdk_import: true
-```
-
 Should be added as a top level block, i.e., at the same level as `include`.
 
 ### 2. (Optional) Create a `clean_arch_linter_config.yaml`
