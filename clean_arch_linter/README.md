@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dev_dependencies:
-  clean_arch_linter: ^1.0.0
+  clean_arch_linter: ^2.0.0
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dev_dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: clean_arch_linter
-      ref: clean_arch_linter-1.0.0
+      ref: clean_arch_linter-2.0.0
 ```
 
 ## 🚀 Getting started
@@ -39,7 +39,22 @@ plugins:
       dart_sdk_import: true
 ```
 
-#### If installed from git or a local path
+#### If installed from git
+
+```yaml
+plugins:
+  clean_arch_linter:
+    git:
+      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      path: clean_arch_linter
+      ref: clean_arch_linter-2.0.0
+    diagnostics:
+      cross_layer_import: true
+      third_party_import: true
+      dart_sdk_import: true
+```
+
+#### If installed from a local path
 
 ```yaml
 plugins:
