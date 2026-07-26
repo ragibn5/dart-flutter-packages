@@ -23,7 +23,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_parser/json_parser_annotations
-      ref: json_parser_annotations-1.0.1
+      ref: json_parser/json_parser_annotations-1.0.1
 ```
 
 The `json_parser_annotations` package provides the following annotations used to trigger this plugin's linting rules:
@@ -39,7 +39,7 @@ The `json_parser_annotations` package provides the following annotations used to
 ```yaml
 plugins:
   json_parser_linter:
-    version: ^1.0.0
+    version: ^1.0.1
     diagnostics:
       json_parser_requirements: true
 ```
@@ -52,7 +52,7 @@ plugins:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_parser/json_parser_linter
-      ref: json_parser_linter-1.0.0
+      ref: json_parser/json_parser_linter-1.0.1
     diagnostics:
       json_parser_requirements: true
 ```
