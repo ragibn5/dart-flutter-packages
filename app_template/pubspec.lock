@@ -760,6 +760,14 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
+  json_parser_annotations:
+    dependency: "direct main"
+    description:
+      name: json_parser_annotations
+      sha256: "32d4e0db8e7663e4354a7dc54e5b0eaf3cda7ac23b9317ffc8d35d60e58cb4ad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   json_serializable:
     dependency: "direct dev"
     description:
