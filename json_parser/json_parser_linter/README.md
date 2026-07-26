@@ -93,14 +93,14 @@ The rule applies only to **concrete classes** annotated with `@GenerateJsonParse
 
 Reports missing or invalid `toJson` / `fromJson` members required for JSON parser generation.
 
-| Check                                                         | Reported? | Why                                      |
-|---------------------------------------------------------------|-----------|------------------------------------------|
-| Missing `toJson` instance method                              | Yes       | Required for serialization               |
-| `toJson` is a getter, takes params, or has a wrong return type | Yes      | Signature must match generator contract  |
-| Missing both factory and static `fromJson`                    | Yes       | Required for deserialization             |
-| `fromJson` has wrong params or return type                    | Yes       | Signature must match generator contract  |
-| Valid `toJson` + factory or static `fromJson`                 | No        | Meets requirements                       |
-| Abstract class / non-class annotation target                  | No        | Not applicable                           |
+| Check                                                          | Reported? | Why                                     |
+|----------------------------------------------------------------|-----------|-----------------------------------------|
+| Missing `toJson` instance method                               | Yes       | Required for serialization              |
+| `toJson` is a getter, takes params, or has a wrong return type | Yes       | Signature must match generator contract |
+| Missing both factory and static `fromJson`                     | Yes       | Required for deserialization            |
+| `fromJson` has wrong params or return type                     | Yes       | Signature must match generator contract |
+| Valid `toJson` + factory or static `fromJson`                  | No        | Meets requirements                      |
+| Abstract class / non-class annotation target                   | No        | Not applicable                          |
 
 Required shapes:
 
