@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analysis_server_plugin_core: ^1.1.0
+  analysis_server_plugin_core: ^1.1.1
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_server_plugin_core
-      ref: analysis_server_plugin_core-1.1.0
+      ref: analysis_server_plugin_core-1.1.1
 ```
 
 ## Why This Package Exists
@@ -43,13 +43,11 @@ It provides:
 
 The core idea is straightforward.
 
-- write your config own model
+- write your own config model
 - write a config loader that loads the config
 - Write rules and visitors for processing those rules
 
-And, the package handles the repeated infrastructure around them.
-
-A minimal analyzer plugin in 5 steps.
+And, the package handles the repeated infrastructure around them. Here is how you build a minimal analyzer plugin in 5 steps:
 
 ### 1. Build the plugin
 
@@ -64,12 +62,12 @@ final plugin = PluginBuilder<ExampleConfig>(name: 'ExamplePlugin', configLoader:
     .build();
 ```
 
-| Method             | Description                                                                         |
-|--------------------|-------------------------------------------------------------------------------------|
-| `name`             | Plugin identifier reported to the Dart analysis server.                             |
-| `configLoader`     | A `ContextConfigLoader` that produces config for each analyzed package.             |
-| `addLintRule()`    | Registers a lint rule factory — receives the shared `SessionDataManager`.           |
-| `addWarningRule()` | Registers a warning rule factory — same shape as `addLintRule()`.                   |
+| Method             | Description                                                               |
+|--------------------|---------------------------------------------------------------------------|
+| `name`             | Plugin identifier reported to the Dart analysis server.                   |
+| `configLoader`     | A `ContextConfigLoader` that produces config for each analyzed package.   |
+| `addLintRule()`    | Registers a lint rule factory — receives the shared `SessionDataManager`. |
+| `addWarningRule()` | Registers a warning rule factory — same shape as `addLintRule()`.         |
 
 ### 2. Define plugin config
 
