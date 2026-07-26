@@ -1,10 +1,12 @@
 # json_parser_generator
 
-Generator counterpart of the [`json_parser`](../../json_parser) package.
+Generator counterpart of the [`json_parser`](../.) package.
+
+> Note: This package is a part of the [`json_parser`](../.) suite.
 
 ## Overview
 
-`json_parser_generator` is the code generation counterpart of the [`json_parser`](../../json_parser)
+`json_parser_generator` is the code generation counterpart of the [`json_parser`](../.)
 package. It automates the creation of type-safe JSON parsers and generates parser registries that
 register those parsers.
 
