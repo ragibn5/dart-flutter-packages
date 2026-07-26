@@ -16,7 +16,7 @@ include:
 
 plugins:
   clean_arch_linter:
-    path: ../clean_arch_linter
+    version: ^2.0.2
     diagnostics:
       dart_sdk_import: true
       cross_layer_import: true
