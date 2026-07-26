@@ -7,7 +7,7 @@
 // 3. load that config through [ContextConfigLoader].
 // 4. implement rule logic with [SessionManagedAnalysisRule].
 
-// ignore_for_file: unnecessary_lambdas
+// ignore_for_file: lines_longer_than_80_chars, unnecessary_lambdas
 
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:path/path.dart' as path;
@@ -18,13 +18,8 @@ import 'package:path/path.dart' as path;
 /// [PluginBuilder] handles session management internally — a single
 /// [SessionDataManager] is created and shared across all rules.
 final plugin =
-    PluginBuilder<ExampleConfig>(
-          name: 'ExamplePlugin',
-          configLoader: ExampleConfigLoader(),
-        )
-        .addLintRule(
-          (sessionDataManager) => ExampleAnnotatedModelRule(sessionDataManager),
-        )
+    PluginBuilder<ExampleConfig>(name: 'ExamplePlugin', configLoader: ExampleConfigLoader())
+        .addLintRule((sessionDataManager) => ExampleAnnotatedModelRule(sessionDataManager))
         .build();
 
 /// #### Step 2: Define your plugin config
