@@ -1,4 +1,5 @@
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
+import 'package:analysis_server_plugin_core/src/services/session/session_data_manager_factory.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 

@@ -18,7 +18,9 @@ plugins:
   clean_arch_linter:
     path: ../clean_arch_linter
     diagnostics:
-      clean_arch_dependency_direction: true
+      dart_sdk_import: true
+      cross_layer_import: true
+      third_party_import: true
 
 analyzer:
   # Set/Modify language features

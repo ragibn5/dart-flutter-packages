@@ -12,6 +12,7 @@ export 'package:analyzer/dart/ast/visitor.dart';
 export 'package:analyzer/error/error.dart';
 export 'package:analyzer/workspace/workspace.dart';
 
+export 'src/builder/plugin_builder.dart';
 export 'src/extensions/path_string_extensions.dart';
 export 'src/extensions/rule_context_extensions.dart';
 export 'src/models/context_config.dart';

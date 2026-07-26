@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analysis_server_plugin_core: ^1.0.1
+  analysis_server_plugin_core: ^1.1.0
 ```
 
 #### Or, From Git repo
@@ -21,73 +21,69 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_server_plugin_core
-      ref: analysis_server_plugin_core-1.0.1
+      ref: analysis_server_plugin_core-1.1.0
 ```
 
 ## Why This Package Exists
 
-Building a Dart analysis server plugin from scratch means writing the same infrastructure every time: loading config, setting up debugging (especially useful since you cannot debug analyzer plugins directly), managing analysis sessions, and wiring up the rule lifecycle. The official `analysis_server_plugin` gives you the basic APIs but not the plumbing. This library handles all of that so you can focus on rule logic.
+`analysis_server_plugin_core` is a small foundational package for writing custom Dart analyzer plugins. It sits on top of the official analyzer/plugin APIs and adds the reusable structure most real plugins need.
 
-## How It Helps
+The official APIs give you the raw building blocks – plugins, lint rules, visitors, rule contexts, diagnostics, AST nodes, type information, and much more. This package focuses on the missing application-level layer around those APIs.
 
-- **Consistent rule lifecycle.** Every rule extends `SessionManagedAnalysisRule`, so config loading, logging, and session setup follow the same pattern.
-- **Shared session state.** A single `SessionDataManager` caches config and loggers per package per session, so rules don't repeat work.
-- **Flexible configuration.** Extend `ContextConfig` with your own fields and load them from YAML or any source through `ContextConfigLoader`.
-- **Built-in file logging.** Every rule gets a `SessionLogger` with level-aware file logging, per-level toggles, and an `extras` map for debug context.
-- **Declarative scan scope.** Skip `lib/`, `test/`, or both through `ScanConfig` instead of writing directory checks in every rule.
+It provides:
 
-## Quick Start
+- **Package context** — access useful metadata about the package currently being analyzed.
+- **Shared plugin config** — load plugin-specific config once and reuse it across rules.
+- **Typed rule context** — pass typed config and debugging setup into visitors without manual wiring.
+- **Analyzer-friendly debugging** — write structured file logs from rules running inside the analysis server.
+- **Consistent scan scope** — define where your rules should run without repeating checks in every rule.
+- **Semantic rule helpers** — use analyzer-backed utilities for common rule logic instead of fragile manual checks.
 
-A minimal plugin has six pieces. Each step builds on the previous one.
+## 🚀 Quick start
 
-### 1. Entry point
+The core idea is straightforward.
 
-The Dart analysis server looks for a top-level variable named `plugin` of a type extending `Plugin` (from `analysis_server_plugin` — see next step).
+- write your config own model
+- write a config loader that loads the config
+- Write rules and visitors for processing those rules
 
-This is where you create the `SessionDataManager` — the shared store for config, logger, and other session-managed components.
+And, the package handles the repeated infrastructure around them.
+
+A minimal analyzer plugin in 5 steps.
+
+### 1. Build the plugin
+
+The analysis server looks for a top-level variable named `plugin`. Use `PluginBuilder` to create it.
 
 ```dart
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 
-final plugin = MyPlugin(
-  SessionDataManagerFactory.createNewInstance(MyConfigLoader()),
-);
+final plugin = PluginBuilder<ExampleConfig>(name: 'ExamplePlugin', configLoader: ExampleConfigLoader())
+    .addLintRule((sessionDataManager) => ExampleLintRule(sessionDataManager))
+    .addWarningRule((sessionDataManager) => ExampleWarningRule(sessionDataManager))
+    .build();
 ```
 
-### 2. Plugin class
+| Method             | Description                                                                         |
+|--------------------|-------------------------------------------------------------------------------------|
+| `name`             | Plugin identifier reported to the Dart analysis server.                             |
+| `configLoader`     | A `ContextConfigLoader` that produces config for each analyzed package.             |
+| `addLintRule()`    | Registers a lint rule factory — receives the shared `SessionDataManager`.           |
+| `addWarningRule()` | Registers a warning rule factory — same shape as `addLintRule()`.                   |
 
-The plugin class identifies your library to the analysis server and registers rules. Extend `Plugin` (from `analysis_server_plugin`) and use `PluginRegistry` to register each rule.
+### 2. Define plugin config
 
-```dart
-class MyPlugin extends Plugin {
-  final SessionDataManager _sessionDataManager;
-
-  MyPlugin(this._sessionDataManager);
-
-  @override
-  String get name => 'MyPlugin';
-
-  @override
-  void register(PluginRegistry registry) {
-    registry.registerLintRule(MyRule(_sessionDataManager));
-  }
-}
-```
-
-### 3. Config
-
-Your plugin's configuration extends `ContextConfig`, which bundles `PackageInfo`, `LogConfig`, and `ScanConfig`. Add your own fields on top.
-
-The `toMap()` method is used for debugging and logging. Override it to include your own fields and the base class fields.
+Extend `ContextConfig` to bundle your plugin's settings with the built-in `PackageInfo`, `LogConfig`, and `ScanConfig`.
 
 ```dart
-class MyConfig extends ContextConfig {
-  final String annotationName;
+class ExampleConfig extends ContextConfig {
+  final String requiredAnnotationName;
 
-  const MyConfig({
+  const ExampleConfig({
     required super.packageInfo,
     required super.logConfig,
     required super.scanConfig,
-    this.annotationName = 'MyAnnotation',
+    this.requiredAnnotationName = 'DomainModel',
   });
 
   @override
@@ -96,45 +92,44 @@ class MyConfig extends ContextConfig {
         'packageInfo': packageInfo.toMap(),
         'logConfig': logConfig.toMap(),
         'scanConfig': scanConfig.toMap(),
-        'annotationName': annotationName,
+        'requiredAnnotationName': requiredAnnotationName,
       };
 }
 ```
 
-### 4. Config loader
+### 3. Load config per package
 
-The config loader reads your plugin's configuration from any source — pubspec.yaml, a standalone YAML file per plugin (recommended), or anything else. Extend `ContextConfigLoader` and implement `loadPluginConfig`. The base class extracts `PackageInfo` from `pubspec.yaml` for you.
+Extend `ContextConfigLoader` and implement `loadPluginConfig`. The base class extracts `PackageInfo` from `pubspec.yaml` for you — you fill in plugin-specific values.
 
 ```dart
-class MyConfigLoader extends ContextConfigLoader<MyConfig> {
+class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
   @override
-  MyConfig loadPluginConfig(RuleContext context, PackageInfo packageInfo) {
-    return MyConfig(
+  ExampleConfig loadPluginConfig(RuleContext context, PackageInfo packageInfo) {
+    return ExampleConfig(
       packageInfo: packageInfo,
-      logConfig: LogConfig(
+      logConfig: const LogConfig(
         enabled: true,
-        logDirectoryRelativePathFromProjectRoot: 'logs/analyzer_plugins/my_plugin',
+        allowInfoLog: true,
+        logDirectoryRelativePathFromProjectRoot: 'logs/analyzer_plugins/example',
       ),
-      scanConfig: const ScanConfig(),
+      scanConfig: const ScanConfig(scanLibDir: true, scanTestDir: false),
     );
   }
 }
 ```
 
-### 5. Rule
+### 4. Write a rule
 
-The rule extends `SessionManagedAnalysisRule`, which handles the session lifecycle — loading config, creating debug setup, and caching session data per package. You implement `registerSessionedNodeProcessors`, which receives a `RuleSessionContext` with the resolved config, logger, and session-managed data.
-
-`LintCode` supports argument interpolation: `{0}`, `{1}`, etc. in `problemMessage` are replaced with your arguments when reporting a diagnostic.
+Extend `SessionManagedAnalysisRule<T>`. By the time `registerSessionedNodeProcessors` runs, config is loaded, the type is verified, and `ScanConfig` filtering is done.
 
 ```dart
-class MyRule extends SessionManagedAnalysisRule<MyConfig> {
+class ExampleLintRule extends SessionManagedAnalysisRule<ExampleConfig> {
   static const code = LintCode(
-    'my_rule',
+    'example_rule',
     'Classes annotated with @{0} must be public.',
   );
 
-  MyRule(SessionDataManager sessionDataManager)
+  ExampleLintRule(SessionDataManager sessionDataManager)
       : super(RuleMetadata(code.name, code.problemMessage), sessionDataManager);
 
   @override
@@ -143,81 +138,104 @@ class MyRule extends SessionManagedAnalysisRule<MyConfig> {
   @override
   void registerSessionedNodeProcessors(RuleContext context,
       RuleVisitorRegistry registry,
-      RuleSessionContext<MyConfig> sessionContext) {
+      RuleSessionContext<ExampleConfig> sessionContext,) {
     registry.addClassDeclaration(
       this,
-      _MyVisitor(rule: this, sessionContext: sessionContext),
+      _ExampleVisitor(rule: this, sessionContext: sessionContext),
     );
   }
 }
 ```
 
-### 6. Visitor
+### 5. Write a visitor
 
-The visitor contains the AST analysis logic. It receives `RuleSessionContext` to access the typed config and logger. Use the reporting methods on the `AnalysisRule` instance to emit diagnostics in the IDE and `dart analyze` output.
+The visitor contains the AST analysis logic. Use `sessionContext` for config and logging, and `rule.reportAtNode()` to emit diagnostics.
 
 ```dart
-class _MyVisitor extends SimpleAstVisitor<void> {
-  final MyRule rule;
-  final RuleSessionContext<MyConfig> sessionContext;
+class _ExampleVisitor extends SimpleAstVisitor<void> {
+  final ExampleLintRule rule;
+  final RuleSessionContext<ExampleConfig> sessionContext;
 
-  _MyVisitor({required this.rule, required this.sessionContext});
+  const _ExampleVisitor({required this.rule, required this.sessionContext});
 
   @override
   void visitClassDeclaration(ClassDeclaration node) {
+    final annotationName = sessionContext.config.requiredAnnotationName;
     final hasAnnotation = node.metadata.any(
-          (a) => a.name.name == sessionContext.config.annotationName,
+          (a) => a.name.name == annotationName,
     );
-    if (!hasAnnotation) return;
-    if (node.name.lexeme.startsWith('_')) {
-      rule.reportAtNode(node, arguments: [sessionContext.config.annotationName]);
+
+    if (hasAnnotation && node.name.lexeme.startsWith('_')) {
+      sessionContext.logger.logWarning(
+        tag: 'ExampleLintRule',
+        message: 'Private annotated class: ${node.name.lexeme}',
+      );
+      rule.reportAtNode(node, arguments: [annotationName]);
     }
   }
 }
 ```
 
-## Components
+## 🧰 Utilities
 
-### Models
+### Resolve annotations
 
-| Class                   | Purpose                                                                                                                    |
-|-------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `ContextConfig`         | Abstract base for plugin configuration. Bundles `PackageInfo`, `LogConfig`, and `ScanConfig`. Extend with your own fields. |
-| `PackageInfo`           | Package name and root path for the currently analyzed package.                                                             |
-| `LogConfig`             | Controls whether logging is enabled, which levels are allowed, and where log files are written.                            |
-| `ScanConfig`            | Controls whether `lib/`, `test/`, or both are scanned.                                                                     |
-| `RuleMetadata`          | Name and description for a rule.                                                                                           |
-| `RuleSessionContext<T>` | Wraps a resolved config and a logger. Passed to your rule visitors.                                                        |
-| `Mappable`              | Interface requiring `toMap()` for serializable config maps.                                                                |
+```dart
 
-### Rules
+final resolver = AnnotationTypeResolverFactory.create();
+final typeName = resolver.resolveTypeName(annotation);
+```
 
-| Class                           | Purpose                                                                                                                                                                               |
-|---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `SessionManagedAnalysisRule<T>` | Abstract rule automating session lifecycle. Handles config loading, session caching, logger creation, and scan-scope checks before delegating to `registerSessionedNodeProcessors()`. |
+### Match collection types
 
-### Services
+```dart
 
-| Area        | Class                       | Purpose                                                                                        |
-|-------------|-----------------------------|------------------------------------------------------------------------------------------------|
-| **Config**  | `ContextConfigLoader<T>`    | Abstract loader. Subclass to extract `PackageInfo` from a `RuleContext` and build your config. |
-| **Session** | `SessionDataManager`        | Caches `SessionData` per package per session. Returns cache-hit or newly-created results.      |
-| **Session** | `SessionDataManagerFactory` | Static factory that wires the session data pipeline. Pass it your `ContextConfigLoader`.       |
-| **Logger**  | `SessionLogger`             | Interface for level-aware logging (info/warning/error) with global and per-level toggles.      |
+final resolver = CollectionTypeResolverFactory.create();
+final isStringList = resolver.isListOf(returnType, valueType: 'String');
+final isJsonMap = resolver.isMapOf(returnType, keyType: 'String', valueType: 'dynamic');
+```
 
-### Helpers
+### Work with paths
 
-| What                                     | Purpose                                                                                                        |
-|------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| `AnnotationTypeResolver`                 | Resolves an `Annotation` AST node to its class name, handling const values and typedef aliases.                |
-| `CollectionTypeResolver`                 | Checks whether a `TypeAnnotation` is `List<T>` or `Map<K,V>`, with nullability matching and typedef support.   |
-| `PathStringExtensions` on `String`       | `normalizePathSeparators`, `ensureTrailingPathSeparator`, `surroundingPathSeparator` for cross-platform paths. |
-| `RuleContextExtensions` on `RuleContext` | `packageRelativeUnitPath(pathSeparator:)` for file paths relative to the package root.                         |
-| `AnalyzerFile` / `AnalyzerFolder`        | Typedefs for `analyzer.file_system.File` and `analyzer.file_system.Folder`.                                    |
+```dart
 
-## Example
+final relativePath = context.packageRelativeUnitPath(pathSeparator: '/');
+final normalized = r'lib\src\rule.dart'.normalizePathSeparators(pathSeparator: '/');
+```
 
-See the full [example](example/example.dart), or look at real plugins built with this library:
+## 📦 API
+
+Everything is exported from a single import:
+
+```dart
+import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
+```
+
+| Component                       | Purpose                                                                              |
+|---------------------------------|--------------------------------------------------------------------------------------|
+| `PluginBuilder<C>`              | Type-safe builder — wires config loader, rules, and session manager into a `Plugin`. |
+| `SessionedRuleFactory<C>`       | Function signature: receives a `SessionDataManager`, returns a rule.                 |
+| `SessionManagedAnalysisRule<T>` | Base class for rules with typed config, logging, session reuse, and scan filtering.  |
+| `ContextConfig`                 | Base config model — extend with your plugin's options.                               |
+| `ContextConfigLoader<T>`        | Loads config and resolves package metadata per `RuleContext`.                        |
+| `RuleSessionContext<T>`         | Typed config + logger passed to visitors.                                            |
+| `RuleMetadata`                  | Rule identity (code name and problem message).                                       |
+| `PackageInfo`                   | Package name and root path.                                                          |
+| `LogConfig`                     | Enables/disables file logging and log levels.                                        |
+| `ScanConfig`                    | Controls `lib/` and `test/` scanning.                                                |
+| `SessionDataManager`            | Caches session data per package.                                                     |
+| `SessionDataManagerFactory`     | Creates a `SessionDataManager` (also used internally by `PluginBuilder`).            |
+| `SessionLogger`                 | Logger with global and per-level switches.                                           |
+| `AnnotationTypeResolver`        | Resolves annotation class names through constant values.                             |
+| `CollectionTypeResolver`        | Matches `List<T>` and `Map<K, V>` with typedef and nullability support.              |
+| `PathStringExtensions`          | Normalizes and manipulates path separators.                                          |
+| `RuleContextExtensions`         | Converts unit paths to package-relative paths.                                       |
+
+## 🧪 Examples
+
+See [example.dart](example/example.dart) for a complete minimal plugin.
+
+Real plugins built with this package:
 
 - [clean_arch_linter](https://pub.dev/packages/clean_arch_linter) | [source](../clean_arch_linter)
 - [json_parser_linter](https://pub.dev/packages/json_parser_linter) | [source](../json_parser/json_parser_linter)

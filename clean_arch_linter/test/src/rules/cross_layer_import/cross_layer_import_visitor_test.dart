@@ -4,9 +4,9 @@
 import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:clean_arch_linter/src/models/clean_arch_linter_config.dart';
-import 'package:clean_arch_linter/src/models/ddr_config.dart';
+import 'package:clean_arch_linter/src/models/cross_layer_import_config.dart';
 import 'package:clean_arch_linter/src/models/domain_unit_context.dart';
-import 'package:clean_arch_linter/src/rules/dependency_direction_rule/dependency_direction_rule_visitor.dart';
+import 'package:clean_arch_linter/src/rules/cross_layer_import/cross_layer_import_visitor.dart';
 import 'package:clean_arch_linter/src/services/import_uri_builder/import_uri_builder.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
@@ -21,8 +21,8 @@ class _MockContextConfig extends Mock implements CleanArchLinterConfig {}
 
 class _MockPackageInfo extends Mock implements PackageInfo {}
 
-class _MockDependencyDirectionRuleConfig extends Mock
-    implements DependencyDirectionRuleConfig {}
+class _MockCrossLayerImportConfig extends Mock
+    implements CrossLayerImportConfig {}
 
 class _MockSessionLogger extends Mock implements SessionLogger {}
 
@@ -40,16 +40,17 @@ void main() {
 
   final dartResolver = DartUnitResolver();
   final realImportUriBuilder = ImportUriBuilder();
+  final visitorConfig = CrossLayerImportVisitorConfig();
 
   late _MockAnalysisRule mockAnalysisRule;
   late _MockRuleSessionContext mockRuleSessionContext;
   late _MockContextConfig mockContextConfig;
   late _MockPackageInfo mockPackageInfo;
-  late _MockDependencyDirectionRuleConfig mockDDRConfig;
+  late _MockCrossLayerImportConfig mockCrossLayerConfig;
   late _MockSessionLogger mockSessionLogger;
   late _MockImportUriBuilder mockImportUriBuilder;
 
-  late DependencyDirectionRuleVisitor sut;
+  late CrossLayerImportVisitor sut;
 
   void givenImportUri(ImportDirective directive) {
     when(
@@ -103,22 +104,25 @@ void main() {
     mockRuleSessionContext = _MockRuleSessionContext();
     mockContextConfig = _MockContextConfig();
     mockPackageInfo = _MockPackageInfo();
-    mockDDRConfig = _MockDependencyDirectionRuleConfig();
+    mockCrossLayerConfig = _MockCrossLayerImportConfig();
     mockSessionLogger = _MockSessionLogger();
     mockImportUriBuilder = _MockImportUriBuilder();
 
-    sut = DependencyDirectionRuleVisitor.test(
+    sut = CrossLayerImportVisitor(
       mockAnalysisRule,
       defaultContext,
       mockRuleSessionContext,
-      mockImportUriBuilder,
+      visitorConfig: visitorConfig,
+      importUriBuilder: mockImportUriBuilder,
     );
 
     when(() => mockRuleSessionContext.config).thenReturn(mockContextConfig);
-    when(() => mockContextConfig.ddrConfig).thenReturn(mockDDRConfig);
+    when(
+      () => mockContextConfig.crossLayerConfig,
+    ).thenReturn(mockCrossLayerConfig);
     when(() => mockContextConfig.packageInfo).thenReturn(mockPackageInfo);
     when(() => mockRuleSessionContext.logger).thenReturn(mockSessionLogger);
-    when(() => mockDDRConfig.excludedProjectPaths).thenReturn([]);
+    when(() => mockCrossLayerConfig.excludedProjectPaths).thenReturn([]);
 
     when(
       () => mockSessionLogger.logInfo(
@@ -153,42 +157,6 @@ void main() {
   );
 
   test(
-    'When the import is from the Dart SDK and core packages are excluded by configuration, the directive is ignored',
-    () async {
-      final directive = getImportDirective(
-        (await dartResolver.resolveSource("import 'dart:core';")).unit,
-      );
-      givenImportUri(directive);
-
-      when(() => mockDDRConfig.excludeCoreDartPackages).thenReturn(true);
-
-      sut.visitImportDirective(directive);
-
-      verifyInfoLoggedOnce();
-      verifyNodeNeverReported();
-    },
-  );
-
-  test(
-    'When the import is from the Dart SDK and core packages are not excluded, the directive is reported',
-    () async {
-      final directive = getImportDirective(
-        (await dartResolver.resolveSource("import 'dart:core';")).unit,
-      );
-      givenImportUri(directive);
-
-      when(() => mockDDRConfig.excludeCoreDartPackages).thenReturn(false);
-
-      sut.visitImportDirective(directive);
-
-      verifyNodeReportedOnce(
-        directive,
-        message: 'core dart import in domain layer.',
-      );
-    },
-  );
-
-  test(
     'When a relative import points to a domain layer path inside the same feature, the directive is allowed and not reported',
     () async {
       final directive = getImportDirective(
@@ -198,13 +166,12 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
-
-      sut = DependencyDirectionRuleVisitor.test(
+      sut = CrossLayerImportVisitor(
         mockAnalysisRule,
         authDomainContext,
         mockRuleSessionContext,
-        mockImportUriBuilder,
+        visitorConfig: visitorConfig,
+        importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
       verifyInfoLoggedOnce();
@@ -222,16 +189,15 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
-
-      sut = DependencyDirectionRuleVisitor.test(
+      sut = CrossLayerImportVisitor(
         mockAnalysisRule,
         authDomainContext,
         mockRuleSessionContext,
-        mockImportUriBuilder,
+        visitorConfig: visitorConfig,
+        importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
-      verifyNodeReportedOnce(directive, message: 'not within the same domain.');
+      verifyNodeReportedOnce(directive, message: visitorConfig.contextMessage);
     },
   );
 
@@ -245,16 +211,16 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(
-        () => mockDDRConfig.excludedProjectPaths,
+        () => mockCrossLayerConfig.excludedProjectPaths,
       ).thenReturn(['lib/features/x/data/']);
 
-      sut = DependencyDirectionRuleVisitor.test(
+      sut = CrossLayerImportVisitor(
         mockAnalysisRule,
         defaultContext,
         mockRuleSessionContext,
-        mockImportUriBuilder,
+        visitorConfig: visitorConfig,
+        importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
       verifyInfoLoggedOnce();
@@ -272,12 +238,13 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
-      when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['lib/core/']);
+      when(
+        () => mockCrossLayerConfig.excludedProjectPaths,
+      ).thenReturn(['lib/core/']);
 
       sut.visitImportDirective(directive);
 
-      verifyNodeReportedOnce(directive, message: 'not within the same domain.');
+      verifyNodeReportedOnce(directive, message: visitorConfig.contextMessage);
     },
   );
 
@@ -291,14 +258,14 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(() => mockPackageInfo.name).thenReturn('xyz');
 
-      sut = DependencyDirectionRuleVisitor.test(
+      sut = CrossLayerImportVisitor(
         mockAnalysisRule,
         authDomainContext,
         mockRuleSessionContext,
-        mockImportUriBuilder,
+        visitorConfig: visitorConfig,
+        importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
       verifyInfoLoggedOnce();
@@ -316,17 +283,17 @@ void main() {
       );
       givenImportUri(directive);
 
-      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
       when(() => mockPackageInfo.name).thenReturn('xyz');
 
-      sut = DependencyDirectionRuleVisitor.test(
+      sut = CrossLayerImportVisitor(
         mockAnalysisRule,
         authDomainContext,
         mockRuleSessionContext,
-        mockImportUriBuilder,
+        visitorConfig: visitorConfig,
+        importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
-      verifyNodeReportedOnce(directive, message: 'not within the same domain.');
+      verifyNodeReportedOnce(directive, message: visitorConfig.contextMessage);
     },
   );
 
@@ -341,8 +308,9 @@ void main() {
       givenImportUri(directive);
 
       when(() => mockPackageInfo.name).thenReturn('xyz');
-      when(() => mockDDRConfig.domainDirNames).thenReturn(['domain']);
-      when(() => mockDDRConfig.excludedProjectPaths).thenReturn(['lib/core/']);
+      when(
+        () => mockCrossLayerConfig.excludedProjectPaths,
+      ).thenReturn(['lib/core/']);
 
       sut.visitImportDirective(directive);
 
@@ -352,44 +320,19 @@ void main() {
   );
 
   test(
-    'When a third party package import matches an excluded library prefix, the directive is ignored',
+    'When a non-package import (e.g. dart:) is encountered, the directive is ignored',
     () async {
       final directive = getImportDirective(
-        (await dartResolver.resolveSource(
-          "import 'package:dartz/functional/fold.dart';",
-        )).unit,
+        (await dartResolver.resolveSource("import 'dart:core';")).unit,
       );
       givenImportUri(directive);
 
       when(() => mockPackageInfo.name).thenReturn('xyz');
-      when(() => mockDDRConfig.excludedLibraryPackages).thenReturn(['dartz']);
 
       sut.visitImportDirective(directive);
 
       verifyInfoLoggedOnce();
       verifyNodeNeverReported();
-    },
-  );
-
-  test(
-    'When a third party package import is not excluded by configuration, the directive is reported',
-    () async {
-      final directive = getImportDirective(
-        (await dartResolver.resolveSource(
-          "import 'package:dartz/functional/fold.dart';",
-        )).unit,
-      );
-      givenImportUri(directive);
-
-      when(() => mockPackageInfo.name).thenReturn('xyz');
-      when(() => mockDDRConfig.excludedLibraryPackages).thenReturn([]);
-
-      sut.visitImportDirective(directive);
-
-      verifyNodeReportedOnce(
-        directive,
-        message: 'library package import in domain layer.',
-      );
     },
   );
 }

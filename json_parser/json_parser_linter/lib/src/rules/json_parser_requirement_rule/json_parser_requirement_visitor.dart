@@ -20,9 +20,9 @@ class JsonParserRequirementRuleVisitorConfig {
     this.toJsonMethodName = 'toJson',
     this.fromJsonConstructorName = 'fromJson',
     this.fromJsonStaticMethodName = 'fromJson',
-    this.missingToJsonContextMessage = 'missing toJson method.',
+    this.missingToJsonContextMessage = 'missing toJson method',
     this.missingFromJsonContextMessage =
-        'missing fromJson constructor (or a static method).',
+        'missing fromJson constructor or static method',
   });
 }
 
