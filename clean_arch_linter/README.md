@@ -2,49 +2,31 @@
 
 Analysis server plugin to enforce clean architecture.
 
-## Installation
-
-#### From pub.dev
-
-Add this to your `pubspec.yaml`
-
-```yaml
-dev_dependencies:
-  clean_arch_linter: ^1.0.0
-```
-
-#### Or, From Git repo
-
-```yaml
-dev_dependencies:
-  clean_arch_linter:
-    git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: clean_arch_linter
-      ref: clean_arch_linter-1.0.0
-```
-
 ## 🚀 Getting started
 
-### 1. Register the analyzer plugin in `analysis_options.yaml`
+### 1. Register the plugin in `analysis_options.yaml`
 
-#### If installed from pub.dev
+#### From pub.dev
 
 ```yaml
 plugins:
   clean_arch_linter:
+    version: ^2.0.2
     diagnostics:
       cross_layer_import: true
       third_party_import: true
       dart_sdk_import: true
 ```
 
-#### If installed from git or a local path
+#### From Git repo
 
 ```yaml
 plugins:
   clean_arch_linter:
-    path: ../clean_arch_linter
+    git:
+      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      path: clean_arch_linter
+      ref: clean_arch_linter-2.0.2
     diagnostics:
       cross_layer_import: true
       third_party_import: true
