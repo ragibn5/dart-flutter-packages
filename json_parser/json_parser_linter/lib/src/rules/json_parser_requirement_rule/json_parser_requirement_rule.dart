@@ -6,13 +6,11 @@ class JsonParserRequirementRule
     extends SessionManagedAnalysisRule<JsonParserLinterConfig> {
   static const LintCode JPR_LINT_CODE = LintCode(
     'json_parser_requirements',
-    'Missing or invalid components for JSON parser generation: {0}',
-    correctionMessage: '''
-    Ensure the class defines both of the following:
-      - Instance method:        Map<String, dynamic> toJson() { ... }
-      - A factory constructor:  factory YourClass.fromJson(Map<String, dynamic> json) { ... }
-        Or, a static method:    static YourClass fromJson(Map<String, dynamic> json) { ... }
-    ''',
+    'JSON parser requirement not met: {0}',
+    correctionMessage:
+        'Provide Map<String, dynamic> toJson() (or Map<String, Object?>), '
+        'and either factory YourClass.fromJson(Map<String, dynamic> json) '
+        'or static YourClass fromJson(Map<String, dynamic> json).',
     severity: DiagnosticSeverity.ERROR,
   );
 

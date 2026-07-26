@@ -9,7 +9,8 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
-class JsonParserLinterConfigLoader extends ContextConfigLoader {
+class JsonParserLinterConfigLoader
+    extends ContextConfigLoader<JsonParserLinterConfig> {
   final DefaultConfigOptions _defaultConfigOptions;
   final ConfigSourceProvider _configSourceProvider;
 
@@ -40,7 +41,10 @@ class JsonParserLinterConfigLoader extends ContextConfigLoader {
   );
 
   @override
-  ContextConfig loadPluginConfig(RuleContext context, PackageInfo packageInfo) {
+  JsonParserLinterConfig loadPluginConfig(
+    RuleContext context,
+    PackageInfo packageInfo,
+  ) {
     final fallbackConfig = JsonParserLinterConfig(
       packageInfo: packageInfo,
       logConfig: _defaultConfigOptions.logConfig,
