@@ -6,7 +6,33 @@ Analysis server plugin to enforce [json_parser](../.) compatible structures.
 
 ## 🚀 Getting started
 
-### 1. Register the plugin in `analysis_options.yaml`
+### 1. Add `json_parser_annotations` dependency
+
+#### From pub.dev
+
+```yaml
+dependencies:
+  json_parser_annotations: ^1.0.1
+```
+
+#### From Git repo
+
+```yaml
+dependencies:
+  json_parser_annotations:
+    git:
+      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      path: json_parser/json_parser_annotations
+      ref: json_parser_annotations-1.0.1
+```
+
+The `json_parser_annotations` package provides the following annotations used to trigger this plugin's linting rules:
+
+| Annotation            | Purpose                                                                                                                                                                                                                                       |
+|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `@GenerateJsonParser` | When used with [json_parser_generator](../json_parser_generator), registers the annotated class in the generated JSON parser registry. When used with this plugin, also enables linting analysis to report incompatible state and structures. |
+
+### 2. Register the plugin in `analysis_options.yaml`
 
 #### From pub.dev
 
@@ -33,7 +59,7 @@ plugins:
 
 Should be added as a top level block, i.e., at the same level as `include`.
 
-### 2. (Optional) Create a `json_parser_linter_config.yaml`
+### 3. (Optional) Create a `json_parser_linter_config.yaml`
 
 Place the file at the root of your project to customize logging and scan scope. **The file is entirely optional** — if omitted, the plugin uses these defaults:
 
@@ -65,7 +91,31 @@ scan_config:
   scan_test_dir: false # Scan the test/ directory (default: false)
 ```
 
-### 3. Verify
+### 4. Annotate your classes
+
+Add the `@GenerateJsonParser` annotation to any class you want the linter to check:
+
+```dart
+import 'package:json_parser_annotations/json_parser_annotations.dart';
+
+@GenerateJsonParser()
+class User {
+  final int id;
+  final String name;
+
+  User({required this.id, required this.name});
+
+  Map<String, dynamic> toJson() => {'id': id, 'name': name};
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(id: json['id'] as int, name: json['name'] as String);
+  }
+}
+```
+
+Only annotated classes are checked. Abstract classes and non-class declarations are ignored.
+
+### 5. Verify
 
 Run `flutter pub get`, then run `flutter analyze` to verify the plugin is enabled and reporting diagnostics. You may also want to restart the analysis server after each change to the analyzer config (including initial setup).
 
