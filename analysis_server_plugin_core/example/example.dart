@@ -1,11 +1,13 @@
 // Minimal example of an analyzer plugin built with
 // `analysis_server_plugin_core`.
 //
-// This file shows the smallest useful shape of a plugin library:
-// 1. expose a top-level `plugin`,
-// 2. define plugin-specific config,
-// 3. load that config through [ContextConfigLoader],
+// This file shows the shape of a simple plugin developed with this library:
+// 1. expose a top-level `plugin` via [PluginBuilder.
+// 2. define plugin-specific config.
+// 3. load that config through [ContextConfigLoader].
 // 4. implement rule logic with [SessionManagedAnalysisRule].
+
+// ignore_for_file: unnecessary_lambdas
 
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:path/path.dart' as path;
@@ -13,13 +15,17 @@ import 'package:path/path.dart' as path;
 /// #### Step 1: Expose a top-level `plugin`
 ///
 /// The analysis server looks for a top-level variable named `plugin`.
-/// [PluginBuilder] handles session management internally.
-final plugin = PluginBuilder<ExampleConfig>(
-  name: 'ExamplePlugin',
-  configLoader: ExampleConfigLoader(),
-)
-  .addLintRule(ExampleAnnotatedModelRule.new)
-  .build();
+/// [PluginBuilder] handles session management internally — a single
+/// [SessionDataManager] is created and shared across all rules.
+final plugin =
+    PluginBuilder<ExampleConfig>(
+          name: 'ExamplePlugin',
+          configLoader: ExampleConfigLoader(),
+        )
+        .addLintRule(
+          (sessionDataManager) => ExampleAnnotatedModelRule(sessionDataManager),
+        )
+        .build();
 
 /// #### Step 2: Define your plugin config
 ///
@@ -46,13 +52,12 @@ class ExampleConfig extends ContextConfig {
   });
 
   @override
-  Map<String, dynamic> toMap() =>
-      {
-        'packageInfo': packageInfo.toMap(),
-        'logConfig': logConfig.toMap(),
-        'scanConfig': scanConfig.toMap(),
-        'requiredAnnotationName': requiredAnnotationName,
-      };
+  Map<String, dynamic> toMap() => {
+    'packageInfo': packageInfo.toMap(),
+    'logConfig': logConfig.toMap(),
+    'scanConfig': scanConfig.toMap(),
+    'requiredAnnotationName': requiredAnnotationName,
+  };
 }
 
 /// #### Step 3: Load config for each analyzed package
@@ -108,21 +113,23 @@ class ExampleAnnotatedModelRule
   );
 
   ExampleAnnotatedModelRule(SessionDataManager sessionDataManager)
-      : super(RuleMetadata(code.name, code.problemMessage), sessionDataManager);
+    : super(RuleMetadata(code.name, code.problemMessage), sessionDataManager);
 
   @override
   DiagnosticCode get diagnosticCode => code;
 
   @override
-  void registerSessionedNodeProcessors(RuleContext context,
-      RuleVisitorRegistry registry,
-      RuleSessionContext<ExampleConfig> sessionContext,) {
+  void registerSessionedNodeProcessors(
+    RuleContext context,
+    RuleVisitorRegistry registry,
+    RuleSessionContext<ExampleConfig> sessionContext,
+  ) {
     // Logging is available on every invocation through the session context.
     // This is useful for debugging across an analysis session.
     sessionContext.logger.logInfo(
       tag: '$ExampleAnnotatedModelRule',
       message:
-      'Registering class visitor for ${context.definingUnit.file.path}',
+          'Registering class visitor for ${context.definingUnit.file.path}',
     );
 
     // Pass the [RuleSessionContext] instance to the visitor so it can use

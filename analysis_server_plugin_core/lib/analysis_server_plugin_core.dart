@@ -29,4 +29,5 @@ export 'src/services/resolvers/type_resolvers/annotation_type_resolver_factory.d
 export 'src/services/resolvers/type_resolvers/collection_type_resolver.dart';
 export 'src/services/resolvers/type_resolvers/collection_type_resolver_factory.dart';
 export 'src/services/session/session_data_manager.dart';
+export 'src/services/session/session_data_manager_factory.dart';
 export 'src/typedefs/typedefs.dart';
