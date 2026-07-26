@@ -1,10 +1,12 @@
 # json_parser_annotations
 
-Annotations to support analysis and code-gen features for [`json_parser`](../../json_parser) package.
+Annotations to support analysis and code-gen features for [`json_parser`](../.) package.
+
+> Note: This package is a part of the [`json_parser`](../.) suite.
 
 ## Overview
 
-Defines annotations to support analysis and code-gen features for [`json_parser`](../../json_parser) package.
+Defines annotations to support analysis and code-gen features for [`json_parser`](../.) package.
 
 ## Installation
 
@@ -14,7 +16,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  json_parser_annotations: ^1.0.0
+  json_parser_annotations: ^1.0.1
 ```
 
 #### Or, From Git repo
@@ -25,7 +27,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_parser/json_parser_annotations
-      ref: json_parser/json_parser_annotations-1.0.0
+      ref: json_parser/json_parser_annotations-1.0.1
 ```
 
 ## Usage

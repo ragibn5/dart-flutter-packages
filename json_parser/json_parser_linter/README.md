@@ -1,48 +1,32 @@
 # json_parser_linter
 
-Analysis server plugin to enforce json_parser compatible structures.
+Analysis server plugin to enforce [json_parser](../.) compatible structures.
 
-## Installation
-
-#### From pub.dev
-
-Add this to your `pubspec.yaml`
-
-```yaml
-dev_dependencies:
-  json_parser_linter: ^1.0.0
-```
-
-#### Or, From Git repo
-
-```yaml
-dev_dependencies:
-  json_parser_linter:
-    git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: json_parser/json_parser_linter
-      ref: json_parser/json_parser_linter-1.0.0
-```
+> Note: This package is a part of the [`json_parser`](../.) suite.
 
 ## 🚀 Getting started
 
-### 1. Register the analyzer plugin in `analysis_options.yaml`
+### 1. Register the plugin in `analysis_options.yaml`
 
-#### If installed from pub.dev
+#### From pub.dev
 
 ```yaml
 plugins:
   json_parser_linter:
+    version: ^1.0.0
     diagnostics:
       json_parser_requirements: true
 ```
 
-#### If installed from git or a local path
+#### From Git repo
 
 ```yaml
 plugins:
   json_parser_linter:
-    path: ../json_parser/json_parser_linter
+    git:
+      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      path: json_parser/json_parser_linter
+      ref: json_parser_linter-1.0.0
     diagnostics:
       json_parser_requirements: true
 ```
