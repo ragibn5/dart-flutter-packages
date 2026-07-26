@@ -1,12 +1,10 @@
 # json_parser_annotations
 
-Annotations to support analysis and code-gen features for [`json_parser`](../../json_parser)
-package.
+Annotations to support analysis and code-gen features for [`json_parser`](../../json_parser) package.
 
 ## Overview
 
-Defines annotations to support analysis and code-gen features for [`json_parser`](../../json_parser)
-package.
+Defines annotations to support analysis and code-gen features for [`json_parser`](../../json_parser) package.
 
 ## Installation
 
@@ -51,8 +49,7 @@ class User {
 }
 ```
 
-Once annotated, generators, analyzers and other tools can find these components and apply their
-integrations.
+Once annotated, generators, analyzers and other tools can find these components and apply their integrations.
 
 ### Example
 
