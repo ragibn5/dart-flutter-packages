@@ -12,11 +12,6 @@ version: 1.0.0
 environment:
   sdk: ^3.0.6
 
-# Regular dependencies
-# (Bundled in executable artifact)
-dependencies:
-  #path: any
-
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
