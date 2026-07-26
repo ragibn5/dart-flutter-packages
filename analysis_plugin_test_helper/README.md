@@ -24,22 +24,34 @@ dependencies:
       ref: analysis_plugin_test_helper-1.0.4
 ```
 
-For more information, see the [package on pub.dev](https://pub.dev/packages/analysis_plugin_test_helper) or the [GitHub repository](https://github.com/Ragibn5/dart-flutter-packages/tree/main/analysis_plugin_test_helper).
+---
 
-## Getting Started
+# 🎯 Overview
+
+Testing analyzer plugins means writing resolved Dart snippets and asserting on specific AST nodes. That requires a lot of repetitive setup: temp files, resolving the source tree, manual tree-walking, cleanup, and much more – over and over again. **analysis_plugin_helper** collapses all of it into two things: a one-call resolver and a set of helpers.
+
+| Feature             | What it does                                                              |
+|---------------------|---------------------------------------------------------------------------|
+| `DartUnitResolver`  | Converts a Dart source string into a fully resolved `ResolvedUnitResult`. |
+| Annotation parsers  | Find/get annotations by resolved type name.                               |
+| Method parsers      | Find/get methods by name across classes, mixins, extensions, and enums.   |
+| Constructor parsers | Find/get named, default, and factory constructors.                        |
+| Import parsers      | Find/get import directives.                                               |
+
+Every parser comes in two flavors: `find*` (returns `null`) and `get*` (fails the test via `fail()`).
+
+## 🔧 Usage
 
 ### DartUnitResolver
 
-Parsing Dart source (with `parseString` function from the `analyzer` package) gives you an unresolved AST, where every node in it is still just syntax. Whatever it refers to — a type, a declaration, a constant value — is only named, not linked to the actual thing. Without resolution, the AST tells you what's written, not what it means or what it points to.
+Parsing Dart source with `analyzer`'s `parseString` gives you an **unresolved** AST — nodes are syntax only, not linked to declarations. Analyzer plugins need the *resolved* picture. Normally that means:
 
-Analyzer plugins work on the *resolved* picture — every reference linked to what it actually points to. Getting a resolved unit for a test normally means running the source through the full analysis pipeline by hand:
+1. Creating an `AnalysisContextCollection`
+2. Writing source to a temp file
+3. Resolving it and extracting a `ResolvedUnitResult`
+4. Cleaning up
 
-- Create an `AnalysisContextCollection`
-- Write the source to a temp file
-- Resolve it and extract a `ResolvedUnitResult`
-- Clean up the temp files afterward
-
-Every test file ends up repeating this. `DartUnitResolver` collapses it into one call — pass `resolveSource()` a Dart code string and get a resolved unit back.
+`DartUnitResolver` does all of this in one call:
 
 ```dart
 import 'package:analysis_plugin_test_helper/analysis_plugin_test_helper.dart';
@@ -51,7 +63,7 @@ void main() {
   setUpAll(() async => resolver.setUp());
   tearDownAll(() async => resolver.tearDown());
 
-  test('example', () async {
+  test('resolve source', () async {
     final result = await resolver.resolveSource('''
       class MyAnnotation {
         const MyAnnotation();
@@ -64,108 +76,105 @@ void main() {
     ''');
 
     expect(result.diagnostics, isEmpty);
-    // result.unit is a fully resolved CompilationUnit
+    // result.unit — fully resolved CompilationUnit
   });
 }
 ```
 
-> **Note:** The source must be **standalone** — every declaration it references (classes, annotations, imports) must be self-contained within the string, since there's no surrounding project context to resolve against.
+> ⚠️ The source must be **self-contained** — every class, annotation, and import it references must be declared inline. There's no surrounding project context.
 
-`resolveSource()` doesn't throw or fail just because the source has errors — syntactically invalid or semantically incorrect code still comes back as a `ResolvedUnitResult`. If you need to confirm the source was actually valid, check `result.diagnostics` yourself. It only throws a `StateError` in the rarer case where the analyzer can't produce a `ResolvedUnitResult` at all.
+> ℹ️ `resolveSource()` doesn't throw on errors in the source. Syntactically invalid code still returns a `ResolvedUnitResult`. Check `result.diagnostics` if you need to assert validity. It only throws `StateError` when the analyzer can't produce a result at all.
 
-Call `setUp()` once before your tests run and `tearDown()` once after. This only creates and cleans up the temp directory the source files are written to — each call to `resolveSource()` still spins up and disposes its own `AnalysisContextCollection`, so don't rely on any state carrying over between calls.
+`setUp()` / `tearDown()` manage the temp directory only. Each `resolveSource()` call spins up its own `AnalysisContextCollection` — no state leaks between calls.
 
-### Parsers
+### 🔍 Parser Helpers
 
-Once you have `result.unit` from `DartUnitResolver`, these functions let you locate specific AST nodes without writing your own visitor.
+Once you have `result.unit`, these functions locate AST nodes without writing a visitor.
 
-Each capability comes in two forms:
+#### find\* vs. get\*
 
-| Prefix  | Returns            | Behavior when not found             |
-|---------|--------------------|-------------------------------------|
-| `find*` | nullable value     | returns `null`                      |
-| `get*`  | non-nullable value | fails the current test via `fail()` |
+| Prefix  | Returns | When not found              |
+|---------|---------|-----------------------------|
+| `find*` | `null`  | returns `null`              |
+| `get*`  | value   | fails the test via `fail()` |
 
-Use `find*` when you're asserting something is *absent*, and `get*` when you're asserting on something you expect to exist.
+Use `find*` when asserting something is **absent**; `get*` when you expect it to exist.
 
-#### Annotations
+#### 📌 Annotations
 
-```dart
+```
 Annotation? findAnnotation<D extends CompilationUnitMember>(
   CompilationUnit unit, {
   required String annotationName,
 })
 ```
 
-Matches on the annotation's *resolved* type — via `elementAnnotation.computeConstantValue().type.element.name` — not on its source text. Because of that, this only works on a resolved unit; against an unresolved one it always returns `null`. It also means the annotation doesn't have to spell the type out directly: `@MyAnnotation()`, a reference to a `const` variable of that type, and a call through a `typedef` alias of it all match `annotationName: 'MyAnnotation'`.
+Matches by the annotation's **resolved type** (`computeConstantValue().type.element.name`), not source text. So these all match `annotationName: 'MyAnnotation'`:
 
-```dart
-typedef MAN = MyAnnotation;
-
-@MAN()
-class Foo {}
+```
+@MyAnnotation()           // direct
+@MY_ANNOTATION            // const variable
+@MAN                      // typedef alias
 ```
 
-```dart
+Searches top-level declarations only (`unit.declarations`). Use the type parameter to narrow: `getAnnotation<ClassDeclaration>(...)`.
+
+```
 final annotation = getAnnotation(result.unit, annotationName: 'MyAnnotation');
 ```
 
-The search only checks metadata on the top-level declaration itself (`unit.declarations`) — annotations on members inside it, like a method or field, aren't inspected. By default it searches every top-level declaration kind (classes, top-level functions and getters, and so on); the type parameter `D` narrows that to one kind, e.g. `getAnnotation<ClassDeclaration>(...)`, when you need to be specific about where the annotation should live.
+#### 🔨 Methods
 
-#### Methods
-
-```dart
+```
 MethodDeclaration? findMethodDeclaration(CompilationUnit unit, String name)
 ```
 
-Searches the members of classes, mixins, extensions, extension types, and enums for a method named `name`. Top-level functions aren't covered.
+Searches members of classes, mixins, extensions, extension types, and enums. Does **not** cover top-level functions.
 
-```dart
+```
 final method = getMethodDeclaration(result.unit, 'myMethod');
 ```
 
-#### Constructors
+#### 🏗️ Constructors
 
-```dart
+```
 ConstructorDeclaration? findConstructorDeclaration(CompilationUnit unit, String? name)
 ```
 
-Searches the same declaration kinds as `findMethodDeclaration`. `name` is the constructor's own name only — `'named'`, not `'Foo.named'`. Pass `null` to find the unnamed (default) constructor.
+`name` is the constructor's own name (`'named'`, not `'Foo.named'`). Pass `null` for the default constructor. Matches both regular and factory constructors — use `findFactoryConstructorDeclaration` when you need to distinguish.
 
-This matches by name alone, so it finds factory constructors too — use `findFactoryConstructorDeclaration` below when you specifically need to assert that a constructor is (or isn't) a factory.
-
-```dart
+```
 final defaultCtor = getConstructorDeclaration(result.unit, null);
-final namedCtor = getConstructorDeclaration(result.unit, 'named');
+final namedCtor   = getConstructorDeclaration(result.unit, 'named');
 ```
 
-#### Factory constructors
+#### 🏭 Factory Constructors
 
-```dart
+```
 ConstructorDeclaration? findFactoryConstructorDeclaration(CompilationUnit unit, String? name)
 ```
 
-Same lookup as `findConstructorDeclaration`, restricted to constructors declared with `factory`. `null` finds the default factory constructor.
+Same as `findConstructorDeclaration`, restricted to `factory` constructors. `null` finds the default factory.
 
-```dart
+```
 final factoryCtor = getFactoryConstructorDeclaration(result.unit, 'create');
 ```
 
-#### Import directives
+#### 📥 Import Directives
 
-```dart
+```
 ImportDirective? findImportDirective(CompilationUnit unit)
 ```
 
-Returns the first import directive in the unit — there's no filtering by URI. Useful when a test source has a single import you want to assert on directly.
+Returns the **first** import directive. No URI filtering.
 
-```dart
+```
 final importDirective = getImportDirective(result.unit);
 ```
 
-### Putting it together
+## 🧩 Putting it together
 
-```dart
+```
 test('plugin flags classes annotated with @MyAnnotation', () async {
   final result = await resolver.resolveSource('''
     class MyAnnotation {
@@ -186,4 +195,8 @@ test('plugin flags classes annotated with @MyAnnotation', () async {
 });
 ```
 
-This is the shape most plugin tests take: resolve a small standalone snippet, pull the nodes under test out with the parser helpers, then assert on them directly rather than walking the AST by hand.
+This is the shape most plugin tests take: Resolve → pull nodes → assert. No temp files, no cleanup.
+
+## 🧪 Example
+
+See [`example.dart`](example/example.dart) and [tests](test) for a complete demonstration.
