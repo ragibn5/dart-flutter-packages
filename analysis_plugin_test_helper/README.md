@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analysis_plugin_test_helper: ^1.0.4
+  analysis_plugin_test_helper: ^1.0.5
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_plugin_test_helper
-      ref: analysis_plugin_test_helper-1.0.4
+      ref: analysis_plugin_test_helper-1.0.5
 ```
 
 ---
