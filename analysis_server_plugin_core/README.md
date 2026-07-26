@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analysis_server_plugin_core: ^1.1.1
+  analysis_server_plugin_core: ^1.1.2
 ```
 
 #### Or, From Git repo
@@ -21,10 +21,12 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_server_plugin_core
-      ref: analysis_server_plugin_core-1.1.1
+      ref: analysis_server_plugin_core-1.1.2
 ```
 
-## Why This Package Exists
+---
+
+## 💡 Why This Package Exists
 
 `analysis_server_plugin_core` is a small foundational package for writing custom Dart analyzer plugins. It sits on top of the official analyzer/plugin APIs and adds the reusable structure most real plugins need.
 
