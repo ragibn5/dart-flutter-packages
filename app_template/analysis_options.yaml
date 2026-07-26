@@ -21,6 +21,10 @@ plugins:
       dart_sdk_import: true
       cross_layer_import: true
       third_party_import: true
+  json_parser_linter:
+    path: ../json_parser/json_parser_linter
+    diagnostics:
+      json_parser_requirements: true
 
 analyzer:
   # Set/Modify language features
