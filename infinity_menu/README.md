@@ -132,6 +132,6 @@ All exported components from `package:infinity_menu/infinity_menu.dart`:
 
 ## 🧪 Example
 
-See [`example.dart`](example.dart) for a complete runnable example, or [`demo/`](demo) for a standalone Flutter project.
+See [`example.dart`](example/example.dart) for a complete runnable example, or [`demo/`](demo) for a standalone Flutter project.
 
 ---
