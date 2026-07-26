@@ -54,26 +54,23 @@ void main() {
         const hostUnitPath =
             'lib/features/auth/domain/services/auth_service.dart';
 
-        final result = resolver.findDomainDirPath(
-          hostUnitPath,
-          ['presentation', 'domain'],
-        );
+        final result = resolver.findDomainDirPath(hostUnitPath, [
+          'presentation',
+          'domain',
+        ]);
 
         expect(result, 'lib/features/auth/domain/');
       },
     );
 
-    test(
-      'When domain dir names list is empty, returns null',
-      () {
-        const hostUnitPath =
-            'lib/features/auth/domain/services/auth_service.dart';
+    test('When domain dir names list is empty, returns null', () {
+      const hostUnitPath =
+          'lib/features/auth/domain/services/auth_service.dart';
 
-        final result = resolver.findDomainDirPath(hostUnitPath, []);
+      final result = resolver.findDomainDirPath(hostUnitPath, []);
 
-        expect(result, isNull);
-      },
-    );
+      expect(result, isNull);
+    });
 
     test(
       'When a custom domain dir name matches, returns the path up to it',
@@ -86,7 +83,5 @@ void main() {
         expect(result, 'lib/features/auth/core/');
       },
     );
-
-
   });
 }

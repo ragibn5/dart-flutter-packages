@@ -176,10 +176,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyNodeReportedOnce(
-        directive,
-        message: 'dart:core',
-      );
+      verifyNodeReportedOnce(directive, message: 'dart:core');
     },
   );
 

@@ -76,25 +76,24 @@ void main() {
   void verifyNodeReportedOnce(
     ImportDirective directive, {
     required String message,
-  }) =>
-      verify(
-        () => mockAnalysisRule.reportAtNode(
-          directive,
-          arguments: any(
-            named: 'arguments',
-            that: predicate<List<Object>>(
-              (args) => args.length == 1 && args.first == message,
-            ),
-          ),
+  }) => verify(
+    () => mockAnalysisRule.reportAtNode(
+      directive,
+      arguments: any(
+        named: 'arguments',
+        that: predicate<List<Object>>(
+          (args) => args.length == 1 && args.first == message,
         ),
-      ).called(1);
+      ),
+    ),
+  ).called(1);
 
   void verifyNodeNeverReported() => verifyNever(
-        () => mockAnalysisRule.reportAtNode(
-          any(),
-          arguments: any(named: 'arguments'),
-        ),
-      );
+    () => mockAnalysisRule.reportAtNode(
+      any(),
+      arguments: any(named: 'arguments'),
+    ),
+  );
 
   setUpAll(() async {
     await dartResolver.setUp();
@@ -198,10 +197,7 @@ void main() {
         importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
-      verifyNodeReportedOnce(
-        directive,
-        message: visitorConfig.contextMessage,
-      );
+      verifyNodeReportedOnce(directive, message: visitorConfig.contextMessage);
     },
   );
 
@@ -248,10 +244,7 @@ void main() {
 
       sut.visitImportDirective(directive);
 
-      verifyNodeReportedOnce(
-        directive,
-        message: visitorConfig.contextMessage,
-      );
+      verifyNodeReportedOnce(directive, message: visitorConfig.contextMessage);
     },
   );
 
@@ -300,10 +293,7 @@ void main() {
         importUriBuilder: mockImportUriBuilder,
       )..visitImportDirective(directive);
 
-      verifyNodeReportedOnce(
-        directive,
-        message: visitorConfig.contextMessage,
-      );
+      verifyNodeReportedOnce(directive, message: visitorConfig.contextMessage);
     },
   );
 

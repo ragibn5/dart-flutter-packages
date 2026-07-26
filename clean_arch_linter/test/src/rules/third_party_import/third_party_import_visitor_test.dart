@@ -72,25 +72,24 @@ void main() {
   void verifyNodeReportedOnce(
     ImportDirective directive, {
     required String message,
-  }) =>
-      verify(
-        () => mockAnalysisRule.reportAtNode(
-          directive,
-          arguments: any(
-            named: 'arguments',
-            that: predicate<List<Object>>(
-              (args) => args.length == 1 && args.first == message,
-            ),
-          ),
+  }) => verify(
+    () => mockAnalysisRule.reportAtNode(
+      directive,
+      arguments: any(
+        named: 'arguments',
+        that: predicate<List<Object>>(
+          (args) => args.length == 1 && args.first == message,
         ),
-      ).called(1);
+      ),
+    ),
+  ).called(1);
 
   void verifyNodeNeverReported() => verifyNever(
-        () => mockAnalysisRule.reportAtNode(
-          any(),
-          arguments: any(named: 'arguments'),
-        ),
-      );
+    () => mockAnalysisRule.reportAtNode(
+      any(),
+      arguments: any(named: 'arguments'),
+    ),
+  );
 
   setUpAll(() async {
     await dartResolver.setUp();
@@ -119,9 +118,7 @@ void main() {
     ).thenReturn(mockThirdPartyConfig);
     when(() => mockContextConfig.packageInfo).thenReturn(mockPackageInfo);
     when(() => mockRuleSessionContext.logger).thenReturn(mockSessionLogger);
-    when(
-      () => mockThirdPartyConfig.excludedLibraryPackages,
-    ).thenReturn([]);
+    when(() => mockThirdPartyConfig.excludedLibraryPackages).thenReturn([]);
 
     when(
       () => mockSessionLogger.logInfo(
@@ -188,16 +185,11 @@ void main() {
       givenImportUri(directive);
 
       when(() => mockPackageInfo.name).thenReturn('xyz');
-      when(
-        () => mockThirdPartyConfig.excludedLibraryPackages,
-      ).thenReturn([]);
+      when(() => mockThirdPartyConfig.excludedLibraryPackages).thenReturn([]);
 
       sut.visitImportDirective(directive);
 
-      verifyNodeReportedOnce(
-        directive,
-        message: visitorConfig.contextMessage,
-      );
+      verifyNodeReportedOnce(directive, message: visitorConfig.contextMessage);
     },
   );
 
