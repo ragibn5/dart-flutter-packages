@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analysis_server_plugin_core: ^1.0.1
+  analysis_server_plugin_core: ^1.1.0
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_server_plugin_core
-      ref: analysis_server_plugin_core-1.0.1
+      ref: analysis_server_plugin_core-1.1.0
 ```
 
 ## Why This Package Exists
@@ -224,6 +224,7 @@ import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 | `LogConfig`                     | Enables/disables file logging and log levels.                                        |
 | `ScanConfig`                    | Controls `lib/` and `test/` scanning.                                                |
 | `SessionDataManager`            | Caches session data per package.                                                     |
+| `SessionDataManagerFactory`     | Creates a `SessionDataManager` (also used internally by `PluginBuilder`).            |
 | `SessionLogger`                 | Logger with global and per-level switches.                                           |
 | `AnnotationTypeResolver`        | Resolves annotation class names through constant values.                             |
 | `CollectionTypeResolver`        | Matches `List<T>` and `Map<K, V>` with typedef and nullability support.              |
