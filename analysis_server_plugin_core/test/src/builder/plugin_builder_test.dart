@@ -1,12 +1,11 @@
+// ignore_for_file: cascade_invocations
+
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class _TestConfig extends ContextConfig {
-  const _TestConfig({
-    required super.packageInfo,
-    required super.logConfig,
-  });
+  const _TestConfig({required super.packageInfo, required super.logConfig});
 
   @override
   Map<String, dynamic> toMap() => {};
@@ -14,10 +13,7 @@ class _TestConfig extends ContextConfig {
 
 class _TestConfigLoader extends ContextConfigLoader<_TestConfig> {
   @override
-  _TestConfig loadPluginConfig(
-    RuleContext context,
-    PackageInfo packageInfo,
-  ) {
+  _TestConfig loadPluginConfig(RuleContext context, PackageInfo packageInfo) {
     return _TestConfig(
       packageInfo: packageInfo,
       logConfig: const LogConfig(
@@ -86,10 +82,7 @@ void main() {
       final plugin = PluginBuilder<_TestConfig>(
         name: 'Test',
         configLoader: testConfigLoader,
-      )
-        .addLintRule(_TestRule.new)
-        .addLintRule(_TestRule.new)
-        .build();
+      ).addLintRule(_TestRule.new).addLintRule(_TestRule.new).build();
 
       plugin.register(mockRegistry);
 
@@ -102,9 +95,7 @@ void main() {
       final plugin = PluginBuilder<_TestConfig>(
         name: 'Test',
         configLoader: testConfigLoader,
-      )
-        .addWarningRule(_TestRule.new)
-        .build();
+      ).addWarningRule(_TestRule.new).build();
 
       plugin.register(mockRegistry);
 

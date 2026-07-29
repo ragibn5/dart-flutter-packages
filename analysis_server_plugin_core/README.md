@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analysis_server_plugin_core: ^1.1.2
+  analysis_server_plugin_core: ^1.1.4
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analysis_server_plugin_core
-      ref: analysis_server_plugin_core-1.1.2
+      ref: analysis_server_plugin_core-1.1.4
 ```
 
 ---
@@ -64,12 +64,12 @@ final plugin = PluginBuilder<ExampleConfig>(name: 'ExamplePlugin', configLoader:
     .build();
 ```
 
-| Method             | Description                                                               |
-|--------------------|---------------------------------------------------------------------------|
-| `name`             | Plugin identifier reported to the Dart analysis server.                   |
-| `configLoader`     | A `ContextConfigLoader` that produces config for each analyzed package.   |
-| `addLintRule()`    | Registers a lint rule factory — receives the shared `SessionDataManager`. |
-| `addWarningRule()` | Registers a warning rule factory — same shape as `addLintRule()`.         |
+| Method             | Description                                                                   |
+|--------------------|-------------------------------------------------------------------------------|
+| `name`             | Plugin identifier reported to the Dart analysis server.                       |
+| `configLoader`     | A `ContextConfigLoader` subclass that loads config for each analyzed package. |
+| `addLintRule()`    | Registers a lint rule factory — receives the shared `SessionDataManager`.     |
+| `addWarningRule()` | Registers a warning rule factory — same shape as `addLintRule()`.             |
 
 ### 2. Define plugin config
 
@@ -100,6 +100,8 @@ class ExampleConfig extends ContextConfig {
 ### 3. Load config per package
 
 Extend `ContextConfigLoader` and implement `loadPluginConfig`. The base class extracts `PackageInfo` from `pubspec.yaml` for you — you fill in plugin-specific values.
+
+It is up to you where you want to load the config from. For example, a YAML file or any other source.
 
 ```dart
 class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
