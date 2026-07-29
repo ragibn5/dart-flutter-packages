@@ -64,12 +64,12 @@ final plugin = PluginBuilder<ExampleConfig>(name: 'ExamplePlugin', configLoader:
     .build();
 ```
 
-| Method             | Description                                                               |
-|--------------------|---------------------------------------------------------------------------|
-| `name`             | Plugin identifier reported to the Dart analysis server.                   |
-| `configLoader`     | A `ContextConfigLoader` that produces config for each analyzed package.   |
-| `addLintRule()`    | Registers a lint rule factory — receives the shared `SessionDataManager`. |
-| `addWarningRule()` | Registers a warning rule factory — same shape as `addLintRule()`.         |
+| Method             | Description                                                                   |
+|--------------------|-------------------------------------------------------------------------------|
+| `name`             | Plugin identifier reported to the Dart analysis server.                       |
+| `configLoader`     | A `ContextConfigLoader` subclass that loads config for each analyzed package. |
+| `addLintRule()`    | Registers a lint rule factory — receives the shared `SessionDataManager`.     |
+| `addWarningRule()` | Registers a warning rule factory — same shape as `addLintRule()`.             |
 
 ### 2. Define plugin config
 
