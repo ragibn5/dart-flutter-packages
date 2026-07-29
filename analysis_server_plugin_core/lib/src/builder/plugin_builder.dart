@@ -33,8 +33,8 @@ typedef _RuleRegistrationCallback =
 /// ```dart
 // ignore: lines_longer_than_80_chars
 /// final plugin = PluginBuilder<MyConfig>(name: 'MyPlugin', configLoader: MyConfigLoader())
-///   .addLintRule(MyLintRule.new)
-///   .addWarningRule(MyWarningRule.new)
+///   .addLintRule((sessionDataManager) => MyLintRule(sessionDataManager))
+///   .addWarningRule((sessionDataManager) => MyWarningRule(sessionDataManager))
 ///   .build();
 /// ```
 class PluginBuilder<C extends ContextConfig> {

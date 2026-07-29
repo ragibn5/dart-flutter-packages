@@ -34,19 +34,22 @@ class JsonParsersBuilder
   final RegistryClassGenerator _registryGenerator;
 
   JsonParsersBuilder(
-    this._parsersBuilderConfig, {
-    required SessionDataManager sessionDataManager,
+    super.sessionDataManager, {
+    JsonParsersBuilderConfig parsersBuilderConfig =
+        const JsonParsersBuilderConfig(
+          outputPathRelativeToLib: 'generated/json_parser/parsers.dart',
+        ),
     AnnotatedElementReader annotatedClassReader =
         const AnnotatedElementReader(),
     GJPAnnotationReader gjpAnnotationReader = const GJPAnnotationReader(),
     ParserClassGenerator parserClassGenerator = const ParserClassGenerator(),
     RegistryClassGenerator registryClassGenerator =
         const RegistryClassGenerator(),
-  }) : _annotatedElementReader = annotatedClassReader,
+  }) : _parsersBuilderConfig = parsersBuilderConfig,
+       _annotatedElementReader = annotatedClassReader,
        _gjpAnnotationReader = gjpAnnotationReader,
        _parserGenerator = parserClassGenerator,
-       _registryGenerator = registryClassGenerator,
-       super(sessionDataManager);
+       _registryGenerator = registryClassGenerator;
 
   @override
   Map<String, List<String>> get buildExtensions => {
