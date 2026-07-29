@@ -15,10 +15,13 @@ environment:
 # Regular dependencies
 # (Bundled in executable artifact)
 dependencies:
+  path: ^1.9.1
   intl: ^0.20.2
   meta: ^1.12.0
   build: ^4.0.4
+  analyzer: ^8.0.0
   source_gen: ^4.2.1
+  package_config: ^2.2.0
   loghub: ^1.0.0
 
 # Dev dependencies
