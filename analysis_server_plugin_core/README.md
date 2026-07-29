@@ -101,6 +101,8 @@ class ExampleConfig extends ContextConfig {
 
 Extend `ContextConfigLoader` and implement `loadPluginConfig`. The base class extracts `PackageInfo` from `pubspec.yaml` for you — you fill in plugin-specific values.
 
+It is up to you where you want to load the config from. For example, a YAML file or any other source.
+
 ```dart
 class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
   @override

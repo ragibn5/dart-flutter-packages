@@ -28,7 +28,7 @@ dependencies:
 
 ## 💡 Why This Package Exists
 
-`generator_core` is a small foundational package for writing custom Dart code generators. It sits on top of the official build/generator APIs and adds the reusable structure most real code-gen libraries need.
+`generator_core` is a small foundational package for writing custom Dart code generators. It sits on top of the official builder/generator APIs and adds the reusable structure most real code-gen libraries need.
 
 The official APIs give you the raw building blocks — builders, generators, resolvers, and much more. This package focuses on the missing application-level layer around those APIs.
 
@@ -36,7 +36,7 @@ It provides:
 
 - **Shared generator config** — load generator-specific config once and reuse it across build steps.
 - **Typed session context** — pass typed config and debugging setup into your builders and generators without manual wiring.
-- **User-friendly debugging** — write structured file logs from generators running inside build/generator runner.
+- **User-friendly debugging** — write structured file logs from generators running inside builder/generator runner.
 
 ## 🚀 Quick start
 
@@ -63,12 +63,12 @@ Builder exampleBuilder(BuilderOptions options) {
 }
 ```
 
-| Parameter      | Description                                                                 |
-|----------------|-----------------------------------------------------------------------------|
-| `configLoader` | A `ContextConfigLoader` that produces config for each build step.           |
-| `factory`      | Receives the shared `SessionDataManager` and returns your builder instance. |
+| Parameter      | Description                                                                             |
+|----------------|-----------------------------------------------------------------------------------------|
+| `configLoader` | A `ContextConfigLoader` subclass class that loads your config from any source you want. |
+| `factory`      | Receives the shared `SessionDataManager` and returns your builder instance.             |
 
-You also need a `build.yaml` at the package root to register the builder:
+<br>You also need a `build.yaml` at the package root to register the builder:
 
 ```yaml
 builders:
@@ -80,20 +80,20 @@ builders:
     build_to: source
 ```
 
-| Field               | What it means in plain English                                                                                                                                                                                                                    |
-|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `example_builder`   | A unique name for your builder. Used in logs and when other packages refer to it.<br>From the setup above, it is `example_builder`.                                                                                                               |
-| `import`            | The package-style path to your builder file.<br>From the setup above, it is `package:my_package/builder.dart` (the file is at `lib/builder.dart`).                                                                                                |
-| `builder_factories` | The name of the entry-point function.<br>From the setup above, it is `exampleBuilder`.                                                                                                                                                            |
-| `build_extensions`  | Maps inputs to outputs.<br>From the setup above, it is `{ r"\$lib\$": ["generated/example/output.dart"] }` — "when any file under `lib/` is processed, generate this output".<br>Available placeholders: `$lib$`, `$test$`, `$web$`, `$package$`. |
-| `auto_apply`        | Controls *which packages* the builder runs on.<br>From the setup above, it is `dependents` — run on every package that depends on yours. Other options: `none`, `all_packages`, `root_package`.                                                   |
-| `build_to`          | Where to write the output.<br>From the setup above, it is `source` — right into the package's `lib/` folder (visible to users). Alternative: `cache` (hidden build cache).                                                                        |
+| Field               | What it means in plain English                                                                                                                                                                                                                 |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `example_builder`   | A unique name for your builder. Used in logs and when other packages refer to it. From the setup above, it is `example_builder`.                                                                                                               |
+| `import`            | The package-style path to your builder file. From the setup above, it is `package:my_package/builder.dart` (the file is at `lib/builder.dart`).                                                                                                |
+| `builder_factories` | The name of the entry-point function. From the setup above, it is `exampleBuilder`.                                                                                                                                                            |
+| `build_extensions`  | Maps inputs to outputs. From the setup above, it is `{ r"\$lib\$": ["generated/example/output.dart"] }` — "when any file under `lib/` is processed, generate this output". Available placeholders are `$lib$`, `$test$`, `$web$`, `$package$`. |
+| `auto_apply`        | Controls *which packages* the builder runs on. From the setup above, it is `dependents` — run on every package that depends on yours. Other options: `none`, `all_packages`, `root_package`.                                                   |
+| `build_to`          | Where to write the output. From the setup above, it is `source` — right into the package's `lib/` folder (visible to users). Alternative: `cache` (hidden build cache).                                                                        |
 
 This is a fairly minimal `build.yaml`. The full schema supports many more options like targets, per-builder options, and builder chaining. See the packages within the [Resources](#resources) section for more details.
 
 ### 2. Define generator config
 
-Extend `ContextConfig` to bundle your generator's settings with the built-in `LogConfig`.
+Extend `ContextConfig` to bundle your generator's settings with other the built-in fields.
 
 ```dart
 class ExampleConfig extends ContextConfig {
@@ -115,6 +115,8 @@ class ExampleConfig extends ContextConfig {
 ### 3. Load config per package
 
 Extend `ContextConfigLoader` and implement `loadPluginConfig`. Read generator-specific values from `BuilderOptions` (the `build.yaml` config).
+
+It is up to you where you want to load the config from. For example, a YAML file or any other source.
 
 ```dart
 class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
