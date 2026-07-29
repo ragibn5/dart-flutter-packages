@@ -1,9 +1,12 @@
-/// Core components to build a custom dart generator package.
+/// Core components to build a custom Dart generator package.
 library;
 
 export 'package:build/build.dart';
 export 'package:source_gen/source_gen.dart';
 
+export 'src/builders/generator_builder.dart';
+export 'src/builders/session_managed_generator.dart';
+export 'src/builders/session_managed_generator_for_annotation.dart';
 export 'src/builders/session_managed_raw_builder.dart';
 export 'src/models/build_session_context.dart';
 export 'src/models/context_config.dart';
