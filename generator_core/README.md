@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  generator_core: ^1.0.0
+  generator_core: ^1.0.1
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: generator_core
-      ref: generator_core-1.0.0
+      ref: generator_core-1.0.1
 ```
 
 ---
@@ -116,7 +116,7 @@ class ExampleConfig extends ContextConfig {
 
 Extend `ContextConfigLoader` and implement `loadPluginConfig`. Read generator-specific values from `BuilderOptions` (the `build.yaml` config).
 
-It is up to you where you want to load the config from. For example, a YAML file or any other source.
+It is up to you where you want to load the config from. For example, from the passed [BuilderOptions] (recommended for a generator/builder package), a YAML file, or any other source.
 
 ```dart
 class ExampleConfigLoader extends ContextConfigLoader<ExampleConfig> {
@@ -186,7 +186,7 @@ import 'package:generator_core/generator_core.dart';
 | `SessionManagedGenerator<T>`                 | Base class for `Generator` subclasses with typed config and debugging setup.              |
 | `SessionManagedGeneratorForAnnotation<A, C>` | Base class for `GeneratorForAnnotation` subclasses with typed config and debugging setup. |
 | `ContextConfig`                              | Base config model — extend with your generator's options.                                 |
-| `ContextConfigLoader<C>`                     | Loads config from `BuilderOptions` per `BuildStep`.                                       |
+| `ContextConfigLoader<C>`                     | Loads config from `BuilderOptions` (or any other source), per `BuildStep`.                |
 | `BuildSessionContext<T>`                     | Typed config + logger passed to builder/generator methods.                                |
 | `LogConfig`                                  | Enables/disables file logging and log levels.                                             |
 | `SessionDataManager`                         | Caches session data per package.                                                          |
