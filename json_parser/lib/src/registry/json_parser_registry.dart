@@ -11,7 +11,7 @@ import 'package:json_parser/src/parsers/nullable_map_parser.dart';
 import 'package:json_parser/src/parsers/nullable_string_parser.dart';
 import 'package:json_parser/src/parsers/string_parser.dart';
 import 'package:json_parser/src/types/json_types.dart';
-import 'package:parser_core/parser.dart';
+import 'package:parser_core/parser_core.dart';
 
 class JsonParserRegistry extends ParserRegistry<Json> {
   JsonParserRegistry() : super();

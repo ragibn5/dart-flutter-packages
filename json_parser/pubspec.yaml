@@ -15,8 +15,7 @@ environment:
 # Regular dependencies
 # (Bundled in executable artifact)
 dependencies:
-  parser_core:
-    path: ../parser_core
+  parser_core: ^1.0.0
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

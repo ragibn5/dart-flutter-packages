@@ -1,5 +1,5 @@
 import 'package:json_parser/src/types/json_types.dart';
-import 'package:parser_core/parser.dart';
+import 'package:parser_core/parser_core.dart';
 
 class DoubleParser implements Parser<double, Json> {
   const DoubleParser();
