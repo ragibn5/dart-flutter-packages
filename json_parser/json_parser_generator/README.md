@@ -2,15 +2,7 @@
 
 Generator counterpart of the [`json_parser`](../.) package.
 
-> Note: This package is a part of the [`json_parser`](../.) suite.
-
-## Overview
-
-`json_parser_generator` is the code generation counterpart of the [`json_parser`](../.)
-package. It automates the creation of type-safe JSON parsers and generates parser registries that
-register those parsers.
-
-## Features
+> **Note:** This package is a part of the [`json_parser`](../.) suite.
 
 - Generates type-safe JSON parsers for annotated classes.
 - Generates parser registries for centralized parser management.
@@ -24,7 +16,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  json_parser_annotations: ^1.0.0
+  json_parser_annotations: ^1.0.1
 
 dev_dependencies:
   build_runner: ^2.4.15
@@ -39,7 +31,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_parser/json_parser_annotations
-      ref: json_parser/json_parser_annotations-1.0.0
+      ref: json_parser/json_parser_annotations-1.0.1
 
 dev_dependencies:
   build_runner: ^2.4.15
@@ -50,18 +42,17 @@ dev_dependencies:
       ref: json_parser/json_parser_generator-1.0.0
 ```
 
-## Get started
+## ✨ Features
 
-**1. Configure options in `build.yaml` (Optional):**
+- Generates type-safe JSON parser registries for `@GenerateJsonParser` annotated classes.
+- Supports registering a model into multiple registries at the same time.
+- Eliminates manual parser wiring and reduces boilerplate.
 
-You can add optional configuration options to your `build.yaml` file.
+## 🚀 Get started
 
-The only configuration you have at the moment is a log configuration.
-It is useful while setting up or debugging generation.
+**1️⃣ (Optional) Configure the builder in `build.yaml`**
 
-- `enabled`: Turns logging on for the builder.
-- `log_dir_relative_path`: Sets where logs are stored relative to the package root.
-- `allow_info`, `allow_warning`, `allow_error`: Controls which log levels are written.
+By default, the builder works without any configuration. If you need debugging or logging, create a `build.yaml`.
 
 ```yaml
 targets:
@@ -77,9 +68,17 @@ targets:
             log_dir_relative_path: logs/generators/json_parser_generator
 ```
 
-**2. Annotate your model with `@GenerateJsonParser()`.**
+| Option                  | Description                                | Default                                 |
+|-------------------------|--------------------------------------------|-----------------------------------------|
+| `enabled`               | Enables logging for the builder            | `false`                                 |
+| `allow_info`            | Logs informational messages                | `false`                                 |
+| `allow_warning`         | Logs warning messages                      | `true`                                  |
+| `allow_error`           | Logs error messages                        | `true`                                  |
+| `log_dir_relative_path` | Log directory relative to the package root | `logs/generators/json_parser_generator` |
 
-The annotation is available through `json_parser_annotations` package.
+> For the full `build.yaml` schema reference, see the [build_config](https://pub.dev/packages/build_config) package documentation.
+
+**2️⃣ Annotate your model with `@GenerateJsonParser()`**
 
 ```dart
 import 'package:json_parser_annotations/json_parser_annotations.dart';
@@ -110,11 +109,12 @@ class User {
 }
 ```
 
-**3. Run the builder:**
+> **Note:** The annotation is available through `json_parser_annotations` package.
+
+**3️⃣ Run the builder**
 
 ```sh
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-This generates `lib/generated/json_parser/parsers.dart`, which contains the generated parser and
-registry classes for your annotated models.
+🎯 This generates `lib/generated/json_parser/parsers.dart`, which contains the generated parser and registry classes for your annotated models.

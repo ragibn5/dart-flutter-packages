@@ -72,8 +72,8 @@ void main() {
     mockContextConfig = _MockParserGeneratorContextConfig();
 
     sut = JsonParsersBuilder(
-      config,
-      sessionDataManager: mockSessionDataManager,
+      mockSessionDataManager,
+      parsersBuilderConfig: config,
       annotatedClassReader: mockAnnotatedElementReader,
       gjpAnnotationReader: mockGJPAnnotationReader,
     );
