@@ -1,10 +1,10 @@
-# parser
+# parser_core
 
 A foundational package for creating new parser libraries.
 
 ## Overview
 
-`parser` is a foundational library that streamlines the process of creating new parser libraries.
+`parser_core` is a foundational library that streamlines the process of creating new parser libraries.
 
 ## Features
 
@@ -20,18 +20,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  parser: ^1.0.0
+  parser_core: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  parser:
+  parser_core:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: parser
-      ref: parser-1.0.0
+      path: parser_core
+      ref: parser_core-1.0.0
 ```
 
 ### Usage

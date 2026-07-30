@@ -1,4 +1,4 @@
-import 'package:parser/parser.dart';
+import 'package:parser_core/parser.dart';
 
 // A basic custom type
 class User {

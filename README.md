@@ -35,7 +35,7 @@ Built on top of the core layer. These packages provide higher-level tooling, UI 
 generation utilities, and architectural support.
 
 - [`net_kit`](net_kit)
-- [`parser`](parser)
+- [`parser_core`](parser_core)
 - [`json_parser`](json_parser)
 - [`json_parser_annotations`](json_parser/json_parser_annotations)
 - [`json_parser_linter`](json_parser/json_parser_linter)
