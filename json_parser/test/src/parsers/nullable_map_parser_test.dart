@@ -1,7 +1,7 @@
 import 'package:json_parser/src/parsers/nullable_map_parser.dart';
 import 'package:json_parser/src/types/json_types.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:parser/parser.dart';
+import 'package:parser_core/parser_core.dart';
 import 'package:test/test.dart';
 
 class _MockKeyParser extends Mock implements Parser<String, Json> {}

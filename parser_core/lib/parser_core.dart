@@ -1,4 +1,4 @@
-/// The `parser` package.
+/// The `parser_core` package.
 library;
 
 export 'src/parser.dart';
