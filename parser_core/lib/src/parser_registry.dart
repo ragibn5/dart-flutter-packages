@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:parser/src/parser.dart';
+import 'package:parser_core/src/parser.dart';
 
 abstract class ParserRegistry<E> {
   final Map<Type, Parser<Object?, E>> _parserMap;

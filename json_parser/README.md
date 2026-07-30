@@ -52,7 +52,7 @@ Built-in parsers are also available for other primitive types such as `bool`, `d
 
 #### Create a parser implementation using [`Parser`] from [
 
-`parser`](../parser/lib/src/parser.dart) package:
+`parser_core`](../parser_core/lib/src/parser.dart) package:
 
 Let a custom type be:
 

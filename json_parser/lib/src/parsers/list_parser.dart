@@ -1,5 +1,5 @@
 import 'package:json_parser/src/types/json_types.dart';
-import 'package:parser/parser.dart';
+import 'package:parser_core/parser_core.dart';
 
 class ListParser<T> implements Parser<List<T>, Json> {
   final Parser<T, Json> itemParser;

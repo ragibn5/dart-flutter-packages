@@ -1,9 +1,9 @@
-name: parser
+name: parser_core
 description: A foundational package for creating new parser libraries.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/parser
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/parser_core
 
 # Library version
 version: 1.0.0
