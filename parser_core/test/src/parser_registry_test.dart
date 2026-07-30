@@ -1,7 +1,7 @@
 // ignore_for_file: cascade_invocations
 
 import 'package:meta/meta.dart';
-import 'package:parser_core/parser.dart';
+import 'package:parser_core/parser_core.dart';
 import 'package:test/test.dart';
 
 @immutable
