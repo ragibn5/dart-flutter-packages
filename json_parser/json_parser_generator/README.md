@@ -20,7 +20,7 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.4.15
-  json_parser_generator: ^1.0.1
+  json_parser_generator: ^1.0.0
 ```
 
 #### Or, From Git repo
@@ -39,12 +39,12 @@ dev_dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_parser/json_parser_generator
-      ref: json_parser/json_parser_generator-1.0.1
+      ref: json_parser/json_parser_generator-1.0.0
 ```
 
 ## ✨ Features
 
-- Generates type-safe JSON parser registries for `@GenernateJsonParser` annotated classes.
+- Generates type-safe JSON parser registries for `@GenerateJsonParser` annotated classes.
 - Supports registering a model into multiple registries at the same time.
 - Eliminates manual parser wiring and reduces boilerplate.
 
