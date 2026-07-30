@@ -34,7 +34,7 @@ dependencies:
       ref: parser_core-1.0.0
 ```
 
-### Usage
+### 🔧 Usage
 
 Let a custom type be:
 
@@ -112,6 +112,6 @@ void main() {
 }
 ```
 
-### Example
+### 💡 Example
 
 See the [example](example/example.dart) for a complete demonstration.
