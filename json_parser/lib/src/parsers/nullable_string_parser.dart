@@ -6,8 +6,12 @@ class NullableStringParser implements Parser<String?, Json> {
 
   @override
   String? decode(Json encoded) {
-    if (encoded is! String?) {
-      throw StateError('Expected String? but got ${encoded.runtimeType}');
+    if (encoded == null) {
+      return null;
+    }
+
+    if (encoded is! String) {
+      throw StateError('Expected String?, but got ${encoded.runtimeType}');
     }
 
     return encoded;

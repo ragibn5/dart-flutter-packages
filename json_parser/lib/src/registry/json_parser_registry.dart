@@ -8,7 +8,9 @@ import 'package:json_parser/src/parsers/nullable_double_parser.dart';
 import 'package:json_parser/src/parsers/nullable_int_parser.dart';
 import 'package:json_parser/src/parsers/nullable_list_parser.dart';
 import 'package:json_parser/src/parsers/nullable_map_parser.dart';
+import 'package:json_parser/src/parsers/nullable_num_parser.dart';
 import 'package:json_parser/src/parsers/nullable_string_parser.dart';
+import 'package:json_parser/src/parsers/num_parser.dart';
 import 'package:json_parser/src/parsers/string_parser.dart';
 import 'package:json_parser/src/types/json_types.dart';
 import 'package:parser_core/parser_core.dart';
@@ -33,6 +35,7 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(const BoolParser());
     addParser(const IntParser());
     addParser(const DoubleParser());
+    addParser(const NumParser());
     addParser(const StringParser());
   }
 
@@ -40,6 +43,7 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(const NullableBoolParser());
     addParser(const NullableIntParser());
     addParser(const NullableDoubleParser());
+    addParser(const NullableNumParser());
     addParser(const NullableStringParser());
   }
 
@@ -47,6 +51,7 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(const ListParser(BoolParser()));
     addParser(const ListParser(IntParser()));
     addParser(const ListParser(DoubleParser()));
+    addParser(const ListParser(NumParser()));
     addParser(const ListParser(StringParser()));
   }
 
@@ -54,6 +59,7 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(const ListParser(NullableBoolParser()));
     addParser(const ListParser(NullableIntParser()));
     addParser(const ListParser(NullableDoubleParser()));
+    addParser(const ListParser(NullableNumParser()));
     addParser(const ListParser(NullableStringParser()));
   }
 
@@ -61,6 +67,7 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(const NullableListParser(BoolParser()));
     addParser(const NullableListParser(IntParser()));
     addParser(const NullableListParser(DoubleParser()));
+    addParser(const NullableListParser(NumParser()));
     addParser(const NullableListParser(StringParser()));
   }
 
@@ -68,6 +75,7 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(const NullableListParser(NullableBoolParser()));
     addParser(const NullableListParser(NullableIntParser()));
     addParser(const NullableListParser(NullableDoubleParser()));
+    addParser(const NullableListParser(NullableNumParser()));
     addParser(const NullableListParser(NullableStringParser()));
   }
 
@@ -81,6 +89,9 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     );
     addParser(
       const MapParser(keyParser: StringParser(), valueParser: DoubleParser()),
+    );
+    addParser(
+      const MapParser(keyParser: StringParser(), valueParser: NumParser()),
     );
     addParser(
       const MapParser(keyParser: StringParser(), valueParser: StringParser()),
@@ -97,6 +108,9 @@ class JsonParserRegistry extends ParserRegistry<Json> {
       const MapParser(keyParser: BoolParser(), valueParser: DoubleParser()),
     );
     addParser(
+      const MapParser(keyParser: BoolParser(), valueParser: NumParser()),
+    );
+    addParser(
       const MapParser(keyParser: BoolParser(), valueParser: StringParser()),
     );
 
@@ -111,6 +125,9 @@ class JsonParserRegistry extends ParserRegistry<Json> {
       const MapParser(keyParser: IntParser(), valueParser: DoubleParser()),
     );
     addParser(
+      const MapParser(keyParser: IntParser(), valueParser: NumParser()),
+    );
+    addParser(
       const MapParser(keyParser: IntParser(), valueParser: StringParser()),
     );
 
@@ -123,6 +140,9 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     );
     addParser(
       const MapParser(keyParser: DoubleParser(), valueParser: DoubleParser()),
+    );
+    addParser(
+      const MapParser(keyParser: DoubleParser(), valueParser: NumParser()),
     );
     addParser(
       const MapParser(keyParser: DoubleParser(), valueParser: StringParser()),
@@ -152,6 +172,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(
       const MapParser(
         keyParser: StringParser(),
+        valueParser: NullableNumParser(),
+      ),
+    );
+    addParser(
+      const MapParser(
+        keyParser: StringParser(),
         valueParser: NullableStringParser(),
       ),
     );
@@ -173,6 +199,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
       const MapParser(
         keyParser: BoolParser(),
         valueParser: NullableDoubleParser(),
+      ),
+    );
+    addParser(
+      const MapParser(
+        keyParser: BoolParser(),
+        valueParser: NullableNumParser(),
       ),
     );
     addParser(
@@ -204,6 +236,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(
       const MapParser(
         keyParser: IntParser(),
+        valueParser: NullableNumParser(),
+      ),
+    );
+    addParser(
+      const MapParser(
+        keyParser: IntParser(),
         valueParser: NullableStringParser(),
       ),
     );
@@ -225,6 +263,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
       const MapParser(
         keyParser: DoubleParser(),
         valueParser: NullableDoubleParser(),
+      ),
+    );
+    addParser(
+      const MapParser(
+        keyParser: DoubleParser(),
+        valueParser: NullableNumParser(),
       ),
     );
     addParser(
@@ -258,6 +302,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(
       const NullableMapParser(
         keyParser: StringParser(),
+        valueParser: NumParser(),
+      ),
+    );
+    addParser(
+      const NullableMapParser(
+        keyParser: StringParser(),
         valueParser: StringParser(),
       ),
     );
@@ -279,6 +329,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
       const NullableMapParser(
         keyParser: BoolParser(),
         valueParser: DoubleParser(),
+      ),
+    );
+    addParser(
+      const NullableMapParser(
+        keyParser: BoolParser(),
+        valueParser: NumParser(),
       ),
     );
     addParser(
@@ -310,6 +366,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(
       const NullableMapParser(
         keyParser: IntParser(),
+        valueParser: NumParser(),
+      ),
+    );
+    addParser(
+      const NullableMapParser(
+        keyParser: IntParser(),
         valueParser: StringParser(),
       ),
     );
@@ -331,6 +393,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
       const NullableMapParser(
         keyParser: DoubleParser(),
         valueParser: DoubleParser(),
+      ),
+    );
+    addParser(
+      const NullableMapParser(
+        keyParser: DoubleParser(),
+        valueParser: NumParser(),
       ),
     );
     addParser(
@@ -364,6 +432,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(
       const NullableMapParser(
         keyParser: StringParser(),
+        valueParser: NullableNumParser(),
+      ),
+    );
+    addParser(
+      const NullableMapParser(
+        keyParser: StringParser(),
         valueParser: NullableStringParser(),
       ),
     );
@@ -385,6 +459,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
       const NullableMapParser(
         keyParser: BoolParser(),
         valueParser: NullableDoubleParser(),
+      ),
+    );
+    addParser(
+      const NullableMapParser(
+        keyParser: BoolParser(),
+        valueParser: NullableNumParser(),
       ),
     );
     addParser(
@@ -416,6 +496,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
     addParser(
       const NullableMapParser(
         keyParser: IntParser(),
+        valueParser: NullableNumParser(),
+      ),
+    );
+    addParser(
+      const NullableMapParser(
+        keyParser: IntParser(),
         valueParser: NullableStringParser(),
       ),
     );
@@ -437,6 +523,12 @@ class JsonParserRegistry extends ParserRegistry<Json> {
       const NullableMapParser(
         keyParser: DoubleParser(),
         valueParser: NullableDoubleParser(),
+      ),
+    );
+    addParser(
+      const NullableMapParser(
+        keyParser: DoubleParser(),
+        valueParser: NullableNumParser(),
       ),
     );
     addParser(

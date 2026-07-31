@@ -7,7 +7,7 @@ class StringParser implements Parser<String, Json> {
   @override
   String decode(Json encoded) {
     if (encoded is! String) {
-      throw StateError('Expected String but got ${encoded.runtimeType}');
+      throw StateError('Expected String, but got ${encoded.runtimeType}');
     }
 
     return encoded;

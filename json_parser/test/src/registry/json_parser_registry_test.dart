@@ -4,7 +4,9 @@ import 'package:json_parser/src/parsers/int_parser.dart';
 import 'package:json_parser/src/parsers/nullable_bool_parser.dart';
 import 'package:json_parser/src/parsers/nullable_double_parser.dart';
 import 'package:json_parser/src/parsers/nullable_int_parser.dart';
+import 'package:json_parser/src/parsers/nullable_num_parser.dart';
 import 'package:json_parser/src/parsers/nullable_string_parser.dart';
+import 'package:json_parser/src/parsers/num_parser.dart';
 import 'package:json_parser/src/parsers/string_parser.dart';
 import 'package:json_parser/src/registry/json_parser_registry.dart';
 import 'package:test/test.dart';
@@ -26,14 +28,14 @@ void main() {
       });
 
       test('registers the expected total number of parsers', () {
-        // 4 primitives
-        // 4 nullable primitives
-        // 8 list types   (4 item types × List / NullableList)
-        // 8 list types   (4 nullable item types × List / NullableList)
-        // 32 map types   (4 keys × 4 values × Map / NullableMap)
-        // 32 map types   (4 keys × 4 nullable values × Map / NullableMap)
-        // = 88
-        expect(registry.parserMap, hasLength(88));
+        // 5 primitives
+        // 5 nullable primitives
+        // 10 list types  (5 item types × List / NullableList)
+        // 10 list types  (5 nullable item types × List / NullableList)
+        // 40 map types   (4 keys × 5 values × Map / NullableMap)
+        // 40 map types   (4 keys × 5 nullable values × Map / NullableMap)
+        // = 110
+        expect(registry.parserMap, hasLength(110));
       });
 
       group('primitives', () {
@@ -47,6 +49,10 @@ void main() {
 
         test('registers DoubleParser for double', () {
           expect(registry.getParser<double>(), isA<DoubleParser>());
+        });
+
+        test('registers NumParser for num', () {
+          expect(registry.getParser<num>(), isA<NumParser>());
         });
 
         test('registers StringParser for String', () {
@@ -67,6 +73,10 @@ void main() {
           expect(registry.getParser<double?>(), isA<NullableDoubleParser>());
         });
 
+        test('registers NullableNumParser for num?', () {
+          expect(registry.getParser<num?>(), isA<NullableNumParser>());
+        });
+
         test('registers NullableStringParser for String?', () {
           expect(registry.getParser<String?>(), isA<NullableStringParser>());
         });
@@ -83,6 +93,10 @@ void main() {
 
         test('registers parser for List<double>', () {
           expect(registry.getParser<List<double>>(), isNotNull);
+        });
+
+        test('registers parser for List<num>', () {
+          expect(registry.getParser<List<num>>(), isNotNull);
         });
 
         test('registers parser for List<String>', () {
@@ -103,6 +117,10 @@ void main() {
           expect(registry.getParser<List<double?>>(), isNotNull);
         });
 
+        test('registers parser for List<num?>', () {
+          expect(registry.getParser<List<num?>>(), isNotNull);
+        });
+
         test('registers parser for List<String?>', () {
           expect(registry.getParser<List<String?>>(), isNotNull);
         });
@@ -119,6 +137,10 @@ void main() {
 
         test('registers parser for List<double>?', () {
           expect(registry.getParser<List<double>?>(), isNotNull);
+        });
+
+        test('registers parser for List<num>?', () {
+          expect(registry.getParser<List<num>?>(), isNotNull);
         });
 
         test('registers parser for List<String>?', () {
@@ -139,6 +161,10 @@ void main() {
           expect(registry.getParser<List<double?>?>(), isNotNull);
         });
 
+        test('registers parser for List<num?>?', () {
+          expect(registry.getParser<List<num?>?>(), isNotNull);
+        });
+
         test('registers parser for List<String?>?', () {
           expect(registry.getParser<List<String?>?>(), isNotNull);
         });
@@ -157,6 +183,10 @@ void main() {
           expect(registry.getParser<Map<String, double>>(), isNotNull);
         });
 
+        test('registers parser for Map<String, num>', () {
+          expect(registry.getParser<Map<String, num>>(), isNotNull);
+        });
+
         test('registers parser for Map<String, String>', () {
           expect(registry.getParser<Map<String, String>>(), isNotNull);
         });
@@ -171,6 +201,10 @@ void main() {
 
         test('registers parser for Map<bool, double>', () {
           expect(registry.getParser<Map<bool, double>>(), isNotNull);
+        });
+
+        test('registers parser for Map<bool, num>', () {
+          expect(registry.getParser<Map<bool, num>>(), isNotNull);
         });
 
         test('registers parser for Map<bool, String>', () {
@@ -189,6 +223,10 @@ void main() {
           expect(registry.getParser<Map<int, double>>(), isNotNull);
         });
 
+        test('registers parser for Map<int, num>', () {
+          expect(registry.getParser<Map<int, num>>(), isNotNull);
+        });
+
         test('registers parser for Map<int, String>', () {
           expect(registry.getParser<Map<int, String>>(), isNotNull);
         });
@@ -203,6 +241,10 @@ void main() {
 
         test('registers parser for Map<double, double>', () {
           expect(registry.getParser<Map<double, double>>(), isNotNull);
+        });
+
+        test('registers parser for Map<double, num>', () {
+          expect(registry.getParser<Map<double, num>>(), isNotNull);
         });
 
         test('registers parser for Map<double, String>', () {
@@ -223,6 +265,10 @@ void main() {
           expect(registry.getParser<Map<String, double?>>(), isNotNull);
         });
 
+        test('registers parser for Map<String, num?>', () {
+          expect(registry.getParser<Map<String, num?>>(), isNotNull);
+        });
+
         test('registers parser for Map<String, String?>', () {
           expect(registry.getParser<Map<String, String?>>(), isNotNull);
         });
@@ -237,6 +283,10 @@ void main() {
 
         test('registers parser for Map<bool, double?>', () {
           expect(registry.getParser<Map<bool, double?>>(), isNotNull);
+        });
+
+        test('registers parser for Map<bool, num?>', () {
+          expect(registry.getParser<Map<bool, num?>>(), isNotNull);
         });
 
         test('registers parser for Map<bool, String?>', () {
@@ -255,6 +305,10 @@ void main() {
           expect(registry.getParser<Map<int, double?>>(), isNotNull);
         });
 
+        test('registers parser for Map<int, num?>', () {
+          expect(registry.getParser<Map<int, num?>>(), isNotNull);
+        });
+
         test('registers parser for Map<int, String?>', () {
           expect(registry.getParser<Map<int, String?>>(), isNotNull);
         });
@@ -269,6 +323,10 @@ void main() {
 
         test('registers parser for Map<double, double?>', () {
           expect(registry.getParser<Map<double, double?>>(), isNotNull);
+        });
+
+        test('registers parser for Map<double, num?>', () {
+          expect(registry.getParser<Map<double, num?>>(), isNotNull);
         });
 
         test('registers parser for Map<double, String?>', () {
@@ -289,6 +347,10 @@ void main() {
           expect(registry.getParser<Map<String, double>?>(), isNotNull);
         });
 
+        test('registers parser for Map<String, num>?', () {
+          expect(registry.getParser<Map<String, num>?>(), isNotNull);
+        });
+
         test('registers parser for Map<String, String>?', () {
           expect(registry.getParser<Map<String, String>?>(), isNotNull);
         });
@@ -303,6 +365,10 @@ void main() {
 
         test('registers parser for Map<bool, double>?', () {
           expect(registry.getParser<Map<bool, double>?>(), isNotNull);
+        });
+
+        test('registers parser for Map<bool, num>?', () {
+          expect(registry.getParser<Map<bool, num>?>(), isNotNull);
         });
 
         test('registers parser for Map<bool, String>?', () {
@@ -321,6 +387,10 @@ void main() {
           expect(registry.getParser<Map<int, double>?>(), isNotNull);
         });
 
+        test('registers parser for Map<int, num>?', () {
+          expect(registry.getParser<Map<int, num>?>(), isNotNull);
+        });
+
         test('registers parser for Map<int, String>?', () {
           expect(registry.getParser<Map<int, String>?>(), isNotNull);
         });
@@ -335,6 +405,10 @@ void main() {
 
         test('registers parser for Map<double, double>?', () {
           expect(registry.getParser<Map<double, double>?>(), isNotNull);
+        });
+
+        test('registers parser for Map<double, num>?', () {
+          expect(registry.getParser<Map<double, num>?>(), isNotNull);
         });
 
         test('registers parser for Map<double, String>?', () {
@@ -355,6 +429,10 @@ void main() {
           expect(registry.getParser<Map<String, double?>?>(), isNotNull);
         });
 
+        test('registers parser for Map<String, num?>?', () {
+          expect(registry.getParser<Map<String, num?>?>(), isNotNull);
+        });
+
         test('registers parser for Map<String, String?>?', () {
           expect(registry.getParser<Map<String, String?>?>(), isNotNull);
         });
@@ -369,6 +447,10 @@ void main() {
 
         test('registers parser for Map<bool, double?>?', () {
           expect(registry.getParser<Map<bool, double?>?>(), isNotNull);
+        });
+
+        test('registers parser for Map<bool, num?>?', () {
+          expect(registry.getParser<Map<bool, num?>?>(), isNotNull);
         });
 
         test('registers parser for Map<bool, String?>?', () {
@@ -387,6 +469,10 @@ void main() {
           expect(registry.getParser<Map<int, double?>?>(), isNotNull);
         });
 
+        test('registers parser for Map<int, num?>?', () {
+          expect(registry.getParser<Map<int, num?>?>(), isNotNull);
+        });
+
         test('registers parser for Map<int, String?>?', () {
           expect(registry.getParser<Map<int, String?>?>(), isNotNull);
         });
@@ -401,6 +487,10 @@ void main() {
 
         test('registers parser for Map<double, double?>?', () {
           expect(registry.getParser<Map<double, double?>?>(), isNotNull);
+        });
+
+        test('registers parser for Map<double, num?>?', () {
+          expect(registry.getParser<Map<double, num?>?>(), isNotNull);
         });
 
         test('registers parser for Map<double, String?>?', () {
