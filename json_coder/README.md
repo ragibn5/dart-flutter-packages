@@ -183,7 +183,7 @@ Custom parser implementations work with these JSON type aliases:
 
 #### 📦 Building a parser registry
 
-A parser registry keeps parsers in one place, registered by type so you can look them up later.
+A parser registry keeps parsers in one place, registered by type, so you can look them up later.
 
 For example,
 
