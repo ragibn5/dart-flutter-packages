@@ -1,3 +1,4 @@
+import 'package:json_parser/src/errors/json_parse_exception.dart';
 import 'package:json_parser/src/parsers/nullable_bool_parser.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
@@ -13,7 +14,7 @@ void main() {
     final invalidInputs = ['string', 123, 1.23, <dynamic>[], <dynamic>{}];
 
     for (final input in invalidInputs) {
-      expect(() => sut.decode(input), throwsA(isA<StateError>()));
+      expect(() => sut.decode(input), throwsA(isA<JsonParseException>()));
     }
   });
 

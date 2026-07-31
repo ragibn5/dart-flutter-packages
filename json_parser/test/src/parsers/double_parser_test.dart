@@ -12,7 +12,7 @@ void main() {
   test('decode() should throw if passed any non-num value', () {
     final invalidInputs = ['string', true, <dynamic>[], <dynamic>{}, null];
     for (final input in invalidInputs) {
-      expect(() => sut.decode(input), throwsA(isA<StateError>()));
+      expect(() => sut.decode(input), throwsA(isA<JsonParseException>()));
     }
   });
 

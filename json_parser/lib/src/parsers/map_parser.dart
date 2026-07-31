@@ -1,4 +1,6 @@
+import 'package:json_parser/src/errors/json_parse_exception.dart';
 import 'package:json_parser/src/types/json_types.dart';
+import 'package:json_parser/src/utils/decode_with_path.dart';
 import 'package:parser_core/parser_core.dart';
 
 class MapParser<K, V> implements Parser<Map<K, V>, Json> {
@@ -13,15 +15,17 @@ class MapParser<K, V> implements Parser<Map<K, V>, Json> {
   @override
   Map<K, V> decode(Json encoded) {
     if (encoded is! Map) {
-      throw StateError('Expected JSON map, but got ${encoded.runtimeType}');
+      throw JsonParseException(
+        'Expected JSON map, but got ${encoded.runtimeType}',
+      );
     }
 
     final map = encoded.cast<Json, Json>();
 
     return map.map(
       (key, value) => MapEntry(
-        keyParser.decode(key),
-        valueParser.decode(value),
+        decodeWithPath(() => keyParser.decode(key), key),
+        decodeWithPath(() => valueParser.decode(value), key),
       ),
     );
   }

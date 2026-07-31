@@ -1,3 +1,4 @@
+import 'package:json_parser/src/errors/json_parse_exception.dart';
 import 'package:json_parser/src/types/json_types.dart';
 import 'package:parser_core/parser_core.dart';
 
@@ -7,7 +8,9 @@ class StringParser implements Parser<String, Json> {
   @override
   String decode(Json encoded) {
     if (encoded is! String) {
-      throw StateError('Expected String, but got ${encoded.runtimeType}');
+      throw JsonParseException(
+        'Expected String, but got ${encoded.runtimeType}',
+      );
     }
 
     return encoded;

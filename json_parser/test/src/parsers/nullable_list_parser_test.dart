@@ -1,3 +1,4 @@
+import 'package:json_parser/src/errors/json_parse_exception.dart';
 import 'package:json_parser/src/parsers/nullable_list_parser.dart';
 import 'package:json_parser/src/types/json_types.dart';
 import 'package:mocktail/mocktail.dart';
@@ -20,7 +21,7 @@ void main() {
   test('decode() should throw if passed any non-list value', () {
     final invalidInputs = [123, 'string', true, <dynamic>{}, 1.23];
     for (final input in invalidInputs) {
-      expect(() => sut.decode(input), throwsA(isA<StateError>()));
+      expect(() => sut.decode(input), throwsA(isA<JsonParseException>()));
     }
   });
 

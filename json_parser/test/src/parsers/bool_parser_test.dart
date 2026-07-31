@@ -12,7 +12,7 @@ void main() {
   test('decode() should throw if passed any non-bool value', () {
     final invalidInputs = ['string', 123, 1.23, [], {}, null];
     for (final input in invalidInputs) {
-      expect(() => sut.decode(input), throwsA(isA<StateError>()));
+      expect(() => sut.decode(input), throwsA(isA<JsonParseException>()));
     }
   });
 

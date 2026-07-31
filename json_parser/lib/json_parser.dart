@@ -3,6 +3,7 @@ library;
 
 export 'package:parser_core/parser_core.dart';
 
+export 'src/errors/json_parse_exception.dart';
 export 'src/parsers/bool_parser.dart';
 export 'src/parsers/double_parser.dart';
 export 'src/parsers/int_parser.dart';

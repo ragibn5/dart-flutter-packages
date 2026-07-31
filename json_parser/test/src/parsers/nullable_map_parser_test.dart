@@ -1,3 +1,4 @@
+import 'package:json_parser/src/errors/json_parse_exception.dart';
 import 'package:json_parser/src/parsers/nullable_map_parser.dart';
 import 'package:json_parser/src/types/json_types.dart';
 import 'package:mocktail/mocktail.dart';
@@ -31,7 +32,7 @@ void main() {
   test('decode() should throw if passed value is not a Map or null', () {
     final invalidInputs = ['string', 123, 1.23, <dynamic>[], true];
     for (final input in invalidInputs) {
-      expect(() => sut.decode(input), throwsA(isA<StateError>()));
+      expect(() => sut.decode(input), throwsA(isA<JsonParseException>()));
     }
   });
 

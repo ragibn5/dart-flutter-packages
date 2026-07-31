@@ -26,7 +26,7 @@ void main() {
   test('decode() should throw if passed value is not a Map', () {
     final invalidInputs = ['string', 123, 1.23, <dynamic>[], true, null];
     for (final input in invalidInputs) {
-      expect(() => sut.decode(input), throwsA(isA<StateError>()));
+      expect(() => sut.decode(input), throwsA(isA<JsonParseException>()));
     }
   });
 

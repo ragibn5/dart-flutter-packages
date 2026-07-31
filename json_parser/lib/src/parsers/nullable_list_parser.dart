@@ -1,4 +1,6 @@
+import 'package:json_parser/src/errors/json_parse_exception.dart';
 import 'package:json_parser/src/types/json_types.dart';
+import 'package:json_parser/src/utils/decode_with_path.dart';
 import 'package:parser_core/parser_core.dart';
 
 class NullableListParser<T> implements Parser<List<T>?, Json> {
@@ -13,10 +15,15 @@ class NullableListParser<T> implements Parser<List<T>?, Json> {
     }
 
     if (encoded is! List) {
-      throw StateError('Expected JSON list, but got ${encoded.runtimeType}');
+      throw JsonParseException(
+        'Expected JSON list, but got ${encoded.runtimeType}',
+      );
     }
 
-    return encoded.map(itemParser.decode).toList();
+    return [
+      for (var i = 0; i < encoded.length; i++)
+        decodeWithPath(() => itemParser.decode(encoded[i]), i),
+    ];
   }
 
   @override
