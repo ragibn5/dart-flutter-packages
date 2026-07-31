@@ -240,4 +240,4 @@ See [example.dart](example/example.dart) for a complete minimal plugin.
 Real plugins built with this package:
 
 - [clean_arch_linter](https://pub.dev/packages/clean_arch_linter) | [source](../clean_arch_linter)
-- [json_parser_linter](https://pub.dev/packages/json_parser_linter) | [source](../json_parser/json_parser_linter)
+- [json_parser_linter](https://pub.dev/packages/json_parser_linter) | [source](../json_coder/json_parser_linter)
