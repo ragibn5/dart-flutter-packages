@@ -194,7 +194,7 @@ import 'package:generator_core/generator_core.dart';
 
 ## Examples
 
-See [json_parser_generator](../json_parser/json_parser_generator) for a real-world generator built with this package.
+See [json_parser_generator](../json_coder/json_parser_generator) for a real-world generator built with this package.
 
 ## Resources
 
