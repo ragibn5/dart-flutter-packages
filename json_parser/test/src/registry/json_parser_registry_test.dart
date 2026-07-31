@@ -10,27 +10,7 @@ import 'package:json_parser/src/parsers/num_parser.dart';
 import 'package:json_parser/src/parsers/string_parser.dart';
 import 'package:json_parser/src/registry/json_parser_registry.dart';
 import 'package:json_parser/src/types/json_types.dart';
-import 'package:parser_core/parser_core.dart';
 import 'package:test/test.dart';
-
-class _Token {
-  const _Token(this.value);
-
-  final int value;
-}
-
-class _TokenParser implements Parser<_Token, Json> {
-  const _TokenParser();
-
-  @override
-  _Token decode(Json encoded) {
-    final map = (encoded! as Map).cast<String, Object?>();
-    return _Token(map['value']! as int);
-  }
-
-  @override
-  Json encode(_Token value) => {'value': value.value};
-}
 
 void main() {
   Set<Type> expectedKnownTypes() {
@@ -122,19 +102,6 @@ void main() {
 
     test('registers every combination of known parser types', () {
       expect(registry.parserMap.keys.toSet(), knownTypes);
-    });
-
-    test('registers additional parsers via the register callback', () {
-      final configured = JsonParserRegistry.withKnownParsers((addParser) {
-        addParser<_Token>(const _TokenParser());
-      });
-
-      final parser = configured.getParser<_Token>();
-      expect(parser, isNotNull);
-      final token = parser!.decode({'value': 42});
-      expect(token.value, 42);
-      expect(parser.encode(token), {'value': 42});
-      expect(configured.parserMap, hasLength(knownTypes.length + 1));
     });
 
     group('registers a parser for every known type', () {

@@ -134,9 +134,7 @@ void demoComplexNested() {
 void demoParserRegistry() {
   const userParser = UserParser();
 
-  final registry = JsonParserRegistry.withKnownParsers((addParser) {
-    addParser<User>(userParser);
-  });
+  final registry = JsonParserRegistry.withKnownParsers()..addParser(userParser);
 
   final user = User(id: 1, name: 'John', nickname: null);
 

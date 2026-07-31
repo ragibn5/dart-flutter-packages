@@ -126,9 +126,8 @@ void main() {
 
   // Use of the json parser registry
   // Create a registry with known parsers (or use default constructor for empty registry)
-  final jsonParserRegistry = JsonParserRegistry.withKnownParsers((addParser) {
-    addParser<User>(userParser);
-  });
+  final jsonParserRegistry = JsonParserRegistry.withKnownParsers();
+  jsonParserRegistry.addParser(userParser);
 
   final userParserFromRegistry = jsonParserRegistry.getParser<User>();
   final encodedFromRegistry = userParserFromRegistry!.encode(user);
