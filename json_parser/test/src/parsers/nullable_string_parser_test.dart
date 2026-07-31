@@ -10,7 +10,7 @@ void main() {
   });
 
   test('decode() should throw if passed value is not a nullable string', () {
-    final invalidInputs = [123, 1.23, true, [], {}, Object()];
+    final invalidInputs = [123, 1.23, true, <dynamic>[], <dynamic>{}, Object()];
 
     for (final input in invalidInputs) {
       expect(() => sut.decode(input), throwsA(isA<JsonParseException>()));
