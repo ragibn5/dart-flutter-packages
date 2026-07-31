@@ -52,9 +52,6 @@ class JsonParserRegistry extends ParserRegistry<Json> {
 
   void _addMapParsers() {
     _addMapParsersForKey(const StringParser());
-    _addMapParsersForKey(const BoolParser());
-    _addMapParsersForKey(const IntParser());
-    _addMapParsersForKey(const DoubleParser());
   }
 
   void _addMapParsersForKey<K>(Parser<K, Json> keyParser) {

@@ -51,9 +51,6 @@ void main() {
     collectPrimitive<String>(expected);
 
     collectMapKeys<String>(expected);
-    collectMapKeys<bool>(expected);
-    collectMapKeys<int>(expected);
-    collectMapKeys<double>(expected);
 
     return expected;
   }
@@ -98,8 +95,8 @@ void main() {
       // 5 primitives
       // 5 nullable primitives
       // 20 list types (5 item types × 4 list shapes)
-      // 80 map types  (4 key types × 5 value types × 4 map shapes)
-      // = 110
+      // 20 map types  (1 key type × 5 value types × 4 map shapes)
+      // = 50
       expect(registry.parserMap, hasLength(knownTypes.length));
     });
 
@@ -235,24 +232,6 @@ void main() {
         checkMapShapes<String, double>('a', 'b', 3.5);
         checkMapShapes<String, num>('a', 'b', 42);
         checkMapShapes<String, String>('a', 'b', 'hi');
-
-        checkMapShapes<bool, bool>(true, false, true);
-        checkMapShapes<bool, int>(true, false, 42);
-        checkMapShapes<bool, double>(true, false, 3.5);
-        checkMapShapes<bool, num>(true, false, 42);
-        checkMapShapes<bool, String>(true, false, 'hi');
-
-        checkMapShapes<int, bool>(1, 2, true);
-        checkMapShapes<int, int>(1, 2, 42);
-        checkMapShapes<int, double>(1, 2, 3.5);
-        checkMapShapes<int, num>(1, 2, 42);
-        checkMapShapes<int, String>(1, 2, 'hi');
-
-        checkMapShapes<double, bool>(1, 2, true);
-        checkMapShapes<double, int>(1, 2, 42);
-        checkMapShapes<double, double>(1, 2, 3.5);
-        checkMapShapes<double, num>(1, 2, 42);
-        checkMapShapes<double, String>(1, 2, 'hi');
       });
     });
   });
