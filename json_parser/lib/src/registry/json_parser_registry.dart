@@ -15,12 +15,62 @@ import 'package:json_parser/src/parsers/string_parser.dart';
 import 'package:json_parser/src/types/json_types.dart';
 import 'package:parser_core/parser_core.dart';
 
+/// The signature of [ParserRegistry.addParser], as used by
+/// [JsonParserRegistrar].
+typedef JsonParserAdder = void Function<T extends Object?>(
+  Parser<T, Json> parser,
+);
+
+/// A callback that registers parsers via the [JsonParserAdder] it receives.
+typedef JsonParserRegistrar = void Function(JsonParserAdder addParser);
+
+/// A [ParserRegistry] for JSON values.
+///
+/// [JsonParserRegistry.withKnownParsers] pre-registers parsers for the
+/// primitive types and their single-level composites: nullable primitives,
+/// lists, and string-keyed maps.
+///
+/// For other types (custom objects, deeper composites), compose or implement
+/// a [Parser] and register it with [addParser].
 class JsonParserRegistry extends ParserRegistry<Json> {
+  /// Creates an empty registry with no registered parsers.
+  ///
+  /// > Note:
+  /// > This constructor doesn't register any parsers at all,
+  /// > not even the predefined ones defined in this package.
+  /// > Use the [JsonParserRegistry.withKnownParsers] to get
+  /// > a pre-registered registry.
+  /// > See the doc of that constructor for more details.
   JsonParserRegistry() : super();
 
-  JsonParserRegistry.withKnownParsers() : super() {
+  /// Creates a registry pre-registered with the predefined parsers:
+  ///
+  /// - the primitive types: bool, int, double, num, String.
+  /// - the nullable variants of the primitive types: bool?, int?, double?,
+  ///   num?, String?.
+  /// - lists of each of the above, in all four shapes:
+  ///   `List<T>`, `List<T?>`, `List<T>?`, `List<T?>?`.
+  /// - string-keyed maps of each of the above, in all four shapes:
+  ///   `Map<String, T>`, `Map<String, T?>`, `Map<String, T>?`,
+  ///   `Map<String, T?>?`.
+  ///
+  /// The optional [register] callback receives the registry's [addParser]
+  /// function, so additional parsers can be registered in the same call:
+  ///
+  /// ```dart
+  /// final registry = JsonParserRegistry.withKnownParsers((addParser) {
+  ///   addParser<Person>(const PersonParser());
+  /// });
+  /// ```
+  ///
+  /// For other types, register a composed or custom [Parser] via the
+  /// [register] callback or [addParser].
+  JsonParserRegistry.withKnownParsers([
+    JsonParserRegistrar? register,
+  ]) : super() {
     _registerPrimitiveTypes();
     _addMapParsers();
+    register?.call(addParser);
   }
 
   void _registerPrimitiveTypes() {
