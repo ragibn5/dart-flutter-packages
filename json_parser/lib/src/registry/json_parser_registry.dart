@@ -19,523 +19,88 @@ class JsonParserRegistry extends ParserRegistry<Json> {
   JsonParserRegistry() : super();
 
   JsonParserRegistry.withKnownParsers() : super() {
-    _addPrimitiveParsers();
-    _addNullablePrimitiveParsers();
-    _addListParsers();
-    _addNullableItemListParsers();
-    _addNullableListParsers();
-    _addNullableItemNullableListParsers();
+    _registerPrimitiveTypes();
     _addMapParsers();
-    _addNullableValueMapParsers();
-    _addNullableMapParsers();
-    _addNullableValueNullableMapParsers();
   }
 
-  void _addPrimitiveParsers() {
-    addParser(const BoolParser());
-    addParser(const IntParser());
-    addParser(const DoubleParser());
-    addParser(const NumParser());
-    addParser(const StringParser());
+  void _registerPrimitiveTypes() {
+    _registerType(const BoolParser(), const NullableBoolParser());
+    _registerType(const IntParser(), const NullableIntParser());
+    _registerType(const DoubleParser(), const NullableDoubleParser());
+    _registerType(const NumParser(), const NullableNumParser());
+    _registerType(const StringParser(), const NullableStringParser());
   }
 
-  void _addNullablePrimitiveParsers() {
-    addParser(const NullableBoolParser());
-    addParser(const NullableIntParser());
-    addParser(const NullableDoubleParser());
-    addParser(const NullableNumParser());
-    addParser(const NullableStringParser());
+  void _registerType<T>(
+    Parser<T, Json> parser,
+    Parser<T?, Json> nullableParser,
+  ) {
+    addParser<T>(parser);
+    addParser<T?>(nullableParser);
+    _addListParsersFor(parser, nullableParser);
   }
 
-  void _addListParsers() {
-    addParser(const ListParser(BoolParser()));
-    addParser(const ListParser(IntParser()));
-    addParser(const ListParser(DoubleParser()));
-    addParser(const ListParser(NumParser()));
-    addParser(const ListParser(StringParser()));
-  }
-
-  void _addNullableItemListParsers() {
-    addParser(const ListParser(NullableBoolParser()));
-    addParser(const ListParser(NullableIntParser()));
-    addParser(const ListParser(NullableDoubleParser()));
-    addParser(const ListParser(NullableNumParser()));
-    addParser(const ListParser(NullableStringParser()));
-  }
-
-  void _addNullableListParsers() {
-    addParser(const NullableListParser(BoolParser()));
-    addParser(const NullableListParser(IntParser()));
-    addParser(const NullableListParser(DoubleParser()));
-    addParser(const NullableListParser(NumParser()));
-    addParser(const NullableListParser(StringParser()));
-  }
-
-  void _addNullableItemNullableListParsers() {
-    addParser(const NullableListParser(NullableBoolParser()));
-    addParser(const NullableListParser(NullableIntParser()));
-    addParser(const NullableListParser(NullableDoubleParser()));
-    addParser(const NullableListParser(NullableNumParser()));
-    addParser(const NullableListParser(NullableStringParser()));
+  void _addListParsersFor<T>(
+    Parser<T, Json> itemParser,
+    Parser<T?, Json> nullableItemParser,
+  ) {
+    addParser<List<T>>(ListParser(itemParser));
+    addParser<List<T?>>(ListParser(nullableItemParser));
+    addParser<List<T>?>(NullableListParser(itemParser));
+    addParser<List<T?>?>(NullableListParser(nullableItemParser));
   }
 
   void _addMapParsers() {
-    // Key = String
-    addParser(
-      const MapParser(keyParser: StringParser(), valueParser: BoolParser()),
-    );
-    addParser(
-      const MapParser(keyParser: StringParser(), valueParser: IntParser()),
-    );
-    addParser(
-      const MapParser(keyParser: StringParser(), valueParser: DoubleParser()),
-    );
-    addParser(
-      const MapParser(keyParser: StringParser(), valueParser: NumParser()),
-    );
-    addParser(
-      const MapParser(keyParser: StringParser(), valueParser: StringParser()),
-    );
+    _addMapParsersForKey(const StringParser());
+    _addMapParsersForKey(const BoolParser());
+    _addMapParsersForKey(const IntParser());
+    _addMapParsersForKey(const DoubleParser());
+  }
 
-    // Key = Bool
-    addParser(
-      const MapParser(keyParser: BoolParser(), valueParser: BoolParser()),
+  void _addMapParsersForKey<K>(Parser<K, Json> keyParser) {
+    _addMapParserCombination(
+      keyParser,
+      const BoolParser(),
+      const NullableBoolParser(),
     );
-    addParser(
-      const MapParser(keyParser: BoolParser(), valueParser: IntParser()),
+    _addMapParserCombination(
+      keyParser,
+      const IntParser(),
+      const NullableIntParser(),
     );
-    addParser(
-      const MapParser(keyParser: BoolParser(), valueParser: DoubleParser()),
+    _addMapParserCombination(
+      keyParser,
+      const DoubleParser(),
+      const NullableDoubleParser(),
     );
-    addParser(
-      const MapParser(keyParser: BoolParser(), valueParser: NumParser()),
+    _addMapParserCombination(
+      keyParser,
+      const NumParser(),
+      const NullableNumParser(),
     );
-    addParser(
-      const MapParser(keyParser: BoolParser(), valueParser: StringParser()),
-    );
-
-    // Key = Int
-    addParser(
-      const MapParser(keyParser: IntParser(), valueParser: BoolParser()),
-    );
-    addParser(
-      const MapParser(keyParser: IntParser(), valueParser: IntParser()),
-    );
-    addParser(
-      const MapParser(keyParser: IntParser(), valueParser: DoubleParser()),
-    );
-    addParser(
-      const MapParser(keyParser: IntParser(), valueParser: NumParser()),
-    );
-    addParser(
-      const MapParser(keyParser: IntParser(), valueParser: StringParser()),
-    );
-
-    // Key = Double
-    addParser(
-      const MapParser(keyParser: DoubleParser(), valueParser: BoolParser()),
-    );
-    addParser(
-      const MapParser(keyParser: DoubleParser(), valueParser: IntParser()),
-    );
-    addParser(
-      const MapParser(keyParser: DoubleParser(), valueParser: DoubleParser()),
-    );
-    addParser(
-      const MapParser(keyParser: DoubleParser(), valueParser: NumParser()),
-    );
-    addParser(
-      const MapParser(keyParser: DoubleParser(), valueParser: StringParser()),
+    _addMapParserCombination(
+      keyParser,
+      const StringParser(),
+      const NullableStringParser(),
     );
   }
 
-  void _addNullableValueMapParsers() {
-    // Key = String
-    addParser(
-      const MapParser(
-        keyParser: StringParser(),
-        valueParser: NullableBoolParser(),
-      ),
+  void _addMapParserCombination<K, V>(
+    Parser<K, Json> keyParser,
+    Parser<V, Json> valueParser,
+    Parser<V?, Json> nullableValueParser,
+  ) {
+    addParser<Map<K, V>>(
+      MapParser(keyParser: keyParser, valueParser: valueParser),
     );
-    addParser(
-      const MapParser(
-        keyParser: StringParser(),
-        valueParser: NullableIntParser(),
-      ),
+    addParser<Map<K, V?>>(
+      MapParser(keyParser: keyParser, valueParser: nullableValueParser),
     );
-    addParser(
-      const MapParser(
-        keyParser: StringParser(),
-        valueParser: NullableDoubleParser(),
-      ),
+    addParser<Map<K, V>?>(
+      NullableMapParser(keyParser: keyParser, valueParser: valueParser),
     );
-    addParser(
-      const MapParser(
-        keyParser: StringParser(),
-        valueParser: NullableNumParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: StringParser(),
-        valueParser: NullableStringParser(),
-      ),
-    );
-
-    // Key = Bool
-    addParser(
-      const MapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableBoolParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableIntParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableDoubleParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableNumParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableStringParser(),
-      ),
-    );
-
-    // Key = Int
-    addParser(
-      const MapParser(
-        keyParser: IntParser(),
-        valueParser: NullableBoolParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: IntParser(),
-        valueParser: NullableIntParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: IntParser(),
-        valueParser: NullableDoubleParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: IntParser(),
-        valueParser: NullableNumParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: IntParser(),
-        valueParser: NullableStringParser(),
-      ),
-    );
-
-    // Key = Double
-    addParser(
-      const MapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableBoolParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableIntParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableDoubleParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableNumParser(),
-      ),
-    );
-    addParser(
-      const MapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableStringParser(),
-      ),
-    );
-  }
-
-  void _addNullableMapParsers() {
-    // Key = String
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: BoolParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: IntParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: DoubleParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: NumParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: StringParser(),
-      ),
-    );
-
-    // Key = Bool
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: BoolParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: IntParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: DoubleParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: NumParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: StringParser(),
-      ),
-    );
-
-    // Key = Int
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: BoolParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: IntParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: DoubleParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: NumParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: StringParser(),
-      ),
-    );
-
-    // Key = Double
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: BoolParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: IntParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: DoubleParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: NumParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: StringParser(),
-      ),
-    );
-  }
-
-  void _addNullableValueNullableMapParsers() {
-    // Key = String
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: NullableBoolParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: NullableIntParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: NullableDoubleParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: NullableNumParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: StringParser(),
-        valueParser: NullableStringParser(),
-      ),
-    );
-
-    // Key = Bool
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableBoolParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableIntParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableDoubleParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableNumParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: BoolParser(),
-        valueParser: NullableStringParser(),
-      ),
-    );
-
-    // Key = Int
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: NullableBoolParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: NullableIntParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: NullableDoubleParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: NullableNumParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: IntParser(),
-        valueParser: NullableStringParser(),
-      ),
-    );
-
-    // Key = Double
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableBoolParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableIntParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableDoubleParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableNumParser(),
-      ),
-    );
-    addParser(
-      const NullableMapParser(
-        keyParser: DoubleParser(),
-        valueParser: NullableStringParser(),
-      ),
+    addParser<Map<K, V?>?>(
+      NullableMapParser(keyParser: keyParser, valueParser: nullableValueParser),
     );
   }
 }
