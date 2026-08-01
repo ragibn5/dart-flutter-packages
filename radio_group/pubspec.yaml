@@ -1,5 +1,5 @@
 name: radio_group
-description: A fully customizable radio group.
+description: A customizable radio group widget for Flutter.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
