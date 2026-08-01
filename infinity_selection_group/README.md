@@ -113,7 +113,7 @@ SelectionGroup<PlanOption>(
 )
 ```
 
-That's it — each cell's `selected` flag is updated automatically, and `onSelectionChanged` fires with the new indices whenever the user toggles an option. `onSelectionOverflow` fires if the user tries to select beyond `maxSelectionCount`.
+That's it — the selected cells are highlighted through the `selected` flag your builder receives, and `onSelectionChanged` fires with the new selection indices whenever the user toggles an option. `onSelectionOverflow` fires if the selection limit is reached.
 
 ## 📦 API
 
@@ -124,7 +124,7 @@ All exported components from `package:infinity_selection_group/infinity_selectio
 | `SelectionGroup<T>`      | The main widget. Dispatches to list, grid, or wrap based on the supplied `layoutConfig`.                   |
 | `SelectionItemUiModel`   | Base class for your options — carries `shouldBeSelected` so you can exclude items from the selection.      |
 | `ListLayoutConfig`       | Layout options for a vertical or horizontal list — spacing, padding, scrolling.                            |
-| `GridLayoutConfig`       | Layout options for a grid — `crossAxisItemCount`, axis, vertical/horizontal spacing, aspect ratio.         |
+| `GridLayoutConfig`       | Layout options for a grid — `crossAxisItemCount`, axis, vertical/horizontal spacing.                       |
 | `WrapLayoutConfig`       | Layout options for a wrap (chip-like) layout — spacing and run spacing.                                    |
 | `ListSelectionGroup<T>`  | The list implementation directly, if you want to skip the dispatch.                                        |
 | `GridSelectionGroup<T>`  | The grid implementation directly.                                                                          |
