@@ -47,7 +47,7 @@ generation utilities, and architectural support.
 - [`base_auth_interceptor`](base_auth_interceptor)
 - [`feature_api_client`](feature_api_client)
 - [`nav_router`](nav_router)
-- [`radio_group`](radio_group)
+- [`infinity_radio_group`](infinity_radio_group)
 - [`selection_group`](selection_group)
 - [`infinity_menu`](infinity_menu)
 - [`alerty`](alerty)
