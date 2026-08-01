@@ -40,7 +40,16 @@ class _RadioGroupBaseState<T extends RadioItemUiModel,
   void initState() {
     super.initState();
 
-    _initializeInitialSelection();
+    _applyInitialSelection();
+  }
+
+  @override
+  void didUpdateWidget(covariant RadioGroupBase<T, LayoutConfig> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.initialSelectionIndex != oldWidget.initialSelectionIndex) {
+      _applyInitialSelection();
+    }
   }
 
   @override
@@ -68,7 +77,7 @@ class _RadioGroupBaseState<T extends RadioItemUiModel,
     );
   }
 
-  void _initializeInitialSelection() {
+  void _applyInitialSelection() {
     final validatedInitialSelectionIndex = _getInitialSelectionIndex(
       widget.uiModels,
       widget.initialSelectionIndex,
