@@ -48,7 +48,7 @@ generation utilities, and architectural support.
 - [`feature_api_client`](feature_api_client)
 - [`nav_router`](nav_router)
 - [`infinity_radio_group`](infinity_radio_group)
-- [`selection_group`](selection_group)
+- [`infinity_selection_group`](infinity_selection_group)
 - [`infinity_menu`](infinity_menu)
 - [`alerty`](alerty)
 - [`snacker`](snacker)
