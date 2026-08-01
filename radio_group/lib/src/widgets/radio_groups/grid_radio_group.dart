@@ -43,6 +43,8 @@ class GridRadioGroup<T extends RadioItemUiModel>
         crossAxisCount: layoutConfig.crossAxisItemCount,
         mainAxisSpacing: _calculateMainAxisSpacing(layoutConfig),
         crossAxisSpacing: _calculateCrossAxisSpacing(layoutConfig),
+        childAspectRatio: layoutConfig.childAspectRatio,
+        mainAxisExtent: layoutConfig.mainAxisExtent,
       ),
     );
   }
