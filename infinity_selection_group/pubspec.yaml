@@ -1,0 +1,30 @@
+name: infinity_selection_group
+description: A fully customizable selection group widget for Flutter.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/infinity_selection_group
+
+# Library version
+version: 1.0.0
+
+# Range of compatible SDK versions
+environment:
+  sdk: '>=3.0.6 <4.0.0'
+  flutter: ">=1.17.0"
+
+# Regular dependencies
+# (Bundled in executable artifact)
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.9.0
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  flutter_lints: ^3.0.1
+  very_good_analysis: ^5.1.0
