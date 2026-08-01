@@ -28,7 +28,7 @@ dependencies:
 
 - **🗂️ Three layouts** — render options as a list, a grid, or flowing chips, all through one widget.
 - **🎨 UI-agnostic** — you build each option's look yourself, so every cell is exactly how you want it.
-- **🔒 Disabled items** — mark any option as disabled and taps are ignored automatically.
+- **🔒 Non-selectable items** — mark any option as excluded, and it is skipped from the selection automatically.
 - **📌 Programmatic selection** — start with an option already selected.
 - **➕ Leading/trailing widgets** — prepend or append custom widgets (headers, dividers, buttons) alongside the options.
 - **🔀 Wide compatibility** — works with Flutter 3.10.6+.
@@ -64,7 +64,7 @@ class PlanOption extends RadioItemUiModel {
 }
 ```
 
-> **Note:** Set `shouldBeSelected` to `false` to disable an option.
+> **Note:** Set `shouldBeSelected` to `false` to exclude an option from the selection.
 
 ### 2. Pick a layout config
 
@@ -112,16 +112,16 @@ That's it — the selected cell is highlighted through the `selected` flag your 
 
 All exported components from `package:radio_group/radio_group.dart`:
 
-| Component           | Description                                                                              |
-|---------------------|------------------------------------------------------------------------------------------|
-| `RadioGroup<T>`     | The main widget. Dispatches to list, grid, or wrap based on the supplied `layoutConfig`. |
-| `RadioItemUiModel`  | Base class for your options — carries `shouldBeSelected` so you can disable items.       |
-| `ListLayoutConfig`  | Layout options for a vertical or horizontal list — spacing, padding, scrolling.          |
-| `GridLayoutConfig`  | Layout options for a grid — `crossAxisItemCount`, axis, vertical/horizontal spacing.     |
-| `WrapLayoutConfig`  | Layout options for a wrap (chip-like) layout — spacing and run spacing.                  |
-| `ListRadioGroup<T>` | The list implementation directly, if you want to skip the dispatch.                      |
-| `GridRadioGroup<T>` | The grid implementation directly.                                                        |
-| `WrapRadioGroup<T>` | The wrap implementation directly.                                                        |
+| Component           | Description                                                                                           |
+|---------------------|-------------------------------------------------------------------------------------------------------|
+| `RadioGroup<T>`     | The main widget. Dispatches to list, grid, or wrap based on the supplied `layoutConfig`.              |
+| `RadioItemUiModel`  | Base class for your options — carries `shouldBeSelected` so you can exclude items from the selection. |
+| `ListLayoutConfig`  | Layout options for a vertical or horizontal list — spacing, padding, scrolling.                       |
+| `GridLayoutConfig`  | Layout options for a grid — `crossAxisItemCount`, axis, vertical/horizontal spacing.                  |
+| `WrapLayoutConfig`  | Layout options for a wrap (chip-like) layout — spacing and run spacing.                               |
+| `ListRadioGroup<T>` | The list implementation directly, if you want to skip the dispatch.                                   |
+| `GridRadioGroup<T>` | The grid implementation directly.                                                                     |
+| `WrapRadioGroup<T>` | The wrap implementation directly.                                                                     |
 
 ## 🧪 Example
 

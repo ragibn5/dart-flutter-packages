@@ -49,7 +49,7 @@ const List<DemoOption> demoOptions = [
   ),
   DemoOption(
     title: 'Locked',
-    subtitle: 'Disabled example — try me!',
+    subtitle: 'Not selectable — try me!',
     icon: Icons.lock_rounded,
     color: Color(0xFF94A3B8),
     shouldBeSelected: false,

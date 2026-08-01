@@ -27,17 +27,17 @@ class OptionTile extends StatelessWidget {
 
   Widget _buildListTile(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final disabled = !model.shouldBeSelected;
+    final nonSelectable = !model.shouldBeSelected;
 
     return _Shell(
       selected: selected,
-      disabled: disabled,
+      nonSelectable: nonSelectable,
       child: Row(
         children: [
           _IconBadge(
             model: model,
             selected: selected,
-            disabled: disabled,
+            nonSelectable: nonSelectable,
             size: 40,
           ),
           const SizedBox(width: 12),
@@ -50,7 +50,7 @@ class OptionTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: disabled ? cs.onSurfaceVariant : cs.onSurface,
+                    color: nonSelectable ? cs.onSurfaceVariant : cs.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -60,14 +60,14 @@ class OptionTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
-                    color: disabled ? cs.outline : cs.onSurfaceVariant,
+                    color: nonSelectable ? cs.outline : cs.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 10),
-          _RadioIndicator(selected: selected, disabled: disabled, size: 20),
+          _RadioIndicator(selected: selected, nonSelectable: nonSelectable, size: 20),
         ],
       ),
     );
@@ -75,11 +75,11 @@ class OptionTile extends StatelessWidget {
 
   Widget _buildGridTile(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final disabled = !model.shouldBeSelected;
+    final nonSelectable = !model.shouldBeSelected;
 
     return _Shell(
       selected: selected,
-      disabled: disabled,
+      nonSelectable: nonSelectable,
       borderRadius: 14,
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -90,11 +90,11 @@ class OptionTile extends StatelessWidget {
               _IconBadge(
                 model: model,
                 selected: selected,
-                disabled: disabled,
+                nonSelectable: nonSelectable,
                 size: 30,
               ),
               const Spacer(),
-              _RadioIndicator(selected: selected, disabled: disabled, size: 15),
+              _RadioIndicator(selected: selected, nonSelectable: nonSelectable, size: 15),
             ],
           ),
           const SizedBox(height: 8),
@@ -105,7 +105,7 @@ class OptionTile extends StatelessWidget {
             style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w700,
-              color: disabled ? cs.onSurfaceVariant : cs.onSurface,
+              color: nonSelectable ? cs.onSurfaceVariant : cs.onSurface,
             ),
           ),
           const SizedBox(height: 1),
@@ -116,7 +116,7 @@ class OptionTile extends StatelessWidget {
             style: TextStyle(
               fontSize: 10.5,
               height: 1.2,
-              color: disabled ? cs.outline : cs.onSurfaceVariant,
+              color: nonSelectable ? cs.outline : cs.onSurfaceVariant,
             ),
           ),
         ],
@@ -126,21 +126,21 @@ class OptionTile extends StatelessWidget {
 
   Widget _buildChip(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final disabled = !model.shouldBeSelected;
+    final nonSelectable = !model.shouldBeSelected;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
       curve: Curves.easeOut,
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
       decoration: BoxDecoration(
-        color: disabled
+        color: nonSelectable
             ? cs.surfaceContainerHighest
             : selected
                 ? cs.primary
                 : cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: disabled
+          color: nonSelectable
               ? cs.outlineVariant
               : selected
                   ? cs.primary
@@ -153,7 +153,7 @@ class OptionTile extends StatelessWidget {
           Icon(
             model.icon,
             size: 15,
-            color: disabled
+            color: nonSelectable
                 ? cs.outline
                 : selected
                     ? cs.onPrimary
@@ -165,7 +165,7 @@ class OptionTile extends StatelessWidget {
             style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
-              color: disabled
+              color: nonSelectable
                   ? cs.onSurfaceVariant
                   : selected
                       ? cs.onPrimary
@@ -180,14 +180,14 @@ class OptionTile extends StatelessWidget {
 
 class _Shell extends StatelessWidget {
   final bool selected;
-  final bool disabled;
+  final bool nonSelectable;
   final double borderRadius;
   final EdgeInsets padding;
   final Widget child;
 
   const _Shell({
     required this.selected,
-    required this.disabled,
+    required this.nonSelectable,
     required this.child,
     this.borderRadius = 14,
     this.padding = const EdgeInsets.all(10),
@@ -202,14 +202,14 @@ class _Shell extends StatelessWidget {
       curve: Curves.easeOut,
       padding: padding,
       decoration: BoxDecoration(
-        color: disabled
+        color: nonSelectable
             ? cs.surfaceContainerHighest.withValues(alpha: 0.5)
             : selected
                 ? cs.primaryContainer.withValues(alpha: 0.4)
                 : cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: disabled
+          color: nonSelectable
               ? cs.outlineVariant
               : selected
                   ? cs.primary
@@ -224,13 +224,13 @@ class _Shell extends StatelessWidget {
 class _IconBadge extends StatelessWidget {
   final DemoOption model;
   final bool selected;
-  final bool disabled;
+  final bool nonSelectable;
   final double size;
 
   const _IconBadge({
     required this.model,
     required this.selected,
-    required this.disabled,
+    required this.nonSelectable,
     this.size = 40,
   });
 
@@ -244,7 +244,7 @@ class _IconBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: disabled
+        color: nonSelectable
             ? cs.surfaceContainerHighest
             : selected
                 ? model.color
@@ -254,7 +254,7 @@ class _IconBadge extends StatelessWidget {
       child: Icon(
         model.icon,
         size: size * 0.5,
-        color: disabled ? cs.outline : selected ? Colors.white : model.color,
+        color: nonSelectable ? cs.outline : selected ? Colors.white : model.color,
       ),
     );
   }
@@ -262,12 +262,12 @@ class _IconBadge extends StatelessWidget {
 
 class _RadioIndicator extends StatelessWidget {
   final bool selected;
-  final bool disabled;
+  final bool nonSelectable;
   final double size;
 
   const _RadioIndicator({
     required this.selected,
-    required this.disabled,
+    required this.nonSelectable,
     this.size = 20,
   });
 
@@ -282,9 +282,9 @@ class _RadioIndicator extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: selected && !disabled ? cs.primary : Colors.transparent,
+        color: selected && !nonSelectable ? cs.primary : Colors.transparent,
         border: Border.all(
-          color: disabled
+          color: nonSelectable
               ? cs.outlineVariant
               : selected
                   ? cs.primary
@@ -292,7 +292,7 @@ class _RadioIndicator extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: selected && !disabled
+      child: selected && !nonSelectable
           ? Icon(Icons.check_rounded, size: size * 0.62, color: cs.onPrimary)
           : null,
     );
