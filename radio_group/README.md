@@ -37,9 +37,9 @@ dependencies:
 
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/radio_group/assets/list_preview.png" alt="List layout"></td>
-    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/radio_group/assets/grid_preview.png" alt="Grid layout"></td>
-    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/radio_group/assets/wrap_preview.png" alt="Wrap layout"></td>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/radio_group/assets/list_preview.jpeg" alt="List layout"></td>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/radio_group/assets/grid_preview.jpeg" alt="Grid layout"></td>
+    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/radio_group/assets/wrap_preview.jpeg" alt="Wrap layout"></td>
   </tr>
 </table>
 
