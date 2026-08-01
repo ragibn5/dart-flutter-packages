@@ -128,6 +128,54 @@ void main() {
                 layoutConfig.verticalSpacing));
   });
 
+  testWidgets('Uses childAspectRatio when mainAxisExtent is null',
+      (tester) async {
+    const layoutConfig = GridLayoutConfig(
+      childAspectRatio: 2,
+    );
+
+    await tester.pumpWidget(
+      createTestWidget(
+        models: createModels(2),
+        layoutConfig: layoutConfig,
+        cellBuilder: (_, {required selected}) => const SizedBox(),
+        onSelectionChanged: (_) {},
+      ),
+    );
+
+    final gridView = tester.widget<GridView>(find.byType(GridView));
+    expect(
+      gridView.gridDelegate,
+      isA<SliverGridDelegateWithFixedCrossAxisCount>()
+          .having((p) => p.childAspectRatio, 'childAspectRatio',
+              layoutConfig.childAspectRatio)
+          .having((p) => p.mainAxisExtent, 'mainAxisExtent', isNull),
+    );
+  });
+
+  testWidgets('Uses mainAxisExtent when provided', (tester) async {
+    const layoutConfig = GridLayoutConfig(
+      mainAxisExtent: 92,
+    );
+    await tester.pumpWidget(
+      createTestWidget(
+        models: createModels(2),
+        layoutConfig: layoutConfig,
+        cellBuilder: (_, {required selected}) => const SizedBox(),
+        onSelectionChanged: (_) {},
+      ),
+    );
+
+    final gridView = tester.widget<GridView>(find.byType(GridView));
+    expect(
+      gridView.gridDelegate,
+      isA<SliverGridDelegateWithFixedCrossAxisCount>().having(
+          (p) => p.mainAxisExtent,
+          'mainAxisExtent',
+          layoutConfig.mainAxisExtent),
+    );
+  });
+
   testWidgets('Computes correct total item count', (tester) async {
     const layout = GridLayoutConfig();
     await tester.pumpWidget(
