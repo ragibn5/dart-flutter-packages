@@ -1,5 +1,5 @@
-/// A data structure to manage selection state with optional maximum selection limit.
-/// Does not throw; invalid indices are silently ignored.
+/// A data structure to manage selection state with optional maximum
+/// selection limit. Does not throw; invalid indices are silently ignored.
 class SelectionData {
   int _selectionCount = 0;
   final int? _maxSelectionCount;

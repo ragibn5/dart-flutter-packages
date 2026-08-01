@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:infinity_selection_group/infinity_selection_group.dart';
 import 'package:infinity_selection_group/src/widgets/selection_groups/wrap_selection_group.dart';
+import 'package:mocktail/mocktail.dart';
 
 class _TestSelectionItemUiModel extends SelectionItemUiModel {
   _TestSelectionItemUiModel() : super(shouldBeSelected: true);

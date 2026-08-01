@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:infinity_selection_group/src/controllers/cached_stream_controller.dart';
+import 'package:mocktail/mocktail.dart';
 
 class _MockStream extends Mock implements Stream<int> {}
 
