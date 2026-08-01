@@ -51,6 +51,8 @@ final class GridLayoutConfig extends SelectionGroupLayoutConfig {
   final int crossAxisItemCount;
   final double verticalSpacing;
   final double horizontalSpacing;
+  final double childAspectRatio;
+  final double? mainAxisExtent;
   final EdgeInsets padding;
   final bool shrinkWrap;
   final ScrollPhysics physics;
@@ -60,6 +62,8 @@ final class GridLayoutConfig extends SelectionGroupLayoutConfig {
     this.crossAxisItemCount = 3,
     this.verticalSpacing = 0,
     this.horizontalSpacing = 0,
+    this.childAspectRatio = 1.0,
+    this.mainAxisExtent,
     this.padding = EdgeInsets.zero,
     this.shrinkWrap = true,
     this.physics = const NeverScrollableScrollPhysics(),
@@ -70,6 +74,8 @@ final class GridLayoutConfig extends SelectionGroupLayoutConfig {
     int crossAxisItemCount = 3,
     double verticalSpacing = 0,
     double horizontalSpacing = 0,
+    double childAspectRatio = 1.0,
+    double? mainAxisExtent,
     EdgeInsets padding = EdgeInsets.zero,
   }) {
     return GridLayoutConfig(
@@ -80,6 +86,8 @@ final class GridLayoutConfig extends SelectionGroupLayoutConfig {
       padding: padding,
       shrinkWrap: false,
       physics: const AlwaysScrollableScrollPhysics(),
+      childAspectRatio: childAspectRatio,
+      mainAxisExtent: mainAxisExtent,
     );
   }
 
@@ -89,6 +97,8 @@ final class GridLayoutConfig extends SelectionGroupLayoutConfig {
     double verticalSpacing = 0,
     double horizontalSpacing = 0,
     EdgeInsets padding = EdgeInsets.zero,
+    double childAspectRatio = 1.0,
+    double? mainAxisExtent,
   }) {
     return GridLayoutConfig(
       axis: axis,
@@ -96,6 +106,8 @@ final class GridLayoutConfig extends SelectionGroupLayoutConfig {
       verticalSpacing: verticalSpacing,
       horizontalSpacing: horizontalSpacing,
       padding: padding,
+      childAspectRatio: childAspectRatio,
+      mainAxisExtent: mainAxisExtent,
     );
   }
 }

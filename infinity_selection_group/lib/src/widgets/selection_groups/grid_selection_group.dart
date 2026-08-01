@@ -45,6 +45,8 @@ class GridSelectionGroup<T extends SelectionItemUiModel>
         crossAxisCount: layoutConfig.crossAxisItemCount,
         mainAxisSpacing: _calculateMainAxisSpacing(layoutConfig),
         crossAxisSpacing: _calculateCrossAxisSpacing(layoutConfig),
+        childAspectRatio: layoutConfig.childAspectRatio,
+        mainAxisExtent: layoutConfig.mainAxisExtent,
       ),
     );
   }

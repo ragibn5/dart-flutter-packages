@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:infinity_selection_group/src/configs/selection_group_layout_config.dart';
 import 'package:infinity_selection_group/src/controllers/cached_stream_controller.dart';
@@ -46,7 +47,26 @@ class _SelectionGroupBaseState<T extends SelectionItemUiModel,
   void initState() {
     super.initState();
 
-    _initializeInitialSelection();
+    _selectionController.add(
+      _getInitialSelection(
+        widget.uiModels,
+        widget.initialSelectionIndices,
+      ),
+    );
+  }
+
+  @override
+  void didUpdateWidget(
+    covariant SelectionGroupBase<T, LayoutConfig> oldWidget,
+  ) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!listEquals(
+      widget.initialSelectionIndices,
+      oldWidget.initialSelectionIndices,
+    )) {
+      _applyInitialSelection();
+    }
   }
 
   @override
@@ -75,13 +95,18 @@ class _SelectionGroupBaseState<T extends SelectionItemUiModel,
     );
   }
 
-  void _initializeInitialSelection() {
-    _selectionController.add(
-      _getInitialSelection(
-        widget.uiModels,
-        widget.initialSelectionIndices,
-      ),
+  void _applyInitialSelection() {
+    final initialSelection = _getInitialSelection(
+      widget.uiModels,
+      widget.initialSelectionIndices,
     );
+
+    if (initialSelection.selectionCount == 0) {
+      // Nothing valid to apply, keep the current selection.
+      return;
+    }
+
+    _selectionController.add(initialSelection);
   }
 
   SelectionData _getInitialSelection(

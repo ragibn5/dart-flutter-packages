@@ -342,4 +342,71 @@ void main() {
 
     expect(selectedIndices.length, 2);
   });
+
+  testWidgets('Changing initialSelectionIndices updates selection on rebuild',
+      (tester) async {
+    final models = [
+      // ignore: prefer_const_constructors
+      _TestSelectionItemUiModel(shouldBeSelected: true),
+      // ignore: prefer_const_constructors
+      _TestSelectionItemUiModel(shouldBeSelected: true),
+    ];
+
+    var initialSelectionIndices = const <int>[1];
+
+    Widget buildWidget() => wrap(
+          _TestRadioGroup(
+            uiModels: models,
+            layoutConfig: const WrapLayoutConfig(),
+            initialSelectionIndices: initialSelectionIndices,
+            onSelectionChanged: (_) {},
+            cellBuilder: (model, {required selected}) =>
+                Text('${model == models.first ? 'first' : 'second'}:'
+                    '${selected ? 'selected' : 'not'}'),
+          ),
+        );
+
+    await tester.pumpWidget(buildWidget());
+    expect(find.text('second:selected'), findsOneWidget);
+
+    initialSelectionIndices = const [0];
+    await tester.pumpWidget(buildWidget());
+    await tester.pump();
+
+    expect(find.text('first:selected'), findsOneWidget);
+  });
+
+  testWidgets(
+      'Changing initialSelectionIndices to invalid value keeps current selection',
+      (tester) async {
+    final models = [
+      // ignore: prefer_const_constructors
+      _TestSelectionItemUiModel(shouldBeSelected: true),
+      // ignore: prefer_const_constructors
+      _TestSelectionItemUiModel(shouldBeSelected: true),
+    ];
+
+    var initialSelectionIndices = const <int>[1];
+
+    Widget buildWidget() => wrap(
+          _TestRadioGroup(
+            uiModels: models,
+            layoutConfig: const WrapLayoutConfig(),
+            initialSelectionIndices: initialSelectionIndices,
+            onSelectionChanged: (_) {},
+            cellBuilder: (model, {required selected}) =>
+                Text('${model == models.first ? 'first' : 'second'}:'
+                    '${selected ? 'selected' : 'not'}'),
+          ),
+        );
+
+    await tester.pumpWidget(buildWidget());
+    expect(find.text('second:selected'), findsOneWidget);
+
+    initialSelectionIndices = const [5];
+    await tester.pumpWidget(buildWidget());
+    await tester.pump();
+
+    expect(find.text('second:selected'), findsOneWidget);
+  });
 }
