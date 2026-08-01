@@ -1,6 +1,6 @@
 # radio_group
 
-A customizable radio group widget for Flutter.
+A fully customizable radio group widget for Flutter.
 
 ## Installation
 

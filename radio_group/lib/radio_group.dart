@@ -1,4 +1,4 @@
-/// A customizable radio group widget for Flutter.
+/// A fully customizable radio group widget for Flutter.
 library radio_group;
 
 export 'src/configs/radio_group_layout_config.dart';
