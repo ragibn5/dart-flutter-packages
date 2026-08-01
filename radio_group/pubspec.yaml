@@ -9,7 +9,7 @@ homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/radio_group
 publish_to: 'none'
 
 # Library version
-version: 0.0.1
+version: 1.0.0
 
 # Range of compatible SDK versions
 environment:
