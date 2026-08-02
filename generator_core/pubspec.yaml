@@ -6,7 +6,7 @@ issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/generator_core
 
 # Library version
-version: 1.0.1
+version: 1.0.2
 
 # Range of compatible SDK versions
 environment:
@@ -22,7 +22,7 @@ dependencies:
   analyzer: ^8.0.0
   source_gen: ^4.2.1
   package_config: ^2.2.0
-  loghub: ^1.0.0
+  loghub: ^1.0.1
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

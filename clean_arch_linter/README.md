@@ -11,7 +11,7 @@ Analysis server plugin to enforce clean architecture.
 ```yaml
 plugins:
   clean_arch_linter:
-    version: ^2.0.4
+    version: ^2.0.5
     diagnostics:
       cross_layer_import: true
       third_party_import: true
@@ -26,7 +26,7 @@ plugins:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: clean_arch_linter
-      ref: clean_arch_linter-2.0.4
+      ref: clean_arch_linter-2.0.5
     diagnostics:
       cross_layer_import: true
       third_party_import: true

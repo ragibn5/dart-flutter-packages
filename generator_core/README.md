@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  generator_core: ^1.0.1
+  generator_core: ^1.0.2
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: generator_core
-      ref: generator_core-1.0.1
+      ref: generator_core-1.0.2
 ```
 
 ---
