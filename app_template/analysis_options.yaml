@@ -16,13 +16,13 @@ include:
 
 plugins:
   clean_arch_linter:
-    version: ^2.0.4
+    version: ^2.0.5
     diagnostics:
       dart_sdk_import: true
       cross_layer_import: true
       third_party_import: true
   json_parser_linter:
-    version: ^1.0.3
+    version: ^1.0.4
     diagnostics:
       json_parser_requirements: true
 
