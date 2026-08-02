@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  infinity_selection_group: ^2.0.0
+  infinity_selection_group: ^2.0.1
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: infinity_selection_group
-      ref: infinity_selection_group-2.0.0
+      ref: infinity_selection_group-2.0.1
 ```
 
 ## ✨ Features
