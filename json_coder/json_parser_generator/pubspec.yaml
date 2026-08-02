@@ -6,7 +6,7 @@ issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/json_coder/json_parser_generator
 
 # Library version
-version: 1.0.0
+version: 1.0.1
 
 # Range of compatible SDK versions
 environment:
@@ -24,7 +24,7 @@ dependencies:
   dart_style: ^3.1.2
   dart_functionals: ^1.0.1
   json_parser_annotations: ^1.0.1
-  generator_core: ^1.0.1
+  generator_core: ^1.0.2
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)

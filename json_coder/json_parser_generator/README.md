@@ -20,7 +20,7 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.4.15
-  json_parser_generator: ^1.0.0
+  json_parser_generator: ^1.0.1
 ```
 
 #### Or, From Git repo
@@ -39,7 +39,7 @@ dev_dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_coder/json_parser_generator
-      ref: json_coder/json_parser_generator-1.0.0
+      ref: json_coder/json_parser_generator-1.0.1
 ```
 
 ## ✨ Features
