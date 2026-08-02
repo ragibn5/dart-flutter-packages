@@ -1,11 +1,11 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
+import 'package:json_parser_annotations/json_parser_annotations.dart' show GenerateJsonParser;
 import 'package:json_parser_linter/src/models/json_parser_linter_config.dart';
 import 'package:json_parser_linter/src/rules/json_parser_requirement_rule/from_json_constructor_visitor.dart';
 import 'package:json_parser_linter/src/rules/json_parser_requirement_rule/from_json_static_method_visitor.dart';
 import 'package:json_parser_linter/src/rules/json_parser_requirement_rule/to_json_method_visitor.dart';
-import 'package:json_parser_annotations/json_parser_annotations.dart';
 import 'package:meta/meta.dart';
 
 class JsonParserRequirementRuleVisitorConfig {
