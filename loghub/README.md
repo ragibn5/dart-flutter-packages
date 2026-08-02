@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  loghub: ^1.0.0
+  loghub: ^1.0.1
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: loghub
-      ref: loghub-1.0.0
+      ref: loghub-1.0.1
 ```
 
 ## Get started
@@ -166,7 +166,7 @@ void main() {
       message: 'This is blocked for every logger',
     ),
   );
-}A
+}
 ```
 
 You may add multiple filters which are applied in the order they are provided and can also be used

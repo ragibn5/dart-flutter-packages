@@ -9,8 +9,8 @@ A foundational package for creating new parser libraries.
 ## Features
 
 - Type-safe encoding and decoding.
-- Type-safe parser registry for custom & built-in type parsers.
-- Extensible architecture for building parsers for custom & built-in types.
+- Type-safe parser registry for custom and built-in type parsers.
+- Extensible architecture for building parsers for custom and built-in types.
 
 ## Installation
 
@@ -20,7 +20,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  parser_core: ^1.0.0
+  parser_core: ^1.0.1
 ```
 
 #### Or, From Git repo
@@ -31,7 +31,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: parser_core
-      ref: parser_core-1.0.0
+      ref: parser_core-1.0.1
 ```
 
 ### 🔧 Usage

@@ -6,7 +6,7 @@ issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/parser_core
 
 # Library version
-version: 1.0.0
+version: 1.0.1
 
 # Range of compatible SDK versions
 environment:
@@ -15,7 +15,7 @@ environment:
 # Regular dependencies
 # (Bundled in executable artifact)
 dependencies:
-  meta: ^1.12.0
+  meta: ^1.9.0
 
 # Dev dependencies
 # (NOT Bundled in executable artifact - For DEV use only)
