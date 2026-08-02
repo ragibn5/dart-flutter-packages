@@ -6,7 +6,7 @@ issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/loghub
 
 # Library version
-version: 1.0.0
+version: 1.0.1
 
 # Range of compatible SDK versions
 environment:
@@ -16,7 +16,7 @@ environment:
 # (Bundled in executable artifact)
 dependencies:
   path: ^1.8.0
-  meta: ^1.12.0
+  meta: ^1.9.0
   dart_functionals: ^1.0.0
 
 # Dev dependencies
