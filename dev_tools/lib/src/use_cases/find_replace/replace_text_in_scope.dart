@@ -1,18 +1,19 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:glob/glob.dart';
 import 'package:path/path.dart' as p;
 
 class ReplaceTextInScope {
+  final Logger _logger;
   final ConfirmYesNo _confirmYesNo;
-  final IOSink _stdout;
 
   ReplaceTextInScope({
+    Logger logger = const ConsoleLogger(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
-    IOSink? stdOut,
-  })  : _confirmYesNo = confirmYesNo,
-        _stdout = stdOut ?? stdout;
+  })  : _logger = logger,
+        _confirmYesNo = confirmYesNo;
 
   /// Replaces text across files in a directory tree.
   ///
@@ -64,7 +65,6 @@ class ReplaceTextInScope {
     var totalOccurrences = 0;
     final matches = <File, String>{};
     final root = Directory(start ?? Directory.current.path).absolute;
-
     final candidates =
         root.list(recursive: true, followLinks: followLinks).where(
               (entity) => !_isSkipped(
@@ -74,7 +74,9 @@ class ReplaceTextInScope {
             );
 
     await for (final entity in candidates) {
-      if (entity is! File) continue;
+      if (entity is! File) {
+        continue;
+      }
 
       final String content;
       try {
@@ -92,15 +94,15 @@ class ReplaceTextInScope {
     }
 
     if (totalOccurrences == 0) {
-      _stdout.writeln('No occurrence(s) of given pattern.');
+      _logger.info('No occurrence(s) of given pattern.');
       return 0;
     }
 
+    _logger.info('Found $totalOccurrences occurrence(s).');
     if (interactive &&
         !await _confirmYesNo(
           'Replace "$srcText" with "$targetText" in all the files?',
         )) {
-      _stdout.writeln('Replaced $totalOccurrences occurrence(s).');
       return totalOccurrences;
     }
 
@@ -109,7 +111,7 @@ class ReplaceTextInScope {
           .writeAsString(entry.value.replaceAll(matcher, targetText));
     }
 
-    _stdout.writeln('Replaced $totalOccurrences occurrence(s).');
+    _logger.info('Replaced $totalOccurrences occurrence(s).');
     return totalOccurrences;
   }
 
