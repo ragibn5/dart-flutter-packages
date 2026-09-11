@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/utils/logger.dart';
+
 /// Builds a git tag/git-install reference for a package release by
 /// substituting `{name}`/`{version}` placeholders into a format template.
 class GetTagFormat {
@@ -30,7 +32,10 @@ class ResolveGitTagFormat {
   /// without needing to write Dart code (see [ResolveGitTagFormat]).
   static const gitTagFormatEnvVar = 'DEV_TOOLS_GIT_TAG_FORMAT';
 
-  const ResolveGitTagFormat();
+  final Logger _logger;
+
+  const ResolveGitTagFormat({Logger logger = const ConsoleLogger()})
+      : _logger = logger;
 
   /// Resolves the git-tag format: the [gitTagFormatEnvVar] environment
   /// variable when it's set to a valid format, otherwise
@@ -38,8 +43,8 @@ class ResolveGitTagFormat {
   ///
   /// A malformed override (missing the `{name}` or `{version}` placeholder)
   /// falls back to the default rather than producing a tag that can't
-  /// distinguish packages or versions; a warning is printed to stderr so
-  /// the misconfiguration isn't silently ignored.
+  /// distinguish packages or versions; a warning is logged (see [Logger])
+  /// so the misconfiguration isn't silently ignored.
   ///
   /// Params:
   /// - `environment`: process environment to read [gitTagFormatEnvVar]
@@ -53,7 +58,7 @@ class ResolveGitTagFormat {
       return envValue;
     }
 
-    stderr.writeln(
+    _logger.warn(
       'Warning: $gitTagFormatEnvVar="$envValue" is missing a {name} or '
       '{version} placeholder; falling back to the default git tag format '
       '"$defaultGitTagFormat".',
