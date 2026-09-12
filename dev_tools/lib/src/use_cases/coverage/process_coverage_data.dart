@@ -4,17 +4,21 @@ import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 import 'package:dev_tools/src/use_cases/shell_utils/cmd_installation_checker.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 
 class ProcessCoverageDataWithLcov {
   final FindProjectRoot _findProjectRoot;
   final CmdInstallationChecker _cmdInstallationChecker;
+  final Logger _logger;
 
   const ProcessCoverageDataWithLcov({
     FindProjectRoot findProjectRoot = const FindProjectRoot(),
     CmdInstallationChecker cmdInstallationChecker =
         const CmdInstallationChecker(),
+    Logger logger = const ConsoleLogger(),
   })  : _findProjectRoot = findProjectRoot,
-        _cmdInstallationChecker = cmdInstallationChecker;
+        _cmdInstallationChecker = cmdInstallationChecker,
+        _logger = logger;
 
   /// Filters lcov coverage data using exclusion patterns.
   ///
@@ -49,7 +53,7 @@ class ProcessCoverageDataWithLcov {
       );
     }
 
-    stdout.writeln('Coverage data filtered at coverage/lcov.info.');
+    _logger.info('Coverage data filtered at coverage/lcov.info.');
   }
 }
 

@@ -4,17 +4,21 @@ import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
 import 'package:dev_tools/src/use_cases/shell_utils/cmd_installation_checker.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 
 class GenerateCoverageReportPage {
   final FindProjectRoot _findProjectRoot;
   final CmdInstallationChecker _cmdInstallationChecker;
+  final Logger _logger;
 
   const GenerateCoverageReportPage({
     FindProjectRoot findProjectRoot = const FindProjectRoot(),
     CmdInstallationChecker cmdInstallationChecker =
         const CmdInstallationChecker(),
+    Logger logger = const ConsoleLogger(),
   })  : _findProjectRoot = findProjectRoot,
-        _cmdInstallationChecker = cmdInstallationChecker;
+        _cmdInstallationChecker = cmdInstallationChecker,
+        _logger = logger;
 
   /// Generates an HTML coverage report from lcov data.
   ///
@@ -46,7 +50,7 @@ class GenerateCoverageReportPage {
       );
     }
 
-    stdout.writeln('HTML report generated at coverage/html/.');
+    _logger.info('HTML report generated at coverage/html/.');
   }
 }
 

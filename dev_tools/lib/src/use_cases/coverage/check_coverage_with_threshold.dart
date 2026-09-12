@@ -1,25 +1,22 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'dart:io';
-
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 
 class EnforceCoverageThreshold {
   final FindProjectRoot _findProjectRoot;
   final CalculateCoverage _coverageUtils;
-  final IOSink _stdout;
+  final Logger _logger;
 
   EnforceCoverageThreshold({
     FindProjectRoot findProjectRoot = const FindProjectRoot(),
     CalculateCoverage coverageUtils = const CalculateCoverage(),
-    IOSink? stdout,
+    Logger logger = const ConsoleLogger(),
   })  : _findProjectRoot = findProjectRoot,
         _coverageUtils = coverageUtils,
-        _stdout = stdout ?? EnforceCoverageThreshold._stdOut;
-
-  static IOSink get _stdOut => stdout;
+        _logger = logger;
 
   /// Enforces a minimum line coverage threshold on an lcov file.
   ///
@@ -48,7 +45,7 @@ class EnforceCoverageThreshold {
         '       Make sure you ran the tests with coverage and processed the coverage data first for fresh coverage data.',
       );
     }
-    _stdout.writeln('Coverage meets required ${_fmt(threshold)}%.');
+    _logger.info('Coverage meets required ${_fmt(threshold)}%.');
   }
 
   String _fmt(double value) {
