@@ -12,11 +12,13 @@ abstract interface class Logger {
   /// Reports a non-fatal problem the caller should notice.
   void warn(String message);
 
-  /// Reports a non-fatal problem the caller should notice.
+  /// Reports an unexpected failure, optionally with the [stackTrace] it
+  /// occurred at.
   void error(String message, {StackTrace? stackTrace});
 }
 
-/// The default [Logger]: writes [info] to stdout and [warn] to stderr.
+/// The default [Logger]: writes [info] to stdout, [warn] and [error] to
+/// stderr.
 class ConsoleLogger implements Logger {
   const ConsoleLogger();
 

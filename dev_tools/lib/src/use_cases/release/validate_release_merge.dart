@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/tag_exists.dart';
+import 'package:dev_tools/src/use_cases/publish/package_publisher.dart';
+import 'package:dev_tools/src/use_cases/publish/publish_failed_exception.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
@@ -26,6 +29,7 @@ class ValidateReleaseMerge {
   final FindReleaseCandidatePackages _findReleaseCandidates;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
   final BuildStandardReleaseChecksBuilder _buildStandardReleaseChecks;
+  final PackagePublisher _publisher;
 
   const ValidateReleaseMerge({
     Logger logger = const ConsoleLogger(),
@@ -38,13 +42,15 @@ class ValidateReleaseMerge {
         const VerifyReleaseCompleteness(),
     BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
         const BuildStandardReleaseChecksBuilder(),
+    PackagePublisher publisher = const PubPublish(),
   })  : _logger = logger,
         _detectChangesInFolder = detectChangesInFolder,
         _findReleaseCandidates = findReleaseCandidatePackages,
         _verifyReleaseCompleteness = verifyReleaseCompleteness,
         _tagExists = tagExists,
         _gitTagFormat = gitTagFormat,
-        _buildStandardReleaseChecks = buildStandardReleaseChecks;
+        _buildStandardReleaseChecks = buildStandardReleaseChecks,
+        _publisher = publisher;
 
   /// Runs the MR gate.
   ///
@@ -65,11 +71,14 @@ class ValidateReleaseMerge {
   ///   the tag not existing (see [TagExists]).
   /// - `PackageIdentityException` while checking a candidate's completeness
   ///   (see [VerifyReleaseCompleteness]).
-  /// - [ReleaseValidationException] listing every candidate with issues,
-  ///   once all candidates have been checked, so the MR gate fails.
+  /// - [CommandNotFoundException] when neither fvm nor a system-wide
+  ///   Dart/Flutter is installed for a candidate's dry-run publish check.
+  /// - [ReleaseValidationException] listing every candidate with issues
+  ///   (including a failed `dart pub publish --dry-run`), once all
+  ///   candidates have been checked, so the MR gate fails.
   ///
-  /// Notes: runs the completeness check for every candidate rather than
-  /// stopping at the first failure. Reports progress to stdout.
+  /// Notes: runs every check for every candidate rather than stopping at
+  /// the first failure.
   Future<void> call({
     required String repoRoot,
     required String fromBranch,
@@ -118,7 +127,10 @@ class ValidateReleaseMerge {
     }
   }
 
-  /// Checks a single candidate's tag availability and release completeness.
+  /// Checks a single candidate's tag availability, release completeness,
+  /// and whether it would actually pass `dart pub publish --dry-run` — so
+  /// pub-level rejections surface here, before the merge, rather than only
+  /// once the post-merge publish step attempts them for real.
   ///
   /// Returns: issue messages describing what's wrong (empty when the
   /// candidate is valid).
@@ -136,10 +148,32 @@ class ValidateReleaseMerge {
       publishedPackageInfo: candidate.publishedPackageInfo,
       checks: checks,
     );
+    final dryRunIssue = await _checkDryRunPublish(candidate, repoRoot);
     return [
       if (tagAlreadyExists) 'Tag $tag already exists.',
       ...completenessIssues.map((i) => i.issueMessage),
+      if (dryRunIssue != null) dryRunIssue,
     ];
+  }
+
+  /// Returns: an issue message when a dry-run publish of [candidate]
+  /// fails, otherwise null.
+  Future<String?> _checkDryRunPublish(
+    ReleaseCandidatePackage candidate,
+    String repoRoot,
+  ) async {
+    try {
+      await _publisher(
+        repoRoot: repoRoot,
+        pkgPath: candidate.repoRootRelativePath,
+        identity: candidate.packageIdentity,
+        dryRun: true,
+        verbose: false,
+      );
+      return null;
+    } on PublishFailedException catch (e) {
+      return e.message;
+    }
   }
 
   String _buildSummary(

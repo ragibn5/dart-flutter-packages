@@ -6,7 +6,8 @@ class PromptWithDefault {
   const PromptWithDefault({Prompter prompter = const ConsolePrompter()})
       : _prompter = prompter;
 
-  /// Prompts [prompt] and reads a line from stdin, falling back to a default.
+  /// Prompts [prompt] and reads a line via this instance's [Prompter],
+  /// falling back to a default.
   ///
   /// Params:
   /// - `prompt`: the prompt to print before `[defaultValue]: `.

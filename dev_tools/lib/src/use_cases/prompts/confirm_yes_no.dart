@@ -6,7 +6,8 @@ class ConfirmYesNo {
   const ConfirmYesNo({Prompter prompter = const ConsolePrompter()})
       : _prompter = prompter;
 
-  /// Prompts [question] and reads a yes/no answer from stdin.
+  /// Prompts [question] and reads a yes/no answer via this instance's
+  /// [Prompter].
   ///
   /// Params:
   /// - `question`: the question to print before `[y/n]: `.

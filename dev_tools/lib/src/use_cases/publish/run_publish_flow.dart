@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
@@ -9,23 +6,16 @@ import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
+import 'package:dev_tools/src/use_cases/publish/package_publisher.dart';
+import 'package:dev_tools/src/use_cases/publish/publish_failed_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/fetch_pub_dev_package_info.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/standard_release_checks_builder.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
-import 'package:dev_tools/src/utils/buffer_sink.dart';
-import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
-
-typedef PublishProcessRunner = Future<int> Function(
-  String repoRoot,
-  String pkgPath, {
-  required PublishTooling tooling,
-  required bool dryRun,
-});
 
 class RunPublishFlow {
   final Logger _logger;
@@ -38,7 +28,7 @@ class RunPublishFlow {
   final PackageRegistryClient _packageRegistryClient;
   final GetTagFormat _gitTagFormat;
   final BuildStandardReleaseChecksBuilder _buildStandardReleaseChecks;
-  final PublishProcessRunner? _publish;
+  final PackagePublisher _publisher;
 
   const RunPublishFlow({
     Logger logger = const ConsoleLogger(),
@@ -54,7 +44,7 @@ class RunPublishFlow {
     GetTagFormat gitTagFormat = const GetTagFormat(ResolveGitTagFormat()),
     BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
         const BuildStandardReleaseChecksBuilder(),
-    PublishProcessRunner? publish,
+    PackagePublisher publisher = const PubPublish(),
   })  : _logger = logger,
         _confirmYesNo = confirmYesNo,
         _hasCleanWorkingTree = hasCleanWorkingTree,
@@ -65,7 +55,7 @@ class RunPublishFlow {
         _packageRegistryClient = packageRegistryClient,
         _gitTagFormat = gitTagFormat,
         _buildStandardReleaseChecks = buildStandardReleaseChecks,
-        _publish = publish;
+        _publisher = publisher;
 
   /// Validates and publishes a package.
   ///
@@ -97,9 +87,10 @@ class RunPublishFlow {
   ///   [VerifyReleaseCompleteness]).
   /// - [PublishFailedException] when the dry run or publish fails.
   ///
-  /// Notes: the dry run and publish run from the package root using the
-  /// tooling in [PublishTooling]; without a scoped fvm version the user is
-  /// warned that the system-wide Dart/Flutter will be used. When
+  /// Notes: the dry run and publish go through the injected
+  /// [PackagePublisher], which resolves its own [PublishTooling] from the
+  /// package identity; without a scoped fvm version the user is warned
+  /// that the system-wide Dart/Flutter will be used. When
   /// `interactive` is true (the default), warnings (system-wide toolchain,
   /// uncommitted changes) are confirmed with a single `Continue despite
   /// warnings?` prompt, and the actual publish requires a final
@@ -118,7 +109,6 @@ class RunPublishFlow {
     final identity = await _readPackageIdentity(packagePath);
     final tooling = await _buildPublishCommand(identity);
     final label = '${identity.name}@${identity.version}';
-    final publish = _publish ?? (verbose ? _defaultPublish : _silentPublish);
 
     _log('Publishing $label ...', verbose: verbose);
     await _ensureReleaseIsComplete(packagePath, identity);
@@ -135,7 +125,13 @@ class RunPublishFlow {
     }
 
     if (dryRunOnly) {
-      await _runDryRun(publish, repoRoot, pkgPath, tooling);
+      await _publisher(
+        repoRoot: repoRoot,
+        pkgPath: pkgPath,
+        identity: identity,
+        dryRun: true,
+        verbose: verbose,
+      );
       _log('  Dry-run publish passed.', verbose: verbose);
       return;
     }
@@ -148,7 +144,13 @@ class RunPublishFlow {
       return;
     }
 
-    await _runPublish(publish, repoRoot, pkgPath, tooling);
+    await _publisher(
+      repoRoot: repoRoot,
+      pkgPath: pkgPath,
+      identity: identity,
+      dryRun: false,
+      verbose: verbose,
+    );
     _log('  Published.', verbose: verbose);
   }
 
@@ -214,103 +216,4 @@ class RunPublishFlow {
     _log('  Cancelled.', verbose: verbose);
     return true;
   }
-
-  Future<void> _runDryRun(
-    PublishProcessRunner publish,
-    String repoRoot,
-    String pkgPath,
-    PublishTooling tooling,
-  ) async {
-    final exitCode =
-        await publish(repoRoot, pkgPath, tooling: tooling, dryRun: true);
-    if (exitCode != 0) {
-      throw const PublishFailedException(
-        'Error: Dry-run failed. Fix issues before publishing.',
-      );
-    }
-  }
-
-  Future<void> _runPublish(
-    PublishProcessRunner publish,
-    String repoRoot,
-    String pkgPath,
-    PublishTooling tooling,
-  ) async {
-    final exitCode =
-        await publish(repoRoot, pkgPath, tooling: tooling, dryRun: false);
-    if (exitCode != 0) {
-      throw const PublishFailedException('Error: Publishing failed.');
-    }
-  }
-
-  static Future<int> _defaultPublish(
-    String repoRoot,
-    String pkgPath, {
-    required PublishTooling tooling,
-    required bool dryRun,
-  }) {
-    return _runPubPublish(repoRoot, pkgPath, tooling: tooling, dryRun: dryRun);
-  }
-
-  /// Same as [_defaultPublish], but captures `dart pub publish`'s own
-  /// console output instead of letting it print — surfaced only if the
-  /// process actually fails, so a quiet batch run stays quiet on success.
-  Future<int> _silentPublish(
-    String repoRoot,
-    String pkgPath, {
-    required PublishTooling tooling,
-    required bool dryRun,
-  }) async {
-    final out = BufferSink();
-    final err = BufferSink();
-    final exitCode = await _runPubPublish(
-      repoRoot,
-      pkgPath,
-      tooling: tooling,
-      dryRun: dryRun,
-      stdOut: out,
-      stdErr: err,
-    );
-    if (exitCode != 0) {
-      _logger
-        ..info(out.contents)
-        ..warn(err.contents);
-    }
-    return exitCode;
-  }
-
-  static Future<int> _runPubPublish(
-    String repoRoot,
-    String pkgPath, {
-    required PublishTooling tooling,
-    required bool dryRun,
-    IOSink? stdOut,
-    IOSink? stdErr,
-  }) {
-    final args = [
-      ...tooling.prefix,
-      'pub',
-      'publish',
-      if (dryRun) '--dry-run',
-      // Our own flow already gates the decision to publish (interactively
-      // or not), so skip pub's own "are you sure?" prompt — it would hang
-      // forever in a non-interactive (CI) run.
-      if (!dryRun) '--force',
-    ];
-    final runner = InteractiveProcessRunner(
-      executable: args.first,
-      arguments: args.sublist(1),
-      workingDirectory: '$repoRoot/$pkgPath',
-      stdOut: stdOut,
-      stdErr: stdErr,
-    );
-    return runner.run();
-  }
-}
-
-class PublishFailedException extends CommandExecutionException {
-  @override
-  final String message;
-
-  const PublishFailedException(this.message);
 }

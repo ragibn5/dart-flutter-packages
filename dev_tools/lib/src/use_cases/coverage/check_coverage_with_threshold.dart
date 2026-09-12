@@ -25,7 +25,7 @@ class EnforceCoverageThreshold {
   ///   (default 'coverage/lcov.info').
   /// - `threshold`: required coverage percentage (default 100).
   ///
-  /// Returns: nothing (void); writes the result to stdout.
+  /// Returns: nothing (void); logs the result via this instance's [Logger].
   ///
   /// Throws:
   /// - [EnforceCoverageThresholdException] when coverage is below the
