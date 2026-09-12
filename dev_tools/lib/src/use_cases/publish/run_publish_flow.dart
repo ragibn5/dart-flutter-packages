@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
+import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/validate_package_path.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
@@ -16,6 +17,7 @@ import 'package:dev_tools/src/use_cases/release/standard_release_checks_builder.
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:dev_tools/src/utils/buffer_sink.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 typedef PublishProcessRunner = Future<int> Function(
@@ -26,6 +28,7 @@ typedef PublishProcessRunner = Future<int> Function(
 });
 
 class RunPublishFlow {
+  final Logger _logger;
   final ConfirmYesNo _confirmYesNo;
   final HasCleanWorkingTree _hasCleanWorkingTree;
   final ValidatePackagePath _validatePackagePath;
@@ -38,6 +41,7 @@ class RunPublishFlow {
   final PublishProcessRunner? _publish;
 
   const RunPublishFlow({
+    Logger logger = const ConsoleLogger(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
     HasCleanWorkingTree hasCleanWorkingTree = const HasCleanWorkingTree(),
     ValidatePackagePath validatePackagePath = const ValidatePackagePath(),
@@ -51,7 +55,8 @@ class RunPublishFlow {
     BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
         const BuildStandardReleaseChecksBuilder(),
     PublishProcessRunner? publish,
-  })  : _confirmYesNo = confirmYesNo,
+  })  : _logger = logger,
+        _confirmYesNo = confirmYesNo,
         _hasCleanWorkingTree = hasCleanWorkingTree,
         _validatePackagePath = validatePackagePath,
         _readPackageIdentity = readPackageIdentity,
@@ -67,7 +72,8 @@ class RunPublishFlow {
   /// Params:
   /// - `repoRoot`: absolute path to the repository root.
   /// - `pkgPath`: package directory relative to [repoRoot].
-  /// - `dryRunOnly`: skip the actual publish after a successful dry run.
+  /// - `dryRunOnly`: run only a dry-run publish, skipping the actual
+  ///   publish; when false, publishes directly without a preceding dry run.
   /// - `interactive`: when false, skip both confirmation prompts (warnings
   ///   are still logged, just not gated on); for unattended/CI callers that
   ///   have already decided this candidate should be published.
@@ -106,21 +112,64 @@ class RunPublishFlow {
     bool interactive = true,
     bool verbose = true,
   }) async {
-    void log(String message) {
-      if (verbose) stdout.writeln(message);
-    }
-
     final packagePath = p.join(repoRoot, pkgPath);
     _validatePackagePath(packagePath);
 
-    final warnings = <String>[];
-    final publish = _publish ?? (verbose ? _defaultPublish : _silentPublish);
     final identity = await _readPackageIdentity(packagePath);
     final tooling = await _buildPublishCommand(identity);
     final label = '${identity.name}@${identity.version}';
+    final publish = _publish ?? (verbose ? _defaultPublish : _silentPublish);
 
-    log('Publishing $label');
+    _log('Publishing $label ...', verbose: verbose);
+    await _ensureReleaseIsComplete(packagePath, identity);
 
+    final warnings = await _collectWarnings(repoRoot, tooling);
+    _logWarnings(warnings, verbose);
+    if (warnings.isNotEmpty &&
+        await _declinedConfirmation(
+          'Continue despite warnings?',
+          interactive: interactive,
+          verbose: verbose,
+        )) {
+      return;
+    }
+
+    if (dryRunOnly) {
+      await _runDryRun(publish, repoRoot, pkgPath, tooling);
+      _log('  Dry-run publish passed.', verbose: verbose);
+      return;
+    }
+
+    if (await _declinedConfirmation(
+      'Publish $label?',
+      interactive: interactive,
+      verbose: verbose,
+    )) {
+      return;
+    }
+
+    await _runPublish(publish, repoRoot, pkgPath, tooling);
+    _log('  Published.', verbose: verbose);
+  }
+
+  void _log(String message, {required bool verbose}) {
+    if (verbose) _logger.info(message);
+  }
+
+  void _logWarnings(List<String> warnings, bool verbose) {
+    _log('  Warning:', verbose: verbose);
+    for (final warning in warnings) {
+      _log('  - $warning', verbose: verbose);
+    }
+  }
+
+  /// Throws [ReleaseValidationException] when [identity]'s release has
+  /// incomplete CHANGELOG/README references (see
+  /// [BuildStandardReleaseChecksBuilder]).
+  Future<void> _ensureReleaseIsComplete(
+    String packagePath,
+    PackageIdentity identity,
+  ) async {
     final publishedPackageInfo = await _packageRegistryClient(identity.name);
     final releaseIssues = await _verifyReleaseCompleteness(
       packagePath,
@@ -132,54 +181,66 @@ class RunPublishFlow {
         releaseIssues.map((i) => i.issueMessage).join('\n'),
       );
     }
+  }
 
+  /// Non-fatal issues about this publish worth flagging before it proceeds
+  /// (missing fvm scoping, uncommitted changes).
+  Future<List<String>> _collectWarnings(
+    String repoRoot,
+    PublishTooling tooling,
+  ) async {
+    final warnings = <String>[];
     if (!tooling.usesFvm) {
-      warnings.add(
-        'Project not scoped with fvm, will use system-wide Dart/Flutter.',
-      );
+      warnings
+          .add('Project not scoped with fvm, using system-wide Dart/Flutter.');
     }
     if (!await _hasCleanWorkingTree(repoRoot)) {
       warnings.add('You have uncommitted changes.');
     }
-    for (final w in warnings) {
-      log('  Warning: $w');
-    }
+    return warnings;
+  }
 
-    if (interactive &&
-        warnings.isNotEmpty &&
-        !await _confirmYesNo('Continue despite warnings?')) {
-      log('  Cancelled.');
-      return;
+  /// Asks [question] when [interactive], logging `  Cancelled.` (subject to
+  /// [verbose]) and returning true when the answer is no. Returns false
+  /// without asking when not interactive.
+  Future<bool> _declinedConfirmation(
+    String question, {
+    required bool interactive,
+    required bool verbose,
+  }) async {
+    if (!interactive || await _confirmYesNo(question)) {
+      return false;
     }
+    _log('  Cancelled.', verbose: verbose);
+    return true;
+  }
 
-    final dryExit =
+  Future<void> _runDryRun(
+    PublishProcessRunner publish,
+    String repoRoot,
+    String pkgPath,
+    PublishTooling tooling,
+  ) async {
+    final exitCode =
         await publish(repoRoot, pkgPath, tooling: tooling, dryRun: true);
-    if (dryExit != 0) {
+    if (exitCode != 0) {
       throw const PublishFailedException(
         'Error: Dry-run failed. Fix issues before publishing.',
       );
     }
-    log('  Dry-run publish passed.');
+  }
 
-    if (dryRunOnly) {
-      log('  Skipping actual publish (dry-run only).');
-      return;
-    }
-
-    if (interactive) {
-      final confirmed = await _confirmYesNo('Publish $label?');
-      if (!confirmed) {
-        log('  Cancelled.');
-        return;
-      }
-    }
-
+  Future<void> _runPublish(
+    PublishProcessRunner publish,
+    String repoRoot,
+    String pkgPath,
+    PublishTooling tooling,
+  ) async {
     final exitCode =
         await publish(repoRoot, pkgPath, tooling: tooling, dryRun: false);
     if (exitCode != 0) {
       throw const PublishFailedException('Error: Publishing failed.');
     }
-    log('  Published.');
   }
 
   static Future<int> _defaultPublish(
@@ -194,7 +255,7 @@ class RunPublishFlow {
   /// Same as [_defaultPublish], but captures `dart pub publish`'s own
   /// console output instead of letting it print — surfaced only if the
   /// process actually fails, so a quiet batch run stays quiet on success.
-  static Future<int> _silentPublish(
+  Future<int> _silentPublish(
     String repoRoot,
     String pkgPath, {
     required PublishTooling tooling,
@@ -211,8 +272,9 @@ class RunPublishFlow {
       stdErr: err,
     );
     if (exitCode != 0) {
-      stdout.write(out.contents);
-      stderr.write(err.contents);
+      _logger
+        ..info(out.contents)
+        ..warn(err.contents);
     }
     return exitCode;
   }
