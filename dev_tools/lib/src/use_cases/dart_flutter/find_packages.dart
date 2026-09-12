@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/local_package_info.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 /// Finds every package directory (one containing a `pubspec.yaml`) under a
@@ -26,11 +27,14 @@ class FindPackages {
     'Pods',
   };
 
+  final Logger _logger;
   final ReadPackageIdentity _readPackageIdentity;
 
   const FindPackages({
+    Logger logger = const ConsoleLogger(),
     ReadPackageIdentity readPackageIdentity = const ReadPackageIdentity(),
-  }) : _readPackageIdentity = readPackageIdentity;
+  })  : _logger = logger,
+        _readPackageIdentity = readPackageIdentity;
 
   /// Finds every package under [repoRoot] matching [filter].
   ///
@@ -56,10 +60,12 @@ class FindPackages {
     }
 
     final results = await Future.wait(
-      _findPackageDirs(repoRootDir).map((dir) => _tryBuildLocalPackageInfo(
-            dir,
-            p.relative(dir.path, from: repoRoot),
-          )),
+      _findPackageDirs(repoRootDir).map(
+        (dir) => _tryBuildLocalPackageInfo(
+          dir,
+          p.relative(dir.path, from: repoRoot),
+        ),
+      ),
     );
 
     // Reported after every directory has resolved (rather than as each
@@ -72,9 +78,9 @@ class FindPackages {
     if (skippedPackagePaths.isNotEmpty) {
       final skipLines = skippedPackagePaths
           .map((e) => '  - ${e.repoRootRelativePath}: ${e.skipReason}');
-      stdout.writeln(
+      _logger.info(
         'Skipped ${skippedPackagePaths.length} package(s):\n'
-        '${skipLines.join('\n')}',
+        '  - ${skipLines.join('\n')}',
       );
     }
 
