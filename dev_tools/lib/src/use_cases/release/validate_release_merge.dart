@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
@@ -9,6 +10,8 @@ import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/standard_release_checks_builder.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
+import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 const _greenTick = '\x1B[32m✓\x1B[0m';
@@ -16,6 +19,7 @@ const _redCross = '\x1B[31m✗\x1B[0m';
 
 /// Orchestrates the MR-to-target-branch release gate end to end.
 class ValidateReleaseMerge {
+  final Logger _logger;
   final TagExists _tagExists;
   final GetTagFormat _gitTagFormat;
   final DetectChangesInFolder _detectChangesInFolder;
@@ -24,6 +28,7 @@ class ValidateReleaseMerge {
   final BuildStandardReleaseChecksBuilder _buildStandardReleaseChecks;
 
   const ValidateReleaseMerge({
+    Logger logger = const ConsoleLogger(),
     TagExists tagExists = const TagExists(),
     GetTagFormat gitTagFormat = const GetTagFormat(ResolveGitTagFormat()),
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
@@ -33,7 +38,8 @@ class ValidateReleaseMerge {
         const VerifyReleaseCompleteness(),
     BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
         const BuildStandardReleaseChecksBuilder(),
-  })  : _detectChangesInFolder = detectChangesInFolder,
+  })  : _logger = logger,
+        _detectChangesInFolder = detectChangesInFolder,
         _findReleaseCandidates = findReleaseCandidatePackages,
         _verifyReleaseCompleteness = verifyReleaseCompleteness,
         _tagExists = tagExists,
@@ -69,7 +75,7 @@ class ValidateReleaseMerge {
     required String fromBranch,
     required String toBranch,
   }) async {
-    stdout.writeln('Validating release merge...');
+    _logger.info('Validating release merge...');
 
     // Diffs against the merge base of toBranch/fromBranch (git's `...`
     // syntax), so this yields exactly the changes fromBranch introduces on
@@ -84,7 +90,7 @@ class ValidateReleaseMerge {
       changedFiles: changedFiles,
     );
     if (candidates.isEmpty) {
-      stdout.writeln('No release candidates found; nothing to validate.');
+      _logger.info('No release candidates found; nothing to validate.');
       return;
     }
 
@@ -92,39 +98,17 @@ class ValidateReleaseMerge {
     final validPackages = <String>{};
     final issuesMap = <String, List<String>>{};
     for (final candidate in candidates) {
-      final packagePath = p.join(repoRoot, candidate.repoRootRelativePath);
-      final identity = candidate.packageIdentity;
-      final tag = _gitTagFormat(name: identity.name, version: identity.version);
-      final tagAlreadyExists = await _tagExists(tag, repoRoot: repoRoot);
-      final completenessIssues = await _verifyReleaseCompleteness(
-        packagePath,
-        publishedPackageInfo: candidate.publishedPackageInfo,
-        checks: checks,
-      );
-      final issues = <String>[
-        if (tagAlreadyExists) 'Tag $tag already exists.',
-        ...completenessIssues.map((i) => i.issueMessage),
-      ];
-
-      if (issues.isNotEmpty) {
-        issuesMap[identity.name] = issues;
+      final issues = await _checkCandidate(candidate, repoRoot, checks);
+      if (issues.isEmpty) {
+        validPackages.add(candidate.packageIdentity.name);
       } else {
-        validPackages.add(identity.name);
+        issuesMap[candidate.packageIdentity.name] = issues;
       }
     }
 
-    final tick = stdout.supportsAnsiEscapes ? _greenTick : '✓';
-    final cross = stdout.supportsAnsiEscapes ? _redCross : '✗';
-    final summaryLines = [
-      for (final name in validPackages) '  $tick $name: OK',
-      for (final entry in issuesMap.entries) ...[
-        '  $cross ${entry.key}:',
-        for (final issue in entry.value) '      - $issue',
-      ],
-    ];
-    stdout.writeln(
+    _logger.info(
       'Found ${candidates.length} release candidate(s):\n'
-      '${summaryLines.join('\n')}',
+      '${_buildSummary(validPackages, issuesMap)}',
     );
 
     if (issuesMap.isNotEmpty) {
@@ -132,5 +116,44 @@ class ValidateReleaseMerge {
         '${issuesMap.length} release candidate(s) are incomplete.',
       );
     }
+  }
+
+  /// Checks a single candidate's tag availability and release completeness.
+  ///
+  /// Returns: issue messages describing what's wrong (empty when the
+  /// candidate is valid).
+  Future<List<String>> _checkCandidate(
+    ReleaseCandidatePackage candidate,
+    String repoRoot,
+    Map<String, VersionedFileCheck> checks,
+  ) async {
+    final packagePath = p.join(repoRoot, candidate.repoRootRelativePath);
+    final identity = candidate.packageIdentity;
+    final tag = _gitTagFormat(name: identity.name, version: identity.version);
+    final tagAlreadyExists = await _tagExists(tag, repoRoot: repoRoot);
+    final completenessIssues = await _verifyReleaseCompleteness(
+      packagePath,
+      publishedPackageInfo: candidate.publishedPackageInfo,
+      checks: checks,
+    );
+    return [
+      if (tagAlreadyExists) 'Tag $tag already exists.',
+      ...completenessIssues.map((i) => i.issueMessage),
+    ];
+  }
+
+  String _buildSummary(
+    Set<String> validPackages,
+    Map<String, List<String>> issuesMap,
+  ) {
+    final tick = stdout.supportsAnsiEscapes ? _greenTick : '✓';
+    final cross = stdout.supportsAnsiEscapes ? _redCross : '✗';
+    return [
+      for (final name in validPackages) '  $tick $name: OK',
+      for (final entry in issuesMap.entries) ...[
+        '  $cross ${entry.key}:',
+        for (final issue in entry.value) '      - $issue',
+      ],
+    ].join('\n');
   }
 }

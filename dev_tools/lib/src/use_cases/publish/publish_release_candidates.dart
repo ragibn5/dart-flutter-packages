@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/use_cases/git/create_and_push_tag.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_batch_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 
 const _greenTick = '\x1B[32m✓\x1B[0m';
 const _redCross = '\x1B[31m✗\x1B[0m';
@@ -18,6 +20,7 @@ const _redCross = '\x1B[31m✗\x1B[0m';
 /// then reports a per-package summary and fails the batch (via
 /// [PublishBatchException]) if any candidate failed.
 class PublishReleaseCandidates {
+  final Logger _logger;
   final GetTagFormat _gitTagFormat;
   final CreateAndPushTag _createAndPushTag;
   final DetectChangesInFolder _detectChangesInFolder;
@@ -25,13 +28,15 @@ class PublishReleaseCandidates {
   final RunPublishFlow _runPublishFlow;
 
   const PublishReleaseCandidates({
+    Logger logger = const ConsoleLogger(),
     GetTagFormat gitTagFormat = const GetTagFormat(ResolveGitTagFormat()),
     CreateAndPushTag createAndPushTag = const CreateAndPushTag(),
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
     FindReleaseCandidatePackages findReleaseCandidatePackages =
         const FindReleaseCandidatePackages(),
     RunPublishFlow runPublishFlow = const RunPublishFlow(),
-  })  : _detectChangesInFolder = detectChangesInFolder,
+  })  : _logger = logger,
+        _detectChangesInFolder = detectChangesInFolder,
         _findReleaseCandidates = findReleaseCandidatePackages,
         _runPublishFlow = runPublishFlow,
         _gitTagFormat = gitTagFormat,
@@ -67,7 +72,7 @@ class PublishReleaseCandidates {
     required String toRef,
     bool dryRun = false,
   }) async {
-    stdout.writeln('Publishing release candidates...');
+    _logger.info('Publishing release candidates...');
 
     final changedFiles = await _detectChangesInFolder(
       baseRef: fromRef,
@@ -79,7 +84,7 @@ class PublishReleaseCandidates {
       changedFiles: changedFiles,
     );
     if (candidates.isEmpty) {
-      stdout.writeln('No release candidates found; nothing to publish.');
+      _logger.info('No release candidates found; nothing to publish.');
       return;
     }
 
@@ -87,35 +92,63 @@ class PublishReleaseCandidates {
     final published = <String, String>{};
     final issuesMap = <String, String>{};
     for (final candidate in candidates) {
-      final identity = candidate.packageIdentity;
-      final tag = _gitTagFormat(
-        name: identity.name,
-        version: identity.version,
-      );
       try {
-        // dryRunOnly follows the batch's own dryRun flag rather than
-        // RunPublishFlow's default — a dry run here must never actually
-        // publish, and tagging (below) must never run against one either.
-        await _runPublishFlow(
-          repoRoot: repoRoot,
-          pkgPath: candidate.repoRootRelativePath,
-          interactive: false,
-          dryRunOnly: dryRun,
-          verbose: false,
-        );
-        if (!dryRun) {
-          await _createAndPushTag(tag, repoRoot: repoRoot);
-        }
-
-        published[identity.name] = tag;
+        published[candidate.packageIdentity.name] =
+            await _publishCandidate(candidate, repoRoot, dryRun: dryRun);
       } catch (e) {
-        issuesMap[identity.name] = e.toString();
+        issuesMap[candidate.packageIdentity.name] = e.toString();
       }
     }
 
+    _logger.info(
+      'Attempted ${candidates.length} release candidate(s):\n'
+      '${_buildSummary(published, issuesMap, dryRun: dryRun)}',
+    );
+
+    if (issuesMap.isNotEmpty) {
+      final verb = dryRun ? 'dry-run publish' : 'publish';
+      throw PublishBatchException(
+        '${issuesMap.length} release candidate(s) failed to $verb.',
+      );
+    }
+  }
+
+  /// Publishes and tags [candidate] (dryRun skips both the actual publish
+  /// and the tag).
+  ///
+  /// Returns: the tag [candidate] was (or would be) tagged with.
+  Future<String> _publishCandidate(
+    ReleaseCandidatePackage candidate,
+    String repoRoot, {
+    required bool dryRun,
+  }) async {
+    final identity = candidate.packageIdentity;
+    final tag = _gitTagFormat(name: identity.name, version: identity.version);
+
+    // dryRunOnly follows the batch's own dryRun flag rather than
+    // RunPublishFlow's default — a dry run here must never actually
+    // publish, and tagging (below) must never run against one either.
+    await _runPublishFlow(
+      repoRoot: repoRoot,
+      pkgPath: candidate.repoRootRelativePath,
+      interactive: false,
+      dryRunOnly: dryRun,
+      verbose: false,
+    );
+    if (!dryRun) {
+      await _createAndPushTag(tag, repoRoot: repoRoot);
+    }
+    return tag;
+  }
+
+  String _buildSummary(
+    Map<String, String> published,
+    Map<String, String> issuesMap, {
+    required bool dryRun,
+  }) {
     final tick = stdout.supportsAnsiEscapes ? _greenTick : '✓';
     final cross = stdout.supportsAnsiEscapes ? _redCross : '✗';
-    final summaryLines = [
+    return [
       for (final entry in published.entries) ...[
         if (dryRun)
           '  $tick ${entry.key}: dry-run publish passed'
@@ -128,17 +161,6 @@ class PublishReleaseCandidates {
         '  $cross ${entry.key}:',
         for (final line in entry.value.split('\n')) '      $line',
       ],
-    ];
-    stdout.writeln(
-      'Attempted ${candidates.length} release candidate(s):\n'
-      '${summaryLines.join('\n')}',
-    );
-
-    if (issuesMap.isNotEmpty) {
-      final verb = dryRun ? 'dry-run publish' : 'publish';
-      throw PublishBatchException(
-        '${issuesMap.length} release candidate(s) failed to $verb.',
-      );
-    }
+    ].join('\n');
   }
 }

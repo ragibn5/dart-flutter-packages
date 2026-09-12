@@ -80,7 +80,7 @@ class FindPackages {
           .map((e) => '  - ${e.repoRootRelativePath}: ${e.skipReason}');
       _logger.info(
         'Skipped ${skippedPackagePaths.length} package(s):\n'
-        '  - ${skipLines.join('\n')}',
+        '${skipLines.join('\n')}',
       );
     }
 
