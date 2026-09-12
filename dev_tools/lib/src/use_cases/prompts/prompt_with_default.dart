@@ -1,7 +1,10 @@
-import 'dart:io';
+import 'package:dev_tools/src/utils/prompter.dart';
 
 class PromptWithDefault {
-  const PromptWithDefault();
+  final Prompter _prompter;
+
+  const PromptWithDefault({Prompter prompter = const ConsolePrompter()})
+      : _prompter = prompter;
 
   /// Prompts [prompt] and reads a line from stdin, falling back to a default.
   ///
@@ -11,8 +14,8 @@ class PromptWithDefault {
   ///
   /// Returns: the trimmed input, or [defaultValue] when empty.
   Future<String> call(String prompt, String defaultValue) async {
-    stdout.write('$prompt [$defaultValue]: ');
-    final input = (stdin.readLineSync() ?? '').trim();
+    _prompter.write('$prompt [$defaultValue]: ');
+    final input = (_prompter.readLine() ?? '').trim();
     return input.isEmpty ? defaultValue : input;
   }
 }
