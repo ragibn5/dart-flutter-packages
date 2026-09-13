@@ -32,18 +32,15 @@ jobs:
       - name: Add pub-cache bin to PATH
         run: echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
 
+      # fvm downloads a pinned version on first use (no prior "fvm install"
+      # needed), so this just caches whatever gets downloaded across runs
+      # instead of re-fetching it every time.
       - name: Cache fvm SDK versions
         uses: actions/cache@v4
         with:
           path: ~/fvm/versions
           key: fvm-versions-${{ hashFiles('**/.fvmrc') }}
-
-      - name: Install pinned Flutter versions used by packages in this repo
-        run: |
-          find . -name .fvmrc -exec grep -oE '"flutter": *"[^"]+"' {} \; \
-            | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' \
-            | sort -u \
-            | xargs -n1 fvm install
+          restore-keys: fvm-versions-
 
       - name: Install dev_tools dependencies
         run: dart pub get -C dev_tools
