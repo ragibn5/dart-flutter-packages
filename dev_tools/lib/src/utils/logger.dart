@@ -5,17 +5,14 @@ enum LogLevel { info, warning, error }
 abstract class Logger {
   const Logger();
 
-  void info(String message, {StackTrace? stackTrace}) {
-    log(LogLevel.info, message);
-  }
+  void info(String message, {StackTrace? stackTrace}) =>
+      log(LogLevel.info, message, stackTrace: stackTrace);
 
-  void warn(String message, {StackTrace? stackTrace}) {
-    log(LogLevel.warning, message);
-  }
+  void warn(String message, {StackTrace? stackTrace}) =>
+      log(LogLevel.warning, message, stackTrace: stackTrace);
 
-  void error(String message, {StackTrace? stackTrace}) {
-    log(LogLevel.error, message, stackTrace: stackTrace);
-  }
+  void error(String message, {StackTrace? stackTrace}) =>
+      log(LogLevel.error, message, stackTrace: stackTrace);
 
   void log(LogLevel level, String message, {StackTrace? stackTrace});
 

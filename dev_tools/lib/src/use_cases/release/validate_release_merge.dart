@@ -96,23 +96,22 @@ class ValidateReleaseMerge {
     required String fromBranch,
     required String toBranch,
   }) async {
-    _logger.info('Validating release merge...');
+    _logger.info('Scanning for packages...');
 
     final foundPackages = await _findPackages(repoRoot: repoRoot);
     final validPackages =
         foundPackages.whereType<ValidLocalPackageInfo>().toList();
     final malformedPackages =
         foundPackages.whereType<MalformedLocalPackageInfo>().toList();
-
     await _logger.withGroupedLog(
       'Found ${foundPackages.length} package(s)',
       (logger) async {
         logger
-          ..info('Valid packages:')
+          ..info('Valid packages: ${validPackages.length}')
           ..info(
             validPackages.map((e) => '- ${e.repoRootRelativePath}').join('\n'),
           )
-          ..info('Malformed packages:')
+          ..info('Malformed packages: ${malformedPackages.length}')
           ..info(
             malformedPackages
                 .map((e) => '- ${e.repoRootRelativePath}: ${e.reason}')
@@ -129,18 +128,13 @@ class ValidateReleaseMerge {
       localPackages: validPackages,
       changedFiles: changedFiles,
     );
-
     if (candidates.isEmpty) {
       _logger.info('No release candidates found; nothing to validate.');
       return;
     }
 
-    final results = await _logger.withGroupedLog(
-      'Validating ${candidates.length} release candidate(s)...',
-      (logger) async =>
-          _validateReleaseCandidates(logger, repoRoot, candidates),
-    );
-
+    _logger.info('Validating ${candidates.length} release candidate(s)...');
+    final results = await _validateReleaseCandidates(repoRoot, candidates);
     _logger.info(
       'Found ${candidates.length} release candidate(s):\n'
       '${_buildSummary(results.$1, results.$2)}',
@@ -154,7 +148,6 @@ class ValidateReleaseMerge {
   }
 
   Future<(Set<String>, Map<String, List<String>>)> _validateReleaseCandidates(
-    Logger logger,
     String repoRoot,
     List<ReleaseCandidatePackage> candidates,
   ) async {
@@ -163,7 +156,7 @@ class ValidateReleaseMerge {
     final checks = _standardReleaseChecksBuilder.build(_gitTagFormat);
     for (final candidate in candidates) {
       final name = candidate.packageIdentity.name;
-      final issues = await logger.withGroupedLog(
+      final issues = await _logger.withGroupedLog(
         name,
         (logger) async {
           logger.info('Checking $name...');
