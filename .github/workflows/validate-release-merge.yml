@@ -15,22 +15,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.41.9
-          cache: true
-
-      # Bootstrap SDK above is only for running dev_tools itself. Each
-      # package may pin a different Flutter/Dart version via its own
-      # .fvmrc, so the actual publish/dry-run must go through fvm rather
-      # than the single hardcoded SDK above — otherwise a package could be
-      # dry-run-checked (or published) against an incompatible SDK while
-      # still claiming to support its pinned version.
+      # fvm's standalone install script needs no pre-existing Dart/Flutter,
+      # so it bootstraps everything itself — including running dev_tools,
+      # via its own .fvmrc pin — with no separate flutter-action step. That
+      # used to install one fixed SDK (3.41.9) just to run dev_tools, while
+      # fvm downloaded that same version again for dev_tools's own pin —
+      # two downloads of the same SDK.
       - name: Install fvm
-        run: dart pub global activate fvm
+        run: curl -fsSL https://fvm.app/install.sh | bash
 
-      - name: Add pub-cache bin to PATH
-        run: echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+      - name: Add fvm to PATH
+        run: echo "$HOME/fvm/bin" >> "$GITHUB_PATH"
 
       # fvm downloads a pinned version on first use (no prior "fvm install"
       # needed), so this just caches whatever gets downloaded across runs
@@ -42,10 +37,17 @@ jobs:
           key: fvm-versions-${{ hashFiles('**/.fvmrc') }}
           restore-keys: fvm-versions-
 
+      # fvm resolves a pinned version from its own working directory, not
+      # from a "-C"/"--directory" flag passed through to dart — so these
+      # steps must actually run with cwd inside dev_tools for it to pick up
+      # dev_tools/.fvmrc, rather than "fvm dart ... -C dev_tools" from the
+      # repo root.
       - name: Install dev_tools dependencies
-        run: dart pub get -C dev_tools
+        working-directory: dev_tools
+        run: fvm dart pub get
 
       - name: Validate release candidates are complete
+        working-directory: dev_tools
         run: >
-          dart run dev_tools/bin/dev_tools.dart validate-release-mr
+          fvm dart run bin/dev_tools.dart validate-release-mr
           --to ${{ github.event.pull_request.base.sha }}

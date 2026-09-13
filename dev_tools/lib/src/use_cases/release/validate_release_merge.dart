@@ -97,7 +97,6 @@ class ValidateReleaseMerge {
     required String toBranch,
   }) async {
     _logger.info('Scanning for packages...');
-
     final foundPackages = await _findPackages(repoRoot: repoRoot);
     final validPackages =
         foundPackages.whereType<ValidLocalPackageInfo>().toList();
@@ -117,6 +116,7 @@ class ValidateReleaseMerge {
       },
     );
 
+    _logger.info('Filtering release candidates...');
     final changedFiles = await _detectChangesInFolder(
       baseRef: toBranch,
       compareRef: fromBranch,
@@ -128,12 +128,14 @@ class ValidateReleaseMerge {
     if (candidates.isEmpty) {
       _logger.info('No release candidates found; nothing to validate.');
       return;
+    } else {
+      _logger.info('Found ${candidates.length} release candidate(s).');
     }
 
     _logger.info('Validating ${candidates.length} release candidate(s)...');
     final results = await _validateReleaseCandidates(repoRoot, candidates);
     _logger.info(
-      'Found ${candidates.length} release candidate(s):\n'
+      'Validation report for ${candidates.length} release candidate(s):\n'
       '${_buildSummary(results.$1, results.$2)}',
     );
 
