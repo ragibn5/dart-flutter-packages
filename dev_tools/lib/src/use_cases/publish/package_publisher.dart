@@ -63,6 +63,18 @@ class PubPublish implements PackagePublisher {
       'Running ${dryRun ? 'dry-run ' : ''}publish for '
       '${identity.name} in $workingDirectory',
     );
+    // TEMPORARY: proves each candidate actually resolves its own pinned
+    // SDK via fvm (rather than a shared system-wide fallback). Drop once
+    // confirmed in CI.
+    final versionCheck = await Process.run(
+      tooling.prefix.first,
+      [...tooling.prefix.sublist(1), '--version'],
+      workingDirectory: workingDirectory,
+    );
+    _logger.info(
+      'DEBUG: "${tooling.command} --version" in $workingDirectory ->\n'
+      '${versionCheck.stdout}',
+    );
     final exitCode = verbose
         ? await _runPubPublish(
             repoRoot,
