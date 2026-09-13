@@ -94,20 +94,38 @@ class ValidateReleaseMerge {
     final inGithubActions =
         (environment ?? Platform.environment)['GITHUB_ACTIONS'] == 'true';
 
-    if (inGithubActions) _logger.info('::group::Finding release candidates');
-    // Diffs against the merge base of toBranch/fromBranch (git's `...`
-    // syntax), so this yields exactly the changes fromBranch introduces on
-    // top of toBranch — baseRef is the target, compareRef is the source.
-    final changedFiles = await _detectChangesInFolder(
-      baseRef: toBranch,
-      compareRef: fromBranch,
-    );
+    // Wraps `body` as one foldable unit in GitHub Actions: a
+    // ::group::title / ::endgroup:: pair (a no-op outside GitHub Actions,
+    // where those markers would otherwise just print as literal text),
+    // always closing the group — even if `body` throws — so one
+    // candidate's failure can never leave a later part of the log stuck
+    // inside an unclosed group.
+    Future<T> group<T>(String title, Future<T> Function() body) async {
+      if (inGithubActions) _logger.info('::group::$title');
+      try {
+        return await body();
+      } finally {
+        if (inGithubActions) _logger.info('::endgroup::');
+      }
+    }
 
-    final candidates = await _findReleaseCandidates(
-      repoRoot: repoRoot,
-      changedFiles: changedFiles,
+    final candidates = await group(
+      'Finding release candidates...',
+      () async {
+        // Diffs against the merge base of toBranch/fromBranch (git's `...`
+        // syntax), so this yields exactly the changes fromBranch
+        // introduces on top of toBranch — baseRef is the target,
+        // compareRef is the source.
+        final changedFiles = await _detectChangesInFolder(
+          baseRef: toBranch,
+          compareRef: fromBranch,
+        );
+        return _findReleaseCandidates(
+          repoRoot: repoRoot,
+          changedFiles: changedFiles,
+        );
+      },
     );
-    if (inGithubActions) _logger.info('::endgroup::');
 
     if (candidates.isEmpty) {
       _logger.info('No release candidates found; nothing to validate.');
@@ -122,15 +140,19 @@ class ValidateReleaseMerge {
     final issuesMap = <String, List<String>>{};
     for (final candidate in candidates) {
       final name = candidate.packageIdentity.name;
-      if (inGithubActions) _logger.info('::group::$name');
-      _logger.info('Checking $name...');
-      final issues = await _checkCandidate(candidate, repoRoot, checks);
-      _logger.info(
-        issues.isEmpty
-            ? '$name: OK'
-            : '$name: ${issues.length} issue(s) found.',
+      final issues = await group(
+        name,
+        () async {
+          _logger.info('Checking $name...');
+          final issues = await _checkCandidate(candidate, repoRoot, checks);
+          _logger.info(
+            issues.isEmpty
+                ? '$name: OK'
+                : '$name: ${issues.length} issue(s) found.',
+          );
+          return issues;
+        },
       );
-      if (inGithubActions) _logger.info('::endgroup::');
       if (issues.isEmpty) {
         validPackages.add(name);
       } else {

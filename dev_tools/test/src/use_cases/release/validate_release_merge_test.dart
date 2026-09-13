@@ -343,7 +343,7 @@ void main() {
       expect(
         logger.infoMessages,
         containsAllInOrder([
-          '::group::Finding release candidates',
+          '::group::Finding release candidates...',
           '::endgroup::',
           '::group::pkg_a',
           '::endgroup::',
@@ -380,6 +380,46 @@ void main() {
       );
 
       expect(logger.infoMessages, isNot(contains(contains('::group::'))));
+    },
+  );
+
+  test(
+    'should still close the ::group:: when a candidate check throws',
+    () async {
+      final logger = _FakeLogger();
+      sut = ValidateReleaseMerge(
+        logger: logger,
+        detectChangesInFolder: detectChangesInFolder,
+        findReleaseCandidatePackages: findReleaseCandidatePackages,
+        verifyReleaseCompleteness: verifyReleaseCompleteness,
+        tagExists: tagExists,
+        gitTagFormat: GetTagFormat(resolveGitTagFormat),
+        publisher: publisher,
+      );
+      when(() => findReleaseCandidatePackages(
+            repoRoot: any(named: 'repoRoot'),
+            changedFiles: any(named: 'changedFiles'),
+          )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
+      when(() => verifyReleaseCompleteness(
+            any(),
+            publishedPackageInfo: any(named: 'publishedPackageInfo'),
+            checks: any(named: 'checks'),
+          )).thenThrow(Exception('boom'));
+
+      await expectLater(
+        sut(
+          repoRoot: repoRoot,
+          fromBranch: 'feature/x',
+          toBranch: 'main',
+          environment: const {'GITHUB_ACTIONS': 'true'},
+        ),
+        throwsA(isA<Exception>()),
+      );
+
+      expect(
+        logger.infoMessages,
+        containsAllInOrder(['::group::pkg_a', '::endgroup::']),
+      );
     },
   );
 }
