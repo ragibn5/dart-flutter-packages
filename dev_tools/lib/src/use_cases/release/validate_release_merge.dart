@@ -96,15 +96,6 @@ class ValidateReleaseMerge {
   /// - [ReleaseValidationException] listing every candidate with issues
   ///   (including a failed `dart pub publish --dry-run`), once all
   ///   candidates have been checked, so the MR gate fails.
-  ///
-  /// Notes: runs every check for every candidate rather than stopping at
-  /// the first failure. In GitHub Actions (detected via the `GITHUB_ACTIONS`
-  /// environment variable), each candidate's own check is wrapped in its
-  /// own `::group::`/`::endgroup::` pair so the Actions log renders it as a
-  /// collapsed, foldable section instead of one long unfolded dump. The
-  /// candidate-count header, the malformed-package listing, and the final
-  /// summary are always left unfolded, since those are what a reader
-  /// actually wants visible at a glance.
   Future<void> call({
     required String repoRoot,
     required String fromBranch,

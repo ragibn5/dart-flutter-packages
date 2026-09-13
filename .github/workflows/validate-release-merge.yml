@@ -16,11 +16,8 @@ jobs:
           fetch-depth: 0
 
       # fvm's standalone install script needs no pre-existing Dart/Flutter,
-      # so it bootstraps everything itself — including running dev_tools,
-      # via its own .fvmrc pin — with no separate flutter-action step. That
-      # used to install one fixed SDK (3.41.9) just to run dev_tools, while
-      # fvm downloaded that same version again for dev_tools's own pin —
-      # two downloads of the same SDK.
+      # so it bootstraps everything itself — including running dev_tools
+      # via its own .fvmrc pin — with no separate SDK-install step needed.
       - name: Install fvm
         run: curl -fsSL https://fvm.app/install.sh | bash
 
