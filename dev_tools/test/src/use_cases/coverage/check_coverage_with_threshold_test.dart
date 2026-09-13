@@ -1,11 +1,9 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/coverage/check_coverage_with_threshold.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_project_root.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -13,19 +11,32 @@ class _MockFindProjectRoot extends Mock implements FindProjectRoot {}
 
 class _MockCalculateCoverage extends Mock implements CalculateCoverage {}
 
+class _FakeLogger implements Logger {
+  final List<String> messages = [];
+
+  @override
+  void info(String message) => messages.add(message);
+
+  @override
+  void warn(String message) => messages.add(message);
+
+  @override
+  void error(String message, {StackTrace? stackTrace}) => messages.add(message);
+}
+
 void main() {
   const root = '/fake/root';
 
   late _MockFindProjectRoot findProjectRoot;
   late _MockCalculateCoverage coverageUtils;
-  late StringBuffer out;
+  late _FakeLogger logger;
 
   late EnforceCoverageThreshold sut;
 
   setUp(() {
     findProjectRoot = _MockFindProjectRoot();
     coverageUtils = _MockCalculateCoverage();
-    out = StringBuffer();
+    logger = _FakeLogger();
 
     when(() => findProjectRoot()).thenAnswer((_) async => root);
     when(() => coverageUtils(any(), any())).thenAnswer((_) async => 100);
@@ -33,7 +44,7 @@ void main() {
     sut = EnforceCoverageThreshold(
       findProjectRoot: findProjectRoot,
       coverageUtils: coverageUtils,
-      stdout: _BufferSink(out),
+      logger: logger,
     );
   });
 
@@ -50,7 +61,7 @@ void main() {
   test('should write coverage message to stdout on success', () async {
     await sut();
 
-    expect(out.toString(), contains('Coverage meets required 100%'));
+    expect(logger.messages, contains(contains('Coverage meets required 100%')));
   });
 
   test(
@@ -70,7 +81,10 @@ void main() {
 
     await expectLater(sut(threshold: 88.5), completes);
 
-    expect(out.toString(), contains('Coverage meets required 88.5%.'));
+    expect(
+      logger.messages,
+      contains(contains('Coverage meets required 88.5%.')),
+    );
   });
 
   test('should include the fractional threshold in the exception message',
@@ -92,50 +106,4 @@ void main() {
       ),
     );
   });
-}
-
-class _BufferSink implements IOSink {
-  final StringBuffer _buffer;
-
-  _BufferSink(this._buffer);
-
-  @override
-  Encoding get encoding => utf8;
-
-  @override
-  set encoding(Encoding value) {}
-
-  @override
-  Future<void> get done => Future.value();
-
-  @override
-  void add(List<int> data) => _buffer.write(utf8.decode(data));
-
-  @override
-  void addError(Object error, [StackTrace? stackTrace]) {}
-
-  @override
-  Future<void> addStream(Stream<List<int>> stream) async {
-    await for (final chunk in stream) {
-      add(chunk);
-    }
-  }
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  Future<void> flush() async {}
-
-  @override
-  void write(Object? object) {}
-
-  @override
-  void writeAll(Iterable<Object?> objects, [String separator = '']) {}
-
-  @override
-  void writeCharCode(int charCode) {}
-
-  @override
-  void writeln([Object? object = '']) => _buffer.writeln(object);
 }

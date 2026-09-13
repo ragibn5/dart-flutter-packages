@@ -6,6 +6,8 @@ import 'package:dev_tools/src/models/release_issue.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/tag_exists.dart';
+import 'package:dev_tools/src/use_cases/publish/package_publisher.dart';
+import 'package:dev_tools/src/use_cases/publish/publish_failed_exception.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/validate_release_merge.dart';
@@ -27,10 +29,13 @@ class _MockTagExists extends Mock implements TagExists {}
 
 class _MockResolveGitTagFormat extends Mock implements ResolveGitTagFormat {}
 
+class _MockPackagePublisher extends Mock implements PackagePublisher {}
+
 void main() {
   setUpAll(() {
     registerFallbackValue(const PublishedPackageInfo());
     registerFallbackValue(const <String, VersionedFileCheck>{});
+    registerFallbackValue(const PackageIdentity(name: 'foo', version: '1.0.0'));
   });
 
   const repoRoot = '/fake/repo';
@@ -42,6 +47,7 @@ void main() {
   late _MockVerifyReleaseCompleteness verifyReleaseCompleteness;
   late _MockTagExists tagExists;
   late _MockResolveGitTagFormat resolveGitTagFormat;
+  late _MockPackagePublisher publisher;
   late ValidateReleaseMerge sut;
 
   ReleaseCandidatePackage candidate(String path, String name) =>
@@ -80,12 +86,22 @@ void main() {
     resolveGitTagFormat = _MockResolveGitTagFormat();
     when(() => resolveGitTagFormat()).thenReturn('{name}-{version}');
 
+    publisher = _MockPackagePublisher();
+    when(() => publisher(
+          repoRoot: any(named: 'repoRoot'),
+          pkgPath: any(named: 'pkgPath'),
+          identity: any(named: 'identity'),
+          dryRun: any(named: 'dryRun'),
+          verbose: any(named: 'verbose'),
+        )).thenAnswer((_) async {});
+
     sut = ValidateReleaseMerge(
       detectChangesInFolder: detectChangesInFolder,
       findReleaseCandidatePackages: findReleaseCandidatePackages,
       verifyReleaseCompleteness: verifyReleaseCompleteness,
       tagExists: tagExists,
       gitTagFormat: GetTagFormat(resolveGitTagFormat),
+      publisher: publisher,
     );
   });
 
@@ -243,6 +259,46 @@ void main() {
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
           checks: any(named: 'checks'),
         )).called(1);
+  });
+
+  test('should check the candidate with a dry-run publish', () async {
+    when(() => findReleaseCandidatePackages(
+          repoRoot: any(named: 'repoRoot'),
+          changedFiles: any(named: 'changedFiles'),
+        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
+
+    await sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main');
+
+    verify(() => publisher(
+          repoRoot: repoRoot,
+          pkgPath: 'pkg_a',
+          identity: const PackageIdentity(name: 'pkg_a', version: '1.0.0'),
+          dryRun: true,
+          verbose: false,
+        )).called(1);
+  });
+
+  test('should throw when a candidate fails its dry-run publish', () async {
+    when(() => findReleaseCandidatePackages(
+          repoRoot: any(named: 'repoRoot'),
+          changedFiles: any(named: 'changedFiles'),
+        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
+    when(() => publisher(
+          repoRoot: any(named: 'repoRoot'),
+          pkgPath: any(named: 'pkgPath'),
+          identity: any(named: 'identity'),
+          dryRun: any(named: 'dryRun'),
+          verbose: any(named: 'verbose'),
+        )).thenThrow(
+      const PublishFailedException(
+        'Error: Dry-run failed. Fix issues before publishing.',
+      ),
+    );
+
+    await expectLater(
+      sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main'),
+      throwsA(isA<ReleaseValidationException>()),
+    );
   });
 
   test('should not throw when every candidate is complete', () async {

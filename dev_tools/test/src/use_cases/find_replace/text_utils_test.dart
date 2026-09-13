@@ -1,76 +1,43 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dev_tools/src/use_cases/find_replace/replace_text_in_scope.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class _MockConfirmYesNo extends Mock implements ConfirmYesNo {}
 
-class _BufferSink implements IOSink {
-  final StringBuffer _buffer;
-
-  _BufferSink(this._buffer);
+class _FakeLogger implements Logger {
+  final List<String> messages = [];
 
   @override
-  Encoding get encoding => utf8;
+  void info(String message) => messages.add(message);
 
   @override
-  set encoding(Encoding value) {}
+  void warn(String message) => messages.add(message);
 
   @override
-  Future<void> get done => Future.value();
-
-  @override
-  void add(List<int> data) => _buffer.write(utf8.decode(data));
-
-  @override
-  void addError(Object error, [StackTrace? stackTrace]) {}
-
-  @override
-  Future<void> addStream(Stream<List<int>> stream) async {
-    await for (final chunk in stream) {
-      add(chunk);
-    }
-  }
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  Future<void> flush() async {}
-
-  @override
-  void write(Object? object) {}
-
-  @override
-  void writeAll(Iterable<Object?> objects, [String separator = '']) {}
-
-  @override
-  void writeCharCode(int charCode) {}
-
-  @override
-  void writeln([Object? object = '']) => _buffer.writeln(object);
+  void error(String message, {StackTrace? stackTrace}) => messages.add(message);
 }
 
 void main() {
   late Directory tempDir;
 
-  late StringBuffer out;
+  late _FakeLogger logger;
   late _MockConfirmYesNo confirmYesNo;
 
   late ReplaceTextInScope sut;
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('text_utils_test');
-    out = StringBuffer();
+    logger = _FakeLogger();
     confirmYesNo = _MockConfirmYesNo();
 
     when(() => confirmYesNo(any())).thenAnswer((_) async => true);
 
     sut = ReplaceTextInScope(
-      stdOut: _BufferSink(out),
+      logger: logger,
       confirmYesNo: confirmYesNo,
     );
   });
@@ -93,7 +60,7 @@ void main() {
     );
 
     expect(count, 2);
-    expect(out.toString(), contains('Replaced 2 occurrence(s).'));
+    expect(logger.messages, contains(contains('Replaced 2 occurrence(s).')));
     expect(fileA.readAsStringSync(), 'goodbye world\ngoodbye again\n');
     expect(fileB.readAsStringSync(), 'nothing here\n');
   });
@@ -154,7 +121,11 @@ void main() {
 
       expect(count, 2);
       expect(file.readAsStringSync(), 'hello hello\n');
-      expect(out.toString(), contains('Replaced 2 occurrence(s).'));
+      expect(logger.messages, contains(contains('Found 2 occurrence(s).')));
+      expect(
+        logger.messages,
+        isNot(contains(contains('Replaced 2 occurrence(s).'))),
+      );
     },
   );
 

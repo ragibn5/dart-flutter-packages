@@ -6,6 +6,7 @@ import 'package:dev_tools/src/use_cases/git/create_and_push_tag.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_batch_exception.dart';
+import 'package:dev_tools/src/use_cases/publish/publish_failed_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_release_candidates.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';

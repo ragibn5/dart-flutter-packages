@@ -11,6 +11,8 @@ import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/has_clean_working_tree.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/publish/build_publish_command.dart';
+import 'package:dev_tools/src/use_cases/publish/package_publisher.dart';
+import 'package:dev_tools/src/use_cases/publish/publish_failed_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
@@ -37,43 +39,48 @@ class _MockPackageRegistryClient extends Mock
 
 class _MockResolveGitTagFormat extends Mock implements ResolveGitTagFormat {}
 
-class PublishAttempt {
+class _PublishAttempt {
   final String repoRoot;
   final String pkgPath;
-  final PublishTooling tooling;
+  final PackageIdentity identity;
   final bool dryRun;
 
-  const PublishAttempt(this.repoRoot, this.pkgPath, this.tooling,
-      {required this.dryRun});
+  const _PublishAttempt(
+    this.repoRoot,
+    this.pkgPath,
+    this.identity, {
+    required this.dryRun,
+  });
 }
 
-List<(String, String, String, bool)> publishSignatures(
-  List<PublishAttempt> calls,
-) =>
-    calls
-        .map((call) => (
-              call.repoRoot,
-              call.pkgPath,
-              call.tooling.command,
-              call.dryRun,
-            ))
-        .toList();
+class _FakePublisher implements PackagePublisher {
+  final bool failingDryRun;
+  final bool failingRealPublish;
+  final List<_PublishAttempt> calls = [];
 
-PublishProcessRunner _okPublish(List<PublishAttempt> calls) {
-  return (repoRoot, pkgPath, {required tooling, required dryRun}) async {
-    calls.add(PublishAttempt(repoRoot, pkgPath, tooling, dryRun: dryRun));
-    return 0;
-  };
-}
+  _FakePublisher({
+    this.failingDryRun = false,
+    this.failingRealPublish = false,
+  });
 
-PublishProcessRunner _failingPublish({
-  required bool failingDryRun,
-  required List<PublishAttempt> calls,
-}) {
-  return (repoRoot, pkgPath, {required tooling, required dryRun}) async {
-    calls.add(PublishAttempt(repoRoot, pkgPath, tooling, dryRun: dryRun));
-    return dryRun == failingDryRun ? 1 : 0;
-  };
+  @override
+  Future<void> call({
+    required String repoRoot,
+    required String pkgPath,
+    required PackageIdentity identity,
+    required bool dryRun,
+    bool verbose = true,
+  }) async {
+    calls.add(_PublishAttempt(repoRoot, pkgPath, identity, dryRun: dryRun));
+    final failing = dryRun ? failingDryRun : failingRealPublish;
+    if (failing) {
+      throw PublishFailedException(
+        dryRun
+            ? 'Error: Dry-run failed. Fix issues before publishing.'
+            : 'Error: Publishing failed.',
+      );
+    }
+  }
 }
 
 void main() {
@@ -100,8 +107,7 @@ void main() {
   late _MockPackageRegistryClient packageRegistryClient;
   late _MockResolveGitTagFormat resolveGitTagFormat;
 
-  late List<PublishAttempt> publishCalls;
-  late PublishProcessRunner publish;
+  late _FakePublisher publisher;
   late RunPublishFlow sut;
 
   RunPublishFlow buildSut() => RunPublishFlow(
@@ -113,7 +119,7 @@ void main() {
         buildPublishCommand: buildPublishCommand,
         packageRegistryClient: packageRegistryClient,
         gitTagFormat: GetTagFormat(resolveGitTagFormat),
-        publish: publish,
+        publisher: publisher,
       );
 
   setUp(() {
@@ -126,8 +132,7 @@ void main() {
     packageRegistryClient = _MockPackageRegistryClient();
     resolveGitTagFormat = _MockResolveGitTagFormat();
     when(() => resolveGitTagFormat()).thenReturn('{name}-{version}');
-    publishCalls = <PublishAttempt>[];
-    publish = _okPublish(publishCalls);
+    publisher = _FakePublisher();
 
     when(() => validatePackagePath(any())).thenReturn(null);
     when(() => readPackageIdentity(any())).thenAnswer(
@@ -167,7 +172,7 @@ void main() {
         sut(repoRoot: repoRoot, pkgPath: pkgPath),
         throwsA(isA<ReleaseValidationException>()),
       );
-      expect(publishCalls, isEmpty);
+      expect(publisher.calls, isEmpty);
     },
   );
 
@@ -183,7 +188,7 @@ void main() {
         sut(repoRoot: repoRoot, pkgPath: pkgPath),
         throwsA(isA<PackageRegistryLookupException>()),
       );
-      expect(publishCalls, isEmpty);
+      expect(publisher.calls, isEmpty);
     },
   );
 
@@ -201,7 +206,7 @@ void main() {
         completes,
       );
 
-      expect(publishCalls, isEmpty);
+      expect(publisher.calls, isEmpty);
     },
   );
 
@@ -218,28 +223,7 @@ void main() {
         completes,
       );
 
-      expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
-        (repoRoot, pkgPath, 'dart', true),
-        (repoRoot, pkgPath, 'dart', false),
-      ]);
-    },
-  );
-
-  test(
-    'should forward the resolved fvm tooling to both publish calls',
-    () async {
-      when(() => buildPublishCommand(any()))
-          .thenAnswer((_) async => const PublishTooling('fvm flutter'));
-
-      await expectLater(
-        sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: false),
-        completes,
-      );
-
-      expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
-        (repoRoot, pkgPath, 'fvm flutter', true),
-        (repoRoot, pkgPath, 'fvm flutter', false),
-      ]);
+      expect(publisher.calls.map((call) => call.dryRun), <bool>[false]);
     },
   );
 
@@ -255,7 +239,7 @@ void main() {
         completes,
       );
 
-      expect(publishCalls, isEmpty);
+      expect(publisher.calls, isEmpty);
     },
   );
 
@@ -273,10 +257,7 @@ void main() {
         completes,
       );
 
-      expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
-        (repoRoot, pkgPath, 'fvm dart', true),
-        (repoRoot, pkgPath, 'fvm dart', false),
-      ]);
+      expect(publisher.calls.map((call) => call.dryRun), <bool>[false]);
     },
   );
 
@@ -297,10 +278,7 @@ void main() {
     );
 
     verifyNever(() => confirmYesNo(any()));
-    expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
-      (repoRoot, pkgPath, 'dart', true),
-      (repoRoot, pkgPath, 'dart', false),
-    ]);
+    expect(publisher.calls.map((call) => call.dryRun), <bool>[false]);
   });
 
   test(
@@ -313,23 +291,20 @@ void main() {
       );
 
       verifyNever(() => confirmYesNo(any()));
-      expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
-        (repoRoot, pkgPath, 'fvm dart', true),
-      ]);
+      expect(publisher.calls.map((call) => call.dryRun), <bool>[true]);
     },
   );
 
   test('should throw PublishFailedException when the dry-run publish fails',
       () async {
-    publishCalls.clear();
-    publish = _failingPublish(failingDryRun: true, calls: publishCalls);
+    publisher = _FakePublisher(failingDryRun: true);
     sut = buildSut();
 
     await expectLater(
       sut(repoRoot: repoRoot, pkgPath: pkgPath),
       throwsA(isA<PublishFailedException>()),
     );
-    expect(publishCalls.map((call) => call.dryRun), <bool>[true]);
+    expect(publisher.calls.map((call) => call.dryRun), <bool>[true]);
   });
 
   test('should skip the actual publish when dryRunOnly is true', () async {
@@ -338,9 +313,7 @@ void main() {
       completes,
     );
 
-    expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
-      (repoRoot, pkgPath, 'fvm dart', true),
-    ]);
+    expect(publisher.calls.map((call) => call.dryRun), <bool>[true]);
   });
 
   test('should cancel when the user declines the final publish prompt',
@@ -353,9 +326,7 @@ void main() {
       completes,
     );
 
-    expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
-      (repoRoot, pkgPath, 'fvm dart', true),
-    ]);
+    expect(publisher.calls, isEmpty);
   });
 
   test('should publish successfully end to end', () async {
@@ -364,10 +335,7 @@ void main() {
       completes,
     );
 
-    expect(publishSignatures(publishCalls), <(String, String, String, bool)>[
-      (repoRoot, pkgPath, 'fvm dart', true),
-      (repoRoot, pkgPath, 'fvm dart', false),
-    ]);
+    expect(publisher.calls.map((call) => call.dryRun), <bool>[false]);
     verify(() => verifyReleaseCompleteness(
           packagePath,
           publishedPackageInfo: any(named: 'publishedPackageInfo'),
@@ -378,15 +346,14 @@ void main() {
 
   test('should throw PublishFailedException when the actual publish fails',
       () async {
-    publishCalls.clear();
-    publish = _failingPublish(failingDryRun: false, calls: publishCalls);
+    publisher = _FakePublisher(failingRealPublish: true);
     sut = buildSut();
 
     await expectLater(
       sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: false),
       throwsA(isA<PublishFailedException>()),
     );
-    expect(publishCalls.map((call) => call.dryRun), <bool>[true, false]);
+    expect(publisher.calls.map((call) => call.dryRun), <bool>[false]);
   });
 
   test(
@@ -416,6 +383,11 @@ void main() {
         buildPublishCommand: buildPublishCommand,
         packageRegistryClient: packageRegistryClient,
         gitTagFormat: GetTagFormat(resolveGitTagFormat),
+        // The default PackagePublisher (PubPublish) resolves its own
+        // tooling independently of RunPublishFlow's; it must share the
+        // same mocked buildPublishCommand so it invokes the fake script
+        // too, instead of trying to resolve a real dart/flutter toolchain.
+        publisher: PubPublish(buildPublishCommand: buildPublishCommand),
       );
 
       await expectLater(
@@ -424,7 +396,7 @@ void main() {
       );
 
       final lines = File(logFile).readAsStringSync().trim().split('\n');
-      expect(lines, <String>['pub publish --dry-run', 'pub publish --force']);
+      expect(lines, <String>['pub publish --force']);
     },
   );
 
@@ -454,6 +426,7 @@ void main() {
       buildPublishCommand: buildPublishCommand,
       packageRegistryClient: packageRegistryClient,
       gitTagFormat: GetTagFormat(resolveGitTagFormat),
+      publisher: PubPublish(buildPublishCommand: buildPublishCommand),
     );
 
     await expectLater(
