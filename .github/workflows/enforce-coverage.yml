@@ -56,12 +56,8 @@ jobs:
       - name: Install lcov
         run: sudo apt-get update && sudo apt-get install -y lcov
 
-      # app_template's own nested packages (packages/app_logger, etc.) aren't
-      # yet at the required threshold — the root app_template itself is
-      # tested here like any other package.
       - name: Enforce coverage across touched packages
         working-directory: dev_tools
         run: >
           fvm dart run bin/dev_tools.dart coverage
           --from ${{ github.event.pull_request.base.sha }}
-          --skip-path app_template/packages
