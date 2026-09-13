@@ -79,10 +79,12 @@ class ValidateReleaseMerge {
   ///
   /// Notes: runs every check for every candidate rather than stopping at
   /// the first failure. In GitHub Actions (detected via the `GITHUB_ACTIONS`
-  /// environment variable), each candidate's own check output is wrapped in
-  /// a `::group::`/`::endgroup::` pair so the Actions log renders it as a
-  /// collapsed, foldable section instead of one long unfolded dump — the
-  /// final summary itself is always left unfolded.
+  /// environment variable), each meaningful phase — finding candidates, and
+  /// each candidate's own check — is wrapped in its own `::group::`/
+  /// `::endgroup::` pair so the Actions log renders it as a collapsed,
+  /// foldable section instead of one long unfolded dump. The candidate-count
+  /// header and the final summary are always left unfolded, since those are
+  /// what a reader actually wants visible at a glance.
   Future<void> call({
     required String repoRoot,
     required String fromBranch,
@@ -91,8 +93,8 @@ class ValidateReleaseMerge {
   }) async {
     final inGithubActions =
         (environment ?? Platform.environment)['GITHUB_ACTIONS'] == 'true';
-    _logger.info('Validating release merge...');
 
+    if (inGithubActions) _logger.info('::group::Finding release candidates');
     // Diffs against the merge base of toBranch/fromBranch (git's `...`
     // syntax), so this yields exactly the changes fromBranch introduces on
     // top of toBranch — baseRef is the target, compareRef is the source.
@@ -105,10 +107,15 @@ class ValidateReleaseMerge {
       repoRoot: repoRoot,
       changedFiles: changedFiles,
     );
+    if (inGithubActions) _logger.info('::endgroup::');
+
     if (candidates.isEmpty) {
       _logger.info('No release candidates found; nothing to validate.');
       return;
     }
+    _logger.info(
+      'Validating release merge for ${candidates.length} candidate(s)...',
+    );
 
     final checks = _standardReleaseChecksBuilder.build(_gitTagFormat);
     final validPackages = <String>{};

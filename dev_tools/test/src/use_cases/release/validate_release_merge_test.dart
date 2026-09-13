@@ -343,6 +343,8 @@ void main() {
       expect(
         logger.infoMessages,
         containsAllInOrder([
+          '::group::Finding release candidates',
+          '::endgroup::',
           '::group::pkg_a',
           '::endgroup::',
           '::group::pkg_b',
