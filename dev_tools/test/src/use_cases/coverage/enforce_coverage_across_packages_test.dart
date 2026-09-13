@@ -5,6 +5,7 @@ import 'package:dev_tools/src/use_cases/coverage/enforce_coverage_across_package
 import 'package:dev_tools/src/use_cases/coverage/run_package_tests_with_coverage.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -77,6 +78,7 @@ void main() {
     when(() => calculateCoverage(any(), any())).thenAnswer((_) async => 100);
 
     sut = EnforceCoverageAcrossPackages(
+      logger: _FakeLogger(),
       findPackages: findPackages,
       detectChangesInFolder: detectChangesInFolder,
       runPackageTests: runPackageTests,
@@ -235,4 +237,9 @@ void main() {
 
     await expectLater(run(), completes);
   });
+}
+
+class _FakeLogger extends Logger {
+  @override
+  void log(LogLevel level, String message, {StackTrace? stackTrace}) {}
 }

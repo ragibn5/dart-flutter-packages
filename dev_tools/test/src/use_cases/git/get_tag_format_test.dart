@@ -1,4 +1,5 @@
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -39,7 +40,7 @@ void main() {
   });
 
   group('ResolveGitTagFormat', () {
-    const sut = ResolveGitTagFormat();
+    final sut = ResolveGitTagFormat(logger: _FakeLogger());
 
     test('should return the default when the env var is unset', () {
       expect(
@@ -94,4 +95,9 @@ void main() {
       );
     });
   });
+}
+
+class _FakeLogger extends Logger {
+  @override
+  void log(LogLevel level, String message, {StackTrace? stackTrace}) {}
 }

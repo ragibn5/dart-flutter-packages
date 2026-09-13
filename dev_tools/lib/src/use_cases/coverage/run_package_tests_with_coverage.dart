@@ -97,6 +97,11 @@ class RunPackageTestsWithCoverage {
         ...exclusions,
         '--output-file',
         lcovFile,
+        // A pattern that matches nothing (common — exclusions are written
+        // once for the whole package, not for what a given diff touched)
+        // is a hard error on newer lcov versions otherwise.
+        '--ignore-errors',
+        'unused',
       ],
       packagePath,
     );

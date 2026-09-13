@@ -63,7 +63,9 @@ void main() {
       );
 
   ValidateReleaseMerge buildSut({Logger? logger}) => ValidateReleaseMerge(
-        logger: logger ?? const ConsoleLogger(),
+        // Quiet by default so a normal test run isn't flooded with grouped
+        // log output; tests that check log content pass their own logger.
+        logger: logger ?? _FakeLogger(),
         detectChangesInFolder: detectChangesInFolder,
         findPackages: findPackages,
         findReleaseCandidatePackages: findReleaseCandidatePackages,

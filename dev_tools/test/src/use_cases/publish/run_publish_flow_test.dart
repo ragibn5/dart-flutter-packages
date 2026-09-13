@@ -18,6 +18,7 @@ import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/use_cases/release/release_validation_exception.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -111,6 +112,7 @@ void main() {
   late RunPublishFlow sut;
 
   RunPublishFlow buildSut() => RunPublishFlow(
+        logger: _FakeLogger(),
         validatePackagePath: validatePackagePath,
         readPackageIdentity: readPackageIdentity,
         hasCleanWorkingTree: hasCleanWorkingTree,
@@ -375,6 +377,7 @@ void main() {
       });
 
       sut = RunPublishFlow(
+        logger: _FakeLogger(),
         validatePackagePath: validatePackagePath,
         readPackageIdentity: readPackageIdentity,
         hasCleanWorkingTree: hasCleanWorkingTree,
@@ -418,6 +421,7 @@ void main() {
     });
 
     sut = RunPublishFlow(
+      logger: _FakeLogger(),
       validatePackagePath: validatePackagePath,
       readPackageIdentity: readPackageIdentity,
       hasCleanWorkingTree: hasCleanWorkingTree,
@@ -450,4 +454,9 @@ String _executableScript(
     );
   Process.runSync('chmod', ['+x', script.path]);
   return script.path;
+}
+
+class _FakeLogger extends Logger {
+  @override
+  void log(LogLevel level, String message, {StackTrace? stackTrace}) {}
 }

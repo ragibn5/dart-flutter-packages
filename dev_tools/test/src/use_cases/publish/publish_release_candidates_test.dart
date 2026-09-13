@@ -11,6 +11,7 @@ import 'package:dev_tools/src/use_cases/publish/publish_failed_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_release_candidates.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -81,6 +82,7 @@ void main() {
     when(() => resolveGitTagFormat()).thenReturn('{name}-{version}');
 
     sut = PublishReleaseCandidates(
+      logger: _FakeLogger(),
       detectChangesInFolder: detectChangesInFolder,
       findPackages: findPackages,
       findReleaseCandidatePackages: findReleaseCandidatePackages,
@@ -245,4 +247,9 @@ void main() {
       completes,
     );
   });
+}
+
+class _FakeLogger extends Logger {
+  @override
+  void log(LogLevel level, String message, {StackTrace? stackTrace}) {}
 }
