@@ -20,6 +20,31 @@ jobs:
           flutter-version: 3.41.9
           cache: true
 
+      # Bootstrap SDK above is only for running dev_tools itself. Each
+      # package may pin a different Flutter/Dart version via its own
+      # .fvmrc, so the actual publish/dry-run must go through fvm rather
+      # than the single hardcoded SDK above — otherwise a package could be
+      # dry-run-checked (or published) against an incompatible SDK while
+      # still claiming to support its pinned version.
+      - name: Install fvm
+        run: dart pub global activate fvm
+
+      - name: Add pub-cache bin to PATH
+        run: echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Cache fvm SDK versions
+        uses: actions/cache@v4
+        with:
+          path: ~/fvm/versions
+          key: fvm-versions-${{ hashFiles('**/.fvmrc') }}
+
+      - name: Install pinned Flutter versions used by packages in this repo
+        run: |
+          find . -name .fvmrc -exec grep -oE '"flutter": *"[^"]+"' {} \; \
+            | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' \
+            | sort -u \
+            | xargs -n1 fvm install
+
       - name: Install dev_tools dependencies
         run: dart pub get -C dev_tools
 
