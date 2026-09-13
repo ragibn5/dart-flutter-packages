@@ -1,0 +1,52 @@
+name: Coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # fvm is only needed to run dev_tools itself (via its own .fvmrc pin)
+      # — every scanned package's own tests run on the global Flutter/Dart
+      # below instead, since matching each package's exact pinned SDK isn't
+      # necessary just to run its tests.
+      - name: Install fvm
+        run: curl -fsSL https://fvm.app/install.sh | bash
+
+      - name: Add fvm to PATH
+        run: echo "$HOME/fvm/bin" >> "$GITHUB_PATH"
+
+      - name: Cache fvm SDK versions
+        uses: actions/cache@v4
+        with:
+          path: ~/fvm/versions
+          key: fvm-versions-${{ hashFiles('dev_tools/.fvmrc') }}
+          restore-keys: fvm-versions-
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      # Needed to convert a pure-Dart package's raw `dart test --coverage`
+      # output into lcov — see RunPackageTestsWithCoverage.
+      - name: Activate the coverage package
+        run: dart pub global activate coverage
+
+      - name: Install dev_tools dependencies
+        working-directory: dev_tools
+        run: fvm dart pub get
+
+      - name: Enforce coverage across all packages
+        working-directory: dev_tools
+        run: >
+          fvm dart run bin/dev_tools.dart coverage
+          --exclude app_template
