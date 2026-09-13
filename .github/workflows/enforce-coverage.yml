@@ -32,10 +32,19 @@ jobs:
           key: fvm-versions-${{ hashFiles('dev_tools/.fvmrc') }}
           restore-keys: fvm-versions-
 
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
+      - name: Install dev_tools dependencies
+        working-directory: dev_tools
+        run: fvm dart pub get
+
+      # dev_tools/.fvmrc pins a Flutter version, so the step above already
+      # made fvm download the full SDK (bundled Dart included) into
+      # ~/fvm/versions — the same directory cached above. Point plain
+      # flutter/dart at that instead of installing a second SDK copy via
+      # flutter-action.
+      - name: Add fvm's downloaded Flutter SDK to PATH
+        run: |
+          FLUTTER_VERSION=$(jq -r .flutter dev_tools/.fvmrc)
+          echo "$HOME/fvm/versions/$FLUTTER_VERSION/bin" >> "$GITHUB_PATH"
 
       # Needed to convert a pure-Dart package's raw `dart test --coverage`
       # output into lcov — see RunPackageTestsWithCoverage.
@@ -46,10 +55,6 @@ jobs:
       # percentage) isn't preinstalled on ubuntu-latest.
       - name: Install lcov
         run: sudo apt-get update && sudo apt-get install -y lcov
-
-      - name: Install dev_tools dependencies
-        working-directory: dev_tools
-        run: fvm dart pub get
 
       # app_template's own nested packages (packages/app_logger, etc.) aren't
       # yet at the required threshold — the root app_template itself is
