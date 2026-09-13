@@ -116,7 +116,13 @@ class ValidateReleaseMerge {
     for (final candidate in candidates) {
       final name = candidate.packageIdentity.name;
       if (inGithubActions) _logger.info('::group::$name');
+      _logger.info('Checking $name...');
       final issues = await _checkCandidate(candidate, repoRoot, checks);
+      _logger.info(
+        issues.isEmpty
+            ? '$name: OK'
+            : '$name: ${issues.length} issue(s) found.',
+      );
       if (inGithubActions) _logger.info('::endgroup::');
       if (issues.isEmpty) {
         validPackages.add(name);
