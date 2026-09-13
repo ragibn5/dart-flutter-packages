@@ -28,7 +28,7 @@ class ValidateReleaseMerge {
   final DetectChangesInFolder _detectChangesInFolder;
   final FindReleaseCandidatePackages _findReleaseCandidates;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
-  final BuildStandardReleaseChecksBuilder _buildStandardReleaseChecks;
+  final BuildStandardReleaseChecksBuilder _standardReleaseChecksBuilder;
   final PackagePublisher _publisher;
 
   const ValidateReleaseMerge({
@@ -40,7 +40,7 @@ class ValidateReleaseMerge {
         const FindReleaseCandidatePackages(),
     VerifyReleaseCompleteness verifyReleaseCompleteness =
         const VerifyReleaseCompleteness(),
-    BuildStandardReleaseChecksBuilder buildStandardReleaseChecks =
+    BuildStandardReleaseChecksBuilder standardReleaseChecksBuilder =
         const BuildStandardReleaseChecksBuilder(),
     PackagePublisher publisher = const PubPublish(),
   })  : _logger = logger,
@@ -49,7 +49,7 @@ class ValidateReleaseMerge {
         _verifyReleaseCompleteness = verifyReleaseCompleteness,
         _tagExists = tagExists,
         _gitTagFormat = gitTagFormat,
-        _buildStandardReleaseChecks = buildStandardReleaseChecks,
+        _standardReleaseChecksBuilder = standardReleaseChecksBuilder,
         _publisher = publisher;
 
   /// Runs the MR gate.
@@ -103,7 +103,7 @@ class ValidateReleaseMerge {
       return;
     }
 
-    final checks = _buildStandardReleaseChecks.build(_gitTagFormat);
+    final checks = _standardReleaseChecksBuilder.build(_gitTagFormat);
     final validPackages = <String>{};
     final issuesMap = <String, List<String>>{};
     for (final candidate in candidates) {
@@ -168,7 +168,6 @@ class ValidateReleaseMerge {
         pkgPath: candidate.repoRootRelativePath,
         identity: candidate.packageIdentity,
         dryRun: true,
-        verbose: false,
       );
       return null;
     } on PublishFailedException catch (e) {
