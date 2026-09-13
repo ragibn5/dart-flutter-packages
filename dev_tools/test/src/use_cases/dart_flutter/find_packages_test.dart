@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dev_tools/src/models/local_package_info.dart';
+import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:test/test.dart';
 
@@ -28,49 +28,61 @@ void main() {
     writePubspec('pkg_a', 'name: pkg_a\nversion: 1.0.0\n');
     writePubspec('nested/pkg_b', 'name: pkg_b\nversion: 2.0.0\n');
 
-    final packages = await sut(
-      repoRoot: tempDir.path,
-      filter: (_) => true,
-    );
+    final packages = await sut(repoRoot: tempDir.path);
+    final valid = packages.whereType<ValidLocalPackageInfo>();
 
     expect(
-      packages.map((p) => p.packageIdentity.name),
+      valid.map((p) => p.packageIdentity.name),
       containsAll(['pkg_a', 'pkg_b']),
     );
   });
 
   test(
-      'should skip a package whose pubspec has no version instead of '
-      'throwing', () async {
-    writePubspec('pkg_a', 'name: pkg_a\nversion: 1.0.0\n');
-    writePubspec('unversioned', 'name: unversioned\npublish_to: none\n');
+    'should include a package with no version as valid, not malformed',
+    () async {
+      writePubspec('pkg_a', 'name: pkg_a\nversion: 1.0.0\n');
+      writePubspec('unversioned', 'name: unversioned\npublish_to: none\n');
 
-    final packages = await sut(
-      repoRoot: tempDir.path,
-      filter: (_) => true,
-    );
+      final packages = await sut(repoRoot: tempDir.path);
 
-    expect(packages.map((p) => p.packageIdentity.name), ['pkg_a']);
-  });
+      expect(packages.whereType<MalformedLocalPackageInfo>(), isEmpty);
+      expect(
+        packages.whereType<ValidLocalPackageInfo>().map(
+              (p) => p.packageIdentity.name,
+            ),
+        containsAll(['pkg_a', 'unversioned']),
+      );
+      final unversioned = packages
+          .whereType<ValidLocalPackageInfo>()
+          .firstWhere((p) => p.packageIdentity.name == 'unversioned');
+      expect(unversioned.packageIdentity.version, isNull);
+    },
+  );
 
-  test('should apply filter only to packages with a readable pubspec',
-      () async {
-    writePubspec('pkg_a', 'name: pkg_a\nversion: 1.0.0\n');
-    writePubspec('unversioned', 'name: unversioned\n');
+  test(
+    'should report a package with no name as malformed instead of throwing',
+    () async {
+      writePubspec('pkg_a', 'name: pkg_a\nversion: 1.0.0\n');
+      writePubspec('nameless', 'version: 1.0.0\n');
 
-    final packages = await sut(
-      repoRoot: tempDir.path,
-      filter: (LocalPackageInfo info) => info.packageIdentity.name.isNotEmpty,
-    );
+      final packages = await sut(repoRoot: tempDir.path);
 
-    expect(packages, hasLength(1));
-    expect(packages.single.packageIdentity.name, 'pkg_a');
-  });
+      expect(
+        packages.whereType<ValidLocalPackageInfo>().map(
+              (p) => p.packageIdentity.name,
+            ),
+        ['pkg_a'],
+      );
+      final malformed = packages.whereType<MalformedLocalPackageInfo>();
+      expect(malformed, hasLength(1));
+      expect(malformed.single.repoRootRelativePath, 'nameless');
+    },
+  );
 
   test('should throw PackageFinderException when repoRoot does not exist',
       () async {
     expect(
-      () => sut(repoRoot: '${tempDir.path}/missing', filter: (_) => true),
+      () => sut(repoRoot: '${tempDir.path}/missing'),
       throwsA(isA<PackageFinderException>()),
     );
   });

@@ -101,16 +101,10 @@ flutter:
     );
   });
 
-  test('should throw PackageIdentityException when pubspec has no version', () {
-    expect(
-      () => sut('name: foo\n'),
-      throwsA(
-        isA<PackageIdentityException>().having(
-          (e) => e.message,
-          'message',
-          'pubspec.yaml has no version.',
-        ),
-      ),
-    );
+  test('should treat a package with no version as valid but unpublishable', () {
+    final identity = sut('name: foo\n');
+
+    expect(identity.version, isNull);
+    expect(identity.isPublishable, isFalse);
   });
 }

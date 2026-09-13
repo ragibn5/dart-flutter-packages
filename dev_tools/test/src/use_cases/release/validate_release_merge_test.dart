@@ -1,8 +1,9 @@
-import 'package:dev_tools/src/models/local_package_info.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
+import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/models/release_issue.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/git/tag_exists.dart';
@@ -19,6 +20,8 @@ import 'package:test/test.dart';
 
 class _MockDetectChangesInFolder extends Mock
     implements DetectChangesInFolder {}
+
+class _MockFindPackages extends Mock implements FindPackages {}
 
 class _MockFindReleaseCandidatePackages extends Mock
     implements FindReleaseCandidatePackages {}
@@ -44,6 +47,7 @@ void main() {
   const publishedVersions = PublishedPackageInfo(versions: ['0.9.0']);
 
   late _MockDetectChangesInFolder detectChangesInFolder;
+  late _MockFindPackages findPackages;
   late _MockFindReleaseCandidatePackages findReleaseCandidatePackages;
   late _MockVerifyReleaseCompleteness verifyReleaseCompleteness;
   late _MockTagExists tagExists;
@@ -53,11 +57,20 @@ void main() {
 
   ReleaseCandidatePackage candidate(String path, String name) =>
       ReleaseCandidatePackage(
-        localPackageInfo: LocalPackageInfo(
-          repoRootRelativePath: path,
-          packageIdentity: PackageIdentity(name: name, version: '1.0.0'),
-        ),
+        repoRootRelativePath: path,
+        packageIdentity: PackageIdentity(name: name, version: '1.0.0'),
         publishedPackageInfo: publishedVersions,
+      );
+
+  ValidateReleaseMerge buildSut({Logger? logger}) => ValidateReleaseMerge(
+        logger: logger ?? const ConsoleLogger(),
+        detectChangesInFolder: detectChangesInFolder,
+        findPackages: findPackages,
+        findReleaseCandidatePackages: findReleaseCandidatePackages,
+        verifyReleaseCompleteness: verifyReleaseCompleteness,
+        tagExists: tagExists,
+        gitTagFormat: GetTagFormat(resolveGitTagFormat),
+        publisher: publisher,
       );
 
   setUp(() {
@@ -67,9 +80,13 @@ void main() {
           compareRef: any(named: 'compareRef'),
         )).thenAnswer((_) async => changedFiles);
 
+    findPackages = _MockFindPackages();
+    when(() => findPackages(repoRoot: any(named: 'repoRoot')))
+        .thenAnswer((_) async => const <PackageInfo>[]);
+
     findReleaseCandidatePackages = _MockFindReleaseCandidatePackages();
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => const []);
 
@@ -93,17 +110,9 @@ void main() {
           pkgPath: any(named: 'pkgPath'),
           identity: any(named: 'identity'),
           dryRun: any(named: 'dryRun'),
-          verbose: any(named: 'verbose'),
         )).thenAnswer((_) async {});
 
-    sut = ValidateReleaseMerge(
-      detectChangesInFolder: detectChangesInFolder,
-      findReleaseCandidatePackages: findReleaseCandidatePackages,
-      verifyReleaseCompleteness: verifyReleaseCompleteness,
-      tagExists: tagExists,
-      gitTagFormat: GetTagFormat(resolveGitTagFormat),
-      publisher: publisher,
-    );
+    sut = buildSut();
   });
 
   test(
@@ -130,7 +139,7 @@ void main() {
     );
 
     verify(() => findReleaseCandidatePackages(
-          repoRoot: repoRoot,
+          localPackages: any(named: 'localPackages'),
           changedFiles: changedFiles,
         )).called(1);
   });
@@ -156,7 +165,7 @@ void main() {
       candidate('pkg_b', 'pkg_b'),
     ];
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => candidates);
 
@@ -179,7 +188,7 @@ void main() {
       'of re-fetching it', () async {
     final candidates = [candidate('pkg_a', 'pkg_a')];
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => candidates);
 
@@ -195,7 +204,7 @@ void main() {
   test('should throw after checking every candidate when some have issues',
       () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [
           candidate('pkg_a', 'pkg_a'),
@@ -231,7 +240,7 @@ void main() {
 
   test('should check whether the version has already been tagged', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
 
@@ -242,7 +251,7 @@ void main() {
 
   test('should throw when the version has already been tagged', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
     when(() => tagExists(any(), repoRoot: any(named: 'repoRoot')))
@@ -264,7 +273,7 @@ void main() {
 
   test('should check the candidate with a dry-run publish', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
 
@@ -280,7 +289,7 @@ void main() {
 
   test('should throw when a candidate fails its dry-run publish', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
     when(() => publisher(
@@ -288,7 +297,6 @@ void main() {
           pkgPath: any(named: 'pkgPath'),
           identity: any(named: 'identity'),
           dryRun: any(named: 'dryRun'),
-          verbose: any(named: 'verbose'),
         )).thenThrow(
       const PublishFailedException(
         'Dry-run failed. Fix issues before publishing.',
@@ -303,7 +311,7 @@ void main() {
 
   test('should not throw when every candidate is complete', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
 
@@ -314,40 +322,29 @@ void main() {
   });
 
   test(
-    'should wrap each candidate in a foldable ::group:: in GitHub Actions',
+    'should wrap each candidate in its own foldable ::group::',
     () async {
       final logger = _FakeLogger();
-      sut = ValidateReleaseMerge(
-        logger: logger,
-        detectChangesInFolder: detectChangesInFolder,
-        findReleaseCandidatePackages: findReleaseCandidatePackages,
-        verifyReleaseCompleteness: verifyReleaseCompleteness,
-        tagExists: tagExists,
-        gitTagFormat: GetTagFormat(resolveGitTagFormat),
-        publisher: publisher,
-      );
+      sut = buildSut(logger: logger);
       when(() => findReleaseCandidatePackages(
-            repoRoot: any(named: 'repoRoot'),
+            localPackages: any(named: 'localPackages'),
             changedFiles: any(named: 'changedFiles'),
           )).thenAnswer(
         (_) async => [candidate('pkg_a', 'pkg_a'), candidate('pkg_b', 'pkg_b')],
       );
 
-      await sut(
-        repoRoot: repoRoot,
-        fromBranch: 'feature/x',
-        toBranch: 'main',
-        environment: const {'GITHUB_ACTIONS': 'true'},
-      );
+      await sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main');
 
       expect(
         logger.infoMessages,
         containsAllInOrder([
-          '::group::Finding release candidates...',
+          '::group::Scanning for packages...',
           '::endgroup::',
-          '::group::pkg_a',
+          '::group::Filtering release candidates...',
           '::endgroup::',
-          '::group::pkg_b',
+          '::group::[1/2] Validating pkg_a ...',
+          '::endgroup::',
+          '::group::[2/2] Validating pkg_b ...',
           '::endgroup::',
         ]),
       );
@@ -355,49 +352,12 @@ void main() {
   );
 
   test(
-    'should not emit ::group:: markers outside GitHub Actions',
-    () async {
-      final logger = _FakeLogger();
-      sut = ValidateReleaseMerge(
-        logger: logger,
-        detectChangesInFolder: detectChangesInFolder,
-        findReleaseCandidatePackages: findReleaseCandidatePackages,
-        verifyReleaseCompleteness: verifyReleaseCompleteness,
-        tagExists: tagExists,
-        gitTagFormat: GetTagFormat(resolveGitTagFormat),
-        publisher: publisher,
-      );
-      when(() => findReleaseCandidatePackages(
-            repoRoot: any(named: 'repoRoot'),
-            changedFiles: any(named: 'changedFiles'),
-          )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
-
-      await sut(
-        repoRoot: repoRoot,
-        fromBranch: 'feature/x',
-        toBranch: 'main',
-        environment: const {},
-      );
-
-      expect(logger.infoMessages, isNot(contains(contains('::group::'))));
-    },
-  );
-
-  test(
     'should still close the ::group:: when a candidate check throws',
     () async {
       final logger = _FakeLogger();
-      sut = ValidateReleaseMerge(
-        logger: logger,
-        detectChangesInFolder: detectChangesInFolder,
-        findReleaseCandidatePackages: findReleaseCandidatePackages,
-        verifyReleaseCompleteness: verifyReleaseCompleteness,
-        tagExists: tagExists,
-        gitTagFormat: GetTagFormat(resolveGitTagFormat),
-        publisher: publisher,
-      );
+      sut = buildSut(logger: logger);
       when(() => findReleaseCandidatePackages(
-            repoRoot: any(named: 'repoRoot'),
+            localPackages: any(named: 'localPackages'),
             changedFiles: any(named: 'changedFiles'),
           )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
       when(() => verifyReleaseCompleteness(
@@ -407,32 +367,24 @@ void main() {
           )).thenThrow(Exception('boom'));
 
       await expectLater(
-        sut(
-          repoRoot: repoRoot,
-          fromBranch: 'feature/x',
-          toBranch: 'main',
-          environment: const {'GITHUB_ACTIONS': 'true'},
-        ),
+        sut(repoRoot: repoRoot, fromBranch: 'feature/x', toBranch: 'main'),
         throwsA(isA<Exception>()),
       );
 
       expect(
         logger.infoMessages,
-        containsAllInOrder(['::group::pkg_a', '::endgroup::']),
+        containsAllInOrder(
+            ['::group::[1/1] Validating pkg_a ...', '::endgroup::']),
       );
     },
   );
 }
 
-class _FakeLogger implements Logger {
+class _FakeLogger extends Logger {
   final List<String> infoMessages = [];
 
   @override
-  void info(String message) => infoMessages.add(message);
-
-  @override
-  void warn(String message) {}
-
-  @override
-  void error(String message, {StackTrace? stackTrace}) {}
+  void log(LogLevel level, String message, {StackTrace? stackTrace}) {
+    if (level == LogLevel.info) infoMessages.add(message);
+  }
 }

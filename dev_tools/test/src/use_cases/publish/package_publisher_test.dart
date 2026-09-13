@@ -12,18 +12,12 @@ import 'package:test/test.dart';
 
 class _MockBuildPublishCommand extends Mock implements BuildPublishCommand {}
 
-class _FakeLogger implements Logger {
+class _FakeLogger extends Logger {
   final List<String> infoMessages = [];
-  final List<String> warnMessages = [];
 
   @override
-  void info(String message) => infoMessages.add(message);
-
-  @override
-  void warn(String message) => warnMessages.add(message);
-
-  @override
-  void error(String message, {StackTrace? stackTrace}) {}
+  void log(LogLevel level, String message, {StackTrace? stackTrace}) =>
+      infoMessages.add(message);
 }
 
 void main() {
@@ -160,7 +154,7 @@ void main() {
       );
 
       expect(logger.infoMessages, contains(contains('captured stdout')));
-      expect(logger.warnMessages, contains(contains('captured stderr')));
+      expect(logger.infoMessages, contains(contains('captured stderr')));
     },
   );
 

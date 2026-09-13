@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dev_tools/src/use_cases/dart_flutter/package_identity_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:test/test.dart';
 
@@ -125,19 +124,13 @@ flutter:
     );
   });
 
-  test('should throw PackageIdentityException when pubspec has no version',
+  test('should treat a package with no version as valid but unpublishable',
       () async {
     File('$packagePath/pubspec.yaml').writeAsStringSync('name: foo\n');
 
-    await expectLater(
-      sut(packagePath),
-      throwsA(
-        isA<PackageIdentityException>().having(
-          (e) => e.message,
-          'message',
-          'pubspec.yaml has no version.',
-        ),
-      ),
-    );
+    final identity = await sut(packagePath);
+
+    expect(identity.version, isNull);
+    expect(identity.isPublishable, isFalse);
   });
 }

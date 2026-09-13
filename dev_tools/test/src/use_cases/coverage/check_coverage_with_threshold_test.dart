@@ -11,17 +11,12 @@ class _MockFindProjectRoot extends Mock implements FindProjectRoot {}
 
 class _MockCalculateCoverage extends Mock implements CalculateCoverage {}
 
-class _FakeLogger implements Logger {
+class _FakeLogger extends Logger {
   final List<String> messages = [];
 
   @override
-  void info(String message) => messages.add(message);
-
-  @override
-  void warn(String message) => messages.add(message);
-
-  @override
-  void error(String message, {StackTrace? stackTrace}) => messages.add(message);
+  void log(LogLevel level, String message, {StackTrace? stackTrace}) =>
+      messages.add(message);
 }
 
 void main() {

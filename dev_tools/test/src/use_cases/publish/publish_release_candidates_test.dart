@@ -1,7 +1,8 @@
-import 'package:dev_tools/src/models/local_package_info.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
+import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/create_and_push_tag.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
@@ -15,6 +16,8 @@ import 'package:test/test.dart';
 
 class _MockDetectChangesInFolder extends Mock
     implements DetectChangesInFolder {}
+
+class _MockFindPackages extends Mock implements FindPackages {}
 
 class _MockFindReleaseCandidatePackages extends Mock
     implements FindReleaseCandidatePackages {}
@@ -31,6 +34,7 @@ void main() {
   const publishedVersions = PublishedPackageInfo(versions: ['0.9.0']);
 
   late _MockDetectChangesInFolder detectChangesInFolder;
+  late _MockFindPackages findPackages;
   late _MockFindReleaseCandidatePackages findReleaseCandidatePackages;
   late _MockRunPublishFlow runPublishFlow;
   late _MockCreateAndPushTag createAndPushTag;
@@ -39,10 +43,8 @@ void main() {
 
   ReleaseCandidatePackage candidate(String path, String name) =>
       ReleaseCandidatePackage(
-        localPackageInfo: LocalPackageInfo(
-          repoRootRelativePath: path,
-          packageIdentity: PackageIdentity(name: name, version: '1.0.0'),
-        ),
+        repoRootRelativePath: path,
+        packageIdentity: PackageIdentity(name: name, version: '1.0.0'),
         publishedPackageInfo: publishedVersions,
       );
 
@@ -53,9 +55,13 @@ void main() {
           compareRef: any(named: 'compareRef'),
         )).thenAnswer((_) async => changedFiles);
 
+    findPackages = _MockFindPackages();
+    when(() => findPackages(repoRoot: any(named: 'repoRoot')))
+        .thenAnswer((_) async => const <PackageInfo>[]);
+
     findReleaseCandidatePackages = _MockFindReleaseCandidatePackages();
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => const []);
 
@@ -65,7 +71,6 @@ void main() {
           pkgPath: any(named: 'pkgPath'),
           interactive: any(named: 'interactive'),
           dryRunOnly: any(named: 'dryRunOnly'),
-          verbose: any(named: 'verbose'),
         )).thenAnswer((_) async {});
 
     createAndPushTag = _MockCreateAndPushTag();
@@ -77,6 +82,7 @@ void main() {
 
     sut = PublishReleaseCandidates(
       detectChangesInFolder: detectChangesInFolder,
+      findPackages: findPackages,
       findReleaseCandidatePackages: findReleaseCandidatePackages,
       runPublishFlow: runPublishFlow,
       createAndPushTag: createAndPushTag,
@@ -99,7 +105,7 @@ void main() {
     await sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main');
 
     verify(() => findReleaseCandidatePackages(
-          repoRoot: repoRoot,
+          localPackages: any(named: 'localPackages'),
           changedFiles: changedFiles,
         )).called(1);
   });
@@ -116,14 +122,12 @@ void main() {
           pkgPath: any(named: 'pkgPath'),
           interactive: any(named: 'interactive'),
           dryRunOnly: any(named: 'dryRunOnly'),
-          verbose: any(named: 'verbose'),
         ));
   });
 
-  test('should publish every found candidate non-interactively and quietly',
-      () async {
+  test('should publish every found candidate non-interactively', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [
           candidate('pkg_a', 'pkg_a'),
@@ -137,20 +141,18 @@ void main() {
           pkgPath: 'pkg_a',
           interactive: false,
           dryRunOnly: false,
-          verbose: false,
         )).called(1);
     verify(() => runPublishFlow(
           repoRoot: repoRoot,
           pkgPath: 'pkg_b',
           interactive: false,
           dryRunOnly: false,
-          verbose: false,
         )).called(1);
   });
 
   test('should tag every candidate that publishes successfully', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
 
@@ -163,7 +165,7 @@ void main() {
       'should follow the dryRun flag rather than publishing for real when '
       'set', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
 
@@ -179,13 +181,12 @@ void main() {
           pkgPath: 'pkg_a',
           interactive: false,
           dryRunOnly: true,
-          verbose: false,
         )).called(1);
   });
 
   test('should not create or push a tag on a dry run', () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
 
@@ -204,7 +205,7 @@ void main() {
   test('should attempt every candidate even when one fails to publish',
       () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [
           candidate('pkg_a', 'pkg_a'),
@@ -215,7 +216,6 @@ void main() {
           pkgPath: 'pkg_a',
           interactive: any(named: 'interactive'),
           dryRunOnly: any(named: 'dryRunOnly'),
-          verbose: any(named: 'verbose'),
         )).thenThrow(const PublishFailedException('Publishing failed.'));
 
     await expectLater(
@@ -228,7 +228,6 @@ void main() {
           pkgPath: 'pkg_b',
           interactive: false,
           dryRunOnly: false,
-          verbose: false,
         )).called(1);
     verify(() => createAndPushTag('pkg_b-1.0.0', repoRoot: repoRoot)).called(1);
     verifyNever(() => createAndPushTag('pkg_a-1.0.0', repoRoot: repoRoot));
@@ -237,7 +236,7 @@ void main() {
   test('should not throw when every candidate publishes successfully',
       () async {
     when(() => findReleaseCandidatePackages(
-          repoRoot: any(named: 'repoRoot'),
+          localPackages: any(named: 'localPackages'),
           changedFiles: any(named: 'changedFiles'),
         )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
 
