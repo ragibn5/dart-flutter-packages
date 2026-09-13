@@ -1,4 +1,5 @@
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
+import 'package:dev_tools/src/exceptions/coverage_threshold_exception.dart';
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/coverage/read_coverage_config.dart';
@@ -200,8 +201,8 @@ class EnforceCoverageAcrossPackages {
     return (issueMap: issueMap, effectiveThresholds: effectiveThresholds);
   }
 
-  /// Throws [CoverageThresholdException] when [package]'s coverage falls
-  /// below [threshold].
+  /// Throws [CoverageThresholdException] when [package]'s coverage
+  /// falls below [threshold].
   Future<void> _checkPackage(
     ValidLocalPackageInfo package,
     String packagePath,
@@ -254,11 +255,4 @@ class CoverageBatchException extends CommandExecutionException {
   final String message;
 
   const CoverageBatchException(this.message);
-}
-
-class CoverageThresholdException extends CommandExecutionException {
-  @override
-  final String message;
-
-  const CoverageThresholdException(this.message);
 }

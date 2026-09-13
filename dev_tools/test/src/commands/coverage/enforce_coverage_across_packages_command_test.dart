@@ -35,7 +35,7 @@ void main() {
     );
   });
 
-  test('should expose the coverage name', () {
+  test('should expose the enforce-all name', () {
     expect(sut.name, EnforceCoverageAcrossPackagesCommand.commandName);
   });
 
@@ -116,5 +116,5 @@ Future<void> _run(
   EnforceCoverageAcrossPackagesCommand command,
 ) async {
   final runner = CommandRunner<void>('dev_tools', '')..addCommand(command);
-  await runner.run(['coverage', ...args]);
+  await runner.run(['enforce-all', ...args]);
 }

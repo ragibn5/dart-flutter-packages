@@ -20,14 +20,13 @@ void main() {
   });
 
   test(
-    'should return rounded line coverage when lcov summary is parseable',
+    'should return rounded line coverage summed across all lcov records',
     () async {
       _writeLcovFile('${tempDir.path}/coverage/lcov.info');
 
       final pct = await sut('coverage/lcov.info', tempDir.path);
       expect(pct, 50);
     },
-    skip: _lcovNotAvailable ? 'lcov not available' : null,
   );
 
   test(
@@ -41,7 +40,8 @@ void main() {
   );
 
   test(
-    'should throw CoverageCalculationException when output cannot be parsed',
+    'should throw CoverageCalculationException when the file has no LF '
+    'records',
     () async {
       File(
         '${tempDir.path}/coverage/lcov.info',
@@ -52,11 +52,8 @@ void main() {
         throwsA(isA<CoverageCalculationException>()),
       );
     },
-    skip: _lcovNotAvailable ? 'lcov not available' : null,
   );
 }
-
-bool get _lcovNotAvailable => Process.runSync('which', ['lcov']).exitCode != 0;
 
 void _writeLcovFile(String path) {
   File(path).writeAsStringSync(

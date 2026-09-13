@@ -101,7 +101,7 @@ class RunPackageTestsWithCoverage {
         // once for the whole package, not for what a given diff touched)
         // is a hard error on newer lcov versions otherwise.
         '--ignore-errors',
-        'unused',
+        'unused,empty',
       ],
       packagePath,
     );

@@ -94,6 +94,10 @@ dev_dependencies:
   very_good_analysis: ^7.0.0
   bloc_lint: ^0.3.7
 
+  # Dev tooling
+  dev_tools:
+    path: ../dev_tools
+
   # Generators
   build_runner: ^2.4.15
 

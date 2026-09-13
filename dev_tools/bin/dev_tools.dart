@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/commands/coverage/enforce_coverage_across_packages_command.dart';
+import 'package:dev_tools/src/commands/coverage/coverage_command.dart';
 import 'package:dev_tools/src/commands/dart_flutter/fvm_dart_command.dart';
 import 'package:dev_tools/src/commands/dart_flutter/fvm_flutter_command.dart';
 import 'package:dev_tools/src/commands/find_replace/replace_command.dart';
@@ -21,7 +21,7 @@ Future<void> main(List<String> args) async {
     ..addCommand(GitCommand())
     ..addCommand(PublishCommand())
     ..addCommand(ReplaceCommand())
-    ..addCommand(EnforceCoverageAcrossPackagesCommand())
+    ..addCommand(CoverageCommand())
     ..addCommand(ValidateReleaseMergeCommand())
     ..addCommand(PublishReleaseCandidatesCommand());
 

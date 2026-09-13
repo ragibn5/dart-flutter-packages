@@ -1,5 +1,22 @@
-FLUTTER := $(shell bash -c 'source ../scripts/flutter_utils.sh && get_flutter_cmd')
-DART := $(shell bash -c 'source ../scripts/flutter_utils.sh && get_dart_cmd')
+FLUTTER := $(shell command -v fvm >/dev/null 2>&1 && echo "fvm flutter" || echo "flutter")
+DART := $(shell command -v fvm >/dev/null 2>&1 && echo "fvm dart" || echo "dart")
+DEV_TOOLS := $(DART) run dev_tools
+COVERAGE_EXCLUSIONS := \
+	lib/di/config/** \
+	lib/di/modules/** \
+	lib/di/di.dart \
+	lib/generated/** \
+	lib/**/*.g.dart \
+	lib/**/*.gen.dart \
+	lib/**/firebase_options_*.dart \
+	lib/main_*.dart \
+	lib/**/models/** \
+	lib/**/constants \
+	lib/**/presentation/widgets/** \
+	lib/**/bloc/*_event.dart \
+	lib/**/bloc/*_state.dart \
+	lib/features/app/infrastructure/config/**
+
 
 .PHONY: test
 test:
@@ -15,15 +32,15 @@ generate-strings:
 
 .PHONY: run-tests-with-coverage
 run-tests-with-coverage:
-	@bash scripts/coverage/run_test_with_coverage.sh
+	$(FLUTTER) test --no-test-assets --coverage --coverage-path coverage/lcov.info
+	@echo "Coverage data generated at coverage/lcov.info."
 
 .PHONY: process-coverage-data
 process-coverage-data:
-	@bash scripts/coverage/process_coverage_data.sh
-
-.PHONY: enforce-coverage-threshold
-enforce-coverage-threshold:
-	@bash ../scripts/check_coverage.sh coverage/lcov.info 100
+	@lcov --remove coverage/lcov.info --output-file coverage/lcov.info $(COVERAGE_EXCLUSIONS) --ignore-errors unused,empty >/dev/null 2>&1 || true
+	@genhtml coverage/lcov.info -o coverage/html >/dev/null 2>&1 || true
+	@echo "HTML report available at coverage/html/index.html."
+	@echo "Coverage report generated at coverage/lcov.info."
 
 .PHONY: view-coverage
 view-coverage: run-tests-with-coverage process-coverage-data

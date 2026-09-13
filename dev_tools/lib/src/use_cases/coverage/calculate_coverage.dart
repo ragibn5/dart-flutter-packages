@@ -33,16 +33,23 @@ class CalculateCoverage {
       );
     }
 
-    final result = await Process.run('lcov', ['--summary', file.path]);
-    final output = '${result.stdout}${result.stderr}';
-    final match = RegExp(r'lines\.*:\s*(\d+\.?\d*)%').firstMatch(output);
-    if (match == null) {
+    var found = 0;
+    var hit = 0;
+    for (final line in file.readAsLinesSync()) {
+      if (line.startsWith('LF:')) {
+        found += int.parse(line.substring(3));
+      } else if (line.startsWith('LH:')) {
+        hit += int.parse(line.substring(3));
+      }
+    }
+
+    if (found == 0) {
       throw const CoverageCalculationException(
         'Could not parse coverage data.',
       );
     }
 
-    return double.parse(match.group(1)!).round();
+    return (hit / found * 100).round();
   }
 }
 

@@ -5,7 +5,7 @@ import 'package:dev_tools/src/use_cases/coverage/enforce_coverage_across_package
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
 
 class EnforceCoverageAcrossPackagesCommand extends Command<void> {
-  static const String commandName = 'coverage';
+  static const String commandName = 'enforce-all';
   static const String commandDescription =
       "Run every touched package's tests with coverage (or every package, "
       'with --all) and enforce a minimum line-coverage threshold (default '

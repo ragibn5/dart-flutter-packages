@@ -104,7 +104,7 @@ exclude:
     expect(removeCall, contains('coverage/lcov.info'));
     expect(removeCall, contains('lib/**/*.g.dart'));
     expect(removeCall, contains('--output-file'));
-    expect(removeCall, contains('--ignore-errors unused'));
+    expect(removeCall, contains('--ignore-errors unused,empty'));
   });
 
   test('should throw PackageTestException when the exclusions filter fails',
