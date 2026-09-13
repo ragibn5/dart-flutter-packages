@@ -133,7 +133,7 @@ void main() {
 
   test('should propagate PackageIdentityException', () async {
     when(() => readPackageIdentity(any())).thenThrow(
-      const PackageIdentityException('Error: pubspec.yaml not found.'),
+      const PackageIdentityException('pubspec.yaml not found.'),
     );
 
     await expectLater(

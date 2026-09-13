@@ -76,8 +76,8 @@ class _FakePublisher implements PackagePublisher {
     if (failing) {
       throw PublishFailedException(
         dryRun
-            ? 'Error: Dry-run failed. Fix issues before publishing.'
-            : 'Error: Publishing failed.',
+            ? 'Dry-run failed. Fix issues before publishing.'
+            : 'Publishing failed.',
       );
     }
   }

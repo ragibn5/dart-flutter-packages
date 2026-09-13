@@ -216,7 +216,7 @@ void main() {
           interactive: any(named: 'interactive'),
           dryRunOnly: any(named: 'dryRunOnly'),
           verbose: any(named: 'verbose'),
-        )).thenThrow(const PublishFailedException('Error: Publishing failed.'));
+        )).thenThrow(const PublishFailedException('Publishing failed.'));
 
     await expectLater(
       sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main'),

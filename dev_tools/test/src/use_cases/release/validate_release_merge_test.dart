@@ -291,7 +291,7 @@ void main() {
           verbose: any(named: 'verbose'),
         )).thenThrow(
       const PublishFailedException(
-        'Error: Dry-run failed. Fix issues before publishing.',
+        'Dry-run failed. Fix issues before publishing.',
       ),
     );
 
