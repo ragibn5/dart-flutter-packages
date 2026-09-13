@@ -72,7 +72,7 @@ void main() {
         contains(
           'Running dry-run publish for foo:\n'
           '  - directory: ${tempDir.path}/pkg\n'
-          '  - command: $script',
+          '  - command: $script pub publish --dry-run',
         ),
       );
     },
@@ -97,7 +97,7 @@ void main() {
         contains(
           'Running publish for foo:\n'
           '  - directory: ${tempDir.path}/pkg\n'
-          '  - command: $script',
+          '  - command: $script pub publish --force',
         ),
       );
     },
