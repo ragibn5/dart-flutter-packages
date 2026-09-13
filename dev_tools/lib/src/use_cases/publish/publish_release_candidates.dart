@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/create_and_push_tag.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
@@ -24,6 +26,7 @@ class PublishReleaseCandidates {
   final GetTagFormat _gitTagFormat;
   final CreateAndPushTag _createAndPushTag;
   final DetectChangesInFolder _detectChangesInFolder;
+  final FindPackages _findPackages;
   final FindReleaseCandidatePackages _findReleaseCandidates;
   final RunPublishFlow _runPublishFlow;
 
@@ -32,11 +35,13 @@ class PublishReleaseCandidates {
     GetTagFormat gitTagFormat = const GetTagFormat(ResolveGitTagFormat()),
     CreateAndPushTag createAndPushTag = const CreateAndPushTag(),
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
+    FindPackages findPackages = const FindPackages(),
     FindReleaseCandidatePackages findReleaseCandidatePackages =
         const FindReleaseCandidatePackages(),
     RunPublishFlow runPublishFlow = const RunPublishFlow(),
   })  : _logger = logger,
         _detectChangesInFolder = detectChangesInFolder,
+        _findPackages = findPackages,
         _findReleaseCandidates = findReleaseCandidatePackages,
         _runPublishFlow = runPublishFlow,
         _gitTagFormat = gitTagFormat,
@@ -58,8 +63,10 @@ class PublishReleaseCandidates {
   ///
   /// Throws:
   /// - [GitDiffingException] when `git diff` fails.
-  /// - `PackageFinderException` or `PackageRegistryLookupException` while
-  ///   finding candidates (see [FindReleaseCandidatePackages]).
+  /// - `PackageFinderException` while scanning for packages (see
+  ///   [FindPackages]).
+  /// - `PackageRegistryLookupException` while narrowing candidates (see
+  ///   [FindReleaseCandidatePackages]).
   /// - [PublishBatchException] listing every candidate that failed to
   ///   publish or tag, once all candidates have been attempted.
   ///
@@ -79,8 +86,10 @@ class PublishReleaseCandidates {
       compareRef: toRef,
     );
 
+    final foundPackages = await _findPackages(repoRoot: repoRoot);
+    final localPackages = foundPackages.whereType<ValidLocalPackageInfo>().toList();
     final candidates = await _findReleaseCandidates(
-      repoRoot: repoRoot,
+      localPackages: localPackages,
       changedFiles: changedFiles,
     );
     if (candidates.isEmpty) {
@@ -123,7 +132,9 @@ class PublishReleaseCandidates {
     required bool dryRun,
   }) async {
     final identity = candidate.packageIdentity;
-    final tag = _gitTagFormat(name: identity.name, version: identity.version);
+    // A ReleaseCandidatePackage is only ever built for a versioned package
+    // (see FindReleaseCandidatePackages), so this is never null here.
+    final tag = _gitTagFormat(name: identity.name, version: identity.version!);
 
     // dryRunOnly follows the batch's own dryRun flag rather than
     // RunPublishFlow's default — a dry run here must never actually

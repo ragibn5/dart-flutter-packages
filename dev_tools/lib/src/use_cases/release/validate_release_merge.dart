@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
+import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
@@ -26,6 +27,7 @@ class ValidateReleaseMerge {
   final TagExists _tagExists;
   final GetTagFormat _gitTagFormat;
   final DetectChangesInFolder _detectChangesInFolder;
+  final FindPackages _findPackages;
   final FindReleaseCandidatePackages _findReleaseCandidates;
   final VerifyReleaseCompleteness _verifyReleaseCompleteness;
   final BuildStandardReleaseChecksBuilder _standardReleaseChecksBuilder;
@@ -36,6 +38,7 @@ class ValidateReleaseMerge {
     TagExists tagExists = const TagExists(),
     GetTagFormat gitTagFormat = const GetTagFormat(ResolveGitTagFormat()),
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
+    FindPackages findPackages = const FindPackages(),
     FindReleaseCandidatePackages findReleaseCandidatePackages =
         const FindReleaseCandidatePackages(),
     VerifyReleaseCompleteness verifyReleaseCompleteness =
@@ -45,6 +48,7 @@ class ValidateReleaseMerge {
     PackagePublisher publisher = const PubPublish(),
   })  : _logger = logger,
         _detectChangesInFolder = detectChangesInFolder,
+        _findPackages = findPackages,
         _findReleaseCandidates = findReleaseCandidatePackages,
         _verifyReleaseCompleteness = verifyReleaseCompleteness,
         _tagExists = tagExists,
@@ -65,8 +69,10 @@ class ValidateReleaseMerge {
   ///
   /// Throws:
   /// - [GitDiffingException] when `git diff` fails.
-  /// - [PackageFinderException] or [PackageRegistryLookupException] while
-  ///   finding candidates (see [FindReleaseCandidatePackages]).
+  /// - [PackageFinderException] while scanning for packages (see
+  ///   [FindPackages]).
+  /// - [PackageRegistryLookupException] while narrowing candidates (see
+  ///   [FindReleaseCandidatePackages]).
   /// - [TagLookupException] when a tag lookup fails for a reason other than
   ///   the tag not existing (see [TagExists]).
   /// - `PackageIdentityException` while checking a candidate's completeness
@@ -79,73 +85,90 @@ class ValidateReleaseMerge {
   ///
   /// Notes: runs every check for every candidate rather than stopping at
   /// the first failure. In GitHub Actions (detected via the `GITHUB_ACTIONS`
-  /// environment variable), each meaningful phase — finding candidates, and
-  /// each candidate's own check — is wrapped in its own `::group::`/
-  /// `::endgroup::` pair so the Actions log renders it as a collapsed,
-  /// foldable section instead of one long unfolded dump. The candidate-count
-  /// header and the final summary are always left unfolded, since those are
-  /// what a reader actually wants visible at a glance.
+  /// environment variable), each candidate's own check is wrapped in its
+  /// own `::group::`/`::endgroup::` pair so the Actions log renders it as a
+  /// collapsed, foldable section instead of one long unfolded dump. The
+  /// candidate-count header, the malformed-package listing, and the final
+  /// summary are always left unfolded, since those are what a reader
+  /// actually wants visible at a glance.
   Future<void> call({
     required String repoRoot,
     required String fromBranch,
     required String toBranch,
-    Map<String, String>? environment,
   }) async {
-    final inGithubActions =
-        (environment ?? Platform.environment)['GITHUB_ACTIONS'] == 'true';
+    _logger.info('Validating release merge...');
 
-    // Wraps `body` as one foldable unit in GitHub Actions: a
-    // ::group::title / ::endgroup:: pair (a no-op outside GitHub Actions,
-    // where those markers would otherwise just print as literal text),
-    // always closing the group — even if `body` throws — so one
-    // candidate's failure can never leave a later part of the log stuck
-    // inside an unclosed group.
-    Future<T> group<T>(String title, Future<T> Function() body) async {
-      if (inGithubActions) _logger.info('::group::$title');
-      try {
-        return await body();
-      } finally {
-        if (inGithubActions) _logger.info('::endgroup::');
-      }
-    }
+    final foundPackages = await _findPackages(repoRoot: repoRoot);
+    final validPackages =
+        foundPackages.whereType<ValidLocalPackageInfo>().toList();
+    final malformedPackages =
+        foundPackages.whereType<MalformedLocalPackageInfo>().toList();
 
-    final candidates = await group(
-      'Finding release candidates...',
-      () async {
-        // Diffs against the merge base of toBranch/fromBranch (git's `...`
-        // syntax), so this yields exactly the changes fromBranch
-        // introduces on top of toBranch — baseRef is the target,
-        // compareRef is the source.
-        final changedFiles = await _detectChangesInFolder(
-          baseRef: toBranch,
-          compareRef: fromBranch,
-        );
-        return _findReleaseCandidates(
-          repoRoot: repoRoot,
-          changedFiles: changedFiles,
-        );
+    await _logger.withGroupedLog(
+      'Found ${foundPackages.length} package(s)',
+      (logger) async {
+        logger
+          ..info('Valid packages:')
+          ..info(
+            validPackages.map((e) => '- ${e.repoRootRelativePath}').join('\n'),
+          )
+          ..info('Malformed packages:')
+          ..info(
+            malformedPackages
+                .map((e) => '- ${e.repoRootRelativePath}: ${e.reason}')
+                .join('\n'),
+          );
       },
+    );
+
+    final changedFiles = await _detectChangesInFolder(
+      baseRef: toBranch,
+      compareRef: fromBranch,
+    );
+    final candidates = await _findReleaseCandidates(
+      localPackages: validPackages,
+      changedFiles: changedFiles,
     );
 
     if (candidates.isEmpty) {
       _logger.info('No release candidates found; nothing to validate.');
       return;
     }
-    _logger.info(
-      'Validating release merge for ${candidates.length} candidate(s)...',
+
+    final results = await _logger.withGroupedLog(
+      'Validating ${candidates.length} release candidate(s)...',
+      (logger) async =>
+          _validateReleaseCandidates(logger, repoRoot, candidates),
     );
 
-    final checks = _standardReleaseChecksBuilder.build(_gitTagFormat);
-    final validPackages = <String>{};
+    _logger.info(
+      'Found ${candidates.length} release candidate(s):\n'
+      '${_buildSummary(results.$1, results.$2)}',
+    );
+
+    if (results.$2.isNotEmpty) {
+      throw ReleaseValidationException(
+        '${results.$2.length} release candidate(s) are incomplete.',
+      );
+    }
+  }
+
+  Future<(Set<String>, Map<String, List<String>>)> _validateReleaseCandidates(
+    Logger logger,
+    String repoRoot,
+    List<ReleaseCandidatePackage> candidates,
+  ) async {
+    final validPackageNames = <String>{};
     final issuesMap = <String, List<String>>{};
+    final checks = _standardReleaseChecksBuilder.build(_gitTagFormat);
     for (final candidate in candidates) {
       final name = candidate.packageIdentity.name;
-      final issues = await group(
+      final issues = await logger.withGroupedLog(
         name,
-        () async {
-          _logger.info('Checking $name...');
+        (logger) async {
+          logger.info('Checking $name...');
           final issues = await _checkCandidate(candidate, repoRoot, checks);
-          _logger.info(
+          logger.info(
             issues.isEmpty
                 ? '$name: OK'
                 : '$name: ${issues.length} issue(s) found.',
@@ -154,22 +177,13 @@ class ValidateReleaseMerge {
         },
       );
       if (issues.isEmpty) {
-        validPackages.add(name);
+        validPackageNames.add(name);
       } else {
         issuesMap[name] = issues;
       }
     }
 
-    _logger.info(
-      'Found ${candidates.length} release candidate(s):\n'
-      '${_buildSummary(validPackages, issuesMap)}',
-    );
-
-    if (issuesMap.isNotEmpty) {
-      throw ReleaseValidationException(
-        '${issuesMap.length} release candidate(s) are incomplete.',
-      );
-    }
+    return (validPackageNames, issuesMap);
   }
 
   /// Checks a single candidate's tag availability, release completeness,
@@ -185,14 +199,16 @@ class ValidateReleaseMerge {
     Map<String, VersionedFileCheck> checks,
   ) async {
     final packagePath = p.join(repoRoot, candidate.repoRootRelativePath);
+
     final identity = candidate.packageIdentity;
-    final tag = _gitTagFormat(name: identity.name, version: identity.version);
+    final tag = _gitTagFormat(name: identity.name, version: identity.version!);
     final tagAlreadyExists = await _tagExists(tag, repoRoot: repoRoot);
     final completenessIssues = await _verifyReleaseCompleteness(
       packagePath,
       publishedPackageInfo: candidate.publishedPackageInfo,
       checks: checks,
     );
+
     final dryRunIssue = await _checkDryRunPublish(candidate, repoRoot);
     return [
       if (tagAlreadyExists) 'Tag $tag already exists.',

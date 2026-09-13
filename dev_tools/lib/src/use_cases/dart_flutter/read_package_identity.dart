@@ -22,7 +22,7 @@ class ReadPackageIdentity {
   ///
   /// Throws:
   /// - [PackageIdentityException] when the pubspec is missing or lacks a
-  ///   `name` or `version`.
+  ///   `name`.
   Future<PackageIdentity> call(String packagePath) async {
     final pubspecFile = File('$packagePath/pubspec.yaml');
     if (!pubspecFile.existsSync()) {

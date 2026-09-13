@@ -1,34 +1,63 @@
 import 'dart:io';
 
-/// Reports diagnostic/progress messages, decoupled from a command's actual
-/// output. Pure use cases never depend on this directly: they return data
-/// (and any warning/progress text) for their caller to log; only the
-/// orchestrator use case behind a command holds a [Logger] and decides
-/// what, if anything, to log.
-abstract interface class Logger {
-  /// Reports a normal progress/status message.
-  void info(String message);
+enum LogLevel { info, warning, error }
 
-  /// Reports a non-fatal problem the caller should notice.
-  void warn(String message);
+abstract class Logger {
+  const Logger();
 
-  /// Reports an unexpected failure, optionally with the [stackTrace] it
-  /// occurred at.
-  void error(String message, {StackTrace? stackTrace});
+  void info(String message, {StackTrace? stackTrace}) {
+    log(LogLevel.info, message);
+  }
+
+  void warn(String message, {StackTrace? stackTrace}) {
+    log(LogLevel.warning, message);
+  }
+
+  void error(String message, {StackTrace? stackTrace}) {
+    log(LogLevel.error, message, stackTrace: stackTrace);
+  }
+
+  void log(LogLevel level, String message, {StackTrace? stackTrace});
+
+  Future<T> withGroupedLog<T>(
+    String title,
+    Future<T> Function(Logger logger) body,
+  ) async {
+    info('::group::$title');
+    try {
+      return await body(this);
+    } finally {
+      info('::endgroup::');
+    }
+  }
 }
 
-/// The default [Logger]: writes [info] to stdout, [warn] and [error] to
-/// stderr.
-class ConsoleLogger implements Logger {
+class ConsoleLogger extends Logger {
   const ConsoleLogger();
 
   @override
-  void info(String message) => stdout.writeln(message);
+  void log(LogLevel level, String message, {StackTrace? stackTrace}) {
+    final out = stdout;
+    final err = stderr;
+    switch (level) {
+      case LogLevel.info:
+        out.writeln(_buildMessage(message, stackTrace: stackTrace));
+        break;
+      case LogLevel.warning:
+        err.writeln(_buildMessage(message, stackTrace: stackTrace));
+        break;
+      case LogLevel.error:
+        err.writeln(_buildMessage(message, stackTrace: stackTrace));
+    }
+  }
 
-  @override
-  void warn(String message) => stderr.writeln(message);
-
-  @override
-  void error(String message, {StackTrace? stackTrace}) =>
-      stderr.writeln('$message\n$stackTrace');
+  String _buildMessage(String message, {StackTrace? stackTrace}) {
+    final sb = StringBuffer(message);
+    if (stackTrace != null) {
+      sb
+        ..writeln()
+        ..writeln(stackTrace.toString());
+    }
+    return sb.toString();
+  }
 }

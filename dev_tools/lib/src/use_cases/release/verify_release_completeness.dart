@@ -38,24 +38,29 @@ class VerifyReleaseCompleteness {
   ///
   /// Throws:
   /// - [PackageIdentityException] when the pubspec is missing or lacks a
-  ///   `name` or `version` (see [ReadPackageIdentity]).
+  ///   `name` (see [ReadPackageIdentity]).
+  ///
+  /// Notes: assumes [packagePath] has a version — the caller is expected to
+  /// have already ruled out a versionless package (which can't be released
+  /// at all) before calling this.
   Future<List<ReleaseIssue>> call(
     String packagePath, {
     required PublishedPackageInfo publishedPackageInfo,
     required Map<String, VersionedFileCheck> checks,
   }) async {
     final identity = await _readPackageIdentity(packagePath);
+    final version = identity.version!;
 
     final problems = <String>[
       ..._findPublishedVersionProblems(
         identity.name,
-        identity.version,
+        version,
         publishedPackageInfo,
       ),
       ...await _verifyVersionedFiles(
         packagePath: packagePath,
         name: identity.name,
-        version: identity.version,
+        version: version,
         checks: checks,
       ),
     ];

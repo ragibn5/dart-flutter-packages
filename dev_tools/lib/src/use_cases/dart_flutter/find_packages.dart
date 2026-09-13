@@ -1,18 +1,24 @@
 import 'dart:io';
 
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
-import 'package:dev_tools/src/models/local_package_info.dart';
+import 'package:dev_tools/src/models/package_identity.dart';
+import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/package_identity_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
-import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 /// Finds every package directory (one containing a `pubspec.yaml`) under a
-/// repository root and returns those matching `filter`.
+/// repository root.
 ///
-/// A directory whose pubspec can't be read as a package identity (missing,
-/// or lacking `name`/`version` — common for internal, unpublished packages)
-/// is skipped rather than failing the whole scan.
+/// A directory whose pubspec can't even be read as a package identity (the
+/// file is missing, or it lacks a `name`) is reported as a
+/// [MalformedLocalPackageInfo] rather than failing the whole scan — that's a
+/// genuinely broken package. A package with no `version` is NOT malformed:
+/// it's a perfectly valid [ValidLocalPackageInfo] (e.g. an app, or another
+/// internal, unreleased package) that just isn't a release candidate — see
+/// [PackageIdentity.version]. Returns every resolvable package unfiltered —
+/// narrowing down to whatever a caller actually needs (touched, publishable,
+/// etc.) is the caller's job.
 class FindPackages {
   /// Directories that never contain source packages worth scanning, and can
   /// be large enough to dominate the walk if not pruned (build output, caches,
@@ -28,68 +34,37 @@ class FindPackages {
     'Pods',
   };
 
-  final Logger _logger;
   final ReadPackageIdentity _readPackageIdentity;
 
   const FindPackages({
-    Logger logger = const ConsoleLogger(),
     ReadPackageIdentity readPackageIdentity = const ReadPackageIdentity(),
-  })  : _logger = logger,
-        _readPackageIdentity = readPackageIdentity;
+  }) : _readPackageIdentity = readPackageIdentity;
 
-  /// Finds every package under [repoRoot] matching [filter].
+  /// Finds every package under [repoRoot].
   ///
   /// Params:
   /// - `repoRoot`: absolute path to the repository root to scan.
-  /// - `filter`: predicate a package's [LocalPackageInfo] must satisfy to be
-  ///   included; only applied to packages whose pubspec was readable.
   ///
-  /// Returns: matching packages, in no particular order.
+  /// Returns: every resolvable [ValidLocalPackageInfo] plus every
+  /// [MalformedLocalPackageInfo] (in no particular order) — use `whereType` (or
+  /// a `switch`) to separate them however the caller likes.
   ///
   /// Throws:
   /// - [PackageFinderException] when `repoRoot` does not exist.
   ///
   /// Notes: a package whose pubspec can't be read (see class docs) is
-  /// skipped, not thrown for.
-  Future<List<LocalPackageInfo>> call({
-    required String repoRoot,
-    required bool Function(LocalPackageInfo localPackageInfo) filter,
-  }) async {
+  /// reported as a [MalformedLocalPackageInfo], not thrown for.
+  Future<List<PackageInfo>> call({required String repoRoot}) async {
     final repoRootDir = Directory(repoRoot);
     if (!repoRootDir.existsSync()) {
       throw PackageFinderException('Repository root not found: $repoRoot');
     }
 
-    final results = await Future.wait(
+    return Future.wait(
       _findPackageDirs(repoRootDir).map(
-        (dir) => _tryBuildLocalPackageInfo(
-          dir,
-          p.relative(dir.path, from: repoRoot),
-        ),
+        (dir) => _buildPackageInfo(dir, p.relative(dir.path, from: repoRoot)),
       ),
     );
-
-    // Reported after every directory has resolved (rather than as each
-    // completes) so skips print in a stable, traversal order regardless of
-    // how the underlying async reads happen to interleave.
-    final skippedPackagePaths = [
-      for (final result in results)
-        if (result.skipReason != null) result,
-    ];
-    if (skippedPackagePaths.isNotEmpty) {
-      final skipLines = skippedPackagePaths
-          .map((e) => '  - ${e.repoRootRelativePath}: ${e.skipReason}');
-      _logger.info(
-        'Skipped ${skippedPackagePaths.length} package(s):\n'
-        '${skipLines.join('\n')}',
-      );
-    }
-
-    return results
-        .map((result) => result.package)
-        .whereType<LocalPackageInfo>()
-        .where(filter)
-        .toList();
   }
 
   Iterable<Directory> _findPackageDirs(Directory dir) sync* {
@@ -105,33 +80,28 @@ class FindPackages {
     }
   }
 
-  /// Builds a [LocalPackageInfo] for [dir], capturing why it couldn't be
-  /// built (e.g. an internal, unpublished package with no `version`)
-  /// instead of letting the failure propagate.
-  Future<
-      ({
-        LocalPackageInfo? package,
-        String repoRootRelativePath,
-        String? skipReason,
-      })> _tryBuildLocalPackageInfo(
+  /// Builds a [PackageInfo] for [dir]: a [ValidLocalPackageInfo] when its
+  /// pubspec resolves cleanly, otherwise a [MalformedLocalPackageInfo] capturing
+  /// why (a missing or nameless pubspec.yaml) instead of letting the
+  /// failure propagate.
+  Future<PackageInfo> _buildPackageInfo(
     Directory dir,
     String repoRootRelativePath,
   ) async {
     try {
-      final package = LocalPackageInfo(
+      return ValidLocalPackageInfo(
         repoRootRelativePath: repoRootRelativePath,
         packageIdentity: await _readPackageIdentity(dir.absolute.path),
       );
-      return (
-        package: package,
-        repoRootRelativePath: repoRootRelativePath,
-        skipReason: null,
-      );
     } on PackageIdentityException catch (e) {
-      return (
-        package: null,
+      return MalformedLocalPackageInfo(
         repoRootRelativePath: repoRootRelativePath,
-        skipReason: e.message,
+        reason: e.message,
+      );
+    } catch (e) {
+      return MalformedLocalPackageInfo(
+        repoRootRelativePath: repoRootRelativePath,
+        reason: e.toString(),
       );
     }
   }

@@ -58,7 +58,7 @@ class ResolveGitTagFormat {
       return envValue;
     }
 
-    _logger.warn(
+    _logger.info(
       'Warning: $gitTagFormatEnvVar="$envValue" is missing a {name} or '
       '{version} placeholder; falling back to the default git tag format '
       '"$defaultGitTagFormat".',

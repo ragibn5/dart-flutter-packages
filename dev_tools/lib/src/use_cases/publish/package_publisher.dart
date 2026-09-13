@@ -102,7 +102,7 @@ class PubPublish implements PackagePublisher {
     if (exitCode != 0) {
       _logger
         ..info(out.contents)
-        ..warn(err.contents);
+        ..info(err.contents);
     }
     return exitCode;
   }

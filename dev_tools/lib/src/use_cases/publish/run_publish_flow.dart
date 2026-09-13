@@ -76,9 +76,10 @@ class RunPublishFlow {
   /// Returns: nothing (void).
   ///
   /// Throws:
-  /// - [PublishValidationException] on an invalid package path.
+  /// - [PublishValidationException] on an invalid package path, or when the
+  ///   package has no version to publish.
   /// - [PackageIdentityException] when the pubspec is missing or lacks a
-  ///   `name` or `version` (see [ReadPackageIdentity]).
+  ///   `name` (see [ReadPackageIdentity]).
   /// - [CommandNotFoundException] when neither fvm nor a system-wide
   ///   Dart/Flutter is installed (see [BuildPublishCommand]).
   /// - [PackageRegistryLookupException] when the package registry cannot
@@ -107,8 +108,15 @@ class RunPublishFlow {
     _validatePackagePath(packagePath);
 
     final identity = await _readPackageIdentity(packagePath);
+    final version = identity.version;
+    if (version == null) {
+      throw PublishValidationException(
+        "Package '${identity.name}' has no version to publish; "
+        'add one to its pubspec.yaml.',
+      );
+    }
     final tooling = await _buildPublishCommand(identity);
-    final label = '${identity.name}@${identity.version}';
+    final label = '${identity.name}@$version';
 
     _log('Publishing $label ...', verbose: verbose);
     await _ensureReleaseIsComplete(packagePath, identity);
