@@ -13,6 +13,7 @@ import 'package:dev_tools/src/use_cases/release/release_validation_exception.dar
 import 'package:dev_tools/src/use_cases/release/validate_release_merge.dart';
 import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart';
 import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
+import 'package:dev_tools/src/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -312,4 +313,85 @@ void main() {
       completes,
     );
   });
+
+  test(
+    'should wrap each candidate in a foldable ::group:: in GitHub Actions',
+    () async {
+      final logger = _FakeLogger();
+      sut = ValidateReleaseMerge(
+        logger: logger,
+        detectChangesInFolder: detectChangesInFolder,
+        findReleaseCandidatePackages: findReleaseCandidatePackages,
+        verifyReleaseCompleteness: verifyReleaseCompleteness,
+        tagExists: tagExists,
+        gitTagFormat: GetTagFormat(resolveGitTagFormat),
+        publisher: publisher,
+      );
+      when(() => findReleaseCandidatePackages(
+            repoRoot: any(named: 'repoRoot'),
+            changedFiles: any(named: 'changedFiles'),
+          )).thenAnswer(
+        (_) async => [candidate('pkg_a', 'pkg_a'), candidate('pkg_b', 'pkg_b')],
+      );
+
+      await sut(
+        repoRoot: repoRoot,
+        fromBranch: 'feature/x',
+        toBranch: 'main',
+        environment: const {'GITHUB_ACTIONS': 'true'},
+      );
+
+      expect(
+        logger.infoMessages,
+        containsAllInOrder([
+          '::group::pkg_a',
+          '::endgroup::',
+          '::group::pkg_b',
+          '::endgroup::',
+        ]),
+      );
+    },
+  );
+
+  test(
+    'should not emit ::group:: markers outside GitHub Actions',
+    () async {
+      final logger = _FakeLogger();
+      sut = ValidateReleaseMerge(
+        logger: logger,
+        detectChangesInFolder: detectChangesInFolder,
+        findReleaseCandidatePackages: findReleaseCandidatePackages,
+        verifyReleaseCompleteness: verifyReleaseCompleteness,
+        tagExists: tagExists,
+        gitTagFormat: GetTagFormat(resolveGitTagFormat),
+        publisher: publisher,
+      );
+      when(() => findReleaseCandidatePackages(
+            repoRoot: any(named: 'repoRoot'),
+            changedFiles: any(named: 'changedFiles'),
+          )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
+
+      await sut(
+        repoRoot: repoRoot,
+        fromBranch: 'feature/x',
+        toBranch: 'main',
+        environment: const {},
+      );
+
+      expect(logger.infoMessages, isNot(contains(contains('::group::'))));
+    },
+  );
+}
+
+class _FakeLogger implements Logger {
+  final List<String> infoMessages = [];
+
+  @override
+  void info(String message) => infoMessages.add(message);
+
+  @override
+  void warn(String message) {}
+
+  @override
+  void error(String message, {StackTrace? stackTrace}) {}
 }

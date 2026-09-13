@@ -78,12 +78,19 @@ class ValidateReleaseMerge {
   ///   candidates have been checked, so the MR gate fails.
   ///
   /// Notes: runs every check for every candidate rather than stopping at
-  /// the first failure.
+  /// the first failure. In GitHub Actions (detected via the `GITHUB_ACTIONS`
+  /// environment variable), each candidate's own check output is wrapped in
+  /// a `::group::`/`::endgroup::` pair so the Actions log renders it as a
+  /// collapsed, foldable section instead of one long unfolded dump — the
+  /// final summary itself is always left unfolded.
   Future<void> call({
     required String repoRoot,
     required String fromBranch,
     required String toBranch,
+    Map<String, String>? environment,
   }) async {
+    final inGithubActions =
+        (environment ?? Platform.environment)['GITHUB_ACTIONS'] == 'true';
     _logger.info('Validating release merge...');
 
     // Diffs against the merge base of toBranch/fromBranch (git's `...`
@@ -107,11 +114,14 @@ class ValidateReleaseMerge {
     final validPackages = <String>{};
     final issuesMap = <String, List<String>>{};
     for (final candidate in candidates) {
+      final name = candidate.packageIdentity.name;
+      if (inGithubActions) _logger.info('::group::$name');
       final issues = await _checkCandidate(candidate, repoRoot, checks);
+      if (inGithubActions) _logger.info('::endgroup::');
       if (issues.isEmpty) {
-        validPackages.add(candidate.packageIdentity.name);
+        validPackages.add(name);
       } else {
-        issuesMap[candidate.packageIdentity.name] = issues;
+        issuesMap[name] = issues;
       }
     }
 
