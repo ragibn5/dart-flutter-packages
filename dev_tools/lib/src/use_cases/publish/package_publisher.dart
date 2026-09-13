@@ -64,17 +64,27 @@ class PubPublish implements PackagePublisher {
       '${identity.name} in $workingDirectory',
     );
     // TEMPORARY: proves each candidate actually resolves its own pinned
-    // SDK via fvm (rather than a shared system-wide fallback). Drop once
-    // confirmed in CI.
-    final versionCheck = await Process.run(
-      tooling.prefix.first,
-      [...tooling.prefix.sublist(1), '--version'],
-      workingDirectory: workingDirectory,
-    );
-    _logger.info(
-      'DEBUG: "${tooling.command} --version" in $workingDirectory ->\n'
-      '${versionCheck.stdout}',
-    );
+    // Flutter SDK via fvm (rather than a shared system-wide fallback).
+    // "fvm flutter --version" (not "dart --version") on purpose — it
+    // prints the Flutter version number directly, so it's directly
+    // comparable to the package's own .fvmrc pin. Drop once confirmed in
+    // CI.
+    if (tooling.usesFvm) {
+      final versionCheck = await Process.run(
+        'fvm',
+        ['flutter', '--version'],
+        workingDirectory: workingDirectory,
+      );
+      _logger.info(
+        'DEBUG: "fvm flutter --version" in $workingDirectory ->\n'
+        '${versionCheck.stdout}',
+      );
+    } else {
+      _logger.info(
+        'DEBUG: not using fvm for ${identity.name} '
+        '(tooling: ${tooling.command})',
+      );
+    }
     final exitCode = verbose
         ? await _runPubPublish(
             repoRoot,
