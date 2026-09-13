@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/package_identity_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/release/standard_release_checks_builder.dart';

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dev_tools/src/use_cases/dart_flutter/package_identity_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:test/test.dart';
 
