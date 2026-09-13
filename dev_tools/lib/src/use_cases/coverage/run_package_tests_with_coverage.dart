@@ -1,5 +1,5 @@
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
-import 'package:dev_tools/src/use_cases/coverage/read_coverage_exclusions.dart';
+import 'package:dev_tools/src/use_cases/coverage/read_coverage_config.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 
 /// Runs a single package's tests with coverage enabled, using whichever
@@ -10,18 +10,17 @@ class RunPackageTestsWithCoverage {
   final String _flutterExecutable;
   final String _dartExecutable;
   final String _lcovExecutable;
-  final ReadCoverageExclusions _readCoverageExclusions;
+  final ReadCoverageConfig _readCoverageConfig;
 
   const RunPackageTestsWithCoverage({
     String flutterExecutable = 'flutter',
     String dartExecutable = 'dart',
     String lcovExecutable = 'lcov',
-    ReadCoverageExclusions readCoverageExclusions =
-        const ReadCoverageExclusions(),
+    ReadCoverageConfig readCoverageConfig = const ReadCoverageConfig(),
   })  : _flutterExecutable = flutterExecutable,
         _dartExecutable = dartExecutable,
         _lcovExecutable = lcovExecutable,
-        _readCoverageExclusions = readCoverageExclusions;
+        _readCoverageConfig = readCoverageConfig;
 
   /// Params:
   /// - `packagePath`: absolute path to the package to test.
@@ -38,8 +37,9 @@ class RunPackageTestsWithCoverage {
   ///
   /// Notes: a Dart package's lcov conversion requires the `coverage`
   /// package pre-activated globally (`dart pub global activate coverage`).
-  /// Afterwards, patterns from the package's own `.coverage_exclude` (see
-  /// [ReadCoverageExclusions]) are filtered out of the lcov data, if any.
+  /// Afterwards, exclude patterns from the package's own
+  /// `dev_tools_coverage_config.yaml` (see [ReadCoverageConfig]) are
+  /// filtered out of the lcov data, if any.
   Future<void> call({
     required String packagePath,
     required bool isFlutterPackage,
@@ -86,15 +86,15 @@ class RunPackageTestsWithCoverage {
   }
 
   Future<void> _applyExclusions(String packagePath, String lcovFile) async {
-    final exclusions = await _readCoverageExclusions(packagePath);
-    if (exclusions.isEmpty) return;
+    final config = await _readCoverageConfig(packagePath);
+    if (config.exclude.isEmpty) return;
 
     await _run(
       _lcovExecutable,
       [
         '--remove',
         lcovFile,
-        ...exclusions,
+        ...config.exclude,
         '--output-file',
         lcovFile,
         // A pattern that matches nothing (common — exclusions are written

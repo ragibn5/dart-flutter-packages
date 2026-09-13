@@ -24,7 +24,7 @@ void main() {
           repoRoot: any(named: 'repoRoot'),
           fromRef: any(named: 'fromRef'),
           toRef: any(named: 'toRef'),
-          threshold: any(named: 'threshold'),
+          globalThreshold: any(named: 'globalThreshold'),
           skipPaths: any(named: 'skipPaths'),
           all: any(named: 'all'),
         )).thenAnswer((_) async {});
@@ -56,7 +56,7 @@ void main() {
         // ignore: avoid_redundant_argument_values
         toRef: 'HEAD',
         // ignore: avoid_redundant_argument_values
-        threshold: 100,
+        globalThreshold: 100,
         // ignore: avoid_redundant_argument_values
         skipPaths: const [],
         // ignore: avoid_redundant_argument_values
@@ -83,7 +83,7 @@ void main() {
         repoRoot: '/fake/repo',
         fromRef: 'main~5',
         toRef: 'main',
-        threshold: 90,
+        globalThreshold: 90,
         skipPaths: ['app_template', 'demo'],
         // ignore: avoid_redundant_argument_values
         all: false,
@@ -102,7 +102,7 @@ void main() {
         // ignore: avoid_redundant_argument_values
         toRef: 'HEAD',
         // ignore: avoid_redundant_argument_values
-        threshold: 100,
+        globalThreshold: 100,
         // ignore: avoid_redundant_argument_values
         skipPaths: const [],
         all: true,

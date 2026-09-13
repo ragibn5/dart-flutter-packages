@@ -103,7 +103,6 @@ void main() {
     verify(() => flow(
           repoRoot: fakeRepoRoot,
           pkgPath: 'foo',
-          dryRunOnly: true,
           interactive: any(named: 'interactive'),
           verbose: any(named: 'verbose'),
         )).called(1);

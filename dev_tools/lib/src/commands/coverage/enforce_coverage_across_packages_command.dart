@@ -11,11 +11,12 @@ class EnforceCoverageAcrossPackagesCommand extends Command<void> {
       'with --all) and enforce a minimum line-coverage threshold (default '
       '100%) on each.\n\n'
       'Notes:\n'
-      "- A package's own .coverage_exclude file (lcov glob patterns, one "
-      'per line, # comments allowed) filters its lcov data before the '
-      'threshold check.\n'
-      '- Not to be confused with --skip-path below, which skips a whole '
-      'package rather than files within one.';
+      // ignore: lines_longer_than_80_chars
+      '- A package may contain a `dev_tools_coverage_config.yaml` file, which may contain:'
+      // ignore: lines_longer_than_80_chars
+      '    - `threshold`: its own threshold (overwrites the `--$thresholdOption` option)'
+      // ignore: lines_longer_than_80_chars
+      '    - `exclude`: glob exclude patterns (relative to package root, not repo root)';
 
   static const String fromOption = 'from';
   static const String toOption = 'to';
@@ -48,7 +49,7 @@ class EnforceCoverageAcrossPackagesCommand extends Command<void> {
       ..addOption(
         thresholdOption,
         defaultsTo: '100',
-        help: 'Coverage percentage.',
+        help: 'Global coverage percentage.',
       )
       ..addMultiOption(
         skipPathOption,
@@ -79,7 +80,7 @@ class EnforceCoverageAcrossPackagesCommand extends Command<void> {
       repoRoot: repoRoot,
       fromRef: argResults![fromOption] as String,
       toRef: argResults![toOption] as String,
-      threshold: threshold,
+      globalThreshold: threshold,
       skipPaths: argResults![skipPathOption] as List<String>,
       all: argResults!.flag(allFlag),
     );

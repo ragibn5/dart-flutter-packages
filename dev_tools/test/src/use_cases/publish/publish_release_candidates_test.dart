@@ -182,7 +182,6 @@ void main() {
           repoRoot: repoRoot,
           pkgPath: 'pkg_a',
           interactive: false,
-          dryRunOnly: true,
         )).called(1);
   });
 

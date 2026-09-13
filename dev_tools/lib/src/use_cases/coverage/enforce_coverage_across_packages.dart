@@ -1,6 +1,7 @@
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
+import 'package:dev_tools/src/use_cases/coverage/read_coverage_config.dart';
 import 'package:dev_tools/src/use_cases/coverage/run_package_tests_with_coverage.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/filter_touched_packages.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
@@ -21,6 +22,7 @@ class EnforceCoverageAcrossPackages {
   final FilterTouchedPackages _filterTouchedPackages;
   final CalculateCoverage _calculateCoverage;
   final RunPackageTestsWithCoverage _runPackageTests;
+  final ReadCoverageConfig _readCoverageConfig;
 
   const EnforceCoverageAcrossPackages({
     Logger logger = const ConsoleLogger(),
@@ -30,12 +32,14 @@ class EnforceCoverageAcrossPackages {
     CalculateCoverage calculateCoverage = const CalculateCoverage(),
     RunPackageTestsWithCoverage runPackageTests =
         const RunPackageTestsWithCoverage(),
+    ReadCoverageConfig readCoverageConfig = const ReadCoverageConfig(),
   })  : _logger = logger,
         _findPackages = findPackages,
         _detectChangesInFolder = detectChangesInFolder,
         _filterTouchedPackages = filterTouchedPackages,
         _calculateCoverage = calculateCoverage,
-        _runPackageTests = runPackageTests;
+        _runPackageTests = runPackageTests,
+        _readCoverageConfig = readCoverageConfig;
 
   /// Params:
   /// - `repoRoot`: absolute path to the repository root to scan.
@@ -43,28 +47,33 @@ class EnforceCoverageAcrossPackages {
   ///   change (e.g. the PR's base commit). Unused when [all] is true.
   /// - `toRef`: the ref to diff against, i.e. the branch's state after this
   ///   change (e.g. `HEAD`). Unused when [all] is true.
-  /// - `threshold`: required coverage percentage (default 100).
+  /// - `threshold`: required coverage percentage (default 100) — a
+  ///   package's own `dev_tools_coverage_config.yaml` may override this
+  ///   for itself.
   /// - `skipPaths`: repo-root-relative path prefixes of whole packages to
   ///   skip entirely (e.g. `app_template`, which has its own dedicated CI
   ///   coverage flow) — not to be confused with a package's own
-  ///   `.coverage_exclude` file, which filters files within one package's
-  ///   coverage rather than skipping the package altogether.
+  ///   `dev_tools_coverage_config.yaml`, which filters files (and/or
+  ///   overrides the threshold) within one package's coverage rather than
+  ///   skipping the package altogether.
   /// - `all`: when true, check every found package regardless of what
   ///   changed between [fromRef] and [toRef] — no diffing happens at all.
   ///
-  /// Returns: nothing (void) when every checked package meets [threshold].
+  /// Returns: nothing (void) when every checked package meets its
+  /// (possibly overridden) threshold.
   ///
   /// Throws:
   /// - [PackageFinderException] while scanning for packages (see
   ///   [FindPackages]).
   /// - [GitDiffingException] when `git diff` fails (only when `!all`).
   /// - [CoverageBatchException] listing every package that failed its tests
-  ///   or fell below [threshold], once every package has been checked.
+  ///   or fell below [globalThreshold] (or package specific override), once
+  ///   every package has been checked.
   Future<void> call({
     required String repoRoot,
     required String fromRef,
     required String toRef,
-    double threshold = 100,
+    double globalThreshold = 100,
     List<String> skipPaths = const [],
     bool all = false,
   }) async {
@@ -80,15 +89,19 @@ class EnforceCoverageAcrossPackages {
                 _extractTouchedPackages(fromRef, toRef, packages, logger),
           );
 
-    final issueMap = await _checkPackages(repoRoot, packagesToCheck, threshold);
+    final results = await _checkPackages(
+      repoRoot,
+      globalThreshold,
+      packagesToCheck,
+    );
     _logger.info(
       'Coverage report for ${packagesToCheck.length} package(s):\n'
-      '${_buildSummary(threshold, packagesToCheck, issueMap)}',
+      '${_buildSummary(packagesToCheck, results)}',
     );
 
-    if (issueMap.isNotEmpty) {
+    if (results.issueMap.isNotEmpty) {
       throw CoverageBatchException(
-        '${issueMap.length} package(s) failed coverage enforcement.',
+        '${results.issueMap.length} package(s) failed coverage enforcement.',
       );
     }
   }
@@ -152,35 +165,48 @@ class EnforceCoverageAcrossPackages {
             repoRootRelativePath.startsWith('$prefix/'),
       );
 
-  Future<Map<String, String>> _checkPackages(
+  Future<_CheckResult> _checkPackages(
     String repoRoot,
+    double globalThreshold,
     List<ValidLocalPackageInfo> packages,
-    double threshold,
   ) async {
     final issueMap = <String, String>{};
+    final effectiveThresholds = <String, double>{};
     for (var i = 0; i < packages.length; ++i) {
       final package = packages[i];
       final name = package.packageIdentity.name;
+      final packagePath = p.join(repoRoot, package.repoRootRelativePath);
+
+      // Read upfront (can't fail) so every checked package's threshold is
+      // known regardless of whether its check below passes or throws.
+      final config = await _readCoverageConfig(packagePath);
+      effectiveThresholds[name] = config.threshold ?? globalThreshold;
+
       await _logger.withGroupedLog(
         '[${i + 1}/${packages.length}] Checking $name ...',
         (logger) async {
           try {
-            await _checkPackage(repoRoot, package, threshold);
+            await _checkPackage(
+              package,
+              packagePath,
+              effectiveThresholds[name]!,
+            );
           } catch (e) {
             issueMap[name] = e.toString();
           }
         },
       );
     }
-    return issueMap;
+    return (issueMap: issueMap, effectiveThresholds: effectiveThresholds);
   }
 
+  /// Throws [CoverageThresholdException] when [package]'s coverage falls
+  /// below [threshold].
   Future<void> _checkPackage(
-    String repoRoot,
     ValidLocalPackageInfo package,
+    String packagePath,
     double threshold,
   ) async {
-    final packagePath = p.join(repoRoot, package.repoRootRelativePath);
     await _runPackageTests(
       packagePath: packagePath,
       isFlutterPackage: package.packageIdentity.isFlutterPackage,
@@ -194,23 +220,34 @@ class EnforceCoverageAcrossPackages {
   }
 
   String _buildSummary(
-    double threshold,
     List<ValidLocalPackageInfo> packages,
-    Map<String, String> issueMap,
+    _CheckResult results,
   ) {
     const tick = '✅';
     const cross = '❌';
     return [
       for (final package in packages)
-        if (!issueMap.containsKey(package.packageIdentity.name))
-          '  $tick ${package.packageIdentity.name}: OK (>= $threshold%)',
-      for (final entry in issueMap.entries) ...[
+        if (!results.issueMap.containsKey(package.packageIdentity.name))
+          _formatOk(tick, package.packageIdentity.name, results),
+      for (final entry in results.issueMap.entries) ...[
         '  $cross ${entry.key}:',
         for (final line in entry.value.split('\n')) '      $line',
       ],
     ].join('\n');
   }
+
+  String _formatOk(String tick, String name, _CheckResult results) {
+    final threshold = results.effectiveThresholds[name];
+    return '  $tick $name: OK (>= $threshold%)';
+  }
 }
+
+/// Result of checking every package: the error for each one that failed,
+/// and the threshold actually enforced for each one that passed.
+typedef _CheckResult = ({
+  Map<String, String> issueMap,
+  Map<String, double> effectiveThresholds,
+});
 
 class CoverageBatchException extends CommandExecutionException {
   @override

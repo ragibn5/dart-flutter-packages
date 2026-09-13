@@ -311,7 +311,7 @@ void main() {
 
   test('should skip the actual publish when dryRunOnly is true', () async {
     await expectLater(
-      sut(repoRoot: repoRoot, pkgPath: pkgPath, dryRunOnly: true),
+      sut(repoRoot: repoRoot, pkgPath: pkgPath),
       completes,
     );
 

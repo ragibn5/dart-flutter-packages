@@ -2,6 +2,7 @@ import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/coverage/enforce_coverage_across_packages.dart';
+import 'package:dev_tools/src/use_cases/coverage/read_coverage_config.dart';
 import 'package:dev_tools/src/use_cases/coverage/run_package_tests_with_coverage.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
@@ -19,6 +20,8 @@ class _MockRunPackageTestsWithCoverage extends Mock
 
 class _MockCalculateCoverage extends Mock implements CalculateCoverage {}
 
+class _MockReadCoverageConfig extends Mock implements ReadCoverageConfig {}
+
 void main() {
   const repoRoot = '/fake/repo';
   // Covers every package path used across the tests below, so each one
@@ -34,6 +37,7 @@ void main() {
   late _MockDetectChangesInFolder detectChangesInFolder;
   late _MockRunPackageTestsWithCoverage runPackageTests;
   late _MockCalculateCoverage calculateCoverage;
+  late _MockReadCoverageConfig readCoverageConfig;
   late EnforceCoverageAcrossPackages sut;
 
   ValidLocalPackageInfo pkg(String path, String name) => ValidLocalPackageInfo(
@@ -52,7 +56,7 @@ void main() {
         repoRoot: repoRoot,
         fromRef: fromRef,
         toRef: toRef,
-        threshold: threshold,
+        globalThreshold: threshold,
         skipPaths: skipPaths,
         all: all,
       );
@@ -77,12 +81,17 @@ void main() {
     calculateCoverage = _MockCalculateCoverage();
     when(() => calculateCoverage(any(), any())).thenAnswer((_) async => 100);
 
+    readCoverageConfig = _MockReadCoverageConfig();
+    when(() => readCoverageConfig(any()))
+        .thenAnswer((_) async => (exclude: const <String>[], threshold: null));
+
     sut = EnforceCoverageAcrossPackages(
       logger: _FakeLogger(),
       findPackages: findPackages,
       detectChangesInFolder: detectChangesInFolder,
       runPackageTests: runPackageTests,
       calculateCoverage: calculateCoverage,
+      readCoverageConfig: readCoverageConfig,
     );
   });
 
@@ -236,6 +245,28 @@ void main() {
         .thenAnswer((_) async => [pkg('pkg_a', 'pkg_a')]);
 
     await expectLater(run(), completes);
+  });
+
+  test(
+      "should use a package's own dev_tools_coverage_config.yaml "
+      'threshold instead of the batch default', () async {
+    when(() => findPackages(repoRoot: any(named: 'repoRoot')))
+        .thenAnswer((_) async => [pkg('pkg_a', 'pkg_a')]);
+    when(() => readCoverageConfig(any()))
+        .thenAnswer((_) async => (exclude: const <String>[], threshold: 80.0));
+    when(() => calculateCoverage(any(), any())).thenAnswer((_) async => 85);
+
+    await expectLater(run(), completes);
+  });
+
+  test('should still fail below an overridden (lower) threshold', () async {
+    when(() => findPackages(repoRoot: any(named: 'repoRoot')))
+        .thenAnswer((_) async => [pkg('pkg_a', 'pkg_a')]);
+    when(() => readCoverageConfig(any()))
+        .thenAnswer((_) async => (exclude: const <String>[], threshold: 80.0));
+    when(() => calculateCoverage(any(), any())).thenAnswer((_) async => 75);
+
+    await expectLater(run(), throwsA(isA<CoverageBatchException>()));
   });
 }
 

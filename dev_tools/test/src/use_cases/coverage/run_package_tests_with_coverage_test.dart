@@ -73,8 +73,9 @@ void main() {
     );
   });
 
-  test('should not filter the lcov data when no .coverage_exclude exists',
-      () async {
+  test(
+      'should not filter the lcov data when no '
+      'dev_tools_coverage_config.yaml exists', () async {
     await buildSut(exitCode: 0)(
       packagePath: tempDir.path,
       isFlutterPackage: true,
@@ -85,11 +86,11 @@ void main() {
   });
 
   test(
-      "should filter the lcov data using the package's .coverage_exclude "
-      'patterns', () async {
-    File('${tempDir.path}/.coverage_exclude').writeAsStringSync('''
-# Generated files
-lib/**/*.g.dart
+      "should filter the lcov data using the package's "
+      'dev_tools_coverage_config.yaml exclude patterns', () async {
+    File('${tempDir.path}/dev_tools_coverage_config.yaml').writeAsStringSync('''
+exclude:
+  - lib/**/*.g.dart
 ''');
 
     await buildSut(exitCode: 0)(
@@ -108,8 +109,8 @@ lib/**/*.g.dart
 
   test('should throw PackageTestException when the exclusions filter fails',
       () async {
-    File('${tempDir.path}/.coverage_exclude')
-        .writeAsStringSync('lib/**/*.g.dart\n');
+    File('${tempDir.path}/dev_tools_coverage_config.yaml')
+        .writeAsStringSync('exclude:\n  - lib/**/*.g.dart\n');
     final sut = RunPackageTestsWithCoverage(
       flutterExecutable: _script(tempDir, exitCode: 0, logFile: logFile),
       dartExecutable: _script(tempDir, exitCode: 0, logFile: logFile),
