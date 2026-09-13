@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/package_info.dart';
-import 'package:dev_tools/src/use_cases/dart_flutter/package_identity_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/read_package_identity.dart';
 import 'package:path/path.dart' as p;
 
@@ -81,9 +80,9 @@ class FindPackages {
   }
 
   /// Builds a [PackageInfo] for [dir]: a [ValidLocalPackageInfo] when its
-  /// pubspec resolves cleanly, otherwise a [MalformedLocalPackageInfo] capturing
-  /// why (a missing or nameless pubspec.yaml) instead of letting the
-  /// failure propagate.
+  /// pubspec resolves cleanly, otherwise a [MalformedLocalPackageInfo]
+  /// capturing why (a missing or nameless pubspec.yaml) instead of letting
+  /// the failure propagate.
   Future<PackageInfo> _buildPackageInfo(
     Directory dir,
     String repoRootRelativePath,

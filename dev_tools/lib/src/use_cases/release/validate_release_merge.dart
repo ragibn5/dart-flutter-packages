@@ -183,7 +183,7 @@ class ValidateReleaseMerge {
       final candidate = candidates[i];
       final name = candidate.packageIdentity.name;
       final issues = await _logger.withGroupedLog(
-        '[${i + 1}/${candidates.length})] Validating $name ...',
+        '[${i + 1}/${candidates.length}] Validating $name ...',
         (logger) => _checkCandidate(candidate, repoRoot, checks),
       );
       if (issues.isEmpty) {

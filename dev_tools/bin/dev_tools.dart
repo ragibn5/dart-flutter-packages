@@ -8,7 +8,7 @@ import 'package:dev_tools/src/commands/dart_flutter/fvm_flutter_command.dart';
 import 'package:dev_tools/src/commands/find_replace/replace_command.dart';
 import 'package:dev_tools/src/commands/git/git_command.dart';
 import 'package:dev_tools/src/commands/publish/publish_command.dart';
-import 'package:dev_tools/src/commands/release/publish_release_candidates_command.dart';
+import 'package:dev_tools/src/commands/publish/publish_release_candidates_command.dart';
 import 'package:dev_tools/src/commands/release/validate_release_merge_command.dart';
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 

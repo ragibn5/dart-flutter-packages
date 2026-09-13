@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:meta/meta.dart';
 
+/// Severity of a single log message.
 enum LogLevel { info, warning, error }
 
+/// Reports progress/diagnostic messages, decoupled from where they actually
+/// end up (console, captured buffer, etc.).
 abstract class Logger {
   const Logger();
 
@@ -16,6 +19,8 @@ abstract class Logger {
   void error(String message, {StackTrace? stackTrace}) =>
       log(LogLevel.error, message, stackTrace: stackTrace);
 
+  /// Writes [message] at [level]. Subclasses implement only this method;
+  /// [info]/[warn]/[error] are convenience wrappers around it.
   @visibleForOverriding
   void log(LogLevel level, String message, {StackTrace? stackTrace});
 

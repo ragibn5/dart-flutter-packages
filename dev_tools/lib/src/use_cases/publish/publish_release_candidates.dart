@@ -9,10 +9,25 @@ import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_batch_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 
 const _greenTick = '\x1B[32m✓\x1B[0m';
 const _redCross = '\x1B[31m✗\x1B[0m';
+
+/// Result of scanning the repo for packages, split by validity.
+typedef _PackageScanResult = ({
+  List<ValidLocalPackageInfo> valid,
+  List<MalformedLocalPackageInfo> malformed,
+});
+
+/// Result of attempting to publish every release candidate: the tag each
+/// successfully published one got, and the error for every one that failed.
+/// ignore: avoid_private_typedef_functions
+typedef _PublishResult = ({
+  Map<String, String> published,
+  Map<String, String> issuesByName,
+});
 
 /// Orchestrates publishing every release candidate introduced by a merge to
 /// the release branch (e.g. `main`), and tagging each one that publishes
@@ -63,69 +78,117 @@ class PublishReleaseCandidates {
   ///
   /// Throws:
   /// - [GitDiffingException] when `git diff` fails.
-  /// - `PackageFinderException` while scanning for packages (see
+  /// - [PackageFinderException] while scanning for packages (see
   ///   [FindPackages]).
-  /// - `PackageRegistryLookupException` while narrowing candidates (see
+  /// - [PackageRegistryLookupException] while narrowing candidates (see
   ///   [FindReleaseCandidatePackages]).
   /// - [PublishBatchException] listing every candidate that failed to
   ///   publish or tag, once all candidates have been attempted.
-  ///
-  /// Notes: publishes non-interactively and silently (see [RunPublishFlow]'s
-  /// `interactive`/`verbose` params) — reports nothing per candidate, only
-  /// the final summary, same as `ValidateReleaseMerge`.
   Future<void> call({
     required String repoRoot,
     required String fromRef,
     required String toRef,
     bool dryRun = false,
   }) async {
-    _logger.info('Publishing release candidates...');
-
-    final changedFiles = await _detectChangesInFolder(
-      baseRef: fromRef,
-      compareRef: toRef,
+    final packages = await _logger.withGroupedLog(
+      'Scanning for packages...',
+      (logger) => _extractPackages(repoRoot, logger),
+    );
+    final candidates = await _logger.withGroupedLog(
+      'Filtering release candidates...',
+      (logger) => _extractReleaseCandidates(fromRef, toRef, packages, logger),
     );
 
-    final foundPackages = await _findPackages(repoRoot: repoRoot);
-    final localPackages = foundPackages.whereType<ValidLocalPackageInfo>().toList();
-    final candidates = await _findReleaseCandidates(
-      localPackages: localPackages,
-      changedFiles: changedFiles,
-    );
-    if (candidates.isEmpty) {
-      _logger.info('No release candidates found; nothing to publish.');
-      return;
-    }
-
-    // name -> tag, for every candidate that published and tagged cleanly.
-    final published = <String, String>{};
-    final issuesMap = <String, String>{};
-    for (final candidate in candidates) {
-      try {
-        published[candidate.packageIdentity.name] =
-            await _publishCandidate(candidate, repoRoot, dryRun: dryRun);
-      } catch (e) {
-        issuesMap[candidate.packageIdentity.name] = e.toString();
-      }
-    }
-
+    final results =
+        await _publishCandidates(repoRoot, candidates, dryRun: dryRun);
     _logger.info(
       'Attempted ${candidates.length} release candidate(s):\n'
-      '${_buildSummary(published, issuesMap, dryRun: dryRun)}',
+      '$_buildSummary(results.published, results.issuesByName, dryRun: dryRun)',
     );
 
-    if (issuesMap.isNotEmpty) {
+    if (results.issuesByName.isNotEmpty) {
       final verb = dryRun ? 'dry-run publish' : 'publish';
       throw PublishBatchException(
-        '${issuesMap.length} release candidate(s) failed to $verb.',
+        '${results.issuesByName.length} release candidate(s) failed to '
+        '$verb.',
       );
     }
   }
 
-  /// Publishes and tags [candidate] (dryRun skips both the actual publish
-  /// and the tag).
-  ///
-  /// Returns: the tag [candidate] was (or would be) tagged with.
+  Future<_PackageScanResult> _extractPackages(
+    String repoRoot,
+    Logger logger,
+  ) async {
+    final foundPackages = await _findPackages(repoRoot: repoRoot);
+    final validPackages =
+        foundPackages.whereType<ValidLocalPackageInfo>().toList();
+    final malformedPackages =
+        foundPackages.whereType<MalformedLocalPackageInfo>().toList();
+
+    logger
+      ..info('Found ${foundPackages.length} package(s)')
+      ..info('  Valid: ${validPackages.length}')
+      ..info('  Malformed: ${malformedPackages.length}')
+      ..info(
+        malformedPackages
+            .map((e) => '  - ${e.repoRootRelativePath}: ${e.reason}')
+            .join('\n')
+            .trim(),
+      );
+
+    return (valid: validPackages, malformed: malformedPackages);
+  }
+
+  Future<List<ReleaseCandidatePackage>> _extractReleaseCandidates(
+    String fromRef,
+    String toRef,
+    _PackageScanResult packages,
+    Logger logger,
+  ) async {
+    final changedFiles = await _detectChangesInFolder(
+      baseRef: fromRef,
+      compareRef: toRef,
+    );
+    final candidates = await _findReleaseCandidates(
+      localPackages: packages.valid,
+      changedFiles: changedFiles,
+    );
+
+    if (candidates.isEmpty) {
+      logger.info('No release candidates found; nothing to publish.');
+    } else {
+      logger.info('Found ${candidates.length} release candidate(s).');
+    }
+
+    return candidates;
+  }
+
+  Future<_PublishResult> _publishCandidates(
+    String repoRoot,
+    List<ReleaseCandidatePackage> candidates, {
+    required bool dryRun,
+  }) async {
+    final published = <String, String>{};
+    final issuesMap = <String, String>{};
+    for (var i = 0; i < candidates.length; ++i) {
+      final candidate = candidates[i];
+      final name = candidate.packageIdentity.name;
+      await _logger.withGroupedLog(
+        '[${i + 1}/${candidates.length}] Publishing $name ...',
+        (logger) async {
+          try {
+            published[name] =
+                await _publishCandidate(candidate, repoRoot, dryRun: dryRun);
+          } catch (e) {
+            issuesMap[name] = e.toString();
+          }
+        },
+      );
+    }
+
+    return (published: published, issuesByName: issuesMap);
+  }
+
   Future<String> _publishCandidate(
     ReleaseCandidatePackage candidate,
     String repoRoot, {
@@ -144,7 +207,6 @@ class PublishReleaseCandidates {
       pkgPath: candidate.repoRootRelativePath,
       interactive: false,
       dryRunOnly: dryRun,
-      verbose: false,
     );
     if (!dryRun) {
       await _createAndPushTag(tag, repoRoot: repoRoot);
