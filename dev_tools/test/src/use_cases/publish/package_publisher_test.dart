@@ -53,56 +53,6 @@ void main() {
         buildPublishCommand: buildPublishCommand,
       );
 
-  test(
-    'logs the working directory before running the publish command',
-    () async {
-      final script = _executableScript(tempDir, exitCode: 0);
-      when(() => buildPublishCommand(any()))
-          .thenAnswer((_) async => PublishTooling(script));
-
-      await buildSut()(
-        repoRoot: tempDir.path,
-        pkgPath: 'pkg',
-        identity: identity,
-        dryRun: true,
-      );
-
-      expect(
-        logger.infoMessages,
-        contains(
-          'Running dry-run publish for foo:\n'
-          '  - directory: ${tempDir.path}/pkg\n'
-          '  - command: $script pub publish --dry-run',
-        ),
-      );
-    },
-  );
-
-  test(
-    'logs a real-publish message (no dry-run prefix) when publishing for real',
-    () async {
-      final script = _executableScript(tempDir, exitCode: 0);
-      when(() => buildPublishCommand(any()))
-          .thenAnswer((_) async => PublishTooling(script));
-
-      await buildSut()(
-        repoRoot: tempDir.path,
-        pkgPath: 'pkg',
-        identity: identity,
-        dryRun: false,
-      );
-
-      expect(
-        logger.infoMessages,
-        contains(
-          'Running publish for foo:\n'
-          '  - directory: ${tempDir.path}/pkg\n'
-          '  - command: $script pub publish --force',
-        ),
-      );
-    },
-  );
-
   test('passes --dry-run when dryRun is true', () async {
     final logFile = '${tempDir.path}/args.log';
     final script = _executableScript(tempDir, exitCode: 0, logFile: logFile);
@@ -215,8 +165,7 @@ void main() {
   );
 
   test(
-    'stays quiet (besides the working-directory log) on a successful '
-    'silent (non-verbose) run',
+    'stays quiet on a successful silent (non-verbose) run',
     () async {
       final script = _executableScript(
         tempDir,

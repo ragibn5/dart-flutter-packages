@@ -58,22 +58,19 @@ class PubPublish implements PackagePublisher {
     bool verbose = true,
   }) async {
     final tooling = await _buildPublishCommand(identity);
-    final workingDirectory = '$repoRoot/$pkgPath';
-    final args = _pubPublishArgs(tooling, dryRun: dryRun);
-    final pinnedVersion =
-        tooling.usesFvm ? _readFvmPinnedVersion(workingDirectory) : null;
-    final pinnedVersionLine = pinnedVersion == null
-        ? ''
-        : '\n  - pinned version: $pinnedVersion (via fvm)';
-    _logger.info(
-      'Running ${dryRun ? 'dry-run ' : ''}publish for ${identity.name}:\n'
-      '  - directory: $workingDirectory\n'
-      '  - command: ${args.join(' ')}'
-      '$pinnedVersionLine',
-    );
     final exitCode = verbose
-        ? await _runPubPublish(repoRoot, pkgPath, args)
-        : await _runSilently(repoRoot, pkgPath, args);
+        ? await _runPubPublish(
+            repoRoot,
+            pkgPath,
+            tooling: tooling,
+            dryRun: dryRun,
+          )
+        : await _runSilently(
+            repoRoot,
+            pkgPath,
+            tooling: tooling,
+            dryRun: dryRun,
+          );
     if (exitCode != 0) {
       throw PublishFailedException(
         dryRun
@@ -88,15 +85,17 @@ class PubPublish implements PackagePublisher {
   /// process actually fails, so a quiet run stays quiet on success.
   Future<int> _runSilently(
     String repoRoot,
-    String pkgPath,
-    List<String> args,
-  ) async {
+    String pkgPath, {
+    required PublishTooling tooling,
+    required bool dryRun,
+  }) async {
     final out = BufferSink();
     final err = BufferSink();
     final exitCode = await _runPubPublish(
       repoRoot,
       pkgPath,
-      args,
+      tooling: tooling,
+      dryRun: dryRun,
       stdOut: out,
       stdErr: err,
     );
@@ -110,11 +109,19 @@ class PubPublish implements PackagePublisher {
 
   static Future<int> _runPubPublish(
     String repoRoot,
-    String pkgPath,
-    List<String> args, {
+    String pkgPath, {
+    required PublishTooling tooling,
+    required bool dryRun,
     IOSink? stdOut,
     IOSink? stdErr,
   }) {
+    final args = [
+      ...tooling.prefix,
+      'pub',
+      'publish',
+      if (dryRun) '--dry-run',
+      if (!dryRun) '--force',
+    ];
     final runner = InteractiveProcessRunner(
       executable: args.first,
       arguments: args.sublist(1),
@@ -123,31 +130,5 @@ class PubPublish implements PackagePublisher {
       stdErr: stdErr,
     );
     return runner.run();
-  }
-
-  static List<String> _pubPublishArgs(
-    PublishTooling tooling, {
-    required bool dryRun,
-  }) =>
-      [
-        ...tooling.prefix,
-        'pub',
-        'publish',
-        if (dryRun) '--dry-run',
-        if (!dryRun) '--force',
-      ];
-
-  /// Reads the Flutter version pinned by [workingDirectory]'s own `.fvmrc`,
-  /// so the log can show which version fvm will actually resolve to for
-  /// this specific package — not just that fvm is in use.
-  ///
-  /// Returns: the pinned version, or null when there's no `.fvmrc` (or it
-  /// couldn't be parsed).
-  static String? _readFvmPinnedVersion(String workingDirectory) {
-    final fvmrc = File('$workingDirectory/.fvmrc');
-    if (!fvmrc.existsSync()) return null;
-    final match = RegExp(r'"flutter"\s*:\s*"([^"]+)"')
-        .firstMatch(fvmrc.readAsStringSync());
-    return match?.group(1);
   }
 }
