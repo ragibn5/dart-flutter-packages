@@ -32,7 +32,7 @@ typedef _PackageScanResult = ({
 // ignore: avoid_private_typedef_functions
 typedef _ReleaseCheckResult = ({
   Set<String> validNames,
-  Map<String, List<String>> issuesByName,
+  Map<String, List<String>> issueMap,
 });
 
 /// Orchestrates the MR-to-target-branch release gate end to end.
@@ -114,12 +114,12 @@ class ValidateReleaseMerge {
     final results = await _validateReleaseCandidates(repoRoot, candidates);
     _logger.info(
       'Validation report for ${candidates.length} release candidate(s):\n'
-      '${_buildSummary(results.validNames, results.issuesByName)}',
+      '${_buildSummary(results.validNames, results.issueMap)}',
     );
 
-    if (results.issuesByName.isNotEmpty) {
+    if (results.issueMap.isNotEmpty) {
       throw ReleaseValidationException(
-        '${results.issuesByName.length} release candidate(s) are incomplete.',
+        '${results.issueMap.length} release candidate(s) are incomplete.',
       );
     }
   }
@@ -193,7 +193,7 @@ class ValidateReleaseMerge {
       }
     }
 
-    return (validNames: validPackageNames, issuesByName: issuesMap);
+    return (validNames: validPackageNames, issueMap: issuesMap);
   }
 
   Future<List<String>> _checkCandidate(

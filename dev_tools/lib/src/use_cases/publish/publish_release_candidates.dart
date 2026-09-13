@@ -26,7 +26,7 @@ typedef _PackageScanResult = ({
 /// ignore: avoid_private_typedef_functions
 typedef _PublishResult = ({
   Map<String, String> published,
-  Map<String, String> issuesByName,
+  Map<String, String> issueMap,
 });
 
 /// Orchestrates publishing every release candidate introduced by a merge to
@@ -103,13 +103,13 @@ class PublishReleaseCandidates {
         await _publishCandidates(repoRoot, candidates, dryRun: dryRun);
     _logger.info(
       'Attempted ${candidates.length} release candidate(s):\n'
-      '$_buildSummary(results.published, results.issuesByName, dryRun: dryRun)',
+      '${_buildSummary(results.published, results.issueMap, dryRun: dryRun)}',
     );
 
-    if (results.issuesByName.isNotEmpty) {
+    if (results.issueMap.isNotEmpty) {
       final verb = dryRun ? 'dry-run publish' : 'publish';
       throw PublishBatchException(
-        '${results.issuesByName.length} release candidate(s) failed to '
+        '${results.issueMap.length} release candidate(s) failed to '
         '$verb.',
       );
     }
@@ -186,7 +186,7 @@ class PublishReleaseCandidates {
       );
     }
 
-    return (published: published, issuesByName: issuesMap);
+    return (published: published, issueMap: issuesMap);
   }
 
   Future<String> _publishCandidate(
