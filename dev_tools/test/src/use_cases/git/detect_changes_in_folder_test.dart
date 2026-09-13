@@ -147,7 +147,7 @@ void main() {
     final error = _parseError(await _runGetChanged(nonRepo,
         baseRef: 'HEAD~1')); // ignore: avoid_redundant_argument_values
 
-    expect(error, startsWith('Error: git diff failed.'));
+    expect(error, startsWith('git diff failed.'));
   });
 }
 

@@ -19,12 +19,12 @@ class ValidatePackagePath {
     final full = Directory(packagePath);
     if (!full.existsSync()) {
       throw PublishValidationException(
-        "Error: Directory '$packagePath' not found.",
+        "Directory '$packagePath' not found.",
       );
     }
     if (!File('${full.path}/pubspec.yaml').existsSync()) {
       throw PublishValidationException(
-        "Error: No pubspec.yaml found in '$packagePath'.",
+        "No pubspec.yaml found in '$packagePath'.",
       );
     }
   }

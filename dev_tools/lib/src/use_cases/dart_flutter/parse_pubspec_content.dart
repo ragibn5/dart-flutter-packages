@@ -21,14 +21,10 @@ class ParsePubspecContent {
     final name = map['name']?.toString().trim() ?? '';
     final version = map['version']?.toString().trim() ?? '';
     if (name.isEmpty) {
-      throw const PackageIdentityException(
-        'Error: pubspec.yaml has no name.',
-      );
+      throw const PackageIdentityException('pubspec.yaml has no name.');
     }
     if (version.isEmpty) {
-      throw const PackageIdentityException(
-        'Error: pubspec.yaml has no version.',
-      );
+      throw const PackageIdentityException('pubspec.yaml has no version.');
     }
     final isFlutterPackage = map.containsKey('flutter') ||
         _flutterSdkReferenced(map, 'environment') ||

@@ -74,8 +74,8 @@ class PubPublish implements PackagePublisher {
     if (exitCode != 0) {
       throw PublishFailedException(
         dryRun
-            ? 'Error: Dry-run failed. Fix issues before publishing.'
-            : 'Error: Publishing failed.',
+            ? 'Dry-run failed. Fix issues before publishing.'
+            : 'Publishing failed.',
       );
     }
   }

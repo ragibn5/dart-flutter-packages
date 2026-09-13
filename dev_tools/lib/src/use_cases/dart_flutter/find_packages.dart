@@ -128,11 +128,10 @@ class FindPackages {
         skipReason: null,
       );
     } on PackageIdentityException catch (e) {
-      final reason = e.message.replaceFirst(RegExp('^Error: ?'), '');
       return (
         package: null,
         repoRootRelativePath: repoRootRelativePath,
-        skipReason: reason,
+        skipReason: e.message,
       );
     }
   }

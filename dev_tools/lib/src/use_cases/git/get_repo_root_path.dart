@@ -23,7 +23,7 @@ class GetRepoRootPath {
     );
     if (result.exitCode != 0) {
       throw RepoRootNotFoundException(
-        'Error: not inside a git repository '
+        'not inside a git repository '
         '(${start ?? Directory.current.path}).',
       );
     }

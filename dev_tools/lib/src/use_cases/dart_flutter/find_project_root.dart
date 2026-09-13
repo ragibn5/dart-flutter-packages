@@ -27,7 +27,7 @@ class FindProjectRoot {
     }
 
     throw ProjectRootNotFoundException(
-      'Error: could not find project root from ${dir.path}.',
+      'could not find project root from ${dir.path}.',
     );
   }
 }

@@ -103,7 +103,7 @@ flutter:
         isA<PackageIdentityException>().having(
           (e) => e.message,
           'message',
-          'Error: pubspec.yaml not found.',
+          'pubspec.yaml not found.',
         ),
       ),
     );
@@ -119,7 +119,7 @@ flutter:
         isA<PackageIdentityException>().having(
           (e) => e.message,
           'message',
-          'Error: pubspec.yaml has no name.',
+          'pubspec.yaml has no name.',
         ),
       ),
     );
@@ -135,7 +135,7 @@ flutter:
         isA<PackageIdentityException>().having(
           (e) => e.message,
           'message',
-          'Error: pubspec.yaml has no version.',
+          'pubspec.yaml has no version.',
         ),
       ),
     );

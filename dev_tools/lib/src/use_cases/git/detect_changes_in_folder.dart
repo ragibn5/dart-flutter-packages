@@ -33,7 +33,7 @@ class DetectChangesInFolder {
     );
     if (diffResult.exitCode != 0) {
       throw GitDiffingException(
-        'Error: git diff failed.\n'
+        'git diff failed.\n'
         '${diffResult.stdout}${diffResult.stderr}',
       );
     }

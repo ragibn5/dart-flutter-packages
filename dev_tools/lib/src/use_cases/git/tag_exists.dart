@@ -42,7 +42,7 @@ class TagExists {
     }
 
     throw TagLookupException(
-      'Error: could not look up tag $tag on $remote.\n'
+      'could not look up tag $tag on $remote.\n'
       '${result.stdout}${result.stderr}',
     );
   }

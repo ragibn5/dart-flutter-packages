@@ -103,7 +103,7 @@ void main() {
           isA<PublishFailedException>().having(
             (e) => e.message,
             'message',
-            'Error: Dry-run failed. Fix issues before publishing.',
+            'Dry-run failed. Fix issues before publishing.',
           ),
         ),
       );
@@ -128,7 +128,7 @@ void main() {
           isA<PublishFailedException>().having(
             (e) => e.message,
             'message',
-            'Error: Publishing failed.',
+            'Publishing failed.',
           ),
         ),
       );

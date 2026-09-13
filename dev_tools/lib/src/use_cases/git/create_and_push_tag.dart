@@ -29,7 +29,7 @@ class CreateAndPushTag {
     );
     if (createResult.exitCode != 0) {
       throw TagCreationException(
-        'Error: could not create tag $tag.\n'
+        'could not create tag $tag.\n'
         '${createResult.stdout}${createResult.stderr}',
       );
     }
@@ -41,7 +41,7 @@ class CreateAndPushTag {
     );
     if (pushResult.exitCode != 0) {
       throw TagCreationException(
-        'Error: could not push tag $tag to $remote.\n'
+        'could not push tag $tag to $remote.\n'
         '${pushResult.stdout}${pushResult.stderr}',
       );
     }

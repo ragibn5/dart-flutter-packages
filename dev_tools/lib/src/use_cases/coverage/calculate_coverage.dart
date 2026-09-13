@@ -29,7 +29,7 @@ class CalculateCoverage {
     final file = File('$root/$lcovFile');
     if (!file.existsSync()) {
       throw CoverageCalculationException(
-        'Error: coverage file not found: $lcovFile.',
+        'coverage file not found: $lcovFile.',
       );
     }
 
@@ -38,7 +38,7 @@ class CalculateCoverage {
     final match = RegExp(r'lines\.*:\s*(\d+\.?\d*)%').firstMatch(output);
     if (match == null) {
       throw const CoverageCalculationException(
-        'Error: Could not parse coverage data.',
+        'Could not parse coverage data.',
       );
     }
 
