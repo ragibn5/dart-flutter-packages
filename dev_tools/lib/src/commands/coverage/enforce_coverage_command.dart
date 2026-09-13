@@ -13,14 +13,14 @@ class EnforceCoverageCommand extends Command<void> {
       'The lcov file path is relative to the project root (default '
       'coverage/lcov.info) and the threshold is a percentage.';
 
-  final EnforceCoverageThreshold _enforceCoverage;
   final FindProjectRoot _findProjectRoot;
+  final EnforceCoverageThreshold _enforceCoverage;
 
   EnforceCoverageCommand({
-    EnforceCoverageThreshold checkCoverage = const EnforceCoverageThreshold(),
     FindProjectRoot findProjectRoot = const FindProjectRoot(),
-  })  : _enforceCoverage = checkCoverage,
-        _findProjectRoot = findProjectRoot {
+    EnforceCoverageThreshold checkCoverage = const EnforceCoverageThreshold(),
+  })  : _findProjectRoot = findProjectRoot,
+        _enforceCoverage = checkCoverage {
     argParser
       ..addOption(
         lcovFileOption,
