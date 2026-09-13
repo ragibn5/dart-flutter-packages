@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:test/test.dart';
 
@@ -46,24 +47,33 @@ String _resultOf(String out) => out
     .split('RESULT=')[1];
 
 Future<String> _runScript(String? input) async {
-  final dir =
-      Directory('${Directory.current.path}/test/src/use_cases/prompts/');
-  final script = File('${dir.path}/_confirm_yes_no_script.dart');
+  // Isolated temp dir + this isolate's own package config, rather than a
+  // path computed from Directory.current — that's a process-wide (not
+  // isolate-local) cwd, which other concurrently-running test files in
+  // this suite (e.g. get_repo_root_path_test.dart) deliberately mutate.
+  final tempDir = Directory.systemTemp.createTempSync('confirm_yes_no_test');
+  addTearDown(() {
+    if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+  });
+
+  final script = File('${tempDir.path}/confirm_yes_no_script.dart');
   await script.writeAsString(r'''
   import 'dart:io';
-  
+
   import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
-  
+
   Future<void> main() async {
     final result = await const ConfirmYesNo()('Confirm?');
     stdout.writeln('RESULT=$result');
   }
   ''');
-  addTearDown(() {
-    if (script.existsSync()) script.deleteSync();
-  });
 
-  final proc = await Process.start('dart', ['run', script.path]);
+  final packageConfig = await Isolate.packageConfig;
+  final proc = await Process.start('dart', [
+    'run',
+    if (packageConfig != null) '--packages=${packageConfig.toFilePath()}',
+    script.path,
+  ]);
   if (input != null) proc.stdin.writeln(input);
   await proc.stdin.close();
   final out = await proc.stdout.transform(utf8.decoder).join();
