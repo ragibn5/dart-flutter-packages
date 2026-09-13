@@ -184,7 +184,6 @@ class ValidateReleaseMerge {
         pkgPath: candidate.repoRootRelativePath,
         identity: candidate.packageIdentity,
         dryRun: true,
-        verbose: false,
       );
       return null;
     } on PublishFailedException catch (e) {

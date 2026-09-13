@@ -275,7 +275,6 @@ void main() {
           pkgPath: 'pkg_a',
           identity: const PackageIdentity(name: 'pkg_a', version: '1.0.0'),
           dryRun: true,
-          verbose: false,
         )).called(1);
   });
 
