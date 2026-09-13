@@ -70,7 +70,9 @@ void main() {
       expect(
         logger.infoMessages,
         contains(
-          'Running dry-run publish for foo in ${tempDir.path}/pkg',
+          'Running dry-run publish for foo:\n'
+          '  - directory: ${tempDir.path}/pkg\n'
+          '  - command: $script',
         ),
       );
     },
@@ -92,7 +94,11 @@ void main() {
 
       expect(
         logger.infoMessages,
-        contains('Running publish for foo in ${tempDir.path}/pkg'),
+        contains(
+          'Running publish for foo:\n'
+          '  - directory: ${tempDir.path}/pkg\n'
+          '  - command: $script',
+        ),
       );
     },
   );

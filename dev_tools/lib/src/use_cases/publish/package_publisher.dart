@@ -60,8 +60,9 @@ class PubPublish implements PackagePublisher {
     final tooling = await _buildPublishCommand(identity);
     final workingDirectory = '$repoRoot/$pkgPath';
     _logger.info(
-      'Running ${dryRun ? 'dry-run ' : ''}publish for '
-      '${identity.name} in $workingDirectory',
+      'Running ${dryRun ? 'dry-run ' : ''}publish for ${identity.name}:\n'
+      '  - directory: $workingDirectory\n'
+      '  - command: ${tooling.command}',
     );
     final exitCode = verbose
         ? await _runPubPublish(
