@@ -22,8 +22,11 @@ void main() {
     enforceCoverageAcrossPackages = _MockEnforceCoverageAcrossPackages();
     when(() => enforceCoverageAcrossPackages(
           repoRoot: any(named: 'repoRoot'),
+          fromRef: any(named: 'fromRef'),
+          toRef: any(named: 'toRef'),
           threshold: any(named: 'threshold'),
           skipPaths: any(named: 'skipPaths'),
+          all: any(named: 'all'),
         )).thenAnswer((_) async {});
 
     sut = EnforceCoverageAcrossPackagesCommand(
@@ -41,31 +44,68 @@ void main() {
         EnforceCoverageAcrossPackagesCommand.commandDescription);
   });
 
-  test('should use the resolved repo root and default threshold', () async {
+  test('should use the resolved repo root and default from/to/threshold',
+      () async {
     await _run(<String>[], sut);
 
     verify(
       () => enforceCoverageAcrossPackages(
         repoRoot: '/fake/repo',
         // ignore: avoid_redundant_argument_values
+        fromRef: 'HEAD^',
+        // ignore: avoid_redundant_argument_values
+        toRef: 'HEAD',
+        // ignore: avoid_redundant_argument_values
         threshold: 100,
         // ignore: avoid_redundant_argument_values
         skipPaths: const [],
+        // ignore: avoid_redundant_argument_values
+        all: false,
       ),
     ).called(1);
   });
 
-  test('should forward a supplied threshold and skip paths', () async {
+  test('should forward a supplied from, to, threshold, and skip paths',
+      () async {
     await _run(
-      ['--threshold=90', '--skip-path=app_template', '--skip-path=demo'],
+      [
+        '--from=main~5',
+        '--to=main',
+        '--threshold=90',
+        '--skip-path=app_template',
+        '--skip-path=demo',
+      ],
       sut,
     );
 
     verify(
       () => enforceCoverageAcrossPackages(
         repoRoot: '/fake/repo',
+        fromRef: 'main~5',
+        toRef: 'main',
         threshold: 90,
         skipPaths: ['app_template', 'demo'],
+        // ignore: avoid_redundant_argument_values
+        all: false,
+      ),
+    ).called(1);
+  });
+
+  test('should forward the all flag when supplied', () async {
+    await _run(['--all'], sut);
+
+    verify(
+      () => enforceCoverageAcrossPackages(
+        repoRoot: '/fake/repo',
+        // ignore: avoid_redundant_argument_values
+        fromRef: 'HEAD^',
+        // ignore: avoid_redundant_argument_values
+        toRef: 'HEAD',
+        // ignore: avoid_redundant_argument_values
+        threshold: 100,
+        // ignore: avoid_redundant_argument_values
+        skipPaths: const [],
+        all: true,
       ),
     ).called(1);
   });

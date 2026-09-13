@@ -4,7 +4,9 @@ import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/coverage/run_package_tests_with_coverage.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/filter_touched_packages.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
+import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
@@ -20,50 +22,73 @@ const _redCross = '\x1B[31m✗\x1B[0m';
 class EnforceCoverageAcrossPackages {
   final Logger _logger;
   final FindPackages _findPackages;
+  final DetectChangesInFolder _detectChangesInFolder;
+  final FilterTouchedPackages _filterTouchedPackages;
   final CalculateCoverage _calculateCoverage;
   final RunPackageTestsWithCoverage _runPackageTests;
 
   const EnforceCoverageAcrossPackages({
     Logger logger = const ConsoleLogger(),
     FindPackages findPackages = const FindPackages(),
+    DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
+    FilterTouchedPackages filterTouchedPackages = const FilterTouchedPackages(),
     CalculateCoverage calculateCoverage = const CalculateCoverage(),
     RunPackageTestsWithCoverage runPackageTests =
         const RunPackageTestsWithCoverage(),
   })  : _logger = logger,
         _findPackages = findPackages,
+        _detectChangesInFolder = detectChangesInFolder,
+        _filterTouchedPackages = filterTouchedPackages,
         _calculateCoverage = calculateCoverage,
         _runPackageTests = runPackageTests;
 
   /// Params:
   /// - `repoRoot`: absolute path to the repository root to scan.
+  /// - `fromRef`: the ref to diff from, i.e. the branch's state before this
+  ///   change (e.g. the PR's base commit). Unused when [all] is true.
+  /// - `toRef`: the ref to diff against, i.e. the branch's state after this
+  ///   change (e.g. `HEAD`). Unused when [all] is true.
   /// - `threshold`: required coverage percentage (default 100).
   /// - `skipPaths`: repo-root-relative path prefixes of whole packages to
   ///   skip entirely (e.g. `app_template`, which has its own dedicated CI
   ///   coverage flow) — not to be confused with a package's own
   ///   `.coverage_exclude` file, which filters files within one package's
   ///   coverage rather than skipping the package altogether.
+  /// - `all`: when true, check every found package regardless of what
+  ///   changed between [fromRef] and [toRef] — no diffing happens at all.
   ///
-  /// Returns: nothing (void) when every package meets [threshold].
+  /// Returns: nothing (void) when every checked package meets [threshold].
   ///
   /// Throws:
   /// - [PackageFinderException] while scanning for packages (see
   ///   [FindPackages]).
+  /// - [GitDiffingException] when `git diff` fails (only when `!all`).
   /// - [CoverageBatchException] listing every package that failed its tests
   ///   or fell below [threshold], once every package has been checked.
   Future<void> call({
     required String repoRoot,
+    required String fromRef,
+    required String toRef,
     double threshold = 100,
     List<String> skipPaths = const [],
+    bool all = false,
   }) async {
     final packages = await _logger.withGroupedLog(
       'Scanning for packages...',
       (logger) => _extractPackages(repoRoot, skipPaths, logger),
     );
+    final packagesToCheck = all
+        ? packages
+        : await _logger.withGroupedLog(
+            'Filtering touched packages...',
+            (logger) =>
+                _extractTouchedPackages(fromRef, toRef, packages, logger),
+          );
 
-    final issueMap = await _checkPackages(repoRoot, packages, threshold);
+    final issueMap = await _checkPackages(repoRoot, packagesToCheck, threshold);
     _logger.info(
-      'Coverage report for ${packages.length} package(s):\n'
-      '${_buildSummary(packages, issueMap)}',
+      'Coverage report for ${packagesToCheck.length} package(s):\n'
+      '${_buildSummary(packagesToCheck, issueMap)}',
     );
 
     if (issueMap.isNotEmpty) {
@@ -98,6 +123,31 @@ class EnforceCoverageAcrossPackages {
       );
 
     return validPackages;
+  }
+
+  Future<List<ValidLocalPackageInfo>> _extractTouchedPackages(
+    String fromRef,
+    String toRef,
+    List<ValidLocalPackageInfo> packages,
+    Logger logger,
+  ) async {
+    final changedFiles = await _detectChangesInFolder(
+      baseRef: fromRef,
+      compareRef: toRef,
+    );
+    final touched = _filterTouchedPackages(
+      localPackages: packages,
+      changedFiles: changedFiles,
+    );
+
+    if (touched.isEmpty) {
+      logger.info('No packages touched; nothing to check.');
+    } else {
+      logger
+          .info('${touched.length} of ${packages.length} package(s) touched.');
+    }
+
+    return touched;
   }
 
   bool _isSkipped(String repoRootRelativePath, List<String> skipPaths) =>

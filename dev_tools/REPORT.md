@@ -19,7 +19,7 @@ already handle natively.
 | `app_template/scripts/coverage/*`                 | run / process / generate / enforce          | Superseded by the cross-repo `coverage` command    |
 | `.github/workflows/validate-release-merge.yml`    | Parse + validate release branch             | Use cases exist, no command                        |
 | `.github/workflows/create-release-tag.yml`        | Extract + create + push release tag         | Removed — replaced by `publish-release-candidates` |
-| `.github/workflows/app-template-ci.yml`           | PR-aware change detection + coverage steps  | Mostly yes                                         |
+| `.github/workflows/app-template-ci.yml`           | PR-aware change detection + coverage steps  | Removed — replaced by `coverage` (no PR-aware change detection; app_template/packages/* nested packages not yet at the required threshold, so still skipped) |
 
 ## Tier 1 — definitely should come in
 

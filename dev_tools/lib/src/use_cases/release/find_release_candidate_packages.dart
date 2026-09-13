@@ -1,8 +1,8 @@
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/filter_touched_packages.dart';
 import 'package:dev_tools/src/use_cases/release/fetch_pub_dev_package_info.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
-import 'package:path/path.dart' as p;
 
 /// Narrows a set of already-resolved local packages down to release
 /// candidates among a set of changed files.
@@ -16,11 +16,14 @@ import 'package:path/path.dart' as p;
 /// brand-new packages).
 class FindReleaseCandidatePackages {
   final PackageRegistryClient _packageRegistryClient;
+  final FilterTouchedPackages _filterTouchedPackages;
 
   const FindReleaseCandidatePackages({
     PackageRegistryClient packageRegistryClient =
         const FetchPubDevPackageInfo(),
-  }) : _packageRegistryClient = packageRegistryClient;
+    FilterTouchedPackages filterTouchedPackages = const FilterTouchedPackages(),
+  })  : _packageRegistryClient = packageRegistryClient,
+        _filterTouchedPackages = filterTouchedPackages;
 
   /// Finds release-candidate packages among [localPackages].
   ///
@@ -39,10 +42,14 @@ class FindReleaseCandidatePackages {
     required List<ValidLocalPackageInfo> localPackages,
     required List<String> changedFiles,
   }) async {
+    final touchedPackages = _filterTouchedPackages(
+      localPackages: localPackages,
+      changedFiles: changedFiles,
+    );
+
     final candidates = <ReleaseCandidatePackage>[];
-    for (final package in localPackages) {
+    for (final package in touchedPackages) {
       if (!package.packageIdentity.isPublishable) continue;
-      if (!_isTouched(package.repoRootRelativePath, changedFiles)) continue;
 
       // isPublishable guarantees a non-null version (see PackageIdentity).
       final version = package.packageIdentity.version!;
@@ -58,14 +65,5 @@ class FindReleaseCandidatePackages {
       }
     }
     return candidates;
-  }
-
-  /// Whether any of [changedFiles] is the package directory itself or lies
-  /// underneath it.
-  bool _isTouched(String packageRelPath, List<String> changedFiles) {
-    return changedFiles.any(
-      (file) =>
-          p.equals(file, packageRelPath) || p.isWithin(packageRelPath, file),
-    );
   }
 }
