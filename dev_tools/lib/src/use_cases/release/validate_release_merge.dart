@@ -108,9 +108,6 @@ class ValidateReleaseMerge {
       (logger) async {
         logger
           ..info('Valid packages: ${validPackages.length}')
-          ..info(
-            validPackages.map((e) => '- ${e.repoRootRelativePath}').join('\n'),
-          )
           ..info('Malformed packages: ${malformedPackages.length}')
           ..info(
             malformedPackages
@@ -158,16 +155,7 @@ class ValidateReleaseMerge {
       final name = candidate.packageIdentity.name;
       final issues = await _logger.withGroupedLog(
         name,
-        (logger) async {
-          logger.info('Checking $name...');
-          final issues = await _checkCandidate(candidate, repoRoot, checks);
-          logger.info(
-            issues.isEmpty
-                ? '$name: OK'
-                : '$name: ${issues.length} issue(s) found.',
-          );
-          return issues;
-        },
+        (logger) => _checkCandidate(candidate, repoRoot, checks),
       );
       if (issues.isEmpty) {
         validPackageNames.add(name);

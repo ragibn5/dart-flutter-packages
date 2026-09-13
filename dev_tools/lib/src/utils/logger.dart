@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:meta/meta.dart';
+
 enum LogLevel { info, warning, error }
 
 abstract class Logger {
@@ -14,6 +16,7 @@ abstract class Logger {
   void error(String message, {StackTrace? stackTrace}) =>
       log(LogLevel.error, message, stackTrace: stackTrace);
 
+  @visibleForOverriding
   void log(LogLevel level, String message, {StackTrace? stackTrace});
 
   Future<T> withGroupedLog<T>(
