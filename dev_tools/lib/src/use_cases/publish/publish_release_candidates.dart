@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
@@ -11,9 +9,6 @@ import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
 import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/utils/logger.dart';
-
-const _greenTick = '\x1B[32m✓\x1B[0m';
-const _redCross = '\x1B[31m✗\x1B[0m';
 
 /// Result of scanning the repo for packages, split by validity.
 typedef _PackageScanResult = ({
@@ -219,8 +214,8 @@ class PublishReleaseCandidates {
     Map<String, String> issuesMap, {
     required bool dryRun,
   }) {
-    final tick = stdout.supportsAnsiEscapes ? _greenTick : '✓';
-    final cross = stdout.supportsAnsiEscapes ? _redCross : '✗';
+    const tick = '✅';
+    const cross = '❌';
     return [
       for (final entry in published.entries) ...[
         if (dryRun)

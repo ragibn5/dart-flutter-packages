@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
@@ -17,9 +15,6 @@ import 'package:dev_tools/src/use_cases/release/verify_release_completeness.dart
 import 'package:dev_tools/src/use_cases/release/verify_versioned_files.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
-
-const _greenTick = '\x1B[32m✓\x1B[0m';
-const _redCross = '\x1B[31m✗\x1B[0m';
 
 /// Result of scanning the repo for packages, split by validity.
 typedef _PackageScanResult = ({
@@ -241,8 +236,8 @@ class ValidateReleaseMerge {
     Set<String> validPackages,
     Map<String, List<String>> issuesMap,
   ) {
-    final tick = stdout.supportsAnsiEscapes ? _greenTick : '✓';
-    final cross = stdout.supportsAnsiEscapes ? _redCross : '✗';
+    const tick = '✅';
+    const cross = '❌';
     return [
       for (final name in validPackages) '  $tick $name: OK',
       for (final entry in issuesMap.entries) ...[

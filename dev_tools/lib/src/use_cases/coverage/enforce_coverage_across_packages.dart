@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
@@ -9,9 +7,6 @@ import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
-
-const _greenTick = '\x1B[32m✓\x1B[0m';
-const _redCross = '\x1B[31m✗\x1B[0m';
 
 /// Orchestrates running every package's tests with coverage and enforcing a
 /// minimum line-coverage threshold on each.
@@ -88,7 +83,7 @@ class EnforceCoverageAcrossPackages {
     final issueMap = await _checkPackages(repoRoot, packagesToCheck, threshold);
     _logger.info(
       'Coverage report for ${packagesToCheck.length} package(s):\n'
-      '${_buildSummary(packagesToCheck, issueMap)}',
+      '${_buildSummary(threshold, packagesToCheck, issueMap)}',
     );
 
     if (issueMap.isNotEmpty) {
@@ -199,15 +194,16 @@ class EnforceCoverageAcrossPackages {
   }
 
   String _buildSummary(
+    double threshold,
     List<ValidLocalPackageInfo> packages,
     Map<String, String> issueMap,
   ) {
-    final tick = stdout.supportsAnsiEscapes ? _greenTick : '✓';
-    final cross = stdout.supportsAnsiEscapes ? _redCross : '✗';
+    const tick = '✅';
+    const cross = '❌';
     return [
       for (final package in packages)
         if (!issueMap.containsKey(package.packageIdentity.name))
-          '  $tick ${package.packageIdentity.name}: OK',
+          '  $tick ${package.packageIdentity.name}: OK (>= $threshold%)',
       for (final entry in issueMap.entries) ...[
         '  $cross ${entry.key}:',
         for (final line in entry.value.split('\n')) '      $line',
