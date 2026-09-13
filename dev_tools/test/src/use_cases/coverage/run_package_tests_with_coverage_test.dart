@@ -21,6 +21,7 @@ void main() {
         flutterExecutable:
             _script(tempDir, exitCode: exitCode, logFile: logFile),
         dartExecutable: _script(tempDir, exitCode: exitCode, logFile: logFile),
+        lcovExecutable: _script(tempDir, exitCode: exitCode, logFile: logFile),
       );
 
   test('should run flutter pub get then flutter test for a Flutter package',
@@ -68,6 +69,54 @@ void main() {
         packagePath: tempDir.path,
         isFlutterPackage: true,
       ),
+      throwsA(isA<PackageTestException>()),
+    );
+  });
+
+  test('should not filter the lcov data when no .coverage_exclude exists',
+      () async {
+    await buildSut(exitCode: 0)(
+      packagePath: tempDir.path,
+      isFlutterPackage: true,
+    );
+
+    final calls = File(logFile).readAsLinesSync();
+    expect(calls, isNot(contains(contains('--remove'))));
+  });
+
+  test(
+      "should filter the lcov data using the package's .coverage_exclude "
+      'patterns', () async {
+    File('${tempDir.path}/.coverage_exclude').writeAsStringSync('''
+# Generated files
+lib/**/*.g.dart
+''');
+
+    await buildSut(exitCode: 0)(
+      packagePath: tempDir.path,
+      isFlutterPackage: true,
+    );
+
+    final calls = File(logFile).readAsLinesSync();
+    final removeCall = calls.last;
+    expect(removeCall, contains('--remove'));
+    expect(removeCall, contains('coverage/lcov.info'));
+    expect(removeCall, contains('lib/**/*.g.dart'));
+    expect(removeCall, contains('--output-file'));
+  });
+
+  test('should throw PackageTestException when the exclusions filter fails',
+      () async {
+    File('${tempDir.path}/.coverage_exclude')
+        .writeAsStringSync('lib/**/*.g.dart\n');
+    final sut = RunPackageTestsWithCoverage(
+      flutterExecutable: _script(tempDir, exitCode: 0, logFile: logFile),
+      dartExecutable: _script(tempDir, exitCode: 0, logFile: logFile),
+      lcovExecutable: _script(tempDir, exitCode: 1, logFile: logFile),
+    );
+
+    await expectLater(
+      sut(packagePath: tempDir.path, isFlutterPackage: true),
       throwsA(isA<PackageTestException>()),
     );
   });

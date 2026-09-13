@@ -37,8 +37,11 @@ class EnforceCoverageAcrossPackages {
   /// Params:
   /// - `repoRoot`: absolute path to the repository root to scan.
   /// - `threshold`: required coverage percentage (default 100).
-  /// - `exclude`: repo-root-relative path prefixes to skip entirely (e.g.
-  ///   `app_template`, which has its own dedicated CI coverage flow).
+  /// - `skipPaths`: repo-root-relative path prefixes of whole packages to
+  ///   skip entirely (e.g. `app_template`, which has its own dedicated CI
+  ///   coverage flow) — not to be confused with a package's own
+  ///   `.coverage_exclude` file, which filters files within one package's
+  ///   coverage rather than skipping the package altogether.
   ///
   /// Returns: nothing (void) when every package meets [threshold].
   ///
@@ -50,11 +53,11 @@ class EnforceCoverageAcrossPackages {
   Future<void> call({
     required String repoRoot,
     double threshold = 100,
-    List<String> exclude = const [],
+    List<String> skipPaths = const [],
   }) async {
     final packages = await _logger.withGroupedLog(
       'Scanning for packages...',
-      (logger) => _extractPackages(repoRoot, exclude, logger),
+      (logger) => _extractPackages(repoRoot, skipPaths, logger),
     );
 
     final issueMap = await _checkPackages(repoRoot, packages, threshold);
@@ -72,13 +75,13 @@ class EnforceCoverageAcrossPackages {
 
   Future<List<ValidLocalPackageInfo>> _extractPackages(
     String repoRoot,
-    List<String> exclude,
+    List<String> skipPaths,
     Logger logger,
   ) async {
     final foundPackages = await _findPackages(repoRoot: repoRoot);
     final validPackages = foundPackages
         .whereType<ValidLocalPackageInfo>()
-        .where((pkg) => !_isExcluded(pkg.repoRootRelativePath, exclude))
+        .where((pkg) => !_isSkipped(pkg.repoRootRelativePath, skipPaths))
         .toList();
     final malformedPackages =
         foundPackages.whereType<MalformedLocalPackageInfo>().toList();
@@ -97,8 +100,8 @@ class EnforceCoverageAcrossPackages {
     return validPackages;
   }
 
-  bool _isExcluded(String repoRootRelativePath, List<String> exclude) =>
-      exclude.any(
+  bool _isSkipped(String repoRootRelativePath, List<String> skipPaths) =>
+      skipPaths.any(
         (prefix) =>
             repoRootRelativePath == prefix ||
             repoRootRelativePath.startsWith('$prefix/'),

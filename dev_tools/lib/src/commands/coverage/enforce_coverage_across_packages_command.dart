@@ -8,10 +8,16 @@ class EnforceCoverageAcrossPackagesCommand extends Command<void> {
   static const String commandName = 'coverage';
   static const String commandDescription =
       "Run every package's tests with coverage and enforce a minimum "
-      'line-coverage threshold (default 100%) on each.';
+      'line-coverage threshold (default 100%) on each.\n\n'
+      'Notes:\n'
+      "- A package's own .coverage_exclude file (lcov glob patterns, one "
+      'per line, # comments allowed) filters its lcov data before the '
+      'threshold check.\n'
+      '- Not to be confused with --skip-path below, which skips a whole '
+      'package rather than files within one.';
 
   static const String thresholdOption = 'threshold';
-  static const String excludeOption = 'exclude';
+  static const String skipPathOption = 'skip-path';
 
   final GetRepoRootPath _getRepoRootPath;
   final EnforceCoverageAcrossPackages _enforceCoverageAcrossPackages;
@@ -29,10 +35,10 @@ class EnforceCoverageAcrossPackagesCommand extends Command<void> {
         help: 'Coverage percentage.',
       )
       ..addMultiOption(
-        excludeOption,
-        abbr: 'e',
-        help: 'Repo-root-relative path prefix to skip entirely '
-            '(e.g. app_template).',
+        skipPathOption,
+        abbr: 's',
+        help: 'Repo-root-relative path prefix of a whole package to skip '
+            'entirely (e.g. app_template).',
       );
   }
 
@@ -50,7 +56,7 @@ class EnforceCoverageAcrossPackagesCommand extends Command<void> {
     await _enforceCoverageAcrossPackages(
       repoRoot: repoRoot,
       threshold: threshold,
-      exclude: argResults![excludeOption] as List<String>,
+      skipPaths: argResults![skipPathOption] as List<String>,
     );
   }
 }

@@ -41,6 +41,11 @@ jobs:
       - name: Activate the coverage package
         run: dart pub global activate coverage
 
+      # lcov (used by CalculateCoverage to read each package's coverage
+      # percentage) isn't preinstalled on ubuntu-latest.
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
+
       - name: Install dev_tools dependencies
         working-directory: dev_tools
         run: fvm dart pub get
@@ -49,4 +54,4 @@ jobs:
         working-directory: dev_tools
         run: >
           fvm dart run bin/dev_tools.dart coverage
-          --exclude app_template
+          --skip-path app_template

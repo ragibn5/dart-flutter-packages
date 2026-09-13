@@ -74,7 +74,7 @@ void main() {
         )).called(1);
   });
 
-  test('should exclude a package under an excluded path prefix', () async {
+  test('should skip a package under a skipped path prefix', () async {
     when(() => findPackages(repoRoot: any(named: 'repoRoot'))).thenAnswer(
       (_) async => [
         pkg('app_template', 'app_template'),
@@ -83,7 +83,7 @@ void main() {
       ],
     );
 
-    await sut(repoRoot: repoRoot, exclude: ['app_template']);
+    await sut(repoRoot: repoRoot, skipPaths: ['app_template']);
 
     verify(() => runPackageTests(
           packagePath: '/fake/repo/pkg_a',

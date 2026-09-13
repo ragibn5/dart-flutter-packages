@@ -23,7 +23,7 @@ void main() {
     when(() => enforceCoverageAcrossPackages(
           repoRoot: any(named: 'repoRoot'),
           threshold: any(named: 'threshold'),
-          exclude: any(named: 'exclude'),
+          skipPaths: any(named: 'skipPaths'),
         )).thenAnswer((_) async {});
 
     sut = EnforceCoverageAcrossPackagesCommand(
@@ -50,14 +50,14 @@ void main() {
         // ignore: avoid_redundant_argument_values
         threshold: 100,
         // ignore: avoid_redundant_argument_values
-        exclude: const [],
+        skipPaths: const [],
       ),
     ).called(1);
   });
 
-  test('should forward a supplied threshold and exclusions', () async {
+  test('should forward a supplied threshold and skip paths', () async {
     await _run(
-      ['--threshold=90', '--exclude=app_template', '--exclude=demo'],
+      ['--threshold=90', '--skip-path=app_template', '--skip-path=demo'],
       sut,
     );
 
@@ -65,7 +65,7 @@ void main() {
       () => enforceCoverageAcrossPackages(
         repoRoot: '/fake/repo',
         threshold: 90,
-        exclude: ['app_template', 'demo'],
+        skipPaths: ['app_template', 'demo'],
       ),
     ).called(1);
   });
