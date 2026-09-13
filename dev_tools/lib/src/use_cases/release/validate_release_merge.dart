@@ -21,6 +21,20 @@ import 'package:path/path.dart' as p;
 const _greenTick = '\x1B[32m✓\x1B[0m';
 const _redCross = '\x1B[31m✗\x1B[0m';
 
+/// Result of scanning the repo for packages, split by validity.
+typedef _PackageScanResult = ({
+  List<ValidLocalPackageInfo> valid,
+  List<MalformedLocalPackageInfo> malformed,
+});
+
+/// Result of checking every release candidate: names that passed, and the
+/// issues found for every one that didn't.
+// ignore: avoid_private_typedef_functions
+typedef _ReleaseCheckResult = ({
+  Set<String> validNames,
+  Map<String, List<String>> issuesByName,
+});
+
 /// Orchestrates the MR-to-target-branch release gate end to end.
 class ValidateReleaseMerge {
   final Logger _logger;
@@ -96,57 +110,79 @@ class ValidateReleaseMerge {
     required String fromBranch,
     required String toBranch,
   }) async {
-    _logger.info('Scanning for packages...');
-    final foundPackages = await _findPackages(repoRoot: repoRoot);
-    final validPackages =
-        foundPackages.whereType<ValidLocalPackageInfo>().toList();
-    final malformedPackages =
-        foundPackages.whereType<MalformedLocalPackageInfo>().toList();
-    await _logger.withGroupedLog(
-      'Found ${foundPackages.length} package(s)',
-      (logger) async {
-        logger
-          ..info('Valid packages: ${validPackages.length}')
-          ..info('Malformed packages: ${malformedPackages.length}')
-          ..info(
-            malformedPackages
-                .map((e) => '- ${e.repoRootRelativePath}: ${e.reason}')
-                .join('\n'),
-          );
-      },
+    final packages = await _logger.withGroupedLog(
+      'Scanning for packages...',
+      (logger) => _extractPackages(repoRoot, logger),
+    );
+    final candidates = await _logger.withGroupedLog(
+      'Filtering release candidates...',
+      (logger) =>
+          _extractReleaseCandidates(toBranch, fromBranch, packages, logger),
     );
 
-    _logger.info('Filtering release candidates...');
+    _logger.info('Validating ${candidates.length} release candidate(s)...');
+    final results = await _validateReleaseCandidates(repoRoot, candidates);
+
+    _logger.info(
+      'Validation report for ${candidates.length} release candidate(s):\n'
+      '${_buildSummary(results.validNames, results.issuesByName)}',
+    );
+
+    if (results.issuesByName.isNotEmpty) {
+      throw ReleaseValidationException(
+        '${results.issuesByName.length} release candidate(s) are incomplete.',
+      );
+    }
+  }
+
+  Future<List<ReleaseCandidatePackage>> _extractReleaseCandidates(
+    String toBranch,
+    String fromBranch,
+    _PackageScanResult packages,
+    Logger logger,
+  ) async {
     final changedFiles = await _detectChangesInFolder(
       baseRef: toBranch,
       compareRef: fromBranch,
     );
     final candidates = await _findReleaseCandidates(
-      localPackages: validPackages,
+      localPackages: packages.valid,
       changedFiles: changedFiles,
     );
+
     if (candidates.isEmpty) {
-      _logger.info('No release candidates found; nothing to validate.');
-      return;
+      logger.info('No release candidates found; nothing to validate.');
     } else {
-      _logger.info('Found ${candidates.length} release candidate(s).');
+      logger.info('Found ${candidates.length} release candidate(s).');
     }
 
-    _logger.info('Validating ${candidates.length} release candidate(s)...');
-    final results = await _validateReleaseCandidates(repoRoot, candidates);
-    _logger.info(
-      'Validation report for ${candidates.length} release candidate(s):\n'
-      '${_buildSummary(results.$1, results.$2)}',
-    );
-
-    if (results.$2.isNotEmpty) {
-      throw ReleaseValidationException(
-        '${results.$2.length} release candidate(s) are incomplete.',
-      );
-    }
+    return candidates;
   }
 
-  Future<(Set<String>, Map<String, List<String>>)> _validateReleaseCandidates(
+  Future<_PackageScanResult> _extractPackages(
+    String repoRoot,
+    Logger logger,
+  ) async {
+    final foundPackages = await _findPackages(repoRoot: repoRoot);
+    final validPackages =
+        foundPackages.whereType<ValidLocalPackageInfo>().toList();
+    final malformedPackages =
+        foundPackages.whereType<MalformedLocalPackageInfo>().toList();
+
+    logger
+      ..info('Found ${foundPackages.length} package(s)')
+      ..info('  Valid: ${validPackages.length}')
+      ..info('  Malformed: ${malformedPackages.length}')
+      ..info(
+        malformedPackages
+            .map((e) => '  - ${e.repoRootRelativePath}: ${e.reason}')
+            .join('\n'),
+      );
+
+    return (valid: validPackages, malformed: malformedPackages);
+  }
+
+  Future<_ReleaseCheckResult> _validateReleaseCandidates(
     String repoRoot,
     List<ReleaseCandidatePackage> candidates,
   ) async {
@@ -166,16 +202,9 @@ class ValidateReleaseMerge {
       }
     }
 
-    return (validPackageNames, issuesMap);
+    return (validNames: validPackageNames, issuesByName: issuesMap);
   }
 
-  /// Checks a single candidate's tag availability, release completeness,
-  /// and whether it would actually pass `dart pub publish --dry-run` — so
-  /// pub-level rejections surface here, before the merge, rather than only
-  /// once the post-merge publish step attempts them for real.
-  ///
-  /// Returns: issue messages describing what's wrong (empty when the
-  /// candidate is valid).
   Future<List<String>> _checkCandidate(
     ReleaseCandidatePackage candidate,
     String repoRoot,
@@ -200,8 +229,6 @@ class ValidateReleaseMerge {
     ];
   }
 
-  /// Returns: an issue message when a dry-run publish of [candidate]
-  /// fails, otherwise null.
   Future<String?> _checkDryRunPublish(
     ReleaseCandidatePackage candidate,
     String repoRoot,
