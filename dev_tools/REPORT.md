@@ -8,18 +8,18 @@ already handle natively.
 
 ## Current bash/CI inventory
 
-| Source                                            | Purpose                                     | Covered by dev_tools today?                    |
-|---------------------------------------------------|---------------------------------------------|------------------------------------------------|
-| `scripts/run_all_tests.sh`                        | Discover + classify + run all package tests | No                                             |
-| `scripts/publish.sh`                              | Interactive package publish flow            | Yes (`publish`)                                |
-| `scripts/check_coverage.sh`                       | Enforce coverage threshold                  | Yes (`coverage enforce`)                       |
-| `scripts/git_utils.sh detect_folder_changes`      | CI folder-change detection (PR-aware base)  | Partially (`git changes`, static refs)         |
-| `app_template/scripts/whitelabel/*` (~15 files)   | Interactive project-setup wizard            | No                                             |
-| `app_template/scripts/firebase/firebase_setup.sh` | Per-flavor `flutterfire configure`          | No                                             |
-| `app_template/scripts/coverage/*`                 | run / process / generate / enforce          | Yes (`coverage run/process/genreport/enforce`) |
-| `.github/workflows/validate-release-merge.yml`    | Parse + validate release branch             | Use cases exist, no command                    |
-| `.github/workflows/create-release-tag.yml`        | Extract + create + push release tag         | Use cases exist, no command                    |
-| `.github/workflows/app-template-ci.yml`           | PR-aware change detection + coverage steps  | Mostly yes                                     |
+| Source                                            | Purpose                                     | Covered by dev_tools today?                        |
+|---------------------------------------------------|---------------------------------------------|----------------------------------------------------|
+| `scripts/run_all_tests.sh`                        | Discover + classify + run all package tests | No                                                 |
+| `scripts/publish.sh`                              | Interactive package publish flow            | Removed — replaced by `publish`                    |
+| `scripts/check_coverage.sh`                       | Enforce coverage threshold                  | Yes (`coverage enforce`)                           |
+| `scripts/git_utils.sh detect_folder_changes`      | CI folder-change detection (PR-aware base)  | Partially (`git changes`, static refs)             |
+| `app_template/scripts/whitelabel/*` (~15 files)   | Interactive project-setup wizard            | No                                                 |
+| `app_template/scripts/firebase/firebase_setup.sh` | Per-flavor `flutterfire configure`          | No                                                 |
+| `app_template/scripts/coverage/*`                 | run / process / generate / enforce          | Yes (`coverage run/process/genreport/enforce`)     |
+| `.github/workflows/validate-release-merge.yml`    | Parse + validate release branch             | Use cases exist, no command                        |
+| `.github/workflows/create-release-tag.yml`        | Extract + create + push release tag         | Removed — replaced by `publish-release-candidates` |
+| `.github/workflows/app-template-ci.yml`           | PR-aware change detection + coverage steps  | Mostly yes                                         |
 
 ## Tier 1 — definitely should come in
 
