@@ -120,9 +120,7 @@ class ValidateReleaseMerge {
           _extractReleaseCandidates(toBranch, fromBranch, packages, logger),
     );
 
-    _logger.info('Validating ${candidates.length} release candidate(s)...');
     final results = await _validateReleaseCandidates(repoRoot, candidates);
-
     _logger.info(
       'Validation report for ${candidates.length} release candidate(s):\n'
       '${_buildSummary(results.validNames, results.issuesByName)}',
@@ -176,7 +174,8 @@ class ValidateReleaseMerge {
       ..info(
         malformedPackages
             .map((e) => '  - ${e.repoRootRelativePath}: ${e.reason}')
-            .join('\n'),
+            .join('\n')
+            .trim(),
       );
 
     return (valid: validPackages, malformed: malformedPackages);
@@ -189,10 +188,11 @@ class ValidateReleaseMerge {
     final validPackageNames = <String>{};
     final issuesMap = <String, List<String>>{};
     final checks = _standardReleaseChecksBuilder.build(_gitTagFormat);
-    for (final candidate in candidates) {
+    for (var i = 0; i < candidates.length; ++i) {
+      final candidate = candidates[i];
       final name = candidate.packageIdentity.name;
       final issues = await _logger.withGroupedLog(
-        name,
+        '[${i + 1}/${candidates.length})] Validating $name ...',
         (logger) => _checkCandidate(candidate, repoRoot, checks),
       );
       if (issues.isEmpty) {
