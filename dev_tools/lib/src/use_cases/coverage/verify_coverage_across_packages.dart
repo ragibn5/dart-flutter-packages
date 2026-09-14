@@ -11,9 +11,10 @@ import 'package:path/path.dart' as p;
 /// Orchestrates running a given set of packages' tests with coverage and
 /// enforcing a minimum line-coverage threshold on each.
 ///
-/// Runs independently per package — one failing doesn't stop the rest —
-/// then reports a per-package summary and fails the batch (via
-/// [CoverageBatchException]) if any package failed.
+/// By default runs independently per package — one failing doesn't stop
+/// the rest — then reports a per-package summary and fails the batch (via
+/// [CoverageBatchException]) if any package failed. Pass `failFast: true`
+/// to stop at the first package that fails instead.
 class VerifyCoverageAcrossPackages {
   final Logger _logger;
   final ResolveLocalPackages _resolveLocalPackages;
@@ -42,6 +43,8 @@ class VerifyCoverageAcrossPackages {
   /// - `threshold`: required coverage percentage (default 100) — a
   ///   package's own `dev_tools_coverage_config.yaml` may override this
   ///   for itself.
+  /// - `failFast`: when `true`, stop checking as soon as one package fails
+  ///   instead of checking every given package (default `false`).
   ///
   /// Returns: nothing (void) when every checked package meets its
   /// (possibly overridden) threshold.
@@ -50,12 +53,13 @@ class VerifyCoverageAcrossPackages {
   /// - [PackageNotFoundException] when a package path doesn't resolve to a
   ///   package with a valid pubspec.yaml.
   /// - [CoverageBatchException] listing every package that failed its tests
-  ///   or fell below [globalThreshold] (or package specific override), once
-  ///   every package has been checked.
+  ///   or fell below [globalThreshold] (or package specific override) —
+  ///   just the first one when [failFast] is `true`.
   Future<void> call({
     required String repoRoot,
     required List<String> packagePaths,
     double globalThreshold = 100,
+    bool failFast = false,
   }) async {
     final packagesToCheck = await _logger.withGroupedLog(
       'Resolving packages...',
@@ -66,10 +70,12 @@ class VerifyCoverageAcrossPackages {
       repoRoot,
       globalThreshold,
       packagesToCheck,
+      failFast: failFast,
     );
     _logger.info(
-      'Coverage report for ${packagesToCheck.length} package(s):\n'
-      '${_buildSummary(packagesToCheck, results)}',
+      'Coverage report for ${results.checkedPackages.length}/'
+      '${packagesToCheck.length} package(s) checked:\n'
+      '${_buildSummary(results)}',
     );
 
     if (results.issueMap.isNotEmpty) {
@@ -97,10 +103,12 @@ class VerifyCoverageAcrossPackages {
   Future<_CheckResult> _checkPackages(
     String repoRoot,
     double globalThreshold,
-    List<ValidLocalPackageInfo> packages,
-  ) async {
+    List<ValidLocalPackageInfo> packages, {
+    required bool failFast,
+  }) async {
     final issueMap = <String, String>{};
     final effectiveThresholds = <String, double>{};
+    final checkedPackages = <ValidLocalPackageInfo>[];
     for (var i = 0; i < packages.length; ++i) {
       final package = packages[i];
       final name = package.packageIdentity.name;
@@ -110,6 +118,7 @@ class VerifyCoverageAcrossPackages {
       // known regardless of whether its check below passes or throws.
       final config = await _readCoverageConfig(packagePath);
       effectiveThresholds[name] = config.threshold ?? globalThreshold;
+      checkedPackages.add(package);
 
       await _logger.withGroupedLog(
         '[${i + 1}/${packages.length}] Checking $name ...',
@@ -125,8 +134,14 @@ class VerifyCoverageAcrossPackages {
           }
         },
       );
+
+      if (failFast && issueMap.isNotEmpty) break;
     }
-    return (issueMap: issueMap, effectiveThresholds: effectiveThresholds);
+    return (
+      issueMap: issueMap,
+      effectiveThresholds: effectiveThresholds,
+      checkedPackages: checkedPackages,
+    );
   }
 
   /// Throws [CoverageThresholdException] when [package]'s coverage
@@ -148,14 +163,11 @@ class VerifyCoverageAcrossPackages {
     }
   }
 
-  String _buildSummary(
-    List<ValidLocalPackageInfo> packages,
-    _CheckResult results,
-  ) {
+  String _buildSummary(_CheckResult results) {
     const tick = '✅';
     const cross = '❌';
     return [
-      for (final package in packages)
+      for (final package in results.checkedPackages)
         if (!results.issueMap.containsKey(package.packageIdentity.name))
           _formatOk(tick, package.packageIdentity.name, results),
       for (final entry in results.issueMap.entries) ...[
@@ -171,11 +183,14 @@ class VerifyCoverageAcrossPackages {
   }
 }
 
-/// Result of checking every package: the error for each one that failed,
-/// and the threshold actually enforced for each one that passed.
+/// Result of checking packages — all of them, or only up to (and
+/// including) the first failure when `failFast` was requested: which
+/// packages were actually checked, the error for each one that failed,
+/// and the threshold enforced for each one that passed.
 typedef _CheckResult = ({
   Map<String, String> issueMap,
   Map<String, double> effectiveThresholds,
+  List<ValidLocalPackageInfo> checkedPackages,
 });
 
 class CoverageBatchException extends CommandExecutionException {

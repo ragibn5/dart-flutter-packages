@@ -139,6 +139,29 @@ void main() {
         )).called(1);
   });
 
+  test('should stop checking remaining packages when failFast is true',
+      () async {
+    resolvesTo([pkg('pkg_a', 'pkg_a'), pkg('pkg_b', 'pkg_b')]);
+    when(() => runPackageTests(
+          packagePath: '/fake/repo/pkg_a',
+          isFlutterPackage: any(named: 'isFlutterPackage'),
+        )).thenThrow(const PackageTestException('tests failed.'));
+
+    await expectLater(
+      sut(
+        repoRoot: repoRoot,
+        packagePaths: ['pkg_a', 'pkg_b'],
+        failFast: true,
+      ),
+      throwsA(isA<CoverageBatchException>()),
+    );
+
+    verifyNever(() => runPackageTests(
+          packagePath: '/fake/repo/pkg_b',
+          isFlutterPackage: any(named: 'isFlutterPackage'),
+        ));
+  });
+
   test('should throw when a package falls below the coverage threshold',
       () async {
     when(() => calculateCoverage(any(), any())).thenAnswer((_) async => 80);

@@ -64,4 +64,4 @@ jobs:
             echo "No packages touched; nothing to check."
             exit 0
           fi
-          fvm dart run bin/dev_tools.dart coverage verify "${ARGS[@]}"
+          fvm dart run bin/dev_tools.dart coverage verify --fail-fast "${ARGS[@]}"

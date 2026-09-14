@@ -24,6 +24,7 @@ void main() {
           repoRoot: any(named: 'repoRoot'),
           packagePaths: any(named: 'packagePaths'),
           globalThreshold: any(named: 'globalThreshold'),
+          failFast: any(named: 'failFast'),
         )).thenAnswer((_) async {});
 
     sut = VerifyCoverageAcrossPackagesCommand(
@@ -48,10 +49,12 @@ void main() {
           repoRoot: any(named: 'repoRoot'),
           packagePaths: any(named: 'packagePaths'),
           globalThreshold: any(named: 'globalThreshold'),
+          failFast: any(named: 'failFast'),
         ));
   });
 
-  test('should use the resolved repo root and default threshold', () async {
+  test('should use the resolved repo root, default threshold and failFast',
+      () async {
     await _run(['--package=pkg_a'], sut);
 
     verify(
@@ -60,14 +63,22 @@ void main() {
         packagePaths: ['pkg_a'],
         // ignore: avoid_redundant_argument_values
         globalThreshold: 100,
+        // ignore: avoid_redundant_argument_values
+        failFast: false,
       ),
     ).called(1);
   });
 
-  test('should forward every supplied package and a custom threshold',
-      () async {
+  test(
+      'should forward every supplied package, a custom threshold and '
+      'fail-fast', () async {
     await _run(
-      ['--package=pkg_a', '--package=pkg_b', '--threshold=90'],
+      [
+        '--package=pkg_a',
+        '--package=pkg_b',
+        '--threshold=90',
+        '--fail-fast',
+      ],
       sut,
     );
 
@@ -76,6 +87,7 @@ void main() {
         repoRoot: '/fake/repo',
         packagePaths: ['pkg_a', 'pkg_b'],
         globalThreshold: 90,
+        failFast: true,
       ),
     ).called(1);
   });

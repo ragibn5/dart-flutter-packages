@@ -17,6 +17,7 @@ class VerifyCoverageAcrossPackagesCommand extends Command<void> {
 
   static const String packageOption = 'package';
   static const String thresholdOption = 'threshold';
+  static const String failFastFlag = 'fail-fast';
 
   final GetRepoRootPath _getRepoRootPath;
   final VerifyCoverageAcrossPackages _verifyCoverageAcrossPackages;
@@ -38,6 +39,11 @@ class VerifyCoverageAcrossPackagesCommand extends Command<void> {
         thresholdOption,
         defaultsTo: '100',
         help: 'Global coverage percentage.',
+      )
+      ..addFlag(
+        failFastFlag,
+        help: 'Stop at the first package that fails instead of checking '
+            'every given package.',
       );
   }
 
@@ -57,10 +63,12 @@ class VerifyCoverageAcrossPackagesCommand extends Command<void> {
     final repoRoot = await _getRepoRootPath();
     final threshold =
         double.tryParse(argResults![thresholdOption] as String) ?? 100.0;
+    final failFast = argResults![failFastFlag] as bool;
     await _verifyCoverageAcrossPackages(
       repoRoot: repoRoot,
       packagePaths: packagePaths,
       globalThreshold: threshold,
+      failFast: failFast,
     );
   }
 }
