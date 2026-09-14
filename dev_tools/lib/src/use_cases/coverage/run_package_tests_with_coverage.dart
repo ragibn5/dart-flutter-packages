@@ -120,8 +120,8 @@ class RunPackageTestsWithCoverage {
     final exitCode = await runner.run();
     if (exitCode != 0) {
       throw PackageTestException(
-        'Error($exitCode): `$executable ${arguments.join(' ')}` failed in '
-        '$workingDirectory.',
+        '`$executable ${arguments.join(' ')}` exited with code $exitCode '
+        'in $workingDirectory.',
       );
     }
   }

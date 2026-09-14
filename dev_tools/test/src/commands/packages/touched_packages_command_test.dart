@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/commands/packages/touched_packages_command.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
@@ -11,12 +13,17 @@ class _MockGetRepoRootPath extends Mock implements GetRepoRootPath {}
 
 class _MockFindTouchedPackages extends Mock implements FindTouchedPackages {}
 
+class _MockIOSink extends Mock implements IOSink {}
+
 void main() {
+  late _MockIOSink out;
   late _MockGetRepoRootPath getRepoRootPath;
   late _MockFindTouchedPackages findTouchedPackages;
   late TouchedPackagesCommand sut;
 
   setUp(() {
+    out = _MockIOSink();
+
     getRepoRootPath = _MockGetRepoRootPath();
     when(() => getRepoRootPath()).thenAnswer((_) async => '/fake/repo');
 
@@ -29,6 +36,7 @@ void main() {
         )).thenAnswer((_) async => const <ValidLocalPackageInfo>[]);
 
     sut = TouchedPackagesCommand(
+      out: out,
       getRepoRootPath: getRepoRootPath,
       findTouchedPackages: findTouchedPackages,
     );
@@ -83,7 +91,7 @@ void main() {
     await expectLater(_run(<String>[], sut), completes);
   });
 
-  test('should complete without error when packages were touched', () async {
+  test('should print each touched package to stdout', () async {
     when(() => findTouchedPackages(
           repoRoot: any(named: 'repoRoot'),
           fromRef: any(named: 'fromRef'),
@@ -99,7 +107,9 @@ void main() {
           ),
         ]);
 
-    await expectLater(_run(<String>[], sut), completes);
+    await _run(<String>[], sut);
+
+    verify(() => out.writeln('pkg_a')).called(1);
   });
 }
 

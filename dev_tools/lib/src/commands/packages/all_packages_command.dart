@@ -15,13 +15,16 @@ class AllPackagesCommand extends Command<void> {
 
   static const String skipPathOption = 'skip-path';
 
+  final IOSink _out;
   final GetRepoRootPath _getRepoRootPath;
   final FindAllPackages _findAllPackages;
 
   AllPackagesCommand({
+    IOSink? out,
     GetRepoRootPath getRepoRootPath = const GetRepoRootPath(),
     FindAllPackages findAllPackages = const FindAllPackages(),
-  })  : _getRepoRootPath = getRepoRootPath,
+  })  : _out = out ?? stdout,
+        _getRepoRootPath = getRepoRootPath,
         _findAllPackages = findAllPackages {
     argParser.addMultiOption(
       skipPathOption,
@@ -49,6 +52,6 @@ class AllPackagesCommand extends Command<void> {
       return;
     }
 
-    stdout.writeln(packages.map((p) => p.repoRootRelativePath).join('\n'));
+    _out.writeln(packages.map((p) => p.repoRootRelativePath).join('\n'));
   }
 }

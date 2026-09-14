@@ -16,13 +16,16 @@ class TouchedPackagesCommand extends Command<void> {
   static const String toOption = 'to';
   static const String skipPathOption = 'skip-path';
 
+  final IOSink _out;
   final GetRepoRootPath _getRepoRootPath;
   final FindTouchedPackages _findTouchedPackages;
 
   TouchedPackagesCommand({
+    IOSink? out,
     GetRepoRootPath getRepoRootPath = const GetRepoRootPath(),
     FindTouchedPackages findTouchedPackages = const FindTouchedPackages(),
-  })  : _getRepoRootPath = getRepoRootPath,
+  })  : _out = out ?? stdout,
+        _getRepoRootPath = getRepoRootPath,
         _findTouchedPackages = findTouchedPackages {
     argParser
       ..addOption(
@@ -65,6 +68,6 @@ class TouchedPackagesCommand extends Command<void> {
       return;
     }
 
-    stdout.writeln(packages.map((p) => p.repoRootRelativePath).join('\n'));
+    _out.writeln(packages.map((p) => p.repoRootRelativePath).join('\n'));
   }
 }

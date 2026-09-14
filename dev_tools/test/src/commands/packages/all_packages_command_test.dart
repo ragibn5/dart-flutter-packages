@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/commands/packages/all_packages_command.dart';
 import 'package:dev_tools/src/models/package_identity.dart';
@@ -11,12 +13,17 @@ class _MockGetRepoRootPath extends Mock implements GetRepoRootPath {}
 
 class _MockFindAllPackages extends Mock implements FindAllPackages {}
 
+class _MockIOSink extends Mock implements IOSink {}
+
 void main() {
+  late _MockIOSink out;
   late _MockGetRepoRootPath getRepoRootPath;
   late _MockFindAllPackages findAllPackages;
   late AllPackagesCommand sut;
 
   setUp(() {
+    out = _MockIOSink();
+
     getRepoRootPath = _MockGetRepoRootPath();
     when(() => getRepoRootPath()).thenAnswer((_) async => '/fake/repo');
 
@@ -27,6 +34,7 @@ void main() {
         )).thenAnswer((_) async => const <ValidLocalPackageInfo>[]);
 
     sut = AllPackagesCommand(
+      out: out,
       getRepoRootPath: getRepoRootPath,
       findAllPackages: findAllPackages,
     );
@@ -68,7 +76,7 @@ void main() {
     await expectLater(_run(<String>[], sut), completes);
   });
 
-  test('should complete without error when packages are found', () async {
+  test('should print each found package to stdout', () async {
     when(() => findAllPackages(
           repoRoot: any(named: 'repoRoot'),
           skipPaths: any(named: 'skipPaths'),
@@ -79,7 +87,9 @@ void main() {
           ),
         ]);
 
-    await expectLater(_run(<String>[], sut), completes);
+    await _run(<String>[], sut);
+
+    verify(() => out.writeln('pkg_a')).called(1);
   });
 }
 
