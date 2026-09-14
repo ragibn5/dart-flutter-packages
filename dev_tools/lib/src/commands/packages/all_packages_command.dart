@@ -1,13 +1,14 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_all_packages.dart';
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
 
 class AllPackagesCommand extends Command<void> {
-  static const String commandName = 'all';
+  static const String commandName = 'get-all';
 
   static const String commandDescription =
       'Print the repo-root-relative path of every package in the repository, one per line.';
@@ -44,8 +45,10 @@ class AllPackagesCommand extends Command<void> {
       skipPaths: argResults![skipPathOption] as List<String>,
     );
 
-    for (final package in packages) {
-      print(package.repoRootRelativePath);
+    if (packages.isEmpty) {
+      return;
     }
+
+    stdout.writeln(packages.map((p) => p.repoRootRelativePath).join('\n'));
   }
 }

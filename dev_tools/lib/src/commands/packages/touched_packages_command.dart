@@ -1,13 +1,14 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_touched_packages.dart';
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
 
 class TouchedPackagesCommand extends Command<void> {
-  static const String commandName = 'touched';
+  static const String commandName = 'get-touched';
   static const String commandDescription =
       'Print the repo-root-relative path of every package touched between two git refs, one per line.';
 
@@ -60,8 +61,10 @@ class TouchedPackagesCommand extends Command<void> {
       skipPaths: argResults![skipPathOption] as List<String>,
     );
 
-    for (final package in packages) {
-      print(package.repoRootRelativePath);
+    if (packages.isEmpty) {
+      return;
     }
+
+    stdout.writeln(packages.map((p) => p.repoRootRelativePath).join('\n'));
   }
 }

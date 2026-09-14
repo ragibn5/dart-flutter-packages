@@ -7,7 +7,7 @@ import 'package:dev_tools/src/use_cases/coverage/verify_coverage_across_packages
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
 
 class VerifyCoverageAcrossPackagesCommand extends Command<void> {
-  static const String commandName = 'verify-packages';
+  static const String commandName = 'verify';
   static const String commandDescription =
       "Run every given package's tests with coverage and enforce a minimum line-coverage threshold (default 100%) on each."
       '\n\nNotes:\n'
