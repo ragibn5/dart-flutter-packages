@@ -37,8 +37,7 @@ void main() {
   });
 
   test('should describe publishing eligible release candidates', () {
-    expect(sut.description,
-        PublishReleaseCandidatesCommand.commandDescription);
+    expect(sut.description, PublishReleaseCandidatesCommand.commandDescription);
   });
 
   test('should throw a usage exception when no package is given', () async {
@@ -64,8 +63,7 @@ void main() {
     ).called(1);
   });
 
-  test('should forward every supplied package and the dry-run flag',
-      () async {
+  test('should forward every supplied package and the dry-run flag', () async {
     await _run(['--package=pkg_a', '--package=pkg_b', '--dry-run'], sut);
 
     verify(

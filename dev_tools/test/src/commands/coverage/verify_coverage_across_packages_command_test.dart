@@ -22,11 +22,8 @@ void main() {
     verifyCoverageAcrossPackages = _MockVerifyCoverageAcrossPackages();
     when(() => verifyCoverageAcrossPackages(
           repoRoot: any(named: 'repoRoot'),
-          fromRef: any(named: 'fromRef'),
-          toRef: any(named: 'toRef'),
+          packagePaths: any(named: 'packagePaths'),
           globalThreshold: any(named: 'globalThreshold'),
-          skipPaths: any(named: 'skipPaths'),
-          all: any(named: 'all'),
         )).thenAnswer((_) async {});
 
     sut = VerifyCoverageAcrossPackagesCommand(
@@ -35,77 +32,50 @@ void main() {
     );
   });
 
-  test('should expose the verify-packages name', () {
+  test('should expose the verify name', () {
     expect(sut.name, VerifyCoverageAcrossPackagesCommand.commandName);
   });
 
-  test('should describe enforcing coverage across every package', () {
+  test('should describe running given packages with coverage', () {
     expect(sut.description,
         VerifyCoverageAcrossPackagesCommand.commandDescription);
   });
 
-  test('should use the resolved repo root and default from/to/threshold',
-      () async {
-    await _run(<String>[], sut);
+  test('should throw a usage exception when no package is given', () async {
+    await expectLater(_run(<String>[], sut), throwsA(isA<UsageException>()));
+
+    verifyNever(() => verifyCoverageAcrossPackages(
+          repoRoot: any(named: 'repoRoot'),
+          packagePaths: any(named: 'packagePaths'),
+          globalThreshold: any(named: 'globalThreshold'),
+        ));
+  });
+
+  test('should use the resolved repo root and default threshold', () async {
+    await _run(['--package=pkg_a'], sut);
 
     verify(
       () => verifyCoverageAcrossPackages(
         repoRoot: '/fake/repo',
-        // ignore: avoid_redundant_argument_values
-        fromRef: 'HEAD^',
-        // ignore: avoid_redundant_argument_values
-        toRef: 'HEAD',
+        packagePaths: ['pkg_a'],
         // ignore: avoid_redundant_argument_values
         globalThreshold: 100,
-        // ignore: avoid_redundant_argument_values
-        skipPaths: const [],
-        // ignore: avoid_redundant_argument_values
-        all: false,
       ),
     ).called(1);
   });
 
-  test('should forward a supplied from, to, threshold, and skip paths',
+  test('should forward every supplied package and a custom threshold',
       () async {
     await _run(
-      [
-        '--from=main~5',
-        '--to=main',
-        '--threshold=90',
-        '--skip-path=app_template',
-        '--skip-path=demo',
-      ],
+      ['--package=pkg_a', '--package=pkg_b', '--threshold=90'],
       sut,
     );
 
     verify(
       () => verifyCoverageAcrossPackages(
         repoRoot: '/fake/repo',
-        fromRef: 'main~5',
-        toRef: 'main',
+        packagePaths: ['pkg_a', 'pkg_b'],
         globalThreshold: 90,
-        skipPaths: ['app_template', 'demo'],
-        // ignore: avoid_redundant_argument_values
-        all: false,
-      ),
-    ).called(1);
-  });
-
-  test('should forward the all flag when supplied', () async {
-    await _run(['--all'], sut);
-
-    verify(
-      () => verifyCoverageAcrossPackages(
-        repoRoot: '/fake/repo',
-        // ignore: avoid_redundant_argument_values
-        fromRef: 'HEAD^',
-        // ignore: avoid_redundant_argument_values
-        toRef: 'HEAD',
-        // ignore: avoid_redundant_argument_values
-        globalThreshold: 100,
-        // ignore: avoid_redundant_argument_values
-        skipPaths: const [],
-        all: true,
       ),
     ).called(1);
   });
@@ -116,5 +86,5 @@ Future<void> _run(
   VerifyCoverageAcrossPackagesCommand command,
 ) async {
   final runner = CommandRunner<void>('dev_tools', '')..addCommand(command);
-  await runner.run(['verify-packages', ...args]);
+  await runner.run(['verify', ...args]);
 }

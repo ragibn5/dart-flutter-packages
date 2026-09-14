@@ -1,27 +1,22 @@
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/published_package_info.dart';
-import 'package:dev_tools/src/models/release_candidate_package.dart';
-import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/resolve_local_packages.dart';
 import 'package:dev_tools/src/use_cases/git/create_and_push_tag.dart';
-import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_batch_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_failed_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_release_candidates.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
-import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
+import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _MockDetectChangesInFolder extends Mock
-    implements DetectChangesInFolder {}
+class _MockResolveLocalPackages extends Mock implements ResolveLocalPackages {}
 
-class _MockFindPackages extends Mock implements FindPackages {}
-
-class _MockFindReleaseCandidatePackages extends Mock
-    implements FindReleaseCandidatePackages {}
+class _MockPackageRegistryClient extends Mock
+    implements PackageRegistryClient {}
 
 class _MockRunPublishFlow extends Mock implements RunPublishFlow {}
 
@@ -31,40 +26,49 @@ class _MockResolveGitTagFormat extends Mock implements ResolveGitTagFormat {}
 
 void main() {
   const repoRoot = '/fake/repo';
-  const changedFiles = ['pkg_a/pubspec.yaml'];
-  const publishedVersions = PublishedPackageInfo(versions: ['0.9.0']);
+  const notYetPublished = PublishedPackageInfo(versions: ['0.9.0']);
 
-  late _MockDetectChangesInFolder detectChangesInFolder;
-  late _MockFindPackages findPackages;
-  late _MockFindReleaseCandidatePackages findReleaseCandidatePackages;
+  late _MockResolveLocalPackages resolveLocalPackages;
+  late _MockPackageRegistryClient packageRegistryClient;
   late _MockRunPublishFlow runPublishFlow;
   late _MockCreateAndPushTag createAndPushTag;
   late _MockResolveGitTagFormat resolveGitTagFormat;
   late PublishReleaseCandidates sut;
 
-  ReleaseCandidatePackage candidate(String path, String name) =>
-      ReleaseCandidatePackage(
+  ValidLocalPackageInfo pkg(
+    String path,
+    String name, {
+    bool isPublishable = true,
+  }) =>
+      ValidLocalPackageInfo(
         repoRootRelativePath: path,
-        packageIdentity: PackageIdentity(name: name, version: '1.0.0'),
-        publishedPackageInfo: publishedVersions,
+        packageIdentity: PackageIdentity(
+          name: name,
+          version: isPublishable ? '1.0.0' : null,
+          isPublishable: isPublishable,
+        ),
       );
 
+  void resolvesTo(List<ValidLocalPackageInfo> packages) {
+    when(() => resolveLocalPackages(
+          repoRoot: any(named: 'repoRoot'),
+          packagePaths: any(named: 'packagePaths'),
+        )).thenAnswer((_) async => packages);
+  }
+
+  Future<void> run({
+    List<String> packagePaths = const ['pkg_a'],
+    bool dryRun = false,
+  }) =>
+      sut(repoRoot: repoRoot, packagePaths: packagePaths, dryRun: dryRun);
+
   setUp(() {
-    detectChangesInFolder = _MockDetectChangesInFolder();
-    when(() => detectChangesInFolder(
-          baseRef: any(named: 'baseRef'),
-          compareRef: any(named: 'compareRef'),
-        )).thenAnswer((_) async => changedFiles);
+    resolveLocalPackages = _MockResolveLocalPackages();
+    resolvesTo([pkg('pkg_a', 'pkg_a')]);
 
-    findPackages = _MockFindPackages();
-    when(() => findPackages(repoRoot: any(named: 'repoRoot')))
-        .thenAnswer((_) async => const <PackageInfo>[]);
-
-    findReleaseCandidatePackages = _MockFindReleaseCandidatePackages();
-    when(() => findReleaseCandidatePackages(
-          localPackages: any(named: 'localPackages'),
-          changedFiles: any(named: 'changedFiles'),
-        )).thenAnswer((_) async => const []);
+    packageRegistryClient = _MockPackageRegistryClient();
+    when(() => packageRegistryClient(any()))
+        .thenAnswer((_) async => notYetPublished);
 
     runPublishFlow = _MockRunPublishFlow();
     when(() => runPublishFlow(
@@ -83,41 +87,27 @@ void main() {
 
     sut = PublishReleaseCandidates(
       logger: _FakeLogger(),
-      detectChangesInFolder: detectChangesInFolder,
-      findPackages: findPackages,
-      findReleaseCandidatePackages: findReleaseCandidatePackages,
+      resolveLocalPackages: resolveLocalPackages,
+      packageRegistryClient: packageRegistryClient,
       runPublishFlow: runPublishFlow,
       createAndPushTag: createAndPushTag,
       gitTagFormat: GetTagFormat(resolveGitTagFormat),
     );
   });
 
-  test('should diff with fromRef as the base and toRef as the compare ref',
-      () async {
-    await sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main');
+  test('should resolve the given package paths under the repo root', () async {
+    await run(packagePaths: ['pkg_a', 'pkg_b']);
 
-    verify(() => detectChangesInFolder(
-          baseRef: 'main~1',
-          compareRef: 'main',
+    verify(() => resolveLocalPackages(
+          repoRoot: repoRoot,
+          packagePaths: ['pkg_a', 'pkg_b'],
         )).called(1);
   });
 
-  test('should find release candidates among the diffed changed files',
-      () async {
-    await sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main');
+  test('should complete without publishing when given no packages', () async {
+    resolvesTo(const []);
 
-    verify(() => findReleaseCandidatePackages(
-          localPackages: any(named: 'localPackages'),
-          changedFiles: changedFiles,
-        )).called(1);
-  });
-
-  test('should complete without publishing when no candidates are found',
-      () async {
-    await expectLater(
-      sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main'),
-      completes,
-    );
+    await expectLater(run(packagePaths: const []), completes);
 
     verifyNever(() => runPublishFlow(
           repoRoot: any(named: 'repoRoot'),
@@ -127,16 +117,40 @@ void main() {
         ));
   });
 
-  test('should publish every found candidate non-interactively', () async {
-    when(() => findReleaseCandidatePackages(
-          localPackages: any(named: 'localPackages'),
-          changedFiles: any(named: 'changedFiles'),
-        )).thenAnswer((_) async => [
-          candidate('pkg_a', 'pkg_a'),
-          candidate('pkg_b', 'pkg_b'),
-        ]);
+  test('should skip a package that is not publishable', () async {
+    resolvesTo([pkg('pkg_a', 'pkg_a', isPublishable: false)]);
 
-    await sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main');
+    await expectLater(run(), completes);
+
+    verifyNever(() => runPublishFlow(
+          repoRoot: any(named: 'repoRoot'),
+          pkgPath: any(named: 'pkgPath'),
+          interactive: any(named: 'interactive'),
+          dryRunOnly: any(named: 'dryRunOnly'),
+        ));
+  });
+
+  test('should skip a package whose current version is already published',
+      () async {
+    when(() => packageRegistryClient(any()))
+        .thenAnswer((_) async => const PublishedPackageInfo(
+              versions: ['1.0.0'],
+            ));
+
+    await expectLater(run(), completes);
+
+    verifyNever(() => runPublishFlow(
+          repoRoot: any(named: 'repoRoot'),
+          pkgPath: any(named: 'pkgPath'),
+          interactive: any(named: 'interactive'),
+          dryRunOnly: any(named: 'dryRunOnly'),
+        ));
+  });
+
+  test('should publish every eligible candidate non-interactively', () async {
+    resolvesTo([pkg('pkg_a', 'pkg_a'), pkg('pkg_b', 'pkg_b')]);
+
+    await run(packagePaths: ['pkg_a', 'pkg_b']);
 
     verify(() => runPublishFlow(
           repoRoot: repoRoot,
@@ -153,12 +167,7 @@ void main() {
   });
 
   test('should tag every candidate that publishes successfully', () async {
-    when(() => findReleaseCandidatePackages(
-          localPackages: any(named: 'localPackages'),
-          changedFiles: any(named: 'changedFiles'),
-        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
-
-    await sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main');
+    await run();
 
     verify(() => createAndPushTag('pkg_a-1.0.0', repoRoot: repoRoot)).called(1);
   });
@@ -166,37 +175,20 @@ void main() {
   test(
       'should follow the dryRun flag rather than publishing for real when '
       'set', () async {
-    when(() => findReleaseCandidatePackages(
-          localPackages: any(named: 'localPackages'),
-          changedFiles: any(named: 'changedFiles'),
-        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
-
-    await sut(
-      repoRoot: repoRoot,
-      fromRef: 'main~1',
-      toRef: 'main',
-      dryRun: true,
-    );
+    await run(dryRun: true);
 
     verify(() => runPublishFlow(
           repoRoot: repoRoot,
           pkgPath: 'pkg_a',
+          // ignore: avoid_redundant_argument_values
           interactive: false,
+          // ignore: avoid_redundant_argument_values
+          dryRunOnly: true,
         )).called(1);
   });
 
   test('should not create or push a tag on a dry run', () async {
-    when(() => findReleaseCandidatePackages(
-          localPackages: any(named: 'localPackages'),
-          changedFiles: any(named: 'changedFiles'),
-        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
-
-    await sut(
-      repoRoot: repoRoot,
-      fromRef: 'main~1',
-      toRef: 'main',
-      dryRun: true,
-    );
+    await run(dryRun: true);
 
     verifyNever(
       () => createAndPushTag(any(), repoRoot: any(named: 'repoRoot')),
@@ -205,13 +197,7 @@ void main() {
 
   test('should attempt every candidate even when one fails to publish',
       () async {
-    when(() => findReleaseCandidatePackages(
-          localPackages: any(named: 'localPackages'),
-          changedFiles: any(named: 'changedFiles'),
-        )).thenAnswer((_) async => [
-          candidate('pkg_a', 'pkg_a'),
-          candidate('pkg_b', 'pkg_b'),
-        ]);
+    resolvesTo([pkg('pkg_a', 'pkg_a'), pkg('pkg_b', 'pkg_b')]);
     when(() => runPublishFlow(
           repoRoot: any(named: 'repoRoot'),
           pkgPath: 'pkg_a',
@@ -220,7 +206,7 @@ void main() {
         )).thenThrow(const PublishFailedException('Publishing failed.'));
 
     await expectLater(
-      sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main'),
+      run(packagePaths: ['pkg_a', 'pkg_b']),
       throwsA(isA<PublishBatchException>()),
     );
 
@@ -234,17 +220,18 @@ void main() {
     verifyNever(() => createAndPushTag('pkg_a-1.0.0', repoRoot: repoRoot));
   });
 
+  test('should propagate PackageNotFoundException from resolution', () async {
+    when(() => resolveLocalPackages(
+          repoRoot: any(named: 'repoRoot'),
+          packagePaths: any(named: 'packagePaths'),
+        )).thenThrow(const PackageNotFoundException('nope: not found.'));
+
+    await expectLater(run(), throwsA(isA<PackageNotFoundException>()));
+  });
+
   test('should not throw when every candidate publishes successfully',
       () async {
-    when(() => findReleaseCandidatePackages(
-          localPackages: any(named: 'localPackages'),
-          changedFiles: any(named: 'changedFiles'),
-        )).thenAnswer((_) async => [candidate('pkg_a', 'pkg_a')]);
-
-    await expectLater(
-      sut(repoRoot: repoRoot, fromRef: 'main~1', toRef: 'main'),
-      completes,
-    );
+    await expectLater(run(), completes);
   });
 }
 

@@ -17,8 +17,7 @@ void main() {
     sut = ResolveLocalPackages(readPackageIdentity: readPackageIdentity);
   });
 
-  test('should resolve each given path into a ValidLocalPackageInfo',
-      () async {
+  test('should resolve each given path into a ValidLocalPackageInfo', () async {
     when(() => readPackageIdentity('/fake/repo/pkg_a')).thenAnswer(
       (_) async => const PackageIdentity(name: 'pkg_a', version: '1.0.0'),
     );
