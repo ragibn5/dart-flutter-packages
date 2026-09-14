@@ -32,6 +32,10 @@ jobs:
           key: fvm-versions-${{ hashFiles('dev_tools/.fvmrc') }}
           restore-keys: fvm-versions-
 
+      - name: Install pinned Flutter SDK version vis FVM
+        working-directory: dev_tools
+        run: fvm install
+
       - name: Install dev_tools dependencies
         working-directory: dev_tools
         run: fvm dart pub get
@@ -41,7 +45,7 @@ jobs:
       # ~/fvm/versions — the same directory cached above. Point plain
       # flutter/dart at that instead of installing a second SDK copy via
       # flutter-action.
-      - name: Add fvm's downloaded Flutter SDK to PATH
+      - name: Add FVM's downloaded Flutter SDK to PATH
         run: |
           FLUTTER_VERSION=$(jq -r .flutter dev_tools/.fvmrc)
           echo "$HOME/fvm/versions/$FLUTTER_VERSION/bin" >> "$GITHUB_PATH"
