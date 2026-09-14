@@ -4,91 +4,63 @@ import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
 import 'package:dev_tools/src/use_cases/coverage/read_coverage_config.dart';
 import 'package:dev_tools/src/use_cases/coverage/run_package_tests_with_coverage.dart';
-import 'package:dev_tools/src/use_cases/dart_flutter/filter_touched_packages.dart';
-import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
-import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/resolve_local_packages.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
-/// Orchestrates running every package's tests with coverage and enforcing a
-/// minimum line-coverage threshold on each.
+/// Orchestrates running a given set of packages' tests with coverage and
+/// enforcing a minimum line-coverage threshold on each.
 ///
 /// Runs independently per package — one failing doesn't stop the rest —
 /// then reports a per-package summary and fails the batch (via
 /// [CoverageBatchException]) if any package failed.
 class VerifyCoverageAcrossPackages {
   final Logger _logger;
-  final FindPackages _findPackages;
-  final DetectChangesInFolder _detectChangesInFolder;
-  final FilterTouchedPackages _filterTouchedPackages;
+  final ResolveLocalPackages _resolveLocalPackages;
   final CalculateCoverage _calculateCoverage;
   final RunPackageTestsWithCoverage _runPackageTests;
   final ReadCoverageConfig _readCoverageConfig;
 
   const VerifyCoverageAcrossPackages({
     Logger logger = const ConsoleLogger(),
-    FindPackages findPackages = const FindPackages(),
-    DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
-    FilterTouchedPackages filterTouchedPackages = const FilterTouchedPackages(),
+    ResolveLocalPackages resolveLocalPackages = const ResolveLocalPackages(),
     CalculateCoverage calculateCoverage = const CalculateCoverage(),
     RunPackageTestsWithCoverage runPackageTests =
         const RunPackageTestsWithCoverage(),
     ReadCoverageConfig readCoverageConfig = const ReadCoverageConfig(),
   })  : _logger = logger,
-        _findPackages = findPackages,
-        _detectChangesInFolder = detectChangesInFolder,
-        _filterTouchedPackages = filterTouchedPackages,
+        _resolveLocalPackages = resolveLocalPackages,
         _calculateCoverage = calculateCoverage,
         _runPackageTests = runPackageTests,
         _readCoverageConfig = readCoverageConfig;
 
   /// Params:
-  /// - `repoRoot`: absolute path to the repository root to scan.
-  /// - `fromRef`: the ref to diff from, i.e. the branch's state before this
-  ///   change (e.g. the PR's base commit). Unused when [all] is true.
-  /// - `toRef`: the ref to diff against, i.e. the branch's state after this
-  ///   change (e.g. `HEAD`). Unused when [all] is true.
+  /// - `repoRoot`: absolute path to the repository root.
+  /// - `packagePaths`: repo-root-relative paths of the packages to check
+  ///   (e.g. `packages/foo`) — every entry must resolve to a package with a
+  ///   valid pubspec.yaml under [repoRoot].
   /// - `threshold`: required coverage percentage (default 100) — a
   ///   package's own `dev_tools_coverage_config.yaml` may override this
   ///   for itself.
-  /// - `skipPaths`: repo-root-relative path prefixes of whole packages to
-  ///   skip entirely (e.g. `app_template`, which has its own dedicated CI
-  ///   coverage flow) — not to be confused with a package's own
-  ///   `dev_tools_coverage_config.yaml`, which filters files (and/or
-  ///   overrides the threshold) within one package's coverage rather than
-  ///   skipping the package altogether.
-  /// - `all`: when true, check every found package regardless of what
-  ///   changed between [fromRef] and [toRef] — no diffing happens at all.
   ///
   /// Returns: nothing (void) when every checked package meets its
   /// (possibly overridden) threshold.
   ///
   /// Throws:
-  /// - [PackageFinderException] while scanning for packages (see
-  ///   [FindPackages]).
-  /// - [GitDiffingException] when `git diff` fails (only when `!all`).
+  /// - [PackageNotFoundException] when a package path doesn't resolve to a
+  ///   package with a valid pubspec.yaml.
   /// - [CoverageBatchException] listing every package that failed its tests
   ///   or fell below [globalThreshold] (or package specific override), once
   ///   every package has been checked.
   Future<void> call({
     required String repoRoot,
-    required String fromRef,
-    required String toRef,
+    required List<String> packagePaths,
     double globalThreshold = 100,
-    List<String> skipPaths = const [],
-    bool all = false,
   }) async {
-    final packages = await _logger.withGroupedLog(
-      'Scanning for packages...',
-      (logger) => _extractPackages(repoRoot, skipPaths, logger),
+    final packagesToCheck = await _logger.withGroupedLog(
+      'Resolving packages...',
+      (logger) => _resolvePackages(repoRoot, packagePaths, logger),
     );
-    final packagesToCheck = all
-        ? packages
-        : await _logger.withGroupedLog(
-            'Filtering touched packages...',
-            (logger) =>
-                _extractTouchedPackages(fromRef, toRef, packages, logger),
-          );
 
     final results = await _checkPackages(
       repoRoot,
@@ -107,64 +79,20 @@ class VerifyCoverageAcrossPackages {
     }
   }
 
-  Future<List<ValidLocalPackageInfo>> _extractPackages(
+  Future<List<ValidLocalPackageInfo>> _resolvePackages(
     String repoRoot,
-    List<String> skipPaths,
+    List<String> packagePaths,
     Logger logger,
   ) async {
-    final foundPackages = await _findPackages(repoRoot: repoRoot);
-    final validPackages = foundPackages
-        .whereType<ValidLocalPackageInfo>()
-        .where((pkg) => !_isSkipped(pkg.repoRootRelativePath, skipPaths))
-        .toList();
-    final malformedPackages =
-        foundPackages.whereType<MalformedLocalPackageInfo>().toList();
-
-    logger
-      ..info('Found ${foundPackages.length} package(s)')
-      ..info('  Valid: ${validPackages.length}')
-      ..info('  Malformed: ${malformedPackages.length}')
-      ..info(
-        malformedPackages
-            .map((e) => '  - ${e.repoRootRelativePath}: ${e.reason}')
-            .join('\n')
-            .trim(),
-      );
-
-    return validPackages;
-  }
-
-  Future<List<ValidLocalPackageInfo>> _extractTouchedPackages(
-    String fromRef,
-    String toRef,
-    List<ValidLocalPackageInfo> packages,
-    Logger logger,
-  ) async {
-    final changedFiles = await _detectChangesInFolder(
-      baseRef: fromRef,
-      compareRef: toRef,
-    );
-    final touched = _filterTouchedPackages(
-      localPackages: packages,
-      changedFiles: changedFiles,
+    final packages = await _resolveLocalPackages(
+      repoRoot: repoRoot,
+      packagePaths: packagePaths,
     );
 
-    if (touched.isEmpty) {
-      logger.info('No packages touched; nothing to check.');
-    } else {
-      logger
-          .info('${touched.length} of ${packages.length} package(s) touched.');
-    }
+    logger.info('Resolved ${packages.length} package(s).');
 
-    return touched;
+    return packages;
   }
-
-  bool _isSkipped(String repoRootRelativePath, List<String> skipPaths) =>
-      skipPaths.any(
-        (prefix) =>
-            repoRootRelativePath == prefix ||
-            repoRootRelativePath.startsWith('$prefix/'),
-      );
 
   Future<_CheckResult> _checkPackages(
     String repoRoot,

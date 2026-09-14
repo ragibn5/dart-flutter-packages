@@ -5,6 +5,7 @@ import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/commands/coverage/coverage_command.dart';
 import 'package:dev_tools/src/commands/find_replace/replace_command.dart';
 import 'package:dev_tools/src/commands/git/git_command.dart';
+import 'package:dev_tools/src/commands/packages/packages_command.dart';
 import 'package:dev_tools/src/commands/publish/publish_command.dart';
 import 'package:dev_tools/src/commands/release/release_command.dart';
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
@@ -14,6 +15,7 @@ Future<void> main(List<String> args) async {
   const description = 'Shared developer tooling for Dart and Flutter projects.';
   final runner = CommandRunner<dynamic>(executableName, description)
     ..addCommand(GitCommand())
+    ..addCommand(PackagesCommand())
     ..addCommand(PublishCommand())
     ..addCommand(ReplaceCommand())
     ..addCommand(CoverageCommand())

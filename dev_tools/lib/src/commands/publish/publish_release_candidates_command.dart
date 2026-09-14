@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
@@ -8,16 +10,14 @@ import 'package:dev_tools/src/use_cases/publish/publish_release_candidates.dart'
 class PublishReleaseCandidatesCommand extends Command<void> {
   static const String commandName = 'publish-release-candidates';
   static const String commandDescription =
-      'Publish and tag release candidates.\n\n'
-      'Notes:\n'
+      'Publish and tag every eligible release candidate among a given set of packages.'
+      '\n\nNotes:\n'
       '- Tag style defaults to "${ResolveGitTagFormat.defaultGitTagFormat}".\n'
-      // ignore: lines_longer_than_80_chars
       '  To customize, override the ${ResolveGitTagFormat.gitTagFormatEnvVar} env var.\n'
       '  Supported placeholders are "{name}" & "{version}".'
       '  For example, a custom override might be "{name}@{version}".';
 
-  static const String fromOption = 'from';
-  static const String toOption = 'to';
+  static const String packageOption = 'package';
   static const String dryRunFlag = 'dry-run';
 
   final GetRepoRootPath _getRepoRootPath;
@@ -30,17 +30,11 @@ class PublishReleaseCandidatesCommand extends Command<void> {
   })  : _getRepoRootPath = getRepoRootPath,
         _publishReleaseCandidates = publishReleaseCandidates {
     argParser
-      ..addOption(
-        fromOption,
-        defaultsTo: 'HEAD^',
-        help: 'The release branch state before this merge '
-            '(default: the previous commit).',
-      )
-      ..addOption(
-        toOption,
-        defaultsTo: 'HEAD',
-        help: 'The release branch state after this merge '
-            '(default: the currently checked-out commit).',
+      ..addMultiOption(
+        packageOption,
+        abbr: 'p',
+        help: 'Repo-root-relative path of a package to consider '
+            '(e.g. packages/foo). Repeatable; at least one is required.',
       )
       ..addFlag(
         dryRunFlag,
@@ -58,11 +52,15 @@ class PublishReleaseCandidatesCommand extends Command<void> {
 
   @override
   FutureOr<void>? run() async {
+    final packagePaths = argResults![packageOption] as List<String>;
+    if (packagePaths.isEmpty) {
+      usageException('At least one --$packageOption must be provided.');
+    }
+
     final repoRoot = await _getRepoRootPath();
     await _publishReleaseCandidates(
       repoRoot: repoRoot,
-      fromRef: argResults![fromOption] as String,
-      toRef: argResults![toOption] as String,
+      packagePaths: packagePaths,
       dryRun: argResults!.flag(dryRunFlag),
     );
   }

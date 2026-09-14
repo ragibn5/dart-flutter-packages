@@ -1,20 +1,12 @@
-import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/models/release_candidate_package.dart';
-import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
+import 'package:dev_tools/src/use_cases/dart_flutter/resolve_local_packages.dart';
 import 'package:dev_tools/src/use_cases/git/create_and_push_tag.dart';
-import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/use_cases/git/get_tag_format.dart';
 import 'package:dev_tools/src/use_cases/publish/publish_batch_exception.dart';
 import 'package:dev_tools/src/use_cases/publish/run_publish_flow.dart';
-import 'package:dev_tools/src/use_cases/release/find_release_candidate_packages.dart';
+import 'package:dev_tools/src/use_cases/release/fetch_pub_dev_package_info.dart';
 import 'package:dev_tools/src/use_cases/release/package_registry_client.dart';
 import 'package:dev_tools/src/utils/logger.dart';
-
-/// Result of scanning the repo for packages, split by validity.
-typedef _PackageScanResult = ({
-  List<ValidLocalPackageInfo> valid,
-  List<MalformedLocalPackageInfo> malformed,
-});
 
 /// Result of attempting to publish every release candidate: the tag each
 /// successfully published one got, and the error for every one that failed.
@@ -24,9 +16,15 @@ typedef _PublishResult = ({
   Map<String, String> issueMap,
 });
 
-/// Orchestrates publishing every release candidate introduced by a merge to
-/// the release branch (e.g. `main`), and tagging each one that publishes
-/// successfully.
+/// Orchestrates publishing every eligible release candidate among a given
+/// set of packages, and tagging each one that publishes successfully.
+///
+/// A given package is an eligible candidate when it's publishable
+/// (`PackageIdentity.isPublishable` — false for e.g. an app or other
+/// internal package with no version, or one opting out via
+/// `publish_to: none`) and its current version isn't already published on
+/// the package registry; neither exclusion is an error, just not something
+/// to publish.
 ///
 /// Runs independently per candidate — one failing doesn't stop the rest —
 /// then reports a per-package summary and fails the batch (via
@@ -35,63 +33,52 @@ class PublishReleaseCandidates {
   final Logger _logger;
   final GetTagFormat _gitTagFormat;
   final CreateAndPushTag _createAndPushTag;
-  final DetectChangesInFolder _detectChangesInFolder;
-  final FindPackages _findPackages;
-  final FindReleaseCandidatePackages _findReleaseCandidates;
+  final ResolveLocalPackages _resolveLocalPackages;
+  final PackageRegistryClient _packageRegistryClient;
   final RunPublishFlow _runPublishFlow;
 
   const PublishReleaseCandidates({
     Logger logger = const ConsoleLogger(),
     GetTagFormat gitTagFormat = const GetTagFormat(ResolveGitTagFormat()),
     CreateAndPushTag createAndPushTag = const CreateAndPushTag(),
-    DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),
-    FindPackages findPackages = const FindPackages(),
-    FindReleaseCandidatePackages findReleaseCandidatePackages =
-        const FindReleaseCandidatePackages(),
+    ResolveLocalPackages resolveLocalPackages = const ResolveLocalPackages(),
+    PackageRegistryClient packageRegistryClient =
+        const FetchPubDevPackageInfo(),
     RunPublishFlow runPublishFlow = const RunPublishFlow(),
   })  : _logger = logger,
-        _detectChangesInFolder = detectChangesInFolder,
-        _findPackages = findPackages,
-        _findReleaseCandidates = findReleaseCandidatePackages,
+        _resolveLocalPackages = resolveLocalPackages,
+        _packageRegistryClient = packageRegistryClient,
         _runPublishFlow = runPublishFlow,
         _gitTagFormat = gitTagFormat,
         _createAndPushTag = createAndPushTag;
 
-  /// Publishes every release candidate introduced between `fromRef` and
-  /// `toRef`, tagging each one that publishes successfully.
+  /// Publishes every eligible release candidate among [packagePaths],
+  /// tagging each one that publishes successfully.
   ///
   /// Params:
   /// - `repoRoot`: absolute path to the repository root.
-  /// - `fromRef`: the ref to diff from, i.e. the release branch's state
-  ///   before this merge (e.g. the previous `main` commit).
-  /// - `toRef`: the ref to diff against, i.e. the release branch's state
-  ///   after this merge (e.g. `HEAD`).
+  /// - `packagePaths`: repo-root-relative paths of the packages to consider
+  ///   (e.g. `packages/foo`) — every entry must resolve to a package with a
+  ///   valid pubspec.yaml under [repoRoot].
   /// - `dryRun`: when true, run each candidate's dry-run publish only —
   ///   nothing is actually published, and no tags are created or pushed.
   ///
   /// Returns: nothing (void) when every candidate published successfully.
   ///
   /// Throws:
-  /// - [GitDiffingException] when `git diff` fails.
-  /// - [PackageFinderException] while scanning for packages (see
-  ///   [FindPackages]).
-  /// - [PackageRegistryLookupException] while narrowing candidates (see
-  ///   [FindReleaseCandidatePackages]).
+  /// - [PackageNotFoundException] when a package path doesn't resolve to a
+  ///   package with a valid pubspec.yaml.
+  /// - [PackageRegistryLookupException] while narrowing candidates.
   /// - [PublishBatchException] listing every candidate that failed to
   ///   publish or tag, once all candidates have been attempted.
   Future<void> call({
     required String repoRoot,
-    required String fromRef,
-    required String toRef,
+    required List<String> packagePaths,
     bool dryRun = false,
   }) async {
-    final packages = await _logger.withGroupedLog(
-      'Scanning for packages...',
-      (logger) => _extractPackages(repoRoot, logger),
-    );
     final candidates = await _logger.withGroupedLog(
-      'Filtering release candidates...',
-      (logger) => _extractReleaseCandidates(fromRef, toRef, packages, logger),
+      'Resolving release candidates...',
+      (logger) => _extractReleaseCandidates(repoRoot, packagePaths, logger),
     );
 
     final results =
@@ -110,44 +97,42 @@ class PublishReleaseCandidates {
     }
   }
 
-  Future<_PackageScanResult> _extractPackages(
-    String repoRoot,
-    Logger logger,
-  ) async {
-    final foundPackages = await _findPackages(repoRoot: repoRoot);
-    final validPackages =
-        foundPackages.whereType<ValidLocalPackageInfo>().toList();
-    final malformedPackages =
-        foundPackages.whereType<MalformedLocalPackageInfo>().toList();
-
-    logger
-      ..info('Found ${foundPackages.length} package(s)')
-      ..info('  Valid: ${validPackages.length}')
-      ..info('  Malformed: ${malformedPackages.length}')
-      ..info(
-        malformedPackages
-            .map((e) => '  - ${e.repoRootRelativePath}: ${e.reason}')
-            .join('\n')
-            .trim(),
-      );
-
-    return (valid: validPackages, malformed: malformedPackages);
-  }
-
   Future<List<ReleaseCandidatePackage>> _extractReleaseCandidates(
-    String fromRef,
-    String toRef,
-    _PackageScanResult packages,
+    String repoRoot,
+    List<String> packagePaths,
     Logger logger,
   ) async {
-    final changedFiles = await _detectChangesInFolder(
-      baseRef: fromRef,
-      compareRef: toRef,
+    final packages = await _resolveLocalPackages(
+      repoRoot: repoRoot,
+      packagePaths: packagePaths,
     );
-    final candidates = await _findReleaseCandidates(
-      localPackages: packages.valid,
-      changedFiles: changedFiles,
-    );
+
+    final candidates = <ReleaseCandidatePackage>[];
+    for (final package in packages) {
+      final identity = package.packageIdentity;
+      if (!identity.isPublishable) {
+        logger.info('${package.repoRootRelativePath}: not publishable.');
+        continue;
+      }
+
+      // isPublishable guarantees a non-null version.
+      final version = identity.version!;
+      final info = await _packageRegistryClient(identity.name);
+      if (info.versions.contains(version)) {
+        logger.info(
+          '${package.repoRootRelativePath}: $version already published.',
+        );
+        continue;
+      }
+
+      candidates.add(
+        ReleaseCandidatePackage(
+          repoRootRelativePath: package.repoRootRelativePath,
+          packageIdentity: identity,
+          publishedPackageInfo: info,
+        ),
+      );
+    }
 
     if (candidates.isEmpty) {
       logger.info('No release candidates found; nothing to publish.');
@@ -190,8 +175,9 @@ class PublishReleaseCandidates {
     required bool dryRun,
   }) async {
     final identity = candidate.packageIdentity;
-    // A ReleaseCandidatePackage is only ever built for a versioned package
-    // (see FindReleaseCandidatePackages), so this is never null here.
+    // A ReleaseCandidatePackage is only ever built for a publishable
+    // (hence versioned) package (see _extractReleaseCandidates above), so
+    // this is never null here.
     final tag = _gitTagFormat(name: identity.name, version: identity.version!);
 
     // dryRunOnly follows the batch's own dryRun flag rather than
