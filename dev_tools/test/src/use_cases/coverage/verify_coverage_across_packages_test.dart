@@ -139,8 +139,8 @@ void main() {
         )).called(1);
   });
 
-  test('should stop checking remaining packages when failFast is true',
-      () async {
+  test('should stop checking remaining packages when a test fails and '
+      'failFast is true', () async {
     resolvesTo([pkg('pkg_a', 'pkg_a'), pkg('pkg_b', 'pkg_b')]);
     when(() => runPackageTests(
           packagePath: '/fake/repo/pkg_a',
@@ -160,6 +160,50 @@ void main() {
           packagePath: '/fake/repo/pkg_b',
           isFlutterPackage: any(named: 'isFlutterPackage'),
         ));
+  });
+
+  test(
+      'should mention the fail-fast stop in the thrown exception message '
+      'when a test failure cuts the batch short', () async {
+    resolvesTo([pkg('pkg_a', 'pkg_a'), pkg('pkg_b', 'pkg_b')]);
+    when(() => runPackageTests(
+          packagePath: '/fake/repo/pkg_a',
+          isFlutterPackage: any(named: 'isFlutterPackage'),
+        )).thenThrow(const PackageTestException('tests failed.'));
+
+    await expectLater(
+      sut(
+        repoRoot: repoRoot,
+        packagePaths: ['pkg_a', 'pkg_b'],
+        failFast: true,
+      ),
+      throwsA(isA<CoverageBatchException>().having(
+        (e) => e.message,
+        'message',
+        contains('fail-fast'),
+      )),
+    );
+  });
+
+  test('should still check remaining packages when one merely falls below '
+      'the coverage threshold, even with failFast', () async {
+    resolvesTo([pkg('pkg_a', 'pkg_a'), pkg('pkg_b', 'pkg_b')]);
+    when(() => calculateCoverage(any(), '/fake/repo/pkg_a'))
+        .thenAnswer((_) async => 80);
+
+    await expectLater(
+      sut(
+        repoRoot: repoRoot,
+        packagePaths: ['pkg_a', 'pkg_b'],
+        failFast: true,
+      ),
+      throwsA(isA<CoverageBatchException>()),
+    );
+
+    verify(() => runPackageTests(
+          packagePath: '/fake/repo/pkg_b',
+          isFlutterPackage: any(named: 'isFlutterPackage'),
+        )).called(1);
   });
 
   test('should throw when a package falls below the coverage threshold',

@@ -14,7 +14,8 @@ import 'package:path/path.dart' as p;
 /// By default runs independently per package — one failing doesn't stop
 /// the rest — then reports a per-package summary and fails the batch (via
 /// [CoverageBatchException]) if any package failed. Pass `failFast: true`
-/// to stop at the first package that fails instead.
+/// to stop as soon as a package's tests fail — a package that merely
+/// falls below its coverage threshold never stops the batch.
 class VerifyCoverageAcrossPackages {
   final Logger _logger;
   final ResolveLocalPackages _resolveLocalPackages;
@@ -43,8 +44,10 @@ class VerifyCoverageAcrossPackages {
   /// - `threshold`: required coverage percentage (default 100) — a
   ///   package's own `dev_tools_coverage_config.yaml` may override this
   ///   for itself.
-  /// - `failFast`: when `true`, stop checking as soon as one package fails
-  ///   instead of checking every given package (default `false`).
+  /// - `failFast`: when `true`, stop checking as soon as one package's
+  ///   tests fail, instead of checking every given package (default
+  ///   `false`). A package that merely falls below its coverage threshold
+  ///   never stops the batch, even with `failFast`.
   ///
   /// Returns: nothing (void) when every checked package meets its
   /// (possibly overridden) threshold.
@@ -54,7 +57,8 @@ class VerifyCoverageAcrossPackages {
   ///   package with a valid pubspec.yaml.
   /// - [CoverageBatchException] listing every package that failed its tests
   ///   or fell below [globalThreshold] (or package specific override) —
-  ///   just the first one when [failFast] is `true`.
+  ///   stops early, so it may list fewer than all given packages, once a
+  ///   package's tests fail while [failFast] is `true`.
   Future<void> call({
     required String repoRoot,
     required List<String> packagePaths,
@@ -72,15 +76,19 @@ class VerifyCoverageAcrossPackages {
       packagesToCheck,
       failFast: failFast,
     );
+    final stoppedEarlyNote = results.stoppedEarly
+        ? ' (stopped early: --fail-fast on a failing test)'
+        : '';
     _logger.info(
       'Coverage report for ${results.checkedPackages.length}/'
-      '${packagesToCheck.length} package(s) checked:\n'
+      '${packagesToCheck.length} package(s) checked$stoppedEarlyNote:\n'
       '${_buildSummary(results)}',
     );
 
     if (results.issueMap.isNotEmpty) {
       throw CoverageBatchException(
-        '${results.issueMap.length} package(s) failed coverage enforcement.',
+        '${results.issueMap.length} package(s) failed coverage '
+        'enforcement$stoppedEarlyNote.',
       );
     }
   }
@@ -109,6 +117,7 @@ class VerifyCoverageAcrossPackages {
     final issueMap = <String, String>{};
     final effectiveThresholds = <String, double>{};
     final checkedPackages = <ValidLocalPackageInfo>[];
+    var stop = false;
     for (var i = 0; i < packages.length; ++i) {
       final package = packages[i];
       final name = package.packageIdentity.name;
@@ -129,18 +138,22 @@ class VerifyCoverageAcrossPackages {
               packagePath,
               effectiveThresholds[name]!,
             );
+          } on PackageTestException catch (e) {
+            issueMap[name] = e.toString();
+            stop = failFast;
           } catch (e) {
             issueMap[name] = e.toString();
           }
         },
       );
 
-      if (failFast && issueMap.isNotEmpty) break;
+      if (stop) break;
     }
     return (
       issueMap: issueMap,
       effectiveThresholds: effectiveThresholds,
       checkedPackages: checkedPackages,
+      stoppedEarly: stop,
     );
   }
 
@@ -184,13 +197,15 @@ class VerifyCoverageAcrossPackages {
 }
 
 /// Result of checking packages — all of them, or only up to (and
-/// including) the first failure when `failFast` was requested: which
+/// including) the first test failure when `failFast` was requested: which
 /// packages were actually checked, the error for each one that failed,
-/// and the threshold enforced for each one that passed.
+/// the threshold enforced for each one that passed, and whether checking
+/// stopped early because of a failing test under `failFast`.
 typedef _CheckResult = ({
   Map<String, String> issueMap,
   Map<String, double> effectiveThresholds,
   List<ValidLocalPackageInfo> checkedPackages,
+  bool stoppedEarly,
 });
 
 class CoverageBatchException extends CommandExecutionException {
