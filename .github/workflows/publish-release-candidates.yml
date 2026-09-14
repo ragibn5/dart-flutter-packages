@@ -53,7 +53,10 @@ jobs:
 
       - name: Publish release candidates
         working-directory: dev_tools
-        run: >
-          fvm dart run bin/dev_tools.dart publish publish-release-candidates
-          --from ${{ github.event.pull_request.base.sha }}
-          --to HEAD
+        run: |
+          mapfile -t ARGS < <(fvm dart run bin/dev_tools.dart packages get-touched --from ${{ github.event.pull_request.base.sha }} --to HEAD | sed 's/^/--package=/')
+          if [ ${#ARGS[@]} -eq 0 ]; then
+            echo "No packages touched; nothing to publish."
+            exit 0
+          fi
+          fvm dart run bin/dev_tools.dart publish publish-release-candidates "${ARGS[@]}"

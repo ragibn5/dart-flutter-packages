@@ -3,8 +3,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/commands/coverage/coverage_command.dart';
-import 'package:dev_tools/src/commands/find_replace/replace_command.dart';
-import 'package:dev_tools/src/commands/git/git_command.dart';
+import 'package:dev_tools/src/commands/find_replace/find_replace_command.dart';
 import 'package:dev_tools/src/commands/packages/packages_command.dart';
 import 'package:dev_tools/src/commands/publish/publish_command.dart';
 import 'package:dev_tools/src/commands/release/release_command.dart';
@@ -14,10 +13,9 @@ Future<void> main(List<String> args) async {
   const executableName = 'dev_tools';
   const description = 'Shared developer tooling for Dart and Flutter projects.';
   final runner = CommandRunner<dynamic>(executableName, description)
-    ..addCommand(GitCommand())
     ..addCommand(PackagesCommand())
     ..addCommand(PublishCommand())
-    ..addCommand(ReplaceCommand())
+    ..addCommand(FindReplaceCommand())
     ..addCommand(CoverageCommand())
     ..addCommand(ReleaseCommand());
 
