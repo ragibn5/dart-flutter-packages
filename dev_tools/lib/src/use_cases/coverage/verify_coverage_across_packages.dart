@@ -16,7 +16,7 @@ import 'package:path/path.dart' as p;
 /// Runs independently per package — one failing doesn't stop the rest —
 /// then reports a per-package summary and fails the batch (via
 /// [CoverageBatchException]) if any package failed.
-class EnforceCoverageAcrossPackages {
+class VerifyCoverageAcrossPackages {
   final Logger _logger;
   final FindPackages _findPackages;
   final DetectChangesInFolder _detectChangesInFolder;
@@ -25,7 +25,7 @@ class EnforceCoverageAcrossPackages {
   final RunPackageTestsWithCoverage _runPackageTests;
   final ReadCoverageConfig _readCoverageConfig;
 
-  const EnforceCoverageAcrossPackages({
+  const VerifyCoverageAcrossPackages({
     Logger logger = const ConsoleLogger(),
     FindPackages findPackages = const FindPackages(),
     DetectChangesInFolder detectChangesInFolder = const DetectChangesInFolder(),

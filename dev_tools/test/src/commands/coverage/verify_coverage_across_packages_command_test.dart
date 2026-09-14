@@ -1,26 +1,26 @@
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/commands/coverage/enforce_coverage_across_packages_command.dart';
-import 'package:dev_tools/src/use_cases/coverage/enforce_coverage_across_packages.dart';
+import 'package:dev_tools/src/commands/coverage/verify_coverage_across_packages_command.dart';
+import 'package:dev_tools/src/use_cases/coverage/verify_coverage_across_packages.dart';
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class _MockGetRepoRootPath extends Mock implements GetRepoRootPath {}
 
-class _MockEnforceCoverageAcrossPackages extends Mock
-    implements EnforceCoverageAcrossPackages {}
+class _MockVerifyCoverageAcrossPackages extends Mock
+    implements VerifyCoverageAcrossPackages {}
 
 void main() {
   late _MockGetRepoRootPath getRepoRootPath;
-  late _MockEnforceCoverageAcrossPackages enforceCoverageAcrossPackages;
-  late EnforceCoverageAcrossPackagesCommand sut;
+  late _MockVerifyCoverageAcrossPackages verifyCoverageAcrossPackages;
+  late VerifyCoverageAcrossPackagesCommand sut;
 
   setUp(() {
     getRepoRootPath = _MockGetRepoRootPath();
     when(() => getRepoRootPath()).thenAnswer((_) async => '/fake/repo');
 
-    enforceCoverageAcrossPackages = _MockEnforceCoverageAcrossPackages();
-    when(() => enforceCoverageAcrossPackages(
+    verifyCoverageAcrossPackages = _MockVerifyCoverageAcrossPackages();
+    when(() => verifyCoverageAcrossPackages(
           repoRoot: any(named: 'repoRoot'),
           fromRef: any(named: 'fromRef'),
           toRef: any(named: 'toRef'),
@@ -29,19 +29,19 @@ void main() {
           all: any(named: 'all'),
         )).thenAnswer((_) async {});
 
-    sut = EnforceCoverageAcrossPackagesCommand(
+    sut = VerifyCoverageAcrossPackagesCommand(
       getRepoRootPath: getRepoRootPath,
-      enforceCoverageAcrossPackages: enforceCoverageAcrossPackages,
+      verifyCoverageAcrossPackages: verifyCoverageAcrossPackages,
     );
   });
 
-  test('should expose the enforce-all name', () {
-    expect(sut.name, EnforceCoverageAcrossPackagesCommand.commandName);
+  test('should expose the verify-packages name', () {
+    expect(sut.name, VerifyCoverageAcrossPackagesCommand.commandName);
   });
 
   test('should describe enforcing coverage across every package', () {
     expect(sut.description,
-        EnforceCoverageAcrossPackagesCommand.commandDescription);
+        VerifyCoverageAcrossPackagesCommand.commandDescription);
   });
 
   test('should use the resolved repo root and default from/to/threshold',
@@ -49,7 +49,7 @@ void main() {
     await _run(<String>[], sut);
 
     verify(
-      () => enforceCoverageAcrossPackages(
+      () => verifyCoverageAcrossPackages(
         repoRoot: '/fake/repo',
         // ignore: avoid_redundant_argument_values
         fromRef: 'HEAD^',
@@ -79,7 +79,7 @@ void main() {
     );
 
     verify(
-      () => enforceCoverageAcrossPackages(
+      () => verifyCoverageAcrossPackages(
         repoRoot: '/fake/repo',
         fromRef: 'main~5',
         toRef: 'main',
@@ -95,7 +95,7 @@ void main() {
     await _run(['--all'], sut);
 
     verify(
-      () => enforceCoverageAcrossPackages(
+      () => verifyCoverageAcrossPackages(
         repoRoot: '/fake/repo',
         // ignore: avoid_redundant_argument_values
         fromRef: 'HEAD^',
@@ -113,8 +113,8 @@ void main() {
 
 Future<void> _run(
   List<String> args,
-  EnforceCoverageAcrossPackagesCommand command,
+  VerifyCoverageAcrossPackagesCommand command,
 ) async {
   final runner = CommandRunner<void>('dev_tools', '')..addCommand(command);
-  await runner.run(['enforce-all', ...args]);
+  await runner.run(['verify-packages', ...args]);
 }

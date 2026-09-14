@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
-import 'package:dev_tools/src/use_cases/coverage/enforce_coverage_across_packages.dart';
+import 'package:dev_tools/src/use_cases/coverage/verify_coverage_across_packages.dart';
 import 'package:dev_tools/src/use_cases/git/get_repo_root_path.dart';
 
-class EnforceCoverageAcrossPackagesCommand extends Command<void> {
-  static const String commandName = 'enforce-all';
+class VerifyCoverageAcrossPackagesCommand extends Command<void> {
+  static const String commandName = 'verify-packages';
   static const String commandDescription =
       "Run every touched package's tests with coverage (or every package, "
       'with --all) and enforce a minimum line-coverage threshold (default '
@@ -25,14 +25,14 @@ class EnforceCoverageAcrossPackagesCommand extends Command<void> {
   static const String allFlag = 'all';
 
   final GetRepoRootPath _getRepoRootPath;
-  final EnforceCoverageAcrossPackages _enforceCoverageAcrossPackages;
+  final VerifyCoverageAcrossPackages _verifyCoverageAcrossPackages;
 
-  EnforceCoverageAcrossPackagesCommand({
+  VerifyCoverageAcrossPackagesCommand({
     GetRepoRootPath getRepoRootPath = const GetRepoRootPath(),
-    EnforceCoverageAcrossPackages enforceCoverageAcrossPackages =
-        const EnforceCoverageAcrossPackages(),
+    VerifyCoverageAcrossPackages verifyCoverageAcrossPackages =
+        const VerifyCoverageAcrossPackages(),
   })  : _getRepoRootPath = getRepoRootPath,
-        _enforceCoverageAcrossPackages = enforceCoverageAcrossPackages {
+        _verifyCoverageAcrossPackages = verifyCoverageAcrossPackages {
     argParser
       ..addOption(
         fromOption,
@@ -76,7 +76,7 @@ class EnforceCoverageAcrossPackagesCommand extends Command<void> {
     final repoRoot = await _getRepoRootPath();
     final threshold =
         double.tryParse(argResults![thresholdOption] as String) ?? 100.0;
-    await _enforceCoverageAcrossPackages(
+    await _verifyCoverageAcrossPackages(
       repoRoot: repoRoot,
       fromRef: argResults![fromOption] as String,
       toRef: argResults![toOption] as String,

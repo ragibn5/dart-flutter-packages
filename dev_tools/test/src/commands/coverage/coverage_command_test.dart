@@ -1,6 +1,5 @@
 import 'package:dev_tools/src/commands/coverage/coverage_command.dart';
-import 'package:dev_tools/src/commands/coverage/enforce_coverage_across_packages_command.dart';
-import 'package:dev_tools/src/commands/coverage/enforce_coverage_command.dart';
+import 'package:dev_tools/src/commands/coverage/verify_coverage_across_packages_command.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -21,22 +20,15 @@ void main() {
     },
   );
 
-  test(
-      'should register the run, process, genreport, calculate, enforce and '
-      'enforce-all subcommands', () {
+  test('should register the verify-packages subcommand', () {
     expect(
       sut.subcommands.keys,
-      containsAll(<String>[
-        EnforceCoverageCommand.commandName,
-        EnforceCoverageAcrossPackagesCommand.commandName,
-      ]),
+      containsAll(<String>[VerifyCoverageAcrossPackagesCommand.commandName]),
     );
 
-    expect(sut.subcommands[EnforceCoverageCommand.commandName],
-        isA<EnforceCoverageCommand>());
     expect(
-      sut.subcommands[EnforceCoverageAcrossPackagesCommand.commandName],
-      isA<EnforceCoverageAcrossPackagesCommand>(),
+      sut.subcommands[VerifyCoverageAcrossPackagesCommand.commandName],
+      isA<VerifyCoverageAcrossPackagesCommand>(),
     );
   });
 }

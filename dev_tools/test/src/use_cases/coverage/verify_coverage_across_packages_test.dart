@@ -1,9 +1,9 @@
 import 'package:dev_tools/src/models/package_identity.dart';
 import 'package:dev_tools/src/models/package_info.dart';
 import 'package:dev_tools/src/use_cases/coverage/calculate_coverage.dart';
-import 'package:dev_tools/src/use_cases/coverage/enforce_coverage_across_packages.dart';
 import 'package:dev_tools/src/use_cases/coverage/read_coverage_config.dart';
 import 'package:dev_tools/src/use_cases/coverage/run_package_tests_with_coverage.dart';
+import 'package:dev_tools/src/use_cases/coverage/verify_coverage_across_packages.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_packages.dart';
 import 'package:dev_tools/src/use_cases/git/detect_changes_in_folder.dart';
 import 'package:dev_tools/src/utils/logger.dart';
@@ -38,7 +38,7 @@ void main() {
   late _MockRunPackageTestsWithCoverage runPackageTests;
   late _MockCalculateCoverage calculateCoverage;
   late _MockReadCoverageConfig readCoverageConfig;
-  late EnforceCoverageAcrossPackages sut;
+  late VerifyCoverageAcrossPackages sut;
 
   ValidLocalPackageInfo pkg(String path, String name) => ValidLocalPackageInfo(
         repoRootRelativePath: path,
@@ -85,7 +85,7 @@ void main() {
     when(() => readCoverageConfig(any()))
         .thenAnswer((_) async => (exclude: const <String>[], threshold: null));
 
-    sut = EnforceCoverageAcrossPackages(
+    sut = VerifyCoverageAcrossPackages(
       logger: _FakeLogger(),
       findPackages: findPackages,
       detectChangesInFolder: detectChangesInFolder,
