@@ -32,7 +32,7 @@ jobs:
           key: fvm-versions-${{ hashFiles('dev_tools/.fvmrc') }}
           restore-keys: fvm-versions-
 
-      - name: Install pinned Flutter SDK version vis FVM
+      - name: Install pinned Flutter SDK version via FVM
         working-directory: dev_tools
         run: fvm install
 
