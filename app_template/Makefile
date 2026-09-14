@@ -1,6 +1,5 @@
 FLUTTER := $(shell command -v fvm >/dev/null 2>&1 && echo "fvm flutter" || echo "flutter")
 DART := $(shell command -v fvm >/dev/null 2>&1 && echo "fvm dart" || echo "dart")
-DEV_TOOLS := $(DART) run dev_tools
 COVERAGE_EXCLUSIONS := \
 	lib/di/config/** \
 	lib/di/modules/** \
