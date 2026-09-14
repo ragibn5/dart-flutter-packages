@@ -56,8 +56,8 @@ jobs:
       - name: Install lcov
         run: sudo apt-get update && sudo apt-get install -y lcov
 
-      - name: Enforce coverage across touched packages
+      - name: Check coverage across touched packages
         working-directory: dev_tools
         run: >
-          fvm dart run bin/dev_tools.dart coverage enforce-all
+          fvm dart run bin/dev_tools.dart coverage verify-packages
           --from ${{ github.event.pull_request.base.sha }}

@@ -54,6 +54,6 @@ jobs:
       - name: Publish release candidates
         working-directory: dev_tools
         run: >
-          fvm dart run bin/dev_tools.dart publish-release-candidates
+          fvm dart run bin/dev_tools.dart publish publish-release-candidates
           --from ${{ github.event.pull_request.base.sha }}
           --to HEAD

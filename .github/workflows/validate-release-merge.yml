@@ -46,5 +46,5 @@ jobs:
       - name: Validate release candidates are complete
         working-directory: dev_tools
         run: >
-          fvm dart run bin/dev_tools.dart validate-release-mr
+          fvm dart run bin/dev_tools.dart release validate-release-mr
           --to ${{ github.event.pull_request.base.sha }}
