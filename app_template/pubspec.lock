@@ -327,6 +327,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  dev_tools:
+    dependency: "direct dev"
+    description:
+      path: "../dev_tools"
+      relative: true
+    source: path
+    version: "1.0.0"
   diff_match_patch:
     dependency: transitive
     description:
