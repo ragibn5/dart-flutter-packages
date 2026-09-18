@@ -1,0 +1,21 @@
+# Project-root-relative glob patterns not included in a white-label project.
+exclude:
+  - .dart_tool
+  - build
+  - .idea
+  - coverage
+  - .flutter-plugins
+  - .flutter-plugins-dependencies
+  - .packages
+  - android/build
+  - android/.cxx
+  - android/app/.cxx
+  - android/app/.gradle
+  - ios/build
+  - ios/.symlinks
+  - ios/Pods
+  - ios/Podfile.lock
+  - linux/build
+  - macos/build
+  - windows/build
+  - '**/*.iml'

@@ -7,6 +7,7 @@ import 'package:dev_tools/src/commands/find_replace/find_replace_command.dart';
 import 'package:dev_tools/src/commands/packages/packages_command.dart';
 import 'package:dev_tools/src/commands/publish/publish_command.dart';
 import 'package:dev_tools/src/commands/release/release_command.dart';
+import 'package:dev_tools/src/commands/whitelabel/whitelabel_command.dart';
 import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 
 Future<void> main(List<String> args) async {
@@ -17,7 +18,8 @@ Future<void> main(List<String> args) async {
     ..addCommand(PublishCommand())
     ..addCommand(FindReplaceCommand())
     ..addCommand(CoverageCommand())
-    ..addCommand(ReleaseCommand());
+    ..addCommand(ReleaseCommand())
+    ..addCommand(WhitelabelCommand());
 
   try {
     await runner.run(args);
