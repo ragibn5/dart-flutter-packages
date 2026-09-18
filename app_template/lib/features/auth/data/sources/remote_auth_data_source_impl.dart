@@ -17,9 +17,7 @@ class RemoteAuthDataSourceImpl implements RemoteAuthDataSource {
     final r = await _client.request(tokenRefreshRequest);
     return r.fold(
       onLeft: Left.new,
-      onRight: (r) => Right(
-          r.fold(onFailure: Left.new, onSuccess: Right.new)
-      ),
+      onRight: (r) => Right(r.fold(onFailure: Left.new, onSuccess: Right.new)),
     );
   }
 }
