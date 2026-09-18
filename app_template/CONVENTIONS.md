@@ -372,7 +372,8 @@ fvm dart run intl_utils:generate
 
 - Tests use `mocktail` for mocking and `bloc_test` for BLoC unit tests.
 - Coverage is collected via `flutter test --coverage` and processed with `lcov`.
-- Certain directories and patterns are excluded from coverage — see the `EXCLUDE` variable in the [`Makefile`][makefile] for the full list.
+- Certain directories and patterns are excluded from coverage — see the `COVERAGE_EXCLUSIONS` variable in the [`Makefile`][makefile] for the full list.
+- The coverage exclusions are mirrored in `dev_tools_coverage_config.yaml` (used by the monorepo CI tools) — keep both lists in sync.
 - The [`Makefile`][makefile] provides targets for running tests with coverage:
     - `make run-tests-with-coverage`
     - `make process-coverage-data`
