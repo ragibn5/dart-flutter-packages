@@ -386,27 +386,15 @@ Analyzer configuration is based on `very_good_analysis` and `bloc_lint`. See [`a
 
 ---
 
+<!-- Local links -->
+
 [analysis_options]: analysis_options.yaml
-
-[clean-arch]: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
-
-[net_models]: ../net_models/lib/net_models.dart
-
-[dart_functionals]: ../dart_functionals/lib/dart_functionals.dart
-
-[data_domain_converters]: ../data_domain_converters/lib/data_domain_converters.dart
 
 [di_helper]: lib/di/di.dart
 
 [di_modules]: lib/di/modules
 
-[feature_api_client]: ../feature_api_client/lib/feature_api_client.dart
-
-[file_store]: ../file_store
-
 [generated]: lib/generated
-
-[json_serializable]: https://pub.dev/packages/json_serializable
 
 [l10n]: lib/l10n
 
@@ -414,14 +402,30 @@ Analyzer configuration is based on `very_good_analysis` and `bloc_lint`. See [`a
 
 [makefile]: Makefile
 
-[net_client]: ../net_client/lib/net_client.dart
-
-[preference_store]: ../preference_store
-
 [routes_file]: lib/features/app/infrastructure/config/router/routes.dart
 
 [run_dir]: .run
 
-[sqlite_db]: ../sqlite_db
-
 [test_features]: test/features
+
+<!-- Remote links -->
+
+[net_models]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/net_models/lib/net_models.dart
+
+[dart_functionals]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/dart_functionals/lib/dart_functionals.dart
+
+[data_domain_converters]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/data_domain_converters/lib/data_domain_converters.dart
+
+[feature_api_client]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/feature_api_client/lib/feature_api_client.dart
+
+[file_store]: https://github.com/Ragibn5/dart-flutter-packages/tree/main/file_store
+
+[net_client]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/net_client/lib/net_client.dart
+
+[preference_store]: https://github.com/Ragibn5/dart-flutter-packages/tree/main/preference_store
+
+[sqlite_db]: https://github.com/Ragibn5/dart-flutter-packages/tree/main/sqlite_db
+
+[clean-arch]: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
+
+[json_serializable]: https://pub.dev/packages/json_serializable
