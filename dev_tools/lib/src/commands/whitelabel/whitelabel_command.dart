@@ -1,4 +1,5 @@
 import 'package:args/command_runner.dart';
+import 'package:dev_tools/src/commands/whitelabel/clean_command.dart';
 import 'package:dev_tools/src/commands/whitelabel/create_command.dart';
 
 /// Commands for creating and configuring a project derived from a template.
@@ -9,6 +10,7 @@ class WhitelabelCommand extends Command<void> {
 
   WhitelabelCommand() {
     addSubcommand(CreateCommand());
+    addSubcommand(CleanCommand());
   }
 
   @override
