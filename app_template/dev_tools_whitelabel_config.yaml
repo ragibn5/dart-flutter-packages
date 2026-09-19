@@ -20,3 +20,23 @@ exclude:
   - macos/build
   - windows/build
   - '**/*.iml'
+
+# Default per-flavor Firebase settings, pre-filling the whitelabel firebase
+# setup prompts. Update these to match your own Firebase projects.
+firebase:
+  dev:
+    project_id: flutter-app-template-b1e3c
+    ios_bundle_id: com.ragibn5.fat.dev
+    android_package_name: com.ragibn5.fat.dev
+  exp:
+    project_id: flutter-app-template-b1e3c
+    ios_bundle_id: com.ragibn5.fat.exp
+    android_package_name: com.ragibn5.fat.exp
+  stage:
+    project_id: flutter-app-template-b1e3c
+    ios_bundle_id: com.ragibn5.fat.stage
+    android_package_name: com.ragibn5.fat.stage
+  prod:
+    project_id: flutter-app-template-b1e3c
+    ios_bundle_id: com.ragibn5.fat
+    android_package_name: com.ragibn5.fat
