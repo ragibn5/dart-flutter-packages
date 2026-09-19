@@ -36,8 +36,10 @@ class EnsureFirebaseAccount {
 
   Future<void> _runFirebase(List<String> arguments) async {
     final exitCode = await InteractiveProcessRunner(
-            executable: 'firebase', arguments: arguments)
-        .run();
+      executable: 'firebase',
+      arguments: arguments,
+      inheritStdio: true,
+    ).run();
     if (exitCode != 0) {
       throw FirebaseSetupException(
         'firebase ${arguments.join(' ')} exited with code $exitCode.',

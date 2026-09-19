@@ -119,6 +119,7 @@ class RunFirebaseSetup {
         '--android-out=${outputPaths.android}',
       ],
       workingDirectory: projectPath,
+      inheritStdio: true,
     ).run();
 
     if (exitCode != 0) {
