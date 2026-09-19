@@ -54,7 +54,7 @@ class RenameDartPackage {
       start: projectPath,
       exclusions: [
         '.git',
-        ...await _readWhitelabelConfig(projectPath),
+        ...(await _readWhitelabelConfig(projectPath)).exclude,
       ],
     );
     _prompter.write('✅ Dart package name replacement completed.\n');

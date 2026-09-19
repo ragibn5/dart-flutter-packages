@@ -4,6 +4,7 @@ import 'package:dev_tools/src/use_cases/whitelabel/clean_project_artifacts.dart'
 import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/finalize_project.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/read_whitelabel_config.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/rename_dart_package.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/rename_platform_package.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/run_firebase_setup.dart';
@@ -23,6 +24,7 @@ class RunWhitelabelSetup {
   final ShowSplashIconChangeGuide _showSplashIconChangeGuide;
   final RunFirebaseSetup _runFirebaseSetup;
   final FinalizeProject _finalizeProject;
+  final ReadWhitelabelConfig _readWhitelabelConfig;
   final Prompter _prompter;
 
   RunWhitelabelSetup({
@@ -34,6 +36,7 @@ class RunWhitelabelSetup {
     ShowSplashIconChangeGuide? showSplashIconChangeGuide,
     RunFirebaseSetup? runFirebaseSetup,
     FinalizeProject? finalizeProject,
+    ReadWhitelabelConfig readWhitelabelConfig = const ReadWhitelabelConfig(),
     Prompter prompter = const ConsolePrompter(),
   })  : _cleanProjectArtifacts =
             cleanProjectArtifacts ?? CleanProjectArtifacts(),
@@ -64,6 +67,7 @@ class RunWhitelabelSetup {
               prompter: prompter,
               showFinalTodos: ShowFinalTodos(prompter: prompter),
             ),
+        _readWhitelabelConfig = readWhitelabelConfig,
         _prompter = prompter;
 
   /// Shows setup actions until the user exits or input ends.
@@ -109,7 +113,7 @@ class RunWhitelabelSetup {
   }
 
   Future<void> _runFirebaseSetupStep(String projectPath) async {
-    const flavors = RunFirebaseSetup.validFlavors;
+    final flavors = (await _readWhitelabelConfig(projectPath)).flavors;
     _prompter.write('Enter flavor (${flavors.join('/')}): ');
     final flavor = (_prompter.readLine() ?? '').trim();
     if (!flavors.contains(flavor)) {

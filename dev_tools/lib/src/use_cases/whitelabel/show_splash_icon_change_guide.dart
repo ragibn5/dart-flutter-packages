@@ -1,8 +1,7 @@
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_dart_command.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
-import 'package:dev_tools/src/use_cases/whitelabel/read_splash_config_path.dart';
-import 'package:dev_tools/src/use_cases/whitelabel/whitelabel_flavors.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/read_whitelabel_config.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
 
@@ -12,21 +11,22 @@ class ShowSplashIconChangeGuide {
   final Prompter _prompter;
   final ConfirmYesNo _confirmYesNo;
   final FindFvmAwareDartCommand _findDartCommand;
-  final ReadSplashConfigPath _readSplashConfigPath;
+  final ReadWhitelabelConfig _readWhitelabelConfig;
 
   const ShowSplashIconChangeGuide({
     Prompter prompter = const ConsolePrompter(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
     FindFvmAwareDartCommand findDartCommand = const FindFvmAwareDartCommand(),
-    ReadSplashConfigPath readSplashConfigPath = const ReadSplashConfigPath(),
+    ReadWhitelabelConfig readWhitelabelConfig = const ReadWhitelabelConfig(),
   })  : _prompter = prompter,
         _confirmYesNo = confirmYesNo,
         _findDartCommand = findDartCommand,
-        _readSplashConfigPath = readSplashConfigPath;
+        _readWhitelabelConfig = readWhitelabelConfig;
 
   /// Prints per-flavor splash config file instructions for [projectPath],
-  /// with paths read via [ReadSplashConfigPath] (`{flavor}` substituted),
-  /// then, if confirmed, runs `flutter_native_splash:create --all-flavors`.
+  /// for the flavors and config path template read via
+  /// [ReadWhitelabelConfig] (`{flavor}` substituted), then, if confirmed,
+  /// runs `flutter_native_splash:create --all-flavors`.
   ///
   /// Returns: nothing (void). Declining the confirmation prompt skips the
   /// command without error.
@@ -35,8 +35,10 @@ class ShowSplashIconChangeGuide {
   /// - [CommandNotFoundException] when neither fvm nor a system-wide Dart is
   ///   installed (see [FindFvmAwareDartCommand]).
   Future<void> call(String projectPath) async {
-    final configPathTemplate = await _readSplashConfigPath(projectPath);
-    _prompter.write(_guideText(projectPath, configPathTemplate));
+    final config = await _readWhitelabelConfig(projectPath);
+    _prompter.write(
+      _guideText(projectPath, config.splashConfigPath, config.flavors),
+    );
 
     if (!await _confirmYesNo('Generate splash icons?')) {
       _prompter.write('✅ Splash icon change guide\n');
@@ -57,8 +59,12 @@ class ShowSplashIconChangeGuide {
     _prompter.write('✅ Splash icon change guide\n');
   }
 
-  String _guideText(String projectPath, String configPathTemplate) {
-    final configFileLines = whitelabelFlavors
+  String _guideText(
+    String projectPath,
+    String configPathTemplate,
+    List<String> flavors,
+  ) {
+    final configFileLines = flavors
         .map(
           (flavor) => '     - $projectPath/'
               "${configPathTemplate.replaceAll('{flavor}', flavor)} "

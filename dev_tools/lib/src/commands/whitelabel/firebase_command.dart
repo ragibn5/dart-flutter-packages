@@ -37,8 +37,8 @@ class FirebaseCommand extends Command<void> {
   FutureOr<void> run() async {
     if (argResults!.rest.length != 1) {
       usageException(
-        'Expected exactly one positional argument '
-        '<flavor> (${RunFirebaseSetup.validFlavors.join('/')}).',
+        'Expected exactly one positional argument <flavor>. Valid flavors '
+        "are read from the project's dev_tools_whitelabel_config.yaml.",
       );
     }
 

@@ -57,7 +57,7 @@ class CopyTemplateProject {
 
     final excludePatterns = <String>[
       ...defaultExcludePatterns,
-      ...await _readWhitelabelConfig(source.path),
+      ...(await _readWhitelabelConfig(source.path)).exclude,
     ];
     final exclusions = excludePatterns
         .map((pattern) => pattern.replaceFirst(RegExp(r'/+$'), ''))

@@ -14,27 +14,14 @@ class RenamePlatformPackage {
   /// Android module languages that may have package-name-based directories.
   static const List<String> _androidPackageLanguages = ['kotlin', 'java'];
 
-  /// Android source set directories that may contain package-name-based
-  /// Kotlin/Java folders. Add/remove entries here if a flavor or source set
-  /// is added/removed.
-  static const List<String> _androidSourceSetDirs = [
+  /// Android source set directories that are always present, regardless of
+  /// which flavors a project defines.
+  static const List<String> _fixedAndroidSourceSetDirs = [
     'main',
     'debug',
     'profile',
-    'dev',
-    'exp',
-    'stage',
-    'prod',
     'test',
-    'testDev',
-    'testExp',
-    'testStage',
-    'testProd',
     'androidTest',
-    'androidTestDev',
-    'androidTestExp',
-    'androidTestStage',
-    'androidTestProd',
   ];
 
   final Prompter _prompter;
@@ -82,19 +69,22 @@ class RenamePlatformPackage {
       return;
     }
 
+    final config = await _readWhitelabelConfig(projectPath);
+
     _prompter.write('Searching for package name occurrences ...\n');
     await _replaceTextInScope(
       srcText: srcPackage,
       targetText: targetPackage,
       start: projectPath,
-      exclusions: [
-        '.git',
-        ...await _readWhitelabelConfig(projectPath),
-      ],
+      exclusions: ['.git', ...config.exclude],
     );
 
     await _moveAndroidPackageDirectories(
-        projectPath, srcPackage, targetPackage);
+      projectPath,
+      srcPackage,
+      targetPackage,
+      config.flavors,
+    );
     _prompter.write('✅ Platform package name replacement completed.\n');
   }
 
@@ -102,12 +92,13 @@ class RenamePlatformPackage {
     String projectPath,
     String srcPackage,
     String targetPackage,
+    List<String> flavors,
   ) async {
     final srcRelPath = srcPackage.replaceAll('.', '/');
     final targetRelPath = targetPackage.replaceAll('.', '/');
     final movedDirs = <String>[];
 
-    for (final dir in _androidSourceSetDirs) {
+    for (final dir in _androidSourceSetDirs(flavors)) {
       for (final lang in _androidPackageLanguages) {
         final srcDir = Directory(
           p.join(projectPath, 'android/app/src/$dir/$lang', srcRelPath),
@@ -131,4 +122,19 @@ class RenamePlatformPackage {
       '${movedDirs.map((entry) => 'Moved: $entry').join('\n')}\n',
     );
   }
+
+  /// Every Android source set directory that may contain package-name-based
+  /// Kotlin/Java folders: the fixed ones, plus one per flavor (the flavor
+  /// itself, `test<Flavor>`, and `androidTest<Flavor>`).
+  List<String> _androidSourceSetDirs(List<String> flavors) => [
+        ..._fixedAndroidSourceSetDirs,
+        for (final flavor in flavors) ...[
+          flavor,
+          'test${_capitalize(flavor)}',
+          'androidTest${_capitalize(flavor)}',
+        ],
+      ];
+
+  String _capitalize(String value) =>
+      value.isEmpty ? value : '${value[0].toUpperCase()}${value.substring(1)}';
 }

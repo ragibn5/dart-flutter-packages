@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_dart_command.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/read_whitelabel_config.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
 import 'package:path/path.dart' as p;
@@ -28,18 +29,22 @@ class ShowLauncherIconChangeGuide {
   final Prompter _prompter;
   final ConfirmYesNo _confirmYesNo;
   final FindFvmAwareDartCommand _findDartCommand;
+  final ReadWhitelabelConfig _readWhitelabelConfig;
 
   const ShowLauncherIconChangeGuide({
     Prompter prompter = const ConsolePrompter(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
     FindFvmAwareDartCommand findDartCommand = const FindFvmAwareDartCommand(),
+    ReadWhitelabelConfig readWhitelabelConfig = const ReadWhitelabelConfig(),
   })  : _prompter = prompter,
         _confirmYesNo = confirmYesNo,
-        _findDartCommand = findDartCommand;
+        _findDartCommand = findDartCommand,
+        _readWhitelabelConfig = readWhitelabelConfig;
 
-  /// Prints per-flavor `flutter_launcher_icons-*.yaml` instructions for
-  /// [projectPath], then, if confirmed, runs `flutter_launcher_icons` and
-  /// restores any `$_key` entry it corrupts in the Xcode project file.
+  /// Prints `flutter_launcher_icons-*.yaml` instructions for every flavor
+  /// read via [ReadWhitelabelConfig] in [projectPath], then, if confirmed,
+  /// runs `flutter_launcher_icons` and restores any `$_key` entry it
+  /// corrupts in the Xcode project file.
   ///
   /// Returns: nothing (void). A mismatched project file is reported and left
   /// for manual review rather than thrown, matching this being an optional,
@@ -49,7 +54,8 @@ class ShowLauncherIconChangeGuide {
   /// - [CommandNotFoundException] when neither fvm nor a system-wide Dart is
   ///   installed (see [FindFvmAwareDartCommand]).
   Future<void> call(String projectPath) async {
-    _prompter.write(_guideText(projectPath));
+    final flavors = (await _readWhitelabelConfig(projectPath)).flavors;
+    _prompter.write(_guideText(projectPath, flavors));
 
     if (!await _confirmYesNo('Generate launcher icons?')) {
       _prompter.write('✅ Launcher icon change guide\n');
@@ -79,36 +85,38 @@ class ShowLauncherIconChangeGuide {
     _prompter.write('✅ Launcher icon change guide\n');
   }
 
-  String _guideText(String projectPath) => '\n'
-      '▶️ Launcher icon change guide\n'
-      '⚠️ IMPORTANT: All changes below must be done in the target (copied) '
-      'project, not the template.\n'
-      '📁 Target project: $projectPath\n'
-      '\n'
-      "📁 • Open each flavor's config file:\n"
-      '     - $projectPath/flutter_launcher_icons-dev.yaml   '
-      "(for the 'dev' flavor)\n"
-      '     - $projectPath/flutter_launcher_icons-exp.yaml   '
-      "(for the 'exp' flavor)\n"
-      '     - $projectPath/flutter_launcher_icons-stage.yaml '
-      "(for the 'stage' flavor)\n"
-      '     - $projectPath/flutter_launcher_icons-prod.yaml  '
-      "(for the 'prod' flavor)\n"
-      '🛠️ • Customize settings in each file, such as:\n'
-      '     - Update image paths\n'
-      '     - Set background colors\n'
-      '     - Enable or disable specific options\n'
-      '     - Or anything else, see '
-      'https://pub.dev/packages/flutter_launcher_icons.\n'
-      '     Follow the detailed documentation on the config files to '
-      'provide proper images and other configs.\n'
-      '     Also, you do not have to run any commands separately, even if '
-      'the doc mentions to run any.\n'
-      '🎯 • Before continuing, make sure:\n'
-      '     - The image paths are valid and points to the desired images.\n'
-      '     - The images follow the strict requirements described inside '
-      'the config files.\n'
-      '\n';
+  String _guideText(String projectPath, List<String> flavors) {
+    final configFileLines = flavors
+        .map(
+          (flavor) => '     - $projectPath/flutter_launcher_icons-$flavor'
+              ".yaml (for the '$flavor' flavor)",
+        )
+        .join('\n');
+
+    return '\n'
+        '▶️ Launcher icon change guide\n'
+        '⚠️ IMPORTANT: All changes below must be done in the target (copied) '
+        'project, not the template.\n'
+        '📁 Target project: $projectPath\n'
+        '\n'
+        "📁 • Open each flavor's config file:\n"
+        '$configFileLines\n'
+        '🛠️ • Customize settings in each file, such as:\n'
+        '     - Update image paths\n'
+        '     - Set background colors\n'
+        '     - Enable or disable specific options\n'
+        '     - Or anything else, see '
+        'https://pub.dev/packages/flutter_launcher_icons.\n'
+        '     Follow the detailed documentation on the config files to '
+        'provide proper images and other configs.\n'
+        '     Also, you do not have to run any commands separately, even if '
+        'the doc mentions to run any.\n'
+        '🎯 • Before continuing, make sure:\n'
+        '     - The image paths are valid and points to the desired images.\n'
+        '     - The images follow the strict requirements described inside '
+        'the config files.\n'
+        '\n';
+  }
 
   List<_BackedUpLine> _readBackedUpLines(File pbxprojFile) {
     if (!pbxprojFile.existsSync()) return const [];

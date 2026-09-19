@@ -20,6 +20,7 @@ class CleanProjectArtifacts {
   Future<List<String>> call([String? project]) async {
     final root = Directory(await _findProjectRoot(project)).absolute;
     final exclusions = (await _readWhitelabelConfig(root.path))
+        .exclude
         .map((pattern) => pattern.replaceFirst(RegExp(r'/+$'), ''))
         .map(Glob.new)
         .toList();
