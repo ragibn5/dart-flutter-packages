@@ -20,11 +20,16 @@ class _BackedUpLine {
 /// Prints launcher icon change instructions, then optionally runs
 /// `flutter_launcher_icons` and fixes a known bug where it corrupts an
 /// unrelated Xcode build setting.
+///
+/// The config file naming (`flutter_launcher_icons-<flavor>.yaml`, or
+/// `flutter_launcher_icons.yaml` with no flavors) is fixed by the
+/// `flutter_launcher_icons` package itself, not configurable here.
 class ShowLauncherIconChangeGuide {
   static const String _pbxprojRelativePath =
       'ios/Runner.xcodeproj/project.pbxproj';
   static const String _key =
       'ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS';
+  static const String _defaultConfigFile = 'flutter_launcher_icons.yaml';
 
   final Prompter _prompter;
   final ConfirmYesNo _confirmYesNo;
@@ -41,10 +46,11 @@ class ShowLauncherIconChangeGuide {
         _findDartCommand = findDartCommand,
         _readWhitelabelConfig = readWhitelabelConfig;
 
-  /// Prints `flutter_launcher_icons-*.yaml` instructions for every flavor
-  /// read via [ReadWhitelabelConfig] in [projectPath], then, if confirmed,
-  /// runs `flutter_launcher_icons` and restores any `$_key` entry it
-  /// corrupts in the Xcode project file.
+  /// Prints launcher icon config file instructions for [projectPath] — one
+  /// file per flavor read via [ReadWhitelabelConfig], or the single default
+  /// file when there are none — then, if confirmed, runs
+  /// `flutter_launcher_icons` and restores any `$_key` entry it corrupts in
+  /// the Xcode project file.
   ///
   /// Returns: nothing (void). A mismatched project file is reported and left
   /// for manual review rather than thrown, matching this being an optional,
@@ -53,6 +59,8 @@ class ShowLauncherIconChangeGuide {
   /// Throws:
   /// - [CommandNotFoundException] when neither fvm nor a system-wide Dart is
   ///   installed (see [FindFvmAwareDartCommand]).
+  /// - `WhitelabelConfigException` when `flavors` isn't configured for this
+  ///   project (see [ReadWhitelabelConfig]).
   Future<void> call(String projectPath) async {
     final flavors = (await _readWhitelabelConfig(projectPath)).flavors;
     _prompter.write(_guideText(projectPath, flavors));
@@ -86,12 +94,14 @@ class ShowLauncherIconChangeGuide {
   }
 
   String _guideText(String projectPath, List<String> flavors) {
-    final configFileLines = flavors
-        .map(
-          (flavor) => '     - $projectPath/flutter_launcher_icons-$flavor'
-              ".yaml (for the '$flavor' flavor)",
-        )
-        .join('\n');
+    final configFileLines = flavors.isEmpty
+        ? '     - $projectPath/$_defaultConfigFile'
+        : flavors
+            .map(
+              (flavor) => '     - $projectPath/flutter_launcher_icons-$flavor'
+                  ".yaml (for the '$flavor' flavor)",
+            )
+            .join('\n');
 
     return '\n'
         '▶️ Launcher icon change guide\n'

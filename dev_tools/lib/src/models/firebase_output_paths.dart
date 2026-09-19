@@ -12,13 +12,6 @@ class FirebaseOutputPaths {
     required this.dart,
   });
 
-  static const FirebaseOutputPaths defaults = FirebaseOutputPaths(
-    ios: 'ios/Config/Firebase/{flavor}/GoogleService-Info.plist',
-    android: 'android/app/src/{flavor}/google-services.json',
-    dart:
-        'lib/features/app/infrastructure/config/firebase/firebase_options_{flavor}.dart',
-  );
-
   /// Substitutes the `{flavor}` placeholder in every path with [flavor].
   FirebaseOutputPaths forFlavor(String flavor) => FirebaseOutputPaths(
         ios: ios.replaceAll('{flavor}', flavor),

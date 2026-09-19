@@ -19,6 +19,10 @@ class ShowAppNameChangeGuide {
   ///
   /// This is guide-only: no file is read or written here. The app name must
   /// be changed manually, following the printed steps.
+  ///
+  /// Throws:
+  /// - `WhitelabelConfigException` when `flavors` isn't configured for this
+  ///   project (see [ReadWhitelabelConfig]).
   Future<void> call(String projectPath) async {
     final flavors = (await _readWhitelabelConfig(projectPath)).flavors;
     final defaultStringsXmlLine =

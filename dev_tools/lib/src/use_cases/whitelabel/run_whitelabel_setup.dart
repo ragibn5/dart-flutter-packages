@@ -12,6 +12,7 @@ import 'package:dev_tools/src/use_cases/whitelabel/show_app_name_change_guide.da
 import 'package:dev_tools/src/use_cases/whitelabel/show_final_todos.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_launcher_icon_change_guide.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_splash_icon_change_guide.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/whitelabel_config_exception.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
 
 /// Runs the interactive white-label setup menu for one copied project.
@@ -86,39 +87,50 @@ class RunWhitelabelSetup {
         '9) Exit\n'
         'Select a step [1-9]: ',
       );
-      switch (_prompter.readLine()?.trim()) {
-        case '1':
-          await _cleanProjectArtifacts(projectPath);
-        case '2':
-          await _renameDartPackage(projectPath);
-        case '3':
-          await _renamePlatformPackage(projectPath);
-        case '4':
-          await _showAppNameChangeGuide(projectPath);
-        case '5':
-          await _showLauncherIconChangeGuide(projectPath);
-        case '6':
-          await _showSplashIconChangeGuide(projectPath);
-        case '7':
-          await _runFirebaseSetupStep(projectPath);
-        case '8':
-          await _finalizeProject(projectPath);
-        case '9':
-        case null:
-          return;
-        default:
-          _prompter.write('Invalid choice.\n');
+      final choice = _prompter.readLine()?.trim();
+      if (choice == '9' || choice == null) return;
+
+      try {
+        switch (choice) {
+          case '1':
+            await _cleanProjectArtifacts(projectPath);
+          case '2':
+            await _renameDartPackage(projectPath);
+          case '3':
+            await _renamePlatformPackage(projectPath);
+          case '4':
+            await _showAppNameChangeGuide(projectPath);
+          case '5':
+            await _showLauncherIconChangeGuide(projectPath);
+          case '6':
+            await _showSplashIconChangeGuide(projectPath);
+          case '7':
+            await _runFirebaseSetupStep(projectPath);
+          case '8':
+            await _finalizeProject(projectPath);
+          default:
+            _prompter.write('Invalid choice.\n');
+        }
+      } on WhitelabelConfigException catch (e) {
+        _prompter.write('$e\n');
       }
     }
   }
 
   Future<void> _runFirebaseSetupStep(String projectPath) async {
     final flavors = (await _readWhitelabelConfig(projectPath)).flavors;
-    _prompter.write('Enter flavor (${flavors.join('/')}): ');
-    final flavor = (_prompter.readLine() ?? '').trim();
-    if (!flavors.contains(flavor)) {
-      _prompter.write('Invalid flavor.\n');
-      return;
+
+    final String flavor;
+    if (flavors.isEmpty) {
+      flavor = 'default';
+    } else {
+      _prompter.write('Enter flavor (${flavors.join('/')}): ');
+      final input = (_prompter.readLine() ?? '').trim();
+      if (!flavors.contains(input)) {
+        _prompter.write('Invalid flavor.\n');
+        return;
+      }
+      flavor = input;
     }
 
     try {

@@ -35,16 +35,19 @@ class FirebaseCommand extends Command<void> {
 
   @override
   FutureOr<void> run() async {
-    if (argResults!.rest.length != 1) {
+    if (argResults!.rest.length > 1) {
       usageException(
-        'Expected exactly one positional argument <flavor>. Valid flavors '
-        "are read from the project's dev_tools_whitelabel_config.yaml.",
+        'Expected at most one positional argument <flavor>. Valid flavors '
+        "are read from the project's dev_tools_whitelabel_config.yaml, or "
+        'omit <flavor> entirely for a flavorless project (uses "default").',
       );
     }
 
     final projectPath = await _findProjectRoot(
       argResults![projectOption] as String?,
     );
-    await _runFirebaseSetup(projectPath, argResults!.rest.single);
+    final flavor =
+        argResults!.rest.isEmpty ? 'default' : argResults!.rest.single;
+    await _runFirebaseSetup(projectPath, flavor);
   }
 }

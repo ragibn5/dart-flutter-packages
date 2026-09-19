@@ -21,9 +21,19 @@ exclude:
   - windows/build
   - '**/*.iml'
 
+# This project's flavors. Required by the whitelabel commands (Firebase
+# setup, platform package rename, and the app-name/launcher-icon/splash
+# guides); use flavors: [] if this project has none.
+flavors: [dev, exp, stage, prod]
+
 # Default per-flavor Firebase settings, pre-filling the whitelabel firebase
 # setup prompts. Update these to match your own Firebase projects.
 firebase:
+  # Where flutterfire configure writes its generated files.
+  output:
+    ios: ios/Config/Firebase/{flavor}/GoogleService-Info.plist
+    android: android/app/src/{flavor}/google-services.json
+    dart: lib/features/app/infrastructure/config/firebase/firebase_options_{flavor}.dart
   dev:
     project_id: flutter-app-template-b1e3c
     ios_bundle_id: com.ragibn5.fat.dev

@@ -53,6 +53,10 @@ class RenamePlatformPackage {
   /// Returns: nothing (void). An empty source or target name is reported
   /// and skips the rename. iOS has no package-based directories to move,
   /// since it uses a flat directory structure.
+  ///
+  /// Throws:
+  /// - `WhitelabelConfigException` when `flavors` isn't configured for this
+  ///   project (see [ReadWhitelabelConfig]).
   Future<void> call(String projectPath) async {
     _prompter.write('▶️ Platform package name replacement\n');
 

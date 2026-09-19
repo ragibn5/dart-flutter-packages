@@ -1,23 +1,17 @@
 import 'dart:io';
 
-import 'package:dev_tools/src/models/firebase_flavor_config.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/prompts/prompt_with_default.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/read_whitelabel_config.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/whitelabel_config_exception.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 /// Runs `flutterfire configure` for one flavor of a white-label project.
 class RunFirebaseSetup {
-  static const FirebaseFlavorConfig _emptyConfig = FirebaseFlavorConfig(
-    projectId: '',
-    iosBundleId: '',
-    androidPackageName: '',
-  );
-
   final Logger _logger;
   final ReadWhitelabelConfig _readWhitelabelConfig;
   final PromptWithDefault _promptWithDefault;
@@ -47,7 +41,8 @@ class RunFirebaseSetup {
   /// Params:
   /// - `projectPath`: the white-label project's root directory.
   /// - `flavor`: one of the flavors read via [ReadWhitelabelConfig] for this
-  ///   project.
+  ///   project, or `'default'` for a project with no flavors (matching its
+  ///   `firebase.default` entry).
   ///
   /// Returns: nothing (void). Declining the confirmation prompt aborts
   /// without error.
@@ -56,17 +51,25 @@ class RunFirebaseSetup {
   /// - [FirebaseSetupException] when [flavor] is invalid, when a `firebase`
   ///   invocation fails (see [EnsureFirebaseAccount]), or when
   ///   `flutterfire configure` exits with a non-zero code.
+  /// - [WhitelabelConfigException] when `flavors`, `firebase.<flavor>`, or
+  ///   `firebase.output` isn't configured for this project (see
+  ///   [ReadWhitelabelConfig]).
   Future<void> call(String projectPath, String flavor) async {
     final config = await _readWhitelabelConfig(projectPath);
-    if (!config.flavors.contains(flavor)) {
+    final isValidFlavor = config.flavors.isEmpty
+        ? flavor == 'default'
+        : config.flavors.contains(flavor);
+    if (!isValidFlavor) {
+      final validFlavors =
+          config.flavors.isEmpty ? 'default' : config.flavors.join(', ');
       throw FirebaseSetupException(
-        "Invalid flavor '$flavor'. Use one of: ${config.flavors.join(', ')}.",
+        "Invalid flavor '$flavor'. Use one of: $validFlavors.",
       );
     }
 
     await _ensureFirebaseAccount();
 
-    final defaults = config.firebase[flavor] ?? _emptyConfig;
+    final defaults = config.firebaseFor(flavor);
     final outputPaths = config.firebaseOutputPaths.forFlavor(flavor);
 
     final projectId = await _promptWithDefault(

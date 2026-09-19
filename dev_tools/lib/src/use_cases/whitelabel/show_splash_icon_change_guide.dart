@@ -6,8 +6,14 @@ import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
 
 /// Prints splash icon change instructions, then optionally runs
-/// `flutter_native_splash:create` for every flavor.
+/// `flutter_native_splash:create`.
+///
+/// The config file naming (`flutter_native_splash-<flavor>.yaml`, or
+/// `flutter_native_splash.yaml` with no flavors) is fixed by the
+/// `flutter_native_splash` package itself, not configurable here.
 class ShowSplashIconChangeGuide {
+  static const String _defaultConfigFile = 'flutter_native_splash.yaml';
+
   final Prompter _prompter;
   final ConfirmYesNo _confirmYesNo;
   final FindFvmAwareDartCommand _findDartCommand;
@@ -23,10 +29,11 @@ class ShowSplashIconChangeGuide {
         _findDartCommand = findDartCommand,
         _readWhitelabelConfig = readWhitelabelConfig;
 
-  /// Prints per-flavor splash config file instructions for [projectPath],
-  /// for the flavors and config path template read via
-  /// [ReadWhitelabelConfig] (`{flavor}` substituted), then, if confirmed,
-  /// runs `flutter_native_splash:create --all-flavors`.
+  /// Prints splash config file instructions for [projectPath] — one file per
+  /// flavor read via [ReadWhitelabelConfig], or the single default file when
+  /// there are none — then, if confirmed, runs
+  /// `flutter_native_splash:create`, adding `--all-flavors` only when there
+  /// are flavors to scan for.
   ///
   /// Returns: nothing (void). Declining the confirmation prompt skips the
   /// command without error.
@@ -34,11 +41,11 @@ class ShowSplashIconChangeGuide {
   /// Throws:
   /// - [CommandNotFoundException] when neither fvm nor a system-wide Dart is
   ///   installed (see [FindFvmAwareDartCommand]).
+  /// - `WhitelabelConfigException` when `flavors` isn't configured for this
+  ///   project (see [ReadWhitelabelConfig]).
   Future<void> call(String projectPath) async {
-    final config = await _readWhitelabelConfig(projectPath);
-    _prompter.write(
-      _guideText(projectPath, config.splashConfigPath, config.flavors),
-    );
+    final flavors = (await _readWhitelabelConfig(projectPath)).flavors;
+    _prompter.write(_guideText(projectPath, flavors));
 
     if (!await _confirmYesNo('Generate splash icons?')) {
       _prompter.write('✅ Splash icon change guide\n');
@@ -52,25 +59,22 @@ class ShowSplashIconChangeGuide {
         ...dartCommand.skip(1),
         'run',
         'flutter_native_splash:create',
-        '--all-flavors',
+        if (flavors.isNotEmpty) '--all-flavors',
       ],
       workingDirectory: projectPath,
     ).run();
     _prompter.write('✅ Splash icon change guide\n');
   }
 
-  String _guideText(
-    String projectPath,
-    String configPathTemplate,
-    List<String> flavors,
-  ) {
-    final configFileLines = flavors
-        .map(
-          (flavor) => '     - $projectPath/'
-              "${configPathTemplate.replaceAll('{flavor}', flavor)} "
-              "(for the '$flavor' flavor)",
-        )
-        .join('\n');
+  String _guideText(String projectPath, List<String> flavors) {
+    final configFileLines = flavors.isEmpty
+        ? '     - $projectPath/$_defaultConfigFile'
+        : flavors
+            .map(
+              (flavor) => '     - $projectPath/flutter_native_splash-$flavor'
+                  ".yaml (for the '$flavor' flavor)",
+            )
+            .join('\n');
 
     return '\n'
         '▶️ Splash icon change guide\n'
