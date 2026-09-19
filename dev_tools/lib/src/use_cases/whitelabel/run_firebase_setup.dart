@@ -1,9 +1,10 @@
 import 'dart:io';
 
-import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 import 'package:dev_tools/src/models/firebase_flavor_config.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/prompts/prompt_with_default.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/read_firebase_config.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/read_firebase_output_paths.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
@@ -24,6 +25,7 @@ class RunFirebaseSetup {
   final ReadFirebaseOutputPaths _readFirebaseOutputPaths;
   final PromptWithDefault _promptWithDefault;
   final ConfirmYesNo _confirmYesNo;
+  final EnsureFirebaseAccount _ensureFirebaseAccount;
 
   const RunFirebaseSetup({
     Logger logger = const ConsoleLogger(),
@@ -32,17 +34,20 @@ class RunFirebaseSetup {
         const ReadFirebaseOutputPaths(),
     PromptWithDefault promptWithDefault = const PromptWithDefault(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
+    EnsureFirebaseAccount ensureFirebaseAccount = const EnsureFirebaseAccount(),
   })  : _logger = logger,
         _readFirebaseConfig = readFirebaseConfig,
         _readFirebaseOutputPaths = readFirebaseOutputPaths,
         _promptWithDefault = promptWithDefault,
-        _confirmYesNo = confirmYesNo;
+        _confirmYesNo = confirmYesNo,
+        _ensureFirebaseAccount = ensureFirebaseAccount;
 
   /// Configures Firebase for [flavor] in the project at [projectPath].
   ///
-  /// Prompts for the project ID, iOS bundle ID, and Android package name,
-  /// defaulting to values read via [ReadFirebaseConfig], then runs
-  /// `flutterfire configure` against the paths read via
+  /// First runs [EnsureFirebaseAccount] to confirm which Firebase CLI account
+  /// is active, then prompts for the project ID, iOS bundle ID, and Android
+  /// package name, defaulting to values read via [ReadFirebaseConfig], then
+  /// runs `flutterfire configure` against the paths read via
   /// [ReadFirebaseOutputPaths] (with `{flavor}` substituted).
   ///
   /// Params:
@@ -53,7 +58,8 @@ class RunFirebaseSetup {
   /// without error.
   ///
   /// Throws:
-  /// - [FirebaseSetupException] when [flavor] is invalid, or when
+  /// - [FirebaseSetupException] when [flavor] is invalid, when a `firebase`
+  ///   invocation fails (see [EnsureFirebaseAccount]), or when
   ///   `flutterfire configure` exits with a non-zero code.
   Future<void> call(String projectPath, String flavor) async {
     if (!validFlavors.contains(flavor)) {
@@ -61,6 +67,8 @@ class RunFirebaseSetup {
         "Invalid flavor '$flavor'. Use one of: ${validFlavors.join(', ')}.",
       );
     }
+
+    await _ensureFirebaseAccount();
 
     final defaults =
         (await _readFirebaseConfig(projectPath))[flavor] ?? _emptyConfig;
@@ -126,11 +134,4 @@ class RunFirebaseSetup {
     }
     _logger.info('Configuration complete for $flavor environment!');
   }
-}
-
-class FirebaseSetupException extends CommandExecutionException {
-  @override
-  final String message;
-
-  const FirebaseSetupException(this.message);
 }

@@ -1,6 +1,8 @@
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/prompts/prompt_with_default.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/clean_project_artifacts.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/run_firebase_setup.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
 
@@ -20,6 +22,7 @@ class RunWhitelabelSetup {
             RunFirebaseSetup(
               confirmYesNo: ConfirmYesNo(prompter: prompter),
               promptWithDefault: PromptWithDefault(prompter: prompter),
+              ensureFirebaseAccount: EnsureFirebaseAccount(prompter: prompter),
             ),
         _prompter = prompter;
 
