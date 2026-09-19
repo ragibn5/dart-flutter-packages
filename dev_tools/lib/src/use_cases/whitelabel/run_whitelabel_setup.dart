@@ -3,6 +3,8 @@ import 'package:dev_tools/src/use_cases/prompts/prompt_with_default.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/clean_project_artifacts.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/rename_dart_package.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/rename_platform_package.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/run_firebase_setup.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_app_name_change_guide.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_launcher_icon_change_guide.dart';
@@ -12,27 +14,29 @@ import 'package:dev_tools/src/utils/prompter.dart';
 /// Runs the interactive white-label setup menu for one copied project.
 class RunWhitelabelSetup {
   final CleanProjectArtifacts _cleanProjectArtifacts;
-  final RunFirebaseSetup _runFirebaseSetup;
+  final RenameDartPackage _renameDartPackage;
+  final RenamePlatformPackage _renamePlatformPackage;
   final ShowAppNameChangeGuide _showAppNameChangeGuide;
   final ShowLauncherIconChangeGuide _showLauncherIconChangeGuide;
   final ShowSplashIconChangeGuide _showSplashIconChangeGuide;
+  final RunFirebaseSetup _runFirebaseSetup;
   final Prompter _prompter;
 
   RunWhitelabelSetup({
     CleanProjectArtifacts? cleanProjectArtifacts,
-    RunFirebaseSetup? runFirebaseSetup,
+    RenameDartPackage? renameDartPackage,
+    RenamePlatformPackage? renamePlatformPackage,
     ShowAppNameChangeGuide? showAppNameChangeGuide,
     ShowLauncherIconChangeGuide? showLauncherIconChangeGuide,
     ShowSplashIconChangeGuide? showSplashIconChangeGuide,
+    RunFirebaseSetup? runFirebaseSetup,
     Prompter prompter = const ConsolePrompter(),
   })  : _cleanProjectArtifacts =
             cleanProjectArtifacts ?? CleanProjectArtifacts(),
-        _runFirebaseSetup = runFirebaseSetup ??
-            RunFirebaseSetup(
-              confirmYesNo: ConfirmYesNo(prompter: prompter),
-              promptWithDefault: PromptWithDefault(prompter: prompter),
-              ensureFirebaseAccount: EnsureFirebaseAccount(prompter: prompter),
-            ),
+        _renameDartPackage =
+            renameDartPackage ?? RenameDartPackage(prompter: prompter),
+        _renamePlatformPackage =
+            renamePlatformPackage ?? RenamePlatformPackage(prompter: prompter),
         _showAppNameChangeGuide = showAppNameChangeGuide ??
             ShowAppNameChangeGuide(prompter: prompter),
         _showLauncherIconChangeGuide = showLauncherIconChangeGuide ??
@@ -45,6 +49,12 @@ class RunWhitelabelSetup {
               prompter: prompter,
               confirmYesNo: ConfirmYesNo(prompter: prompter),
             ),
+        _runFirebaseSetup = runFirebaseSetup ??
+            RunFirebaseSetup(
+              confirmYesNo: ConfirmYesNo(prompter: prompter),
+              promptWithDefault: PromptWithDefault(prompter: prompter),
+              ensureFirebaseAccount: EnsureFirebaseAccount(prompter: prompter),
+            ),
         _prompter = prompter;
 
   /// Shows setup actions until the user exits or input ends.
@@ -53,25 +63,31 @@ class RunWhitelabelSetup {
       _prompter.write(
         '\n[White-label setup: $projectPath]\n'
         '1) Project cleanup\n'
-        '2) Firebase project setup\n'
-        '3) App name change guide\n'
-        '4) Launcher icon change guide\n'
-        '5) Splash icon change guide\n'
-        '6) Exit\n'
-        'Select a step [1-6]: ',
+        '2) Dart package name replacement\n'
+        '3) Platform package name replacement\n'
+        '4) App name change guide\n'
+        '5) Launcher icon change guide\n'
+        '6) Splash icon change guide\n'
+        '7) Firebase project setup\n'
+        '8) Exit\n'
+        'Select a step [1-8]: ',
       );
       switch (_prompter.readLine()?.trim()) {
         case '1':
           await _cleanProjectArtifacts(projectPath);
         case '2':
-          await _runFirebaseSetupStep(projectPath);
+          await _renameDartPackage(projectPath);
         case '3':
-          await _showAppNameChangeGuide(projectPath);
+          await _renamePlatformPackage(projectPath);
         case '4':
-          await _showLauncherIconChangeGuide(projectPath);
+          await _showAppNameChangeGuide(projectPath);
         case '5':
-          await _showSplashIconChangeGuide(projectPath);
+          await _showLauncherIconChangeGuide(projectPath);
         case '6':
+          await _showSplashIconChangeGuide(projectPath);
+        case '7':
+          await _runFirebaseSetupStep(projectPath);
+        case '8':
         case null:
           return;
         default:
