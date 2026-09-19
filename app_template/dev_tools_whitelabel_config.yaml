@@ -21,9 +21,10 @@ exclude:
   - windows/build
   - '**/*.iml'
 
-# This project's flavors. Required by the whitelabel commands (Firebase
-# setup, platform package rename, and the app-name/launcher-icon/splash
-# guides); use flavors: [] if this project has none.
+# This project's flavors, used by the whitelabel commands (Firebase setup,
+# platform package rename, and the app-name/launcher-icon/splash guides).
+# Optional — an absent key defaults to no flavors — but this project has
+# flavors, so it's declared explicitly.
 flavors: [dev, exp, stage, prod]
 
 # Default per-flavor Firebase settings, pre-filling the whitelabel firebase

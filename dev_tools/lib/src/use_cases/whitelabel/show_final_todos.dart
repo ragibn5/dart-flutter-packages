@@ -34,6 +34,11 @@ class ShowFinalTodos {
       '  - homepage\n'
       '  - And anything else that reflects a template project property.\n'
       '\n'
+      '⚠️ Remove or replace the dev_tools dev_dependency in pubspec.yaml — '
+      "it points at the original template's monorepo-relative "
+      "../dev_tools path, which won't exist here. pub get will fail until "
+      'this is fixed.\n'
+      '\n'
       '⚠️ No matter what you do, XCode will have some issues:\n'
       '- Make sure $projectPath/ios/GoogleService-Info.plist exists.\n'
       '- If not, copy '

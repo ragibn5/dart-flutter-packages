@@ -7,8 +7,9 @@ import 'package:dev_tools/src/use_cases/whitelabel/copy_template_project.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/run_whitelabel_setup.dart';
 
 /// Copies a template into `<path>` and runs white-label actions against it,
-/// or, when `<path>` already exists, runs them directly against it instead
-/// (no copy).
+/// or, when `<path>` already exists and has content, runs them directly
+/// against it instead (no copy). An existing but empty directory is treated
+/// the same as a non-existing one — the template is still copied into it.
 class SetupCommand extends Command<void> {
   static const String commandName = 'setup';
   static const String commandDescription =
@@ -47,14 +48,18 @@ class SetupCommand extends Command<void> {
       usageException('Expected exactly one positional argument <path>.');
     }
     final path = argResults!.rest.single;
+    final targetDir = Directory(path);
+    final isExistingNonEmptyDir =
+        targetDir.existsSync() && targetDir.listSync().isNotEmpty;
 
     String? projectPath;
-    if (Directory(path).existsSync()) {
+    if (isExistingNonEmptyDir) {
       projectPath = await _resolveInPlaceProject(path);
     } else {
       projectPath = await _copyTemplateProject(
         template: argResults![templateOption] as String?,
         destination: path,
+        allowExistingEmptyDirectory: true,
       );
     }
     if (projectPath == null) return;

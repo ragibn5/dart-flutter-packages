@@ -93,7 +93,7 @@ class RunWhitelabelSetup {
       try {
         switch (choice) {
           case '1':
-            await _cleanProjectArtifacts(projectPath);
+            await _cleanProjectArtifactsStep(projectPath);
           case '2':
             await _renameDartPackage(projectPath);
           case '3':
@@ -115,6 +115,18 @@ class RunWhitelabelSetup {
         _prompter.write('$e\n');
       }
     }
+  }
+
+  Future<void> _cleanProjectArtifactsStep(String projectPath) async {
+    final removed = await _cleanProjectArtifacts(projectPath);
+    if (removed.isEmpty) {
+      _prompter.write('No configured artifacts found.\n');
+      return;
+    }
+    _prompter.write(
+      'Removed ${removed.length} configured artifact(s):\n'
+      '${removed.map((path) => '- $path').join('\n')}\n',
+    );
   }
 
   Future<void> _runFirebaseSetupStep(String projectPath) async {

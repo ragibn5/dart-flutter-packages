@@ -40,11 +40,18 @@ class FinalizeProject {
 
     _prompter.write('\nRunning pub get ...\n');
     final flutterCommand = (await _findFlutterCommand()).split(RegExp(r'\s+'));
-    await InteractiveProcessRunner(
+    final exitCode = await InteractiveProcessRunner(
       executable: flutterCommand.first,
       arguments: [...flutterCommand.skip(1), 'pub', 'get'],
       workingDirectory: projectPath,
     ).run();
+    if (exitCode != 0) {
+      _prompter.write(
+        '\n⚠️ pub get failed (exit code $exitCode). This is often the '
+        "template's dev_tools dev_dependency, which points at a "
+        'monorepo-relative ../dev_tools path — see the TODOs below.\n',
+      );
+    }
 
     _showFinalTodos(projectPath);
   }
