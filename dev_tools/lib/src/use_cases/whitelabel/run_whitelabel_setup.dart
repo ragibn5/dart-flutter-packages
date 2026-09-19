@@ -2,11 +2,13 @@ import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/prompts/prompt_with_default.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/clean_project_artifacts.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/finalize_project.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/rename_dart_package.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/rename_platform_package.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/run_firebase_setup.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_app_name_change_guide.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/show_final_todos.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_launcher_icon_change_guide.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_splash_icon_change_guide.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
@@ -20,6 +22,7 @@ class RunWhitelabelSetup {
   final ShowLauncherIconChangeGuide _showLauncherIconChangeGuide;
   final ShowSplashIconChangeGuide _showSplashIconChangeGuide;
   final RunFirebaseSetup _runFirebaseSetup;
+  final FinalizeProject _finalizeProject;
   final Prompter _prompter;
 
   RunWhitelabelSetup({
@@ -30,6 +33,7 @@ class RunWhitelabelSetup {
     ShowLauncherIconChangeGuide? showLauncherIconChangeGuide,
     ShowSplashIconChangeGuide? showSplashIconChangeGuide,
     RunFirebaseSetup? runFirebaseSetup,
+    FinalizeProject? finalizeProject,
     Prompter prompter = const ConsolePrompter(),
   })  : _cleanProjectArtifacts =
             cleanProjectArtifacts ?? CleanProjectArtifacts(),
@@ -55,6 +59,11 @@ class RunWhitelabelSetup {
               promptWithDefault: PromptWithDefault(prompter: prompter),
               ensureFirebaseAccount: EnsureFirebaseAccount(prompter: prompter),
             ),
+        _finalizeProject = finalizeProject ??
+            FinalizeProject(
+              prompter: prompter,
+              showFinalTodos: ShowFinalTodos(prompter: prompter),
+            ),
         _prompter = prompter;
 
   /// Shows setup actions until the user exits or input ends.
@@ -69,8 +78,9 @@ class RunWhitelabelSetup {
         '5) Launcher icon change guide\n'
         '6) Splash icon change guide\n'
         '7) Firebase project setup\n'
-        '8) Exit\n'
-        'Select a step [1-8]: ',
+        '8) Done - finalize setup\n'
+        '9) Exit\n'
+        'Select a step [1-9]: ',
       );
       switch (_prompter.readLine()?.trim()) {
         case '1':
@@ -88,6 +98,8 @@ class RunWhitelabelSetup {
         case '7':
           await _runFirebaseSetupStep(projectPath);
         case '8':
+          await _finalizeProject(projectPath);
+        case '9':
         case null:
           return;
         default:
