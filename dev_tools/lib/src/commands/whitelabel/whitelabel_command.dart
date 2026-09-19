@@ -1,6 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:dev_tools/src/commands/whitelabel/clean_command.dart';
 import 'package:dev_tools/src/commands/whitelabel/create_command.dart';
+import 'package:dev_tools/src/commands/whitelabel/firebase_command.dart';
 import 'package:dev_tools/src/commands/whitelabel/setup_command.dart';
 
 /// Commands for creating and configuring a project derived from a template.
@@ -13,6 +14,7 @@ class WhitelabelCommand extends Command<void> {
     addSubcommand(CreateCommand());
     addSubcommand(CleanCommand());
     addSubcommand(SetupCommand());
+    addSubcommand(FirebaseCommand());
   }
 
   @override
