@@ -4,17 +4,20 @@ import 'package:dev_tools/src/use_cases/whitelabel/clean_project_artifacts.dart'
 import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/run_firebase_setup.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/show_app_name_change_guide.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
 
 /// Runs the interactive white-label setup menu for one copied project.
 class RunWhitelabelSetup {
   final CleanProjectArtifacts _cleanProjectArtifacts;
   final RunFirebaseSetup _runFirebaseSetup;
+  final ShowAppNameChangeGuide _showAppNameChangeGuide;
   final Prompter _prompter;
 
   RunWhitelabelSetup({
     CleanProjectArtifacts? cleanProjectArtifacts,
     RunFirebaseSetup? runFirebaseSetup,
+    ShowAppNameChangeGuide? showAppNameChangeGuide,
     Prompter prompter = const ConsolePrompter(),
   })  : _cleanProjectArtifacts =
             cleanProjectArtifacts ?? CleanProjectArtifacts(),
@@ -24,6 +27,8 @@ class RunWhitelabelSetup {
               promptWithDefault: PromptWithDefault(prompter: prompter),
               ensureFirebaseAccount: EnsureFirebaseAccount(prompter: prompter),
             ),
+        _showAppNameChangeGuide = showAppNameChangeGuide ??
+            ShowAppNameChangeGuide(prompter: prompter),
         _prompter = prompter;
 
   /// Shows setup actions until the user exits or input ends.
@@ -33,8 +38,9 @@ class RunWhitelabelSetup {
         '\n[White-label setup: $projectPath]\n'
         '1) Project cleanup\n'
         '2) Firebase project setup\n'
-        '3) Exit\n'
-        'Select a step [1-3]: ',
+        '3) App name change guide\n'
+        '4) Exit\n'
+        'Select a step [1-4]: ',
       );
       switch (_prompter.readLine()?.trim()) {
         case '1':
@@ -42,6 +48,8 @@ class RunWhitelabelSetup {
         case '2':
           await _runFirebaseSetupStep(projectPath);
         case '3':
+          await _showAppNameChangeGuide(projectPath);
+        case '4':
         case null:
           return;
         default:
