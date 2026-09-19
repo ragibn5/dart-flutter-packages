@@ -7,13 +7,14 @@ import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart'
 import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/read_firebase_config.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/read_firebase_output_paths.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/whitelabel_flavors.dart';
 import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 /// Runs `flutterfire configure` for one flavor of a white-label project.
 class RunFirebaseSetup {
-  static const List<String> validFlavors = ['dev', 'exp', 'stage', 'prod'];
+  static const List<String> validFlavors = whitelabelFlavors;
   static const FirebaseFlavorConfig _emptyConfig = FirebaseFlavorConfig(
     projectId: '',
     iosBundleId: '',

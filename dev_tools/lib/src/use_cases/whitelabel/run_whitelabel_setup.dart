@@ -6,6 +6,7 @@ import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart
 import 'package:dev_tools/src/use_cases/whitelabel/run_firebase_setup.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_app_name_change_guide.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_launcher_icon_change_guide.dart';
+import 'package:dev_tools/src/use_cases/whitelabel/show_splash_icon_change_guide.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
 
 /// Runs the interactive white-label setup menu for one copied project.
@@ -14,6 +15,7 @@ class RunWhitelabelSetup {
   final RunFirebaseSetup _runFirebaseSetup;
   final ShowAppNameChangeGuide _showAppNameChangeGuide;
   final ShowLauncherIconChangeGuide _showLauncherIconChangeGuide;
+  final ShowSplashIconChangeGuide _showSplashIconChangeGuide;
   final Prompter _prompter;
 
   RunWhitelabelSetup({
@@ -21,6 +23,7 @@ class RunWhitelabelSetup {
     RunFirebaseSetup? runFirebaseSetup,
     ShowAppNameChangeGuide? showAppNameChangeGuide,
     ShowLauncherIconChangeGuide? showLauncherIconChangeGuide,
+    ShowSplashIconChangeGuide? showSplashIconChangeGuide,
     Prompter prompter = const ConsolePrompter(),
   })  : _cleanProjectArtifacts =
             cleanProjectArtifacts ?? CleanProjectArtifacts(),
@@ -37,6 +40,11 @@ class RunWhitelabelSetup {
               prompter: prompter,
               confirmYesNo: ConfirmYesNo(prompter: prompter),
             ),
+        _showSplashIconChangeGuide = showSplashIconChangeGuide ??
+            ShowSplashIconChangeGuide(
+              prompter: prompter,
+              confirmYesNo: ConfirmYesNo(prompter: prompter),
+            ),
         _prompter = prompter;
 
   /// Shows setup actions until the user exits or input ends.
@@ -48,8 +56,9 @@ class RunWhitelabelSetup {
         '2) Firebase project setup\n'
         '3) App name change guide\n'
         '4) Launcher icon change guide\n'
-        '5) Exit\n'
-        'Select a step [1-5]: ',
+        '5) Splash icon change guide\n'
+        '6) Exit\n'
+        'Select a step [1-6]: ',
       );
       switch (_prompter.readLine()?.trim()) {
         case '1':
@@ -61,6 +70,8 @@ class RunWhitelabelSetup {
         case '4':
           await _showLauncherIconChangeGuide(projectPath);
         case '5':
+          await _showSplashIconChangeGuide(projectPath);
+        case '6':
         case null:
           return;
         default:
