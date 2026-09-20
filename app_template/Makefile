@@ -48,3 +48,9 @@ view-coverage: run-tests-with-coverage process-coverage-data
 	else \
 		echo "Coverage report at coverage/html/index.html."; \
 	fi
+
+# Copies this template into a new project and runs setup on it.
+# Change the path below to create it somewhere else, e.g.: whitelabel setup ../my-new-app.
+.PHONY: whitelabel-setup
+whitelabel-setup:
+	$(DART) run dev_tools:dev_tools whitelabel setup ../whitelabeled_app
