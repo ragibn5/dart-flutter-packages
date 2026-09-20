@@ -129,8 +129,10 @@ class AuthGuard implements RouteGuard {
       RouteContext next,) async {
     final isLoggedIn = await authService.isLoggedIn();
     return isLoggedIn
-        ? ContinueNavigation()
+        ? ContinueNavigation(current: current, next: next)
         : RedirectNavigation(
+      current: current,
+      redirectRoute:
       const RouteContext(info: RouteInfo('login', '/login')),
     );
   }
