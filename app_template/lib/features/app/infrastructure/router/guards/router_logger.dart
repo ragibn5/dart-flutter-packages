@@ -17,6 +17,6 @@ class RouterLogger implements RouteGuard {
       tag: '$RouterLogger',
       message: 'Routing: ${current.info.path} -> ${next.info.path}',
     );
-    return ContinueNavigation();
+    return ContinueNavigation(current: current, next: next);
   }
 }
