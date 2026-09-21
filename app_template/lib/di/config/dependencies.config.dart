@@ -56,6 +56,8 @@ import 'package:app_template/features/app/domain/services/app_locale_resolver.da
     as _i791;
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart'
     as _i1034;
+import 'package:app_template/features/app/infrastructure/config/router/routes_provider.dart'
+    as _i232;
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart'
     as _i527;
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart'
@@ -367,11 +369,18 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'APP_SERVER_PRIVATE_API_CLIENT',
       dispose: _i384.disposeNetClient,
     );
+    gh.factory<_i232.RoutesProvider>(
+      () => appModule.getRoutesProvider(
+        gh<_i97.IsAuthedUseCase>(),
+        gh<_i21.SetAuthDataUseCase>(),
+      ),
+    );
     gh.singleton<_i130.Rover>(
       () => appModule.getAppRouter(
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
         gh<_i519.AppLogger>(),
         gh<_i97.IsAuthedUseCase>(),
+        gh<_i232.RoutesProvider>(),
       ),
     );
     return this;

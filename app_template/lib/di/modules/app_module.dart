@@ -27,7 +27,7 @@ import 'package:app_template/features/app/domain/models/app_settings.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart';
-import 'package:app_template/features/app/infrastructure/config/router/routes.dart';
+import 'package:app_template/features/app/infrastructure/config/router/routes_provider.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_flavor.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart';
@@ -54,6 +54,7 @@ import 'package:app_template/features/app/infrastructure/services/fallback_local
 import 'package:app_template/features/app/presentation/bloc/app_root_bloc.dart';
 import 'package:app_template/features/auth/application/use_cases/get_auth_data_use_case.dart';
 import 'package:app_template/features/auth/application/use_cases/refresh_auth_data_use_case.dart';
+import 'package:app_template/features/auth/application/use_cases/set_auth_data_use_case.dart';
 import 'package:app_template/features/auth/application/use_cases/watch_auth_data_use_case.dart';
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
@@ -284,29 +285,24 @@ abstract class AppModule {
     return WatchAuthStateUseCaseImpl(watchAuthDataUseCase);
   }
 
-  @injectable
   GetSettingsUseCase getGetSettingsUseCase(SettingsRepository repository) {
     return GetSettingsUseCase(repository);
   }
 
-  @injectable
   SetSettingsUseCase getSetSettingsUseCase(SettingsRepository repository) {
     return SetSettingsUseCase(repository);
   }
 
-  @injectable
   WatchSettingsUseCase getWatchSettingsUseCase(SettingsRepository repository) {
     return WatchSettingsUseCase(repository);
   }
 
-  @injectable
   WatchThemeModeUseCase getWatchThemeModeUseCase(
     SettingsRepository settingsRepository,
   ) {
     return WatchThemeModeUseCase(settingsRepository);
   }
 
-  @injectable
   WatchLocaleUseCase getWatchLocaleUseCase(
     SettingsRepository settingsRepository,
     LocalComponentsMapper localComponentsMapper,
@@ -314,7 +310,6 @@ abstract class AppModule {
     return WatchLocaleUseCase(settingsRepository, localComponentsMapper);
   }
 
-  @injectable
   GetEffectiveLocaleUseCase getGetEffectiveLocaleUseCase(
     AppLocaleResolver appLocaleResolver,
     SettingsRepository settingsRepository,
@@ -327,7 +322,6 @@ abstract class AppModule {
     );
   }
 
-  @injectable
   GetEffectiveThemeModeUseCase getGetEffectiveThemeModeUseCase(
     SettingsRepository settingsRepository,
   ) {
@@ -433,7 +427,6 @@ abstract class AppModule {
     return AppConfigFactory(packageInfo, fallbackLocaleSelector);
   }
 
-  @injectable
   InitializeAppUseCase getAppInitializerUseCase(
     AnalyticsService analyticsService,
     CrashlyticsService crashlyticsService,
@@ -446,7 +439,6 @@ abstract class AppModule {
     );
   }
 
-  @injectable
   InitializeSessionUseCase getInitializeSessionUseCase(
     GetAuthDataUseCase getAuthDataUseCase,
   ) {
@@ -484,16 +476,24 @@ abstract class AppModule {
     );
   }
 
+  RoutesProvider getRoutesProvider(
+    IsAuthedUseCase isAuthedUseCase,
+    SetAuthDataUseCase setAuthDataUseCase,
+  ) {
+    return RoutesProvider(isAuthedUseCase, setAuthDataUseCase);
+  }
+
   @singleton
   Rover getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
     AppLogger logger,
     IsAuthedUseCase isAuthedUseCase,
+    RoutesProvider routesProvider,
   ) {
     return RoverFactory().create(
       navigatorKey: navigatorKey,
       initialRoute: AppRoute.ROOT.routeInfo,
-      routes: getAppRouteDefs(isAuthedUseCase),
+      routes: routesProvider.getAppRoutes(),
       guards: [RouterLogger(logger)],
     );
   }
