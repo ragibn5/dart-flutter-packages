@@ -1,8 +1,8 @@
-name: Validate release for merge
+name: Validate release merge
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
     branches:
       - main
 
@@ -12,15 +12,39 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Validate release branch
-        run: |
-          BRANCH="${{ github.head_ref }}"
-          source scripts/publish_utils.sh
-          branch_info=$(parse_release_branch "$BRANCH") || {
-            echo "Error: Branch '$BRANCH' does not match format release/<package-path>-<version>"
-            exit 1
-          }
-          PKG_PATH=$(echo "$branch_info" | cut -d' ' -f1)
-          validate_package_path "$PKG_PATH" || exit 1
-          echo "Branch name and package validated."
+      # fvm's standalone install script needs no pre-existing Dart/Flutter,
+      # so it bootstraps everything itself — including running dev_tools
+      # via its own .fvmrc pin — with no separate SDK-install step needed.
+      - name: Install fvm
+        run: curl -fsSL https://fvm.app/install.sh | bash
+
+      - name: Add fvm to PATH
+        run: echo "$HOME/fvm/bin" >> "$GITHUB_PATH"
+
+      # fvm downloads a pinned version on first use (no prior "fvm install"
+      # needed), so this just caches whatever gets downloaded across runs
+      # instead of re-fetching it every time.
+      - name: Cache fvm SDK versions
+        uses: actions/cache@v4
+        with:
+          path: ~/fvm/versions
+          key: fvm-versions-${{ hashFiles('**/.fvmrc') }}
+          restore-keys: fvm-versions-
+
+      # fvm resolves a pinned version from its own working directory, not
+      # from a "-C"/"--directory" flag passed through to dart — so these
+      # steps must actually run with cwd inside dev_tools for it to pick up
+      # dev_tools/.fvmrc, rather than "fvm dart ... -C dev_tools" from the
+      # repo root.
+      - name: Install dev_tools dependencies
+        working-directory: dev_tools
+        run: fvm dart pub get
+
+      - name: Validate release candidates are complete
+        working-directory: dev_tools
+        run: >
+          fvm dart run bin/dev_tools.dart release validate-release-mr
+          --to ${{ github.event.pull_request.base.sha }}

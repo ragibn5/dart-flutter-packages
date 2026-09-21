@@ -14,11 +14,17 @@ class RootRedirectRouteGuard implements RouteGuard {
     RouteContext current,
     RouteContext next,
   ) async {
-    final currentAuthData = await _isAuthed();
-    if (currentAuthData) {
-      return RedirectNavigation(RouteContext(info: AppRoute.LOGIN.routeInfo));
+    final isAuthed = await _isAuthed();
+    if (!isAuthed) {
+      return RedirectNavigation(
+        current: current,
+        redirectRoute: RouteContext(info: AppRoute.LOGIN.routeInfo),
+      );
     } else {
-      return RedirectNavigation(RouteContext(info: AppRoute.HOME.routeInfo));
+      return RedirectNavigation(
+        current: current,
+        redirectRoute: RouteContext(info: AppRoute.HOME.routeInfo),
+      );
     }
   }
 }

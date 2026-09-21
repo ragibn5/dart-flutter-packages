@@ -6,7 +6,7 @@ issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/rover
 
 # Library version
-version: 1.0.0
+version: 2.0.0
 
 # Range of compatible SDK versions
 environment:
@@ -16,7 +16,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  equatable: ^2.0.8
+  meta: ^1.12.0
   go_router: ^17.3.0
   auto_route: ^10.1.2
 

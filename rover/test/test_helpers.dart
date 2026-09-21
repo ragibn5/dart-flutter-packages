@@ -7,7 +7,7 @@ class TestGuard implements RouteGuard {
     BuildContext context,
     RouteContext current,
     RouteContext next,
-  ) async => ContinueNavigation();
+  ) async => ContinueNavigation(current: current, next: next);
 }
 
 class TestBlockGuard implements RouteGuard {
@@ -16,7 +16,7 @@ class TestBlockGuard implements RouteGuard {
     BuildContext context,
     RouteContext current,
     RouteContext next,
-  ) async => BlockNavigation();
+  ) async => BlockNavigation(current: current, blocked: next);
 }
 
 class TestRedirectGuard implements RouteGuard {
@@ -26,6 +26,7 @@ class TestRedirectGuard implements RouteGuard {
     RouteContext current,
     RouteContext next,
   ) async => RedirectNavigation(
-    const RouteContext(info: RouteInfo('login', '/login')),
+    current: current,
+    redirectRoute: const RouteContext(info: RouteInfo('login', '/login')),
   );
 }

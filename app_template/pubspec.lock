@@ -327,6 +327,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  dev_tools:
+    dependency: "direct dev"
+    description:
+      path: "../dev_tools"
+      relative: true
+    source: path
+    version: "1.0.0"
   diff_match_patch:
     dependency: transitive
     description:
@@ -802,14 +809,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.1"
-  logger:
-    dependency: transitive
-    description:
-      name: logger
-      sha256: "25aee487596a6257655a1e091ec2ae66bc30e7af663592cc3a27e6591e05035c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.7.0"
   logging:
     dependency: transitive
     description:
@@ -938,14 +937,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
-  package_rename:
-    dependency: "direct dev"
-    description:
-      name: package_rename
-      sha256: "8e957670ab3c8ab0aa9976d10dfe8575c279e81a48aeeca9e7de43dbdc2c2be0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.10.1"
   path:
     dependency: "direct main"
     description:
@@ -1110,10 +1101,10 @@ packages:
     dependency: "direct main"
     description:
       name: rover
-      sha256: "6a804fe07a0b89959e3eb021405c90d4c2620f269d2b0653e2a16296e2d24729"
+      sha256: aeeed4a810d1660cdaecb94e03257c42c6d96652b02ae3c84854ea65de8e9133
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "2.0.0"
   shared_models:
     dependency: "direct main"
     description:

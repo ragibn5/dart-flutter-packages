@@ -33,5 +33,5 @@ class _TestGuard implements RouteGuard {
     BuildContext context,
     RouteContext current,
     RouteContext next,
-  ) async => ContinueNavigation();
+  ) async => ContinueNavigation(current: current, next: next);
 }
