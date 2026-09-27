@@ -4,13 +4,18 @@ import android.annotation.SuppressLint
 import kotlinx.serialization.Serializable
 
 /**
- * A media file indexed by `MediaStore`.
+ * A `MediaStore` item of any type.
  *
- * Sent to Dart as JSON, where it maps to the Dart `MediaItem` class.
+ * Mirrors `MediaStore.MediaColumns`, which every collection shares.
  */
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
 internal data class MediaItemData(
+    /**
+     * Which collection the item comes from.
+     */
+    val type: MediaType,
+
     /**
      * `MediaStore` row ID.
      *
@@ -19,54 +24,51 @@ internal data class MediaItemData(
     val id: String,
 
     /**
-     * File name, including extension.
-     *
-     * Read from `DISPLAY_NAME`.
-     */
-    val name: String,
-
-    /**
-     * MIME type, e.g. `image/jpeg`.
-     */
-    val mimeType: String,
-
-    /**
-     * File size in bytes.
-     */
-    val sizeInBytes: Long,
-
-    /**
-     * When the item was added to `MediaStore`, in milliseconds since epoch.
-     *
-     * Converted from `DATE_ADDED`, which is in seconds.
-     */
-    val dateAddedInMillis: Long,
-
-    /**
-     * When the file was last modified, in milliseconds since epoch.
-     *
-     * Converted from `DATE_MODIFIED`, which is in seconds.
-     */
-    val dateModifiedInMillis: Long,
-
-    /**
-     * When the media was captured (usually from EXIF), in milliseconds since epoch.
-     *
-     * `null` if unknown.
-     */
-    val dateTakenInMillis: Long?,
-
-    /**
      * `content://` URI for opening the item through `ContentResolver`.
      */
     val uri: String,
 
     /**
-     * Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
+     * File name, including extension.
      *
-     * `null` if unsupported by the device (below API 29).
+     * Read from `DISPLAY_NAME`. `null` if unknown.
      */
-    val relativePath: String?,
+    val name: String?,
+
+    /**
+     * MIME type, e.g. `image/jpeg`.
+     *
+     * `null` if unknown.
+     */
+    val mimeType: String?,
+
+    /**
+     * File size in bytes.
+     *
+     * `null` if unknown.
+     */
+    val sizeInBytes: Long?,
+
+    /**
+     * When the item was added to `MediaStore`, in milliseconds since epoch.
+     *
+     * Converted from `DATE_ADDED`, which is in seconds. `null` if unknown.
+     */
+    val dateAddedInMillis: Long?,
+
+    /**
+     * When the file was last modified, in milliseconds since epoch.
+     *
+     * Converted from `DATE_MODIFIED`, which is in seconds. `null` if unknown.
+     */
+    val dateModifiedInMillis: Long?,
+
+    /**
+     * When the media was captured, in milliseconds since epoch.
+     *
+     * `null` if unknown or unsupported by the device (below API 29).
+     */
+    val dateTakenInMillis: Long?,
 
     /**
      * Width in pixels.
@@ -83,11 +85,18 @@ internal data class MediaItemData(
     val height: Int?,
 
     /**
-     * Playback duration in milliseconds, for video and audio.
+     * Playback duration in milliseconds.
      *
-     * `null` for images.
+     * `null` if unknown or unsupported by the device (below API 29).
      */
     val durationInMillis: Long?,
+
+    /**
+     * Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
+     *
+     * `null` if unsupported by the device (below API 29).
+     */
+    val relativePath: String?,
 
     /**
      * Whether the item is still being written.

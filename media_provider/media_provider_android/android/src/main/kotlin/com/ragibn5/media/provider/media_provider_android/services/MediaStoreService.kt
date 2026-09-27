@@ -7,9 +7,4 @@ internal interface MediaStoreService {
      * Get all photos managed by the media store.
      */
     suspend fun getPhotos(): List<MediaItemData>
-
-    /**
-     * Get all videos managed by the media store.
-     */
-    suspend fun getVideos(): List<MediaItemData>
 }
