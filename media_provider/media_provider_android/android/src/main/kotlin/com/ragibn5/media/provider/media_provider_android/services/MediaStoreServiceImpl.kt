@@ -23,9 +23,9 @@ internal class MediaStoreServiceImpl(
             null,
             null,
         )?.use { cursor ->
-            val columns = MediaColumnsReader(cursor)
+            val reader = MediaColumnsReader(cursor)
             while (cursor.moveToNext()) {
-                photos.add(columns.read(MediaType.PHOTO, collectionUri))
+                photos.add(reader.read(MediaType.PHOTO, collectionUri))
             }
         }
 
