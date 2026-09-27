@@ -76,6 +76,12 @@ android {
     }
 }
 
+kotlin {
+    // Every public declaration must be marked `public`,
+    // so that nothing joins the plugin's API by accident.
+    explicitApi()
+}
+
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")

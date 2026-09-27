@@ -1,5 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android.handlers
 
+import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
 import com.ragibn5.media.provider.media_provider_android.services.MediaStoreService
 import io.flutter.plugin.common.MethodCall
 import kotlinx.coroutines.CoroutineDispatcher
@@ -7,9 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-/**
- * Replies with all photos, encoded as a JSON array of `MediaItemData`.
- */
 internal class GetPhotosRequestHandler(
     private val mediaStoreService: MediaStoreService,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,

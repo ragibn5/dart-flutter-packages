@@ -1,8 +1,8 @@
-package com.ragibn5.media.provider.media_provider_android.handlers
+package com.ragibn5.media.provider.media_provider_android
 
+import com.ragibn5.media.provider.media_provider_android.exceptions.MethodCallException
 import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,22 +10,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-/**
- * Routes each method call to the [MethodCallRequestHandler] registered for it.
- *
- * Handlers run as coroutines in [scope], and their outcome is replied on the
- * main thread. Calls with no registered handler are answered with `notImplemented`.
- *
- * Call [dispose] when the channel is torn down to cancel in-flight calls.
- */
 internal class MethodCallDispatcher(
     handlers: List<MethodCallRequestHandler>,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
-) : MethodCallHandler {
-    companion object {
-        const val UNEXPECTED_ERROR_CODE = "unexpected_error"
-    }
-
+) : MethodChannel.MethodCallHandler {
     private val handlersByMethod: Map<String, MethodCallRequestHandler> =
         handlers.associateBy { it.method }
 
@@ -36,7 +24,7 @@ internal class MethodCallDispatcher(
         }
     }
 
-    override fun onMethodCall(call: MethodCall, result: Result) {
+    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val handler = handlersByMethod[call.method] ?: return result.notImplemented()
         scope.launch {
             val reply = try {
@@ -59,5 +47,9 @@ internal class MethodCallDispatcher(
      */
     fun dispose() {
         scope.cancel()
+    }
+
+    companion object {
+        const val UNEXPECTED_ERROR_CODE = "unexpected_error"
     }
 }
