@@ -6,10 +6,15 @@ import android.database.Cursor
 import android.os.Build
 import android.provider.MediaStore
 import com.ragibn5.media.provider.media_provider_android.models.MediaItemData
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class MediaStoreServiceImpl(private val contentResolver: ContentResolver) :
-    MediaStoreService {
-    override fun getPhotos(): List<MediaItemData> {
+internal class MediaStoreServiceImpl(
+    private val contentResolver: ContentResolver,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) : MediaStoreService {
+    override suspend fun getPhotos(): List<MediaItemData> = withContext(dispatcher) {
         val photos = mutableListOf<MediaItemData>()
         // Querying a column the device's MediaStore doesn't have throws, so
         // API-gated columns are only requested where they exist.
@@ -93,10 +98,10 @@ class MediaStoreServiceImpl(private val contentResolver: ContentResolver) :
             }
         }
 
-        return photos
+        photos
     }
 
-    override fun getVideos(): List<MediaItemData> {
+    override suspend fun getVideos(): List<MediaItemData> {
         TODO("Not yet implemented")
     }
 

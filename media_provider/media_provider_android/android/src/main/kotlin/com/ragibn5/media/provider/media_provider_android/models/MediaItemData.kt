@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
  */
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
-data class MediaItemData(
+internal data class MediaItemData(
     /**
      * `MediaStore` row ID.
      *
