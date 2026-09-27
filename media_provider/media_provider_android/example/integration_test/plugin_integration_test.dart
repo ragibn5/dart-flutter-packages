@@ -9,15 +9,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:media_provider_android/media_provider_android.dart';
+import 'package:media_provider_platform_interface/media_provider_platform_interface.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('getPlatformVersion test', (WidgetTester tester) async {
+  testWidgets('getMedia test', (WidgetTester tester) async {
     final MediaProviderAndroid plugin = MediaProviderAndroid();
-    final String? version = await plugin.getPlatformVersion();
-    // The version string depends on the host platform running the test, so
-    // just assert that some non-empty string is returned.
-    expect(version?.isNotEmpty, true);
+    // Contents depend on the device's library and granted permissions, so
+    // just assert that the call round-trips.
+    final media = await plugin.getMedia({MediaType.photo, MediaType.video});
+    expect(media, isA<List<MediaItem>>());
   });
 }

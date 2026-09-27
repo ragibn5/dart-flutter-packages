@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_provider_android/media_provider_android.dart';
+import 'package:media_provider_platform_interface/media_provider_platform_interface.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,36 +15,31 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
   final _mediaProviderAndroidPlugin = MediaProviderAndroid();
+
+  List<MediaItem>? _media;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    _loadMedia();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
+  Future<void> _loadMedia() async {
+    // Media permissions aren't requested here; grant them from the app's
+    // system settings, otherwise the list is empty.
     try {
-      platformVersion =
-          await _mediaProviderAndroidPlugin.getPlatformVersion() ??
-          'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      final media = await _mediaProviderAndroidPlugin.getMedia({
+        MediaType.photo,
+        MediaType.video,
+      });
+      if (!mounted) return;
+      setState(() => _media = media);
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = '${e.code}: ${e.message}');
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
   }
 
   @override
@@ -53,8 +47,32 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('Plugin example app')),
-        body: Center(child: Text('Running on: $_platformVersion\n')),
+        body: _buildBody(),
       ),
+    );
+  }
+
+  Widget _buildBody() {
+    final error = _error;
+    if (error != null) return Center(child: Text(error));
+
+    final media = _media;
+    if (media == null) return const Center(child: CircularProgressIndicator());
+    if (media.isEmpty) return const Center(child: Text('No media found'));
+
+    return ListView.builder(
+      itemCount: media.length,
+      itemBuilder: (context, index) {
+        final item = media[index];
+        return ListTile(
+          leading: Icon(switch (item.type) {
+            MediaType.photo => Icons.photo,
+            MediaType.video => Icons.videocam,
+          }),
+          title: Text(item.name ?? item.id),
+          subtitle: Text(item.mimeType ?? 'Unknown type'),
+        );
+      },
     );
   }
 }

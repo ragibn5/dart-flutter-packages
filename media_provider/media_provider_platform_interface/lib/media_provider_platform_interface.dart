@@ -2,25 +2,23 @@
 library;
 
 import 'package:media_provider_platform_interface/src/media_item.dart';
+import 'package:media_provider_platform_interface/src/media_type.dart';
 
 export 'package:media_provider_platform_interface/src/media_item.dart';
+export 'package:media_provider_platform_interface/src/media_type.dart';
 
 abstract class MediaProviderPlatform {
   static MediaProviderPlatform instance = _UnimplementedMediaProvider();
 
-  Future<List<MediaItem>> getPhotos();
-
-  Future<List<MediaItem>> getVideos();
+  /// Gets all media of [types] on the device.
+  ///
+  /// [types] must not be empty.
+  Future<List<MediaItem>> getMedia(Set<MediaType> types);
 }
 
 class _UnimplementedMediaProvider implements MediaProviderPlatform {
   @override
-  Future<List<MediaItem>> getPhotos() {
-    throw UnimplementedError('getPhotos() has not been implemented.');
-  }
-
-  @override
-  Future<List<MediaItem>> getVideos() {
-    throw UnimplementedError('getVideos() has not been implemented.');
+  Future<List<MediaItem>> getMedia(Set<MediaType> types) {
+    throw UnimplementedError('getMedia() has not been implemented.');
   }
 }
