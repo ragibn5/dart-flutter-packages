@@ -11,6 +11,7 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.11.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
     }
 }
 
@@ -25,6 +26,11 @@ plugins {
     id("com.android.library")
     id("kotlin-android")
 }
+
+// Applied the "old way" (see kotlinx.serialization README) so it resolves from the
+// buildscript classpath above and shares `kotlinVersion`. A version-less `plugins {}`
+// entry isn't found when a host app builds this plugin.
+apply(plugin = "kotlinx-serialization")
 
 android {
     namespace = "com.ragibn5.media.provider.media_provider_android"
@@ -71,6 +77,8 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
 }

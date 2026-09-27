@@ -8,8 +8,8 @@ class MediaProvider {
 
   static final instance = MediaProvider._();
 
-  Future<List<MediaItem>> getImages() {
-    return MediaProviderPlatform.instance.getImages();
+  Future<List<MediaItem>> getPhotos() {
+    return MediaProviderPlatform.instance.getPhotos();
   }
 
   Future<List<MediaItem>> getVideos() {

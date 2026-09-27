@@ -8,15 +8,15 @@ export 'package:media_provider_platform_interface/src/media_item.dart';
 abstract class MediaProviderPlatform {
   static MediaProviderPlatform instance = _UnimplementedMediaProvider();
 
-  Future<List<MediaItem>> getImages();
+  Future<List<MediaItem>> getPhotos();
 
   Future<List<MediaItem>> getVideos();
 }
 
 class _UnimplementedMediaProvider implements MediaProviderPlatform {
   @override
-  Future<List<MediaItem>> getImages() {
-    throw UnimplementedError('getImages() has not been implemented.');
+  Future<List<MediaItem>> getPhotos() {
+    throw UnimplementedError('getPhotos() has not been implemented.');
   }
 
   @override
