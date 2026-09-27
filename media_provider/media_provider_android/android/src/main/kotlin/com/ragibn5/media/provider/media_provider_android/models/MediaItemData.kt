@@ -19,7 +19,7 @@ internal data class MediaItemData(
     /**
      * `MediaStore` row ID.
      *
-     * Unique within its collection.
+     * Unique across all collections, which share the `MediaStore.Files` table.
      */
     val id: String,
 

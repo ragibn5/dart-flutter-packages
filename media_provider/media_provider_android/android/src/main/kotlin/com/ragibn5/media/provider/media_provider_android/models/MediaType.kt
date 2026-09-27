@@ -15,4 +15,10 @@ internal enum class MediaType {
      */
     @SerialName("photo")
     PHOTO,
+
+    /**
+     * `MediaStore.Video`.
+     */
+    @SerialName("video")
+    VIDEO,
 }

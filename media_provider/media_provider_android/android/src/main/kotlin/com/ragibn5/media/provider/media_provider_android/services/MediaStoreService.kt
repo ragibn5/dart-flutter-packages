@@ -1,10 +1,13 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
 import com.ragibn5.media.provider.media_provider_android.models.MediaItemData
+import com.ragibn5.media.provider.media_provider_android.models.MediaType
 
 internal interface MediaStoreService {
     /**
-     * Get all photos managed by the media store.
+     * Get all media of [types] managed by the media store.
+     *
+     * @return An empty list if [types] is empty.
      */
-    suspend fun getPhotos(): List<MediaItemData>
+    suspend fun getMedia(types: Set<MediaType>): List<MediaItemData>
 }
