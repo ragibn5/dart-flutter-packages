@@ -26,4 +26,4 @@ dependencies:
 
 ## Example
 
-See the [example](example/example.dart) for a complete demonstration.
+See the [example](example/README.md) for a complete demonstration.
