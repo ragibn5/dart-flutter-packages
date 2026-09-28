@@ -1,12 +1,9 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
-import android.content.ContentUris
 import android.database.Cursor
-import android.net.Uri
 import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
-import androidx.annotation.VisibleForTesting
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.services.MediaColumnsReader.Companion.projection
 
@@ -15,15 +12,13 @@ import com.ragibn5.media.provider.media_provider_android.services.MediaColumnsRe
  *
  * The cursor must have been queried with (at least) [projection].
  *
- * [sdkInt] and [uriFor] are injected so that tests can drive the API-level and
- * Uri-building behavior without a device or a shadowed framework.
+ * [sdkInt] and [uriBuilder] are injected so that tests can drive the API-level
+ * and Uri-building behavior without a device or a shadowed framework.
  */
 internal class MediaColumnsReader(
     private val cursor: Cursor,
-    @param:VisibleForTesting private val sdkInt: Int = Build.VERSION.SDK_INT,
-    @param:VisibleForTesting private val uriFor: (collection: Uri, id: Long) -> String = { collection, id ->
-        ContentUris.withAppendedId(collection, id).toString()
-    },
+    private val sdkInt: Int = Build.VERSION.SDK_INT,
+    private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
 ) {
     private val idColumn = cursor.getColumnIndexOrThrow(BaseColumns._ID)
     private val nameColumn = cursor.getColumnIndexOrThrow(MediaColumns.DISPLAY_NAME)
@@ -60,7 +55,7 @@ internal class MediaColumnsReader(
         return MediaItem(
             type = collection.type,
             id = id.toString(),
-            uri = uriFor(collection.uri, id),
+            uri = uriBuilder.build(collection.uri, id),
             name = cursor.getStringOrNull(nameColumn),
             mimeType = cursor.getStringOrNull(mimeTypeColumn),
             sizeInBytes = cursor.getLongOrNull(sizeColumn),

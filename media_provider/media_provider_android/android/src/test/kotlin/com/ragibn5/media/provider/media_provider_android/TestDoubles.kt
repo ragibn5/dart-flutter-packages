@@ -1,5 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android
 
+import android.net.Uri
+import com.ragibn5.media.provider.media_provider_android.services.MediaUriBuilder
 import io.flutter.plugin.common.MethodChannel
 
 /**
@@ -39,4 +41,25 @@ internal class RecordingMethodChannelResult : MethodChannel.Result {
     override fun notImplemented() {
         reply = MethodChannelReply.NotImplemented
     }
+}
+
+/**
+ * A [MediaUriBuilder] that never touches `ContentUris`.
+ *
+ * Records every row it was asked to address, and gives each the URI
+ * `<collection>/<id>`.
+ */
+internal class FakeUriBuilder : MediaUriBuilder {
+    private val requested = mutableListOf<Pair<Uri, Long>>()
+
+    /** The URIs it was asked to build, in order. */
+    val requestedUris: List<String>
+        get() = requested.map { (uri, id) -> "$uri/$id" }
+
+    /** The rows it was asked to address, in order. */
+    val requestedRows: List<Pair<Uri, Long>>
+        get() = requested
+
+    override fun build(collection: Uri, id: Long): String =
+        "$collection/$id".also { requested += collection to id }
 }

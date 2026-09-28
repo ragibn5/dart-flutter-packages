@@ -3,6 +3,7 @@ package com.ragibn5.media.provider.media_provider_android.services
 import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
+import com.ragibn5.media.provider.media_provider_android.FakeUriBuilder
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -17,17 +18,14 @@ import kotlin.test.assertTrue
  */
 internal class MediaColumnsReaderTest {
     private val collection = FakeCollection(MediaType.PHOTO)
-    private val requestedUris = mutableListOf<String>()
 
-    /** Injected so no test depends on real `ContentUris` behavior. */
-    private val uriFor: (android.net.Uri, Long) -> String = { uri, id ->
-        "$uri/$id".also { requestedUris += it }
-    }
+    /** A builder that never touches real `ContentUris`. */
+    private val uriBuilder = FakeUriBuilder()
 
     private fun readerOver(
         values: Map<String, Any?>,
         sdkInt: Int = Build.VERSION_CODES.R,
-    ) = MediaColumnsReader(FakeCursor.over(values).cursor, sdkInt, uriFor)
+    ) = MediaColumnsReader(FakeCursor.over(values).cursor, sdkInt, uriBuilder)
 
     @Test
     fun `maps every column onto the item`() {
@@ -87,7 +85,7 @@ internal class MediaColumnsReaderTest {
         val item = readerOver(mapOf(BaseColumns._ID to 42L)).read(collection)
 
         assertEquals("${collection.uri}/42", item.uri)
-        assertEquals(listOf("${collection.uri}/42"), requestedUris)
+        assertEquals(listOf("${collection.uri}/42"), uriBuilder.requestedUris)
     }
 
     @Test
@@ -125,7 +123,7 @@ internal class MediaColumnsReaderTest {
         listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.P + 1).forEach { sdkInt ->
             val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-            MediaColumnsReader(cursor.cursor, sdkInt, uriFor).read(collection)
+            MediaColumnsReader(cursor.cursor, sdkInt, uriBuilder).read(collection)
 
             val expectsApi29 = sdkInt >= Build.VERSION_CODES.Q
             assertEquals(
@@ -145,7 +143,7 @@ internal class MediaColumnsReaderTest {
     fun `does not read the API 30 columns below API 30`() {
         val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-        MediaColumnsReader(cursor.cursor, Build.VERSION_CODES.Q, uriFor).read(collection)
+        MediaColumnsReader(cursor.cursor, Build.VERSION_CODES.Q, uriBuilder).read(collection)
 
         assertTrue(MediaColumns.IS_TRASHED !in cursor.lookedUpColumns)
         assertTrue(MediaColumns.IS_FAVORITE !in cursor.lookedUpColumns)
@@ -155,7 +153,7 @@ internal class MediaColumnsReaderTest {
     fun `requests exactly the projection it reads`() {
         val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-        MediaColumnsReader(cursor.cursor, Build.VERSION_CODES.R, uriFor).read(collection)
+        MediaColumnsReader(cursor.cursor, Build.VERSION_CODES.R, uriBuilder).read(collection)
 
         assertEquals(
             MediaColumnsReader.projectionFor(Build.VERSION_CODES.R),

@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
+import com.ragibn5.media.provider.media_provider_android.FakeUriBuilder
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -13,16 +14,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
-import kotlin.collections.ArrayDeque
-import kotlin.collections.List
-import kotlin.collections.emptyList
-import kotlin.collections.emptyMap
-import kotlin.collections.emptySet
-import kotlin.collections.listOf
-import kotlin.collections.mapOf
-import kotlin.collections.setOf
 import kotlin.collections.single
-import kotlin.collections.toList
 import kotlin.sequences.single
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -50,7 +42,7 @@ internal class MediaStoreServiceImplTest {
         dispatcher = UnconfinedTestDispatcher(),
         sdkInt = sdkInt,
         // Injected so no test depends on real `ContentUris` behavior.
-        uriFor = { collection, id -> "$collection/$id" },
+        uriBuilder = FakeUriBuilder(),
     )
 
     private fun returns(vararg cursors: Cursor?) {
@@ -188,7 +180,7 @@ internal class MediaStoreServiceImplTest {
             collectionRegistry = MediaStoreCollectionRegistry(setOf(photo)),
             dispatcher = UnconfinedTestDispatcher(),
             sdkInt = Build.VERSION_CODES.R,
-            uriFor = { collection, id -> "$collection/$id" },
+            uriBuilder = FakeUriBuilder(),
         )
 
         assertFailsWith<NoSuchElementException> { partial.getMedia(setOf(MediaType.VIDEO)) }

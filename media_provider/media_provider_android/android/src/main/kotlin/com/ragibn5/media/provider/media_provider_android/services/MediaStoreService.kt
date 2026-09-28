@@ -1,10 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
 import android.content.ContentResolver
-import android.content.ContentUris
-import android.net.Uri
 import android.os.Build
-import androidx.annotation.VisibleForTesting
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,11 +20,9 @@ internal interface MediaStoreService {
 internal class MediaStoreServiceImpl(
     private val contentResolver: ContentResolver,
     private val collectionRegistry: MediaStoreCollectionRegistry,
+    private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    @param:VisibleForTesting private val sdkInt: Int = Build.VERSION.SDK_INT,
-    @param:VisibleForTesting private val uriFor: (collection: Uri, id: Long) -> String = { collection, id ->
-        ContentUris.withAppendedId(collection, id).toString()
-    },
+    private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) : MediaStoreService {
     override suspend fun getMedia(types: Set<MediaType>): List<MediaItem> {
         if (types.isEmpty()) {
@@ -51,7 +46,7 @@ internal class MediaStoreServiceImpl(
             null,
             null,
         )?.use { cursor ->
-            val reader = MediaColumnsReader(cursor, sdkInt, uriFor)
+            val reader = MediaColumnsReader(cursor, sdkInt, uriBuilder)
             while (cursor.moveToNext()) {
                 media += reader.read(collection)
             }

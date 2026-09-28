@@ -1,5 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android
 
+import androidx.annotation.VisibleForTesting
 import com.ragibn5.media.provider.media_provider_android.handlers.GetMediaRequestHandler
 import com.ragibn5.media.provider.media_provider_android.services.MediaStoreService
 import com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceFactory
@@ -27,6 +28,7 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
      * a device: building the real service reads `MediaStore`, which only exists
      * on Android.
      */
+    @VisibleForTesting
     internal fun attach(binaryMessenger: BinaryMessenger, mediaStoreService: MediaStoreService) {
         requestDispatcher = MethodCallDispatcher(
             listOf(
