@@ -2,11 +2,11 @@ package com.ragibn5.media.provider.media_provider_android.services
 
 import android.content.ContentUris
 import android.database.Cursor
+import android.net.Uri
 import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
-import androidx.core.database.getLongOrNull
-import androidx.core.database.getStringOrNull
+import androidx.annotation.VisibleForTesting
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.services.MediaColumnsReader.Companion.projection
 
@@ -14,9 +14,16 @@ import com.ragibn5.media.provider.media_provider_android.services.MediaColumnsRe
  * Reads [MediaItem] values from a cursor over a MediaStore collection.
  *
  * The cursor must have been queried with (at least) [projection].
+ *
+ * [sdkInt] and [uriFor] are injected so that tests can drive the API-level and
+ * Uri-building behavior without a device or a shadowed framework.
  */
 internal class MediaColumnsReader(
     private val cursor: Cursor,
+    @param:VisibleForTesting private val sdkInt: Int = Build.VERSION.SDK_INT,
+    @param:VisibleForTesting private val uriFor: (collection: Uri, id: Long) -> String = { collection, id ->
+        ContentUris.withAppendedId(collection, id).toString()
+    },
 ) {
     private val idColumn = cursor.getColumnIndexOrThrow(BaseColumns._ID)
     private val nameColumn = cursor.getColumnIndexOrThrow(MediaColumns.DISPLAY_NAME)
@@ -53,10 +60,7 @@ internal class MediaColumnsReader(
         return MediaItem(
             type = collection.type,
             id = id.toString(),
-            uri = ContentUris.withAppendedId(
-                collection.uri,
-                id,
-            ).toString(),
+            uri = uriFor(collection.uri, id),
             name = cursor.getStringOrNull(nameColumn),
             mimeType = cursor.getStringOrNull(mimeTypeColumn),
             sizeInBytes = cursor.getLongOrNull(sizeColumn),
@@ -69,14 +73,17 @@ internal class MediaColumnsReader(
         )
     }
 
-    companion object {
-        private val hasApi29Columns = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-        private val hasApi30Columns = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    private val hasApi29Columns: Boolean
+        get() = sdkInt >= Build.VERSION_CODES.Q
 
+    private val hasApi30Columns: Boolean
+        get() = sdkInt >= Build.VERSION_CODES.R
+
+    companion object {
         /**
-         * Columns to request for [MediaColumnsReader] on this device.
+         * Columns to request for [MediaColumnsReader] on a device at [sdkInt].
          */
-        val projection: List<String> = buildList {
+        fun projectionFor(sdkInt: Int): List<String> = buildList {
             add(BaseColumns._ID)
             add(MediaColumns.DISPLAY_NAME)
             add(MediaColumns.MIME_TYPE)
@@ -84,15 +91,20 @@ internal class MediaColumnsReader(
             add(MediaColumns.DATE_ADDED)
             add(MediaColumns.DATE_MODIFIED)
 
-            if (hasApi29Columns) {
+            if (sdkInt >= Build.VERSION_CODES.Q) {
                 add(MediaColumns.RELATIVE_PATH)
                 add(MediaColumns.IS_PENDING)
             }
 
-            if (hasApi30Columns) {
+            if (sdkInt >= Build.VERSION_CODES.R) {
                 add(MediaColumns.IS_TRASHED)
                 add(MediaColumns.IS_FAVORITE)
             }
         }
+
+        /**
+         * Columns to request for [MediaColumnsReader] on this device.
+         */
+        val projection: List<String> = projectionFor(Build.VERSION.SDK_INT)
     }
 }

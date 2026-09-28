@@ -1,12 +1,10 @@
 package com.ragibn5.media.provider.media_provider_android
 
 import com.ragibn5.media.provider.media_provider_android.handlers.GetMediaRequestHandler
-import com.ragibn5.media.provider.media_provider_android.services.MediaStoreCollectionRegistry
+import com.ragibn5.media.provider.media_provider_android.services.MediaStoreService
 import com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceFactory
-import com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceImpl
-import com.ragibn5.media.provider.media_provider_android.services.PhotoMediaStoreCollection
-import com.ragibn5.media.provider.media_provider_android.services.VideoMediaStoreCollection
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 
 public class MediaProviderAndroidPlugin : FlutterPlugin {
@@ -15,14 +13,27 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         val appContext = flutterPluginBinding.applicationContext
-        val mediaStoreService = MediaStoreServiceFactory.create(appContext.contentResolver)
 
+        attach(
+            flutterPluginBinding.binaryMessenger,
+            MediaStoreServiceFactory.create(appContext.contentResolver),
+        )
+    }
+
+    /**
+     * Serves [mediaStoreService] over [binaryMessenger].
+     *
+     * Separate from [onAttachedToEngine] so the wiring can be exercised without
+     * a device: building the real service reads `MediaStore`, which only exists
+     * on Android.
+     */
+    internal fun attach(binaryMessenger: BinaryMessenger, mediaStoreService: MediaStoreService) {
         requestDispatcher = MethodCallDispatcher(
             listOf(
                 GetMediaRequestHandler(mediaStoreService),
             ),
         )
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, CHANNEL_NAME)
+        channel = MethodChannel(binaryMessenger, CHANNEL_NAME)
             .apply { setMethodCallHandler(requestDispatcher) }
     }
 
