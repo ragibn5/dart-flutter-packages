@@ -34,4 +34,5 @@ internal fun Cursor.getStringOrNull(index: Int): String? =
  * Reads the integer column at [index] as a [Boolean], or `null` if the value
  * is NULL.
  */
-internal fun Cursor.getBooleanOrNull(index: Int): Boolean? = getIntOrNull(index)?.let { it != 0 }
+internal fun Cursor.getBooleanOrNull(index: Int): Boolean? =
+    getIntOrNull(index)?.let { it != 0 }

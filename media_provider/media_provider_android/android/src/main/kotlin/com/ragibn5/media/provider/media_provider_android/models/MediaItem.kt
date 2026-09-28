@@ -1,16 +1,19 @@
 package com.ragibn5.media.provider.media_provider_android.models
 
+```kotlin
+package com.ragibn5.media.provider.media_provider_android.models
+
 import android.annotation.SuppressLint
 import kotlinx.serialization.Serializable
 
 /**
- * A `MediaStore` item of any type.
+ * A media item managed by `MediaStore`.
  *
- * Mirrors `MediaStore.MediaColumns`, which every collection shares.
+ * Contains metadata shared across supported media collections.
  */
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
-internal data class MediaItemData(
+internal data class MediaItem(
     /**
      * Which collection the item comes from.
      */
@@ -18,8 +21,6 @@ internal data class MediaItemData(
 
     /**
      * `MediaStore` row ID.
-     *
-     * Unique across all collections, which share the `MediaStore.Files` table.
      */
     val id: String,
 
@@ -50,7 +51,7 @@ internal data class MediaItemData(
     val sizeInBytes: Long?,
 
     /**
-     * When the item was added to `MediaStore`, in milliseconds since epoch.
+     * When the item was added to the device's media library, in milliseconds since epoch.
      *
      * Converted from `DATE_ADDED`, which is in seconds. `null` if unknown.
      */
@@ -62,34 +63,6 @@ internal data class MediaItemData(
      * Converted from `DATE_MODIFIED`, which is in seconds. `null` if unknown.
      */
     val dateModifiedInMillis: Long?,
-
-    /**
-     * When the media was captured, in milliseconds since epoch.
-     *
-     * `null` if unknown or unsupported by the device (below API 29).
-     */
-    val dateTakenInMillis: Long?,
-
-    /**
-     * Width in pixels.
-     *
-     * `null` if unknown.
-     */
-    val width: Int?,
-
-    /**
-     * Height in pixels.
-     *
-     * `null` if unknown.
-     */
-    val height: Int?,
-
-    /**
-     * Playback duration in milliseconds.
-     *
-     * `null` if unknown or unsupported by the device (below API 29).
-     */
-    val durationInMillis: Long?,
 
     /**
      * Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
@@ -119,3 +92,4 @@ internal data class MediaItemData(
      */
     val isFavorite: Boolean?,
 )
+```

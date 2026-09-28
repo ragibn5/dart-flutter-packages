@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * The `MediaStore` collection a [MediaItemData] comes from.
+ * The `MediaStore` collection a [MediaItem] comes from.
  */
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable

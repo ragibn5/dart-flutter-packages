@@ -1,7 +1,11 @@
 package com.ragibn5.media.provider.media_provider_android
 
 import com.ragibn5.media.provider.media_provider_android.handlers.GetMediaRequestHandler
+import com.ragibn5.media.provider.media_provider_android.services.MediaStoreCollectionRegistry
 import com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceFactory
+import com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceImpl
+import com.ragibn5.media.provider.media_provider_android.services.PhotoMediaStoreCollection
+import com.ragibn5.media.provider.media_provider_android.services.VideoMediaStoreCollection
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodChannel
 
