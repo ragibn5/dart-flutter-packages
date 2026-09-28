@@ -1,7 +1,7 @@
 import 'package:media_provider_platform_interface/src/media_type.dart';
 import 'package:meta/meta.dart';
 
-/// A media file (photo, video, ...) on the device.
+/// A media item managed by the platform's media library.
 @immutable
 class MediaItem {
   /// What kind of media the item is.
@@ -9,7 +9,7 @@ class MediaItem {
 
   /// Platform identifier of the item.
   ///
-  /// Android: the `MediaStore` row ID, unique across all media types.
+  /// Android: the `MediaStore` row ID.
   final String id;
 
   /// Platform URI for opening the item.
@@ -43,28 +43,6 @@ class MediaItem {
   /// `null` if unknown.
   final int? dateModifiedInMillis;
 
-  /// When the media was captured (usually from EXIF), in milliseconds since
-  /// epoch.
-  ///
-  /// `null` if unknown or unsupported by the device (Android: below API 29).
-  final int? dateTakenInMillis;
-
-  /// Width in pixels.
-  ///
-  /// `null` if unknown.
-  final int? width;
-
-  /// Height in pixels.
-  ///
-  /// `null` if unknown.
-  final int? height;
-
-  /// Playback duration in milliseconds.
-  ///
-  /// `null` if unknown, not applicable (e.g. photos), or unsupported by the
-  /// device (Android: below API 29).
-  final int? durationInMillis;
-
   /// Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
   ///
   /// `null` if unsupported by the device (Android: below API 29).
@@ -94,10 +72,6 @@ class MediaItem {
     required this.sizeInBytes,
     required this.dateAddedInMillis,
     required this.dateModifiedInMillis,
-    required this.dateTakenInMillis,
-    required this.width,
-    required this.height,
-    required this.durationInMillis,
     required this.relativePath,
     required this.isPending,
     required this.isTrashed,
@@ -117,10 +91,6 @@ class MediaItem {
           sizeInBytes == other.sizeInBytes &&
           dateAddedInMillis == other.dateAddedInMillis &&
           dateModifiedInMillis == other.dateModifiedInMillis &&
-          dateTakenInMillis == other.dateTakenInMillis &&
-          width == other.width &&
-          height == other.height &&
-          durationInMillis == other.durationInMillis &&
           relativePath == other.relativePath &&
           isPending == other.isPending &&
           isTrashed == other.isTrashed &&
@@ -136,10 +106,6 @@ class MediaItem {
     sizeInBytes,
     dateAddedInMillis,
     dateModifiedInMillis,
-    dateTakenInMillis,
-    width,
-    height,
-    durationInMillis,
     relativePath,
     isPending,
     isTrashed,
@@ -158,10 +124,6 @@ class MediaItem {
       ' sizeInBytes: $sizeInBytes,',
       ' dateAddedInMillis: $dateAddedInMillis,',
       ' dateModifiedInMillis: $dateModifiedInMillis,',
-      ' dateTakenInMillis: $dateTakenInMillis,',
-      ' width: $width,',
-      ' height: $height,',
-      ' durationInMillis: $durationInMillis,',
       ' relativePath: $relativePath,',
       ' isPending: $isPending,',
       ' isTrashed: $isTrashed,',
