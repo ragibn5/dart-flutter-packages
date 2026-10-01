@@ -1,12 +1,8 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.models
 
 import android.net.Uri
 import android.provider.MediaStore
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
 
-/**
- * Describes a MediaStore collection supported by the plugin.
- */
 internal interface MediaStoreCollection {
     val type: MediaType
     val uri: Uri
