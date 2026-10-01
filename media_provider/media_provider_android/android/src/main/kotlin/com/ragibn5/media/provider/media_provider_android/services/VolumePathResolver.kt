@@ -7,7 +7,9 @@ import androidx.annotation.RequiresApi
 import java.io.File
 
 internal class VolumePathResolver(
-    val appContext: Context
+    private val appContext: Context,
+    private val storageManager: StorageManager =
+        appContext.getSystemService(StorageManager::class.java),
 ) {
     fun resolve(file: File): String? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -19,7 +21,6 @@ internal class VolumePathResolver(
 
     @RequiresApi(Build.VERSION_CODES.R)
     private fun getVolumePathViaNewApi(file: File): String? {
-        val storageManager = appContext.getSystemService(StorageManager::class.java)
         val volume = storageManager.getStorageVolume(file)
         return volume?.directory?.absolutePath
     }
