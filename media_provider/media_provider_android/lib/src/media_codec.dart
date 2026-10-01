@@ -31,6 +31,7 @@ MediaItem decodeMediaItem(Map<String, dynamic> json) {
     sizeInBytes: json['sizeInBytes'] as int?,
     dateAddedInMillis: json['dateAddedInMillis'] as int?,
     dateModifiedInMillis: json['dateModifiedInMillis'] as int?,
+    volumeName: json['volumeName'] as String?,
     relativePath: json['relativePath'] as String?,
     isPending: json['isPending'] as bool?,
     isTrashed: json['isTrashed'] as bool?,

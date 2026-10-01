@@ -63,3 +63,10 @@ internal class FakeUriBuilder : MediaUriBuilder {
     override fun build(collection: Uri, id: Long): String =
         "$collection/$id".also { requested += collection to id }
 }
+
+/**
+ * A [MediaVolumeRoots] naming the volumes a fake row may live on, so no test
+ * depends on where a device mounts its storage.
+ */
+internal fun fakeVolumeRoots(vararg paths: String): MediaVolumeRoots =
+    MediaVolumeRoots { paths.toList() }

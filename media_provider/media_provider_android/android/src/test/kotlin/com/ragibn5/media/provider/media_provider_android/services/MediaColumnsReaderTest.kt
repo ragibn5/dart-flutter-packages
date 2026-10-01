@@ -4,7 +4,9 @@ import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeUriBuilder
+import com.ragibn5.media.provider.media_provider_android.fakeVolumeRoots
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
+import java.util.concurrent.atomic.AtomicInteger
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -16,16 +18,25 @@ import kotlin.test.assertTrue
  * The cursor is a [FakeCursor] and the SDK level is injected, so these tests
  * assert on the reader's own mapping rules only.
  */
+@Suppress("DEPRECATION")
 internal class MediaColumnsReaderTest {
     private val collection = FakeCollection(MediaType.PHOTO)
 
     /** A builder that never touches real `ContentUris`. */
     private val uriBuilder = FakeUriBuilder()
 
+    /** Volume roots a fake row can sit under, for the levels below API 29. */
+    private val volumeRoots = fakeVolumeRoots("/storage/emulated/0")
+
     private fun readerOver(
         values: Map<String, Any?>,
         sdkInt: Int = Build.VERSION_CODES.R,
-    ) = MediaColumnsReader(FakeCursor.over(values).cursor, sdkInt, uriBuilder)
+    ) = MediaColumnsReader(
+        FakeCursor.over(values).cursor,
+        sdkInt,
+        uriBuilder,
+        volumeRoots,
+    )
 
     @Test
     fun `maps every column onto the item`() {
@@ -84,8 +95,8 @@ internal class MediaColumnsReaderTest {
     fun `builds the item uri from the collection uri and the row id`() {
         val item = readerOver(mapOf(BaseColumns._ID to 42L)).read(collection)
 
-        assertEquals("${collection.uri}/42", item.uri)
-        assertEquals(listOf("${collection.uri}/42"), uriBuilder.requestedUris)
+        assertEquals("${collection.uriForVolume}/42", item.uri)
+        assertEquals(listOf("${collection.uriForVolume}/42"), uriBuilder.requestedUris)
     }
 
     @Test
@@ -123,7 +134,8 @@ internal class MediaColumnsReaderTest {
         listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.P + 1).forEach { sdkInt ->
             val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-            MediaColumnsReader(cursor.cursor, sdkInt, uriBuilder).read(collection)
+            MediaColumnsReader(cursor.cursor, sdkInt, uriBuilder, volumeRoots)
+                .read(collection)
 
             val expectsApi29 = sdkInt >= Build.VERSION_CODES.Q
             assertEquals(
@@ -143,21 +155,105 @@ internal class MediaColumnsReaderTest {
     fun `does not read the API 30 columns below API 30`() {
         val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-        MediaColumnsReader(cursor.cursor, Build.VERSION_CODES.Q, uriBuilder).read(collection)
+        MediaColumnsReader(
+            cursor.cursor, Build.VERSION_CODES.Q, uriBuilder, volumeRoots,
+        ).read(collection)
 
         assertTrue(MediaColumns.IS_TRASHED !in cursor.lookedUpColumns)
         assertTrue(MediaColumns.IS_FAVORITE !in cursor.lookedUpColumns)
     }
 
     @Test
-    fun `requests exactly the projection it reads`() {
-        val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
-
-        MediaColumnsReader(cursor.cursor, Build.VERSION_CODES.R, uriBuilder).read(collection)
-
-        assertEquals(
-            MediaColumnsReader.projectionFor(Build.VERSION_CODES.R),
-            cursor.lookedUpColumns
+    fun `derives the relative path from DATA below API 29`() {
+        val cursor = FakeCursor.over(
+            mapOf(
+                BaseColumns._ID to 1L,
+                MediaColumns.DATA to "/storage/emulated/0/DCIM/Camera/cat.png",
+            ),
         )
+
+        val item = MediaColumnsReader(
+            cursor.cursor, Build.VERSION_CODES.P, uriBuilder, volumeRoots,
+        ).read(collection)
+
+        assertEquals("DCIM/Camera/", item.relativePath)
+        assertTrue(MediaColumns.RELATIVE_PATH !in cursor.lookedUpColumns)
+    }
+
+    @Test
+    fun `keeps the relative path null below API 29 when DATA is missing`() {
+        val item = readerOver(
+            values = mapOf(BaseColumns._ID to 1L),
+            sdkInt = Build.VERSION_CODES.P,
+        ).read(collection)
+
+        assertNull(item.relativePath)
+    }
+
+    @Test
+    fun `keeps the relative path null below API 29 for a file off every volume`() {
+        val item = readerOver(
+            values = mapOf(
+                BaseColumns._ID to 1L,
+                MediaColumns.DATA to "/data/media/0/DCIM/cat.png",
+            ),
+            sdkInt = Build.VERSION_CODES.P,
+        ).read(collection)
+
+        assertNull(item.relativePath)
+    }
+
+    @Test
+    fun `asks for the volume roots once per query, and never above API 29`() {
+        val asked = AtomicInteger()
+        fun countingRoots() = MediaVolumeRoots {
+            asked.incrementAndGet()
+            listOf("/storage/emulated/0")
+        }
+
+        val modern = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
+        MediaColumnsReader(
+            modern.cursor, Build.VERSION_CODES.R, uriBuilder, countingRoots(),
+        ).read(collection)
+        assertEquals(0, asked.get())
+
+        val legacy = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
+        MediaColumnsReader(
+            legacy.cursor, Build.VERSION_CODES.P, uriBuilder, countingRoots(),
+        ).read(collection)
+        assertEquals(1, asked.get())
+    }
+
+    @Test
+    fun `does not read DATA on API 29 and above`() {
+        listOf(Build.VERSION_CODES.Q, Build.VERSION_CODES.R).forEach { sdkInt ->
+            val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
+
+            MediaColumnsReader(cursor.cursor, sdkInt, uriBuilder, volumeRoots)
+                .read(collection)
+
+            assertTrue(
+                MediaColumns.DATA !in cursor.lookedUpColumns,
+                "DATA on API $sdkInt",
+            )
+        }
+    }
+
+    @Test
+    fun `requests exactly the projection it reads`() {
+        // Both branches, since each API level reads a different relative path
+        // column.
+        listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.R).forEach { sdkInt ->
+            val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
+
+            MediaColumnsReader(cursor.cursor, sdkInt, uriBuilder, volumeRoots)
+                .read(collection)
+
+            assertEquals(
+                MediaColumnsReader.projectionFor(sdkInt),
+                cursor.lookedUpColumns,
+                "projection on API $sdkInt",
+            )
+        }
     }
 }

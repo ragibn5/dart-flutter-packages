@@ -62,11 +62,22 @@ internal data class MediaItem(
     val dateModifiedInMillis: Long?,
 
     /**
+     * Name of the storage volume the file was in.
+     *
+     * Read from `VOLUME_NAME` on API 29 and above. `null` if unknown.
+     */
+    val volumeName: String?,
+    val volumeNameNew: String?,
+
+    /**
      * Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
      *
-     * `null` if unsupported by the device (below API 29).
+     * Read from `RELATIVE_PATH` on API 29 and above, and derived from the
+     * deprecated `DATA` column below it. Empty if the file sits directly in the
+     * volume root. `null` if unknown.
      */
     val relativePath: String?,
+    val relativePathNew: String?,
 
     /**
      * Whether the item is still being written.

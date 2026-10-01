@@ -45,7 +45,12 @@ class MediaItem {
 
   /// Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
   ///
-  /// `null` if unsupported by the device (Android: below API 29).
+  /// Empty if the file sits directly in the volume root, `null` if unknown.
+  final String? volumeName;
+
+  /// Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
+  ///
+  /// Empty if the file sits directly in the volume root, `null` if unknown.
   final String? relativePath;
 
   /// Whether the item is still being written.
@@ -72,6 +77,7 @@ class MediaItem {
     required this.sizeInBytes,
     required this.dateAddedInMillis,
     required this.dateModifiedInMillis,
+    required this.volumeName,
     required this.relativePath,
     required this.isPending,
     required this.isTrashed,
@@ -91,6 +97,7 @@ class MediaItem {
           sizeInBytes == other.sizeInBytes &&
           dateAddedInMillis == other.dateAddedInMillis &&
           dateModifiedInMillis == other.dateModifiedInMillis &&
+          volumeName == other.volumeName &&
           relativePath == other.relativePath &&
           isPending == other.isPending &&
           isTrashed == other.isTrashed &&
@@ -106,6 +113,7 @@ class MediaItem {
     sizeInBytes,
     dateAddedInMillis,
     dateModifiedInMillis,
+    volumeName,
     relativePath,
     isPending,
     isTrashed,
@@ -124,6 +132,7 @@ class MediaItem {
       ' sizeInBytes: $sizeInBytes,',
       ' dateAddedInMillis: $dateAddedInMillis,',
       ' dateModifiedInMillis: $dateModifiedInMillis,',
+      ' volumeName: $volumeName,',
       ' relativePath: $relativePath,',
       ' isPending: $isPending,',
       ' isTrashed: $isTrashed,',

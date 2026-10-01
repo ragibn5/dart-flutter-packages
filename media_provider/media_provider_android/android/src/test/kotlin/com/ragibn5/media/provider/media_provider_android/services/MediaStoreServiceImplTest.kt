@@ -7,6 +7,7 @@ import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeUriBuilder
+import com.ragibn5.media.provider.media_provider_android.fakeVolumeRoots
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -15,11 +16,9 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 import kotlin.collections.single
-import kotlin.sequences.single
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import kotlin.text.single
 
 /**
  * [MediaStoreServiceImpl] maps requested media types onto collection queries and
@@ -39,6 +38,7 @@ internal class MediaStoreServiceImplTest {
     private fun service(sdkInt: Int = Build.VERSION_CODES.R) = MediaStoreServiceImpl(
         contentResolver = contentResolver,
         collectionRegistry = registry,
+        volumeRoots = fakeVolumeRoots("/storage/emulated/0"),
         dispatcher = UnconfinedTestDispatcher(),
         sdkInt = sdkInt,
         // Injected so no test depends on real `ContentUris` behavior.
@@ -90,7 +90,7 @@ internal class MediaStoreServiceImplTest {
 
         service().getMedia(setOf(MediaType.PHOTO, MediaType.VIDEO))
 
-        assertEquals(listOf(photo.uri, video.uri), queriedUris())
+        assertEquals(listOf(photo.uriForVolume, video.uriForVolume), queriedUris())
     }
 
     @Test
@@ -99,7 +99,7 @@ internal class MediaStoreServiceImplTest {
 
         service().getMedia(setOf(MediaType.VIDEO))
 
-        assertEquals(listOf(video.uri), queriedUris())
+        assertEquals(listOf(video.uriForVolume), queriedUris())
     }
 
     @Test
@@ -178,6 +178,7 @@ internal class MediaStoreServiceImplTest {
         val partial = MediaStoreServiceImpl(
             contentResolver = contentResolver,
             collectionRegistry = MediaStoreCollectionRegistry(setOf(photo)),
+            volumeRoots = fakeVolumeRoots("/storage/emulated/0"),
             dispatcher = UnconfinedTestDispatcher(),
             sdkInt = Build.VERSION_CODES.R,
             uriBuilder = FakeUriBuilder(),

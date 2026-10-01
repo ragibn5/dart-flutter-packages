@@ -1,7 +1,9 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
 import android.content.ContentResolver
+import android.content.Context
 import android.os.Build
+import android.util.Log
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,6 +21,7 @@ internal interface MediaStoreService {
 
 internal class MediaStoreServiceImpl(
     private val contentResolver: ContentResolver,
+    private val fileLocationResolver: FileLocationResolver,
     private val collectionRegistry: MediaStoreCollectionRegistry,
     private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -46,7 +49,7 @@ internal class MediaStoreServiceImpl(
             null,
             null,
         )?.use { cursor ->
-            val reader = MediaColumnsReader(cursor, sdkInt, uriBuilder)
+            val reader = MediaColumnsReader(cursor, fileLocationResolver, uriBuilder, sdkInt)
             while (cursor.moveToNext()) {
                 media += reader.read(collection)
             }
@@ -69,9 +72,15 @@ internal object MediaStoreServiceFactory {
         )
     }
 
-    fun create(contentResolver: ContentResolver): MediaStoreService =
-        MediaStoreServiceImpl(
-            contentResolver,
-            MediaStoreCollectionRegistry(collections),
+    /**
+     * [context] is the only thing either the queries or the volume roots need,
+     * so an application context is all this asks for.
+     */
+    fun create(context: Context): MediaStoreService {
+        return MediaStoreServiceImpl(
+            contentResolver = context.contentResolver,
+            fileLocationResolver = FileLocationResolver(context),
+            collectionRegistry = MediaStoreCollectionRegistry(collections),
         )
+    }
 }

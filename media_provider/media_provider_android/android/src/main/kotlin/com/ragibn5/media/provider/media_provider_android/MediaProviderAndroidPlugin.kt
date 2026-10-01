@@ -17,7 +17,7 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
 
         attach(
             flutterPluginBinding.binaryMessenger,
-            MediaStoreServiceFactory.create(appContext.contentResolver),
+            MediaStoreServiceFactory.create(appContext),
         )
     }
 

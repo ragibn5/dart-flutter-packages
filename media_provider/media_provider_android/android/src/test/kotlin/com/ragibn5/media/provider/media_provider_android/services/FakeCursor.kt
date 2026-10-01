@@ -12,6 +12,7 @@ import org.mockito.Mockito
  * Real `MediaStore` column indices are chosen by the device, so tests assert on
  * *which* columns were read rather than on numeric indices.
  */
+@Suppress("DEPRECATION")
 internal val MEDIA_COLUMN_ORDER: List<String> = listOf(
     BaseColumns._ID,
     MediaColumns.DISPLAY_NAME,
@@ -19,6 +20,7 @@ internal val MEDIA_COLUMN_ORDER: List<String> = listOf(
     MediaColumns.SIZE,
     MediaColumns.DATE_ADDED,
     MediaColumns.DATE_MODIFIED,
+    MediaColumns.DATA,
     MediaColumns.RELATIVE_PATH,
     MediaColumns.IS_PENDING,
     MediaColumns.IS_TRASHED,
