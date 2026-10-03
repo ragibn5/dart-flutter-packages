@@ -10,5 +10,5 @@ import com.ragibn5.media.provider.media_provider_android.models.MediaType
  */
 internal class FakeCollection(
     override val type: MediaType,
-    override val uriForVolume: Uri = fakeUri("content://test/$type"),
+    override val uri: Uri = fakeUri("content://test/$type"),
 ) : MediaStoreCollection

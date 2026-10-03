@@ -68,8 +68,6 @@ internal class MediaColumnsReader(
         val id = cursor.getLong(idColumn)
         val uri = uriBuilder.build(collection.uri, id)
         val filePath = cursor.getStringOrNull(dataColumn)
-        val volNameNew = volumeNameColumn?.let { cursor.getStringOrNull(it) }
-        val relativePathNew = relativePathColumn?.let { cursor.getStringOrNull(it) }
         val mediaFileInfo = filePath?.let { fileLocationResolver.resolve(File(it)) }
         return MediaItem(
             type = collection.type,
@@ -81,9 +79,7 @@ internal class MediaColumnsReader(
             dateAddedInMillis = cursor.getLongOrNull(dateAddedColumn)?.times(1000),
             dateModifiedInMillis = cursor.getLongOrNull(dateModifiedColumn)?.times(1000),
             volumeName = mediaFileInfo?.volumeName,
-            volumeNameNew = volNameNew,
             relativePath = mediaFileInfo?.relativeParentPath,
-            relativePathNew = relativePathNew,
             isPending = isPendingColumn?.let(cursor::getBooleanOrNull),
             isTrashed = isTrashedColumn?.let(cursor::getBooleanOrNull),
             isFavorite = isFavoriteColumn?.let(cursor::getBooleanOrNull),

@@ -2,7 +2,6 @@ package com.ragibn5.media.provider.media_provider_android.services
 
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
-import android.util.Log
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.models.FileLocation
 import java.io.File
@@ -16,11 +15,9 @@ internal class FileLocationResolver(
         val volume = storageManager.getStorageVolume(file) ?: return null
         val volumePath = volumePathResolver.resolve(file)?.ensureTrailingSlash() ?: return null
         val fileParentPath = file.parentFile?.absolutePath?.ensureTrailingSlash() ?: return null
-        val relativeParentPath = fileParentPath.substring(volumePath.length)
-        Log.d("AAA", "$volume --- $volumePath --- $fileParentPath --- $relativeParentPath")
         return FileLocation(
             volumeName = volume.getStorageVolumeName(),
-            relativeParentPath = relativeParentPath,
+            relativeParentPath = fileParentPath.substring(volumePath.length),
             fileNameWithExtension = file.name
         )
     }

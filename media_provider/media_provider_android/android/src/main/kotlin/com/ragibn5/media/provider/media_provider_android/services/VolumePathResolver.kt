@@ -1,5 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.storage.StorageManager
@@ -11,9 +12,11 @@ import java.io.File
 internal class VolumePathResolver(
     private val appContext: Context,
     private val storageManager: StorageManager,
+    private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) {
     fun resolve(file: File): String? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        return if (sdkInt >= Build.VERSION_CODES.R) {
+            @SuppressLint("NewApi")
             getVolumePathViaNewApi(file)
         } else {
             getVolumePathFromLegacyApi(file)

@@ -21,6 +21,7 @@ internal val MEDIA_COLUMN_ORDER: List<String> = listOf(
     MediaColumns.DATE_ADDED,
     MediaColumns.DATE_MODIFIED,
     MediaColumns.DATA,
+    MediaColumns.VOLUME_NAME,
     MediaColumns.RELATIVE_PATH,
     MediaColumns.IS_PENDING,
     MediaColumns.IS_TRASHED,

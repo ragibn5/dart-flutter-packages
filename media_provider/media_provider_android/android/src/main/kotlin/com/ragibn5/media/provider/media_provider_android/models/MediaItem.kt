@@ -67,7 +67,6 @@ internal data class MediaItem(
      * Read from `VOLUME_NAME` on API 29 and above. `null` if unknown.
      */
     val volumeName: String?,
-    val volumeNameNew: String?,
 
     /**
      * Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
@@ -77,7 +76,6 @@ internal data class MediaItem(
      * volume root. `null` if unknown.
      */
     val relativePath: String?,
-    val relativePathNew: String?,
 
     /**
      * Whether the item is still being written.

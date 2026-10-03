@@ -13,6 +13,7 @@ import java.nio.ByteBuffer
  */
 internal class FakeBinaryMessenger : BinaryMessenger {
     /** Channel name to the handler registered on it. */
+    /** Channel name to the handler registered on it. */
     val handlers = mutableMapOf<String, BinaryMessenger.BinaryMessageHandler?>()
 
     override fun send(channel: String, message: ByteBuffer?) = Unit
