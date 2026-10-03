@@ -4,15 +4,27 @@ import android.database.Cursor
 import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
+import com.ragibn5.media.provider.media_provider_android.extensions.getBooleanOrNull
+import com.ragibn5.media.provider.media_provider_android.extensions.getLongOrNull
+import com.ragibn5.media.provider.media_provider_android.extensions.getStringOrNull
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
-import com.ragibn5.media.provider.media_provider_android.services.MediaColumnsReader.Companion.projection
+import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollection
 import java.io.File
 
-/**
- * Reads [MediaItem] values from a cursor over a MediaStore collection.
- *
- * The cursor must have been queried with (at least) [projection].
- */
+internal class MediaColumnsReaderFactory(
+    private val fileLocationResolver: FileLocationResolver,
+    private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
+    private val sdkInt: Int = Build.VERSION.SDK_INT,
+) {
+    fun create(cursor: Cursor): MediaColumnsReader =
+        MediaColumnsReader(
+            cursor = cursor,
+            fileLocationResolver = fileLocationResolver,
+            uriBuilder = uriBuilder,
+            sdkInt = sdkInt,
+        )
+}
+
 internal class MediaColumnsReader(
     private val cursor: Cursor,
     private val fileLocationResolver: FileLocationResolver,
@@ -52,9 +64,6 @@ internal class MediaColumnsReader(
         null
     }
 
-    /**
-     * Reads the current cursor row.
-     */
     fun read(collection: MediaStoreCollection): MediaItem {
         val id = cursor.getLong(idColumn)
         val uri = uriBuilder.build(collection.uri, id)
@@ -90,10 +99,13 @@ internal class MediaColumnsReader(
         return dataColumn.let(cursor::getStringOrNull)
     }
 
+    class ColumnIndexGetter(val columnName: String) {
+        fun getColumnIndex(cursor: Cursor): Int {
+            return cursor.getColumnIndexOrThrow(columnName)
+        }
+    }
+
     companion object {
-        /**
-         * Columns to request for [MediaColumnsReader] on a device at [sdkInt].
-         */
         @Suppress("DEPRECATION")
         fun projectionFor(sdkInt: Int): List<String> = buildList {
             add(BaseColumns._ID)
@@ -116,9 +128,7 @@ internal class MediaColumnsReader(
             }
         }
 
-        /**
-         * Columns to request for [MediaColumnsReader] on this device.
-         */
         val projection: List<String> = projectionFor(Build.VERSION.SDK_INT)
     }
+
 }

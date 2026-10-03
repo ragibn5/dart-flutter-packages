@@ -8,8 +8,7 @@ import java.io.File
 
 internal class VolumePathResolver(
     private val appContext: Context,
-    private val storageManager: StorageManager =
-        appContext.getSystemService(StorageManager::class.java),
+    private val storageManager: StorageManager,
 ) {
     fun resolve(file: File): String? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

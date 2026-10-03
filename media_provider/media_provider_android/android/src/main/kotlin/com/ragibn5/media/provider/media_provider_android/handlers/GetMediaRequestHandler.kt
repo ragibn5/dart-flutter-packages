@@ -12,12 +12,6 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 
-/**
- * Serves `getMedia`.
- *
- * Expects a `types` argument: a non-empty list of [MediaType] serial names,
- * e.g. `["photo", "video"]`.
- */
 internal class GetMediaRequestHandler(
     private val mediaStoreService: MediaStoreService,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -37,14 +31,19 @@ internal class GetMediaRequestHandler(
     private fun parseTypes(call: MethodCall): Set<MediaType> {
         val names = call.argument<Any?>(TYPES_ARGUMENT) as? List<*>
             ?: throw invalidArgument("'$TYPES_ARGUMENT' must be a list")
-        if (names.isEmpty()) throw invalidArgument("'$TYPES_ARGUMENT' must not be empty")
+        if (names.isEmpty()) {
+            throw invalidArgument("'$TYPES_ARGUMENT' must not be empty")
+        }
 
         return names.mapTo(mutableSetOf()) { name ->
-            if (name !is String) throw invalidArgument("Unknown media type: $name")
-            // Decoded through the serializer so @SerialName stays the single
-            // source of the wire names.
+            if (name !is String) {
+                throw invalidArgument("Unknown media type: $name")
+            }
             try {
-                Json.decodeFromJsonElement(MediaType.serializer(), JsonPrimitive(name))
+                Json.decodeFromJsonElement(
+                    MediaType.serializer(),
+                    JsonPrimitive(name)
+                )
             } catch (e: SerializationException) {
                 throw invalidArgument("Unknown media type: $name", e)
             }

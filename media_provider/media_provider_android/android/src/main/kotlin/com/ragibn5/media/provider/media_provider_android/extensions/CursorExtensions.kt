@@ -1,11 +1,11 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.extensions
 
 import android.database.Cursor
 
 /**
  * Reads the column at [index] as a [Long], or `null` if the value is NULL.
  *
- * [Cursor.getLong] returns `0` for NULL, which would hide "unknown".
+ * [getLong] returns `0` for NULL, which would hide "unknown".
  */
 internal fun Cursor.getLongOrNull(index: Int): Long? =
     if (isNull(index)) null
@@ -14,7 +14,7 @@ internal fun Cursor.getLongOrNull(index: Int): Long? =
 /**
  * Reads the column at [index] as an [Int], or `null` if the value is NULL.
  *
- * [Cursor.getInt] returns `0` for NULL, which would hide "unknown".
+ * [getInt] returns `0` for NULL, which would hide "unknown".
  */
 internal fun Cursor.getIntOrNull(index: Int): Int? =
     if (isNull(index)) null
@@ -23,7 +23,7 @@ internal fun Cursor.getIntOrNull(index: Int): Int? =
 /**
  * Reads the column at [index] as a [String], or `null` if the value is NULL.
  *
- * [Cursor.getString]'s behavior for NULL is implementation-defined.
+ * [getString]'s behavior for NULL is implementation-defined.
  */
 internal fun Cursor.getStringOrNull(index: Int): String? =
     if (isNull(index)) null

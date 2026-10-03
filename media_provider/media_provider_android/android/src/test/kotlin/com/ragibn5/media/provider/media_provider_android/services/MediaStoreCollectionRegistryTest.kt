@@ -1,5 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
+import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollectionRegistry
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -7,7 +8,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
 /**
- * [MediaStoreCollectionRegistry] is a one-lookup map from media type to
+ * [com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollectionRegistry] is a one-lookup map from media type to
  * collection, so these tests cover only its lookup and its duplicate guard.
  */
 internal class MediaStoreCollectionRegistryTest {

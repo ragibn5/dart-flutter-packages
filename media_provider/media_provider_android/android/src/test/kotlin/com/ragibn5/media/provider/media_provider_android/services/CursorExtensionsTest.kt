@@ -1,6 +1,10 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
 import android.database.Cursor
+import com.ragibn5.media.provider.media_provider_android.extensions.getBooleanOrNull
+import com.ragibn5.media.provider.media_provider_android.extensions.getIntOrNull
+import com.ragibn5.media.provider.media_provider_android.extensions.getLongOrNull
+import com.ragibn5.media.provider.media_provider_android.extensions.getStringOrNull
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import kotlin.test.assertEquals

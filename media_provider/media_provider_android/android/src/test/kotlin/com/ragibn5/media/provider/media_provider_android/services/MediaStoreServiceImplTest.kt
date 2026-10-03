@@ -8,6 +8,7 @@ import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeUriBuilder
 import com.ragibn5.media.provider.media_provider_android.fakeVolumeRoots
+import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollectionRegistry
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

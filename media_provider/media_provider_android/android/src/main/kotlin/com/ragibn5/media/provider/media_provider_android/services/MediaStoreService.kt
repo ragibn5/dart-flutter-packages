@@ -3,9 +3,13 @@ package com.ragibn5.media.provider.media_provider_android.services
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Build
-import android.util.Log
+import android.os.storage.StorageManager
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
+import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollection
+import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollectionRegistry
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.models.PhotoMediaStoreCollection
+import com.ragibn5.media.provider.media_provider_android.models.VideoMediaStoreCollection
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -60,11 +64,6 @@ internal class MediaStoreServiceImpl(
 }
 
 internal object MediaStoreServiceFactory {
-    /**
-     * The collections exist on a device, so they are looked up lazily: reading
-     * `MediaStore.*.EXTERNAL_CONTENT_URI` eagerly would fail anywhere the
-     * framework is not present, such as a JVM unit test.
-     */
     private val collections: Set<MediaStoreCollection> by lazy {
         setOf(
             PhotoMediaStoreCollection,
@@ -72,14 +71,14 @@ internal object MediaStoreServiceFactory {
         )
     }
 
-    /**
-     * [context] is the only thing either the queries or the volume roots need,
-     * so an application context is all this asks for.
-     */
     fun create(context: Context): MediaStoreService {
+        val storageManager = context.getSystemService(StorageManager::class.java)
         return MediaStoreServiceImpl(
             contentResolver = context.contentResolver,
-            fileLocationResolver = FileLocationResolver(context),
+            fileLocationResolver = FileLocationResolver(
+                storageManager,
+                VolumePathResolver(context, storageManager)
+            ),
             collectionRegistry = MediaStoreCollectionRegistry(collections),
         )
     }
