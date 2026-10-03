@@ -67,9 +67,10 @@ internal class MediaColumnsReader(
     fun read(collection: MediaStoreCollection): MediaItem {
         val id = cursor.getLong(idColumn)
         val uri = uriBuilder.build(collection.uri, id)
+        val filePath = cursor.getStringOrNull(dataColumn)
         val volNameNew = volumeNameColumn?.let { cursor.getStringOrNull(it) }
         val relativePathNew = relativePathColumn?.let { cursor.getStringOrNull(it) }
-        val mediaFileInfo = readDataFilePath()?.let { fileLocationResolver.resolve(File(it)) }
+        val mediaFileInfo = filePath?.let { fileLocationResolver.resolve(File(it)) }
         return MediaItem(
             type = collection.type,
             id = id.toString(),
@@ -94,16 +95,6 @@ internal class MediaColumnsReader(
 
     private val hasApi30Columns: Boolean
         get() = sdkInt >= Build.VERSION_CODES.R
-
-    private fun readDataFilePath(): String? {
-        return dataColumn.let(cursor::getStringOrNull)
-    }
-
-    class ColumnIndexGetter(val columnName: String) {
-        fun getColumnIndex(cursor: Cursor): Int {
-            return cursor.getColumnIndexOrThrow(columnName)
-        }
-    }
 
     companion object {
         @Suppress("DEPRECATION")

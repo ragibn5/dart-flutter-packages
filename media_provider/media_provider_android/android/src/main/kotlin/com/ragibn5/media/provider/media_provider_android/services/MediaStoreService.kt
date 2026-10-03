@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.os.Build
 import android.os.storage.StorageManager
+import android.util.Log
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollection
 import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollectionRegistry
@@ -58,6 +59,8 @@ internal class MediaStoreServiceImpl(
                 media += reader.read(collection)
             }
         }
+
+        Log.d("AAA", media.map { it.toString() }.toString())
 
         return media
     }
