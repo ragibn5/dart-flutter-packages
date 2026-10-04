@@ -261,4 +261,57 @@ internal class MediaColumnsReaderTest {
             )
         }
     }
+
+    /**
+     * [MediaColumnsReaderFactory] holds the dependencies a
+     * [MediaStoreServiceImpl](com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceImpl)
+     * cannot pass on per query, so these tests assert it forwards each of them to
+     * the reader it creates rather than falling back to a device default.
+     */
+    @Test
+    fun `factory builds a reader with its own uri builder`() {
+        val item = MediaColumnsReaderFactory(
+            fileLocationResolver = fakeFileLocationResolver(),
+            uriBuilder = uriBuilder,
+            sdkInt = Build.VERSION_CODES.R,
+        ).create(FakeCursor.over(mapOf(BaseColumns._ID to 42L)).cursor)
+            .read(collection)
+
+        assertEquals("${collection.uri}/42", item.uri)
+        assertEquals(listOf("${collection.uri}/42"), uriBuilder.requestedUris)
+    }
+
+    @Test
+    fun `factory builds a reader at its own API level`() {
+        val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
+
+        MediaColumnsReaderFactory(
+            fileLocationResolver = fakeFileLocationResolver(),
+            uriBuilder = uriBuilder,
+            // Below API 29, so the API 29 columns must go unread.
+            sdkInt = Build.VERSION_CODES.P,
+        ).create(cursor.cursor).read(collection)
+
+        assertTrue(MediaColumns.RELATIVE_PATH !in cursor.lookedUpColumns)
+    }
+
+    @Test
+    fun `factory builds a reader with its own file location resolver`() {
+        val item = MediaColumnsReaderFactory(
+            fileLocationResolver = fakeFileLocationResolver(volumePath = null),
+            uriBuilder = uriBuilder,
+            sdkInt = Build.VERSION_CODES.P,
+        ).create(FakeCursor.over(data("DCIM", "cat.png")).cursor)
+            .read(collection)
+
+        assertNull(item.relativePath)
+    }
+
+    @Test
+    fun `the default projection matches the API level the reader reads`() {
+        assertEquals(
+            MediaColumnsReader.projectionFor(Build.VERSION.SDK_INT),
+            MediaColumnsReader.projection,
+        )
+    }
 }

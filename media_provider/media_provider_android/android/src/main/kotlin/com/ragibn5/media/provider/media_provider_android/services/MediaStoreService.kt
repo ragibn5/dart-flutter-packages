@@ -25,9 +25,8 @@ internal interface MediaStoreService {
 
 internal class MediaStoreServiceImpl(
     private val contentResolver: ContentResolver,
-    private val fileLocationResolver: FileLocationResolver,
     private val collectionRegistry: MediaStoreCollectionRegistry,
-    private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
+    private val mediaColumnsReaderFactory: MediaColumnsReaderFactory,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) : MediaStoreService {
@@ -53,7 +52,7 @@ internal class MediaStoreServiceImpl(
             null,
             null,
         )?.use { cursor ->
-            val reader = MediaColumnsReader(cursor, fileLocationResolver, uriBuilder, sdkInt)
+            val reader = mediaColumnsReaderFactory.create(cursor)
             while (cursor.moveToNext()) {
                 media += reader.read(collection)
             }
@@ -64,22 +63,32 @@ internal class MediaStoreServiceImpl(
 }
 
 internal object MediaStoreServiceFactory {
-    private val collections: Set<MediaStoreCollection> by lazy {
-        setOf(
+    /**
+     * Builds the object graph the plugin serves.
+     *
+     * @param collections the collections to serve. Injectable because reading
+     *   `MediaStore`'s own URIs only works on a device, so tests pass their own.
+     */
+    fun create(
+        context: Context,
+        collections: Set<MediaStoreCollection> = setOf(
             PhotoMediaStoreCollection,
             VideoMediaStoreCollection,
-        )
-    }
-
-    fun create(context: Context): MediaStoreService {
+        ),
+    ): MediaStoreService {
+        val sdkInt: Int = Build.VERSION.SDK_INT
+        val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT
         val storageManager = context.getSystemService(StorageManager::class.java)
+        val volumePathResolver = VolumePathResolver(context, storageManager, sdkInt)
+        val fileLocationResolver = FileLocationResolver(storageManager, volumePathResolver)
         return MediaStoreServiceImpl(
             contentResolver = context.contentResolver,
-            fileLocationResolver = FileLocationResolver(
-                storageManager,
-                VolumePathResolver(context, storageManager)
-            ),
             collectionRegistry = MediaStoreCollectionRegistry(collections),
+            mediaColumnsReaderFactory = MediaColumnsReaderFactory(
+                fileLocationResolver,
+                uriBuilder,
+                sdkInt
+            ),
         )
     }
 }

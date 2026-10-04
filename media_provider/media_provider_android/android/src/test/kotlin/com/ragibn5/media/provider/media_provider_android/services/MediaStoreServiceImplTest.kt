@@ -1,9 +1,11 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
 import android.content.ContentResolver
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
+import android.os.storage.StorageManager
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeUriBuilder
@@ -18,6 +20,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 /**
@@ -38,11 +41,15 @@ internal class MediaStoreServiceImplTest {
     private fun service(sdkInt: Int = Build.VERSION_CODES.R) = MediaStoreServiceImpl(
         contentResolver = contentResolver,
         collectionRegistry = registry,
-        fileLocationResolver = fakeFileLocationResolver(),
+        // The `uriBuilder` is injected so no test depends on real `ContentUris`
+        // behavior, and the reader is pinned to the same API level as the query.
+        mediaColumnsReaderFactory = MediaColumnsReaderFactory(
+            fileLocationResolver = fakeFileLocationResolver(),
+            uriBuilder = FakeUriBuilder(),
+            sdkInt = sdkInt,
+        ),
         dispatcher = UnconfinedTestDispatcher(),
         sdkInt = sdkInt,
-        // Injected so no test depends on real `ContentUris` behavior.
-        uriBuilder = FakeUriBuilder(),
     )
 
     private fun returns(vararg cursors: Cursor?) {
@@ -178,13 +185,82 @@ internal class MediaStoreServiceImplTest {
         val partial = MediaStoreServiceImpl(
             contentResolver = contentResolver,
             collectionRegistry = MediaStoreCollectionRegistry(setOf(photo)),
-            fileLocationResolver = fakeFileLocationResolver(),
+            mediaColumnsReaderFactory = MediaColumnsReaderFactory(
+                fileLocationResolver = fakeFileLocationResolver(),
+                uriBuilder = FakeUriBuilder(),
+                sdkInt = Build.VERSION_CODES.R,
+            ),
             dispatcher = UnconfinedTestDispatcher(),
             sdkInt = Build.VERSION_CODES.R,
-            uriBuilder = FakeUriBuilder(),
         )
 
         assertFailsWith<NoSuchElementException> { partial.getMedia(setOf(MediaType.VIDEO)) }
         noQuery()
+    }
+
+    /**
+     * [MediaStoreServiceFactory] is the one place the plugin's object graph is
+     * assembled, so these tests assert the wiring is usable: the context's
+     * `ContentResolver` is the one queried, its `StorageManager` is the one the
+     * volume resolvers get, and whichever collections are passed are the ones
+     * served.
+     *
+     * The collections are injected because `MediaStore`'s own URIs only resolve
+     * on a device, and the cursors hold no rows so no item URI is ever built and
+     * `MediaUriBuilder.DEFAULT` is never reached.
+     */
+    private fun contextOver(storageManager: StorageManager): Context {
+        val context = Mockito.mock(Context::class.java)
+        Mockito.`when`(context.getSystemService(StorageManager::class.java))
+            .thenReturn(storageManager)
+        Mockito.`when`(context.contentResolver).thenReturn(contentResolver)
+        return context
+    }
+
+    @Test
+    fun `factory serves the context over a queryable service`() = runTest {
+        returns(FakeCursor.over(emptyMap()).cursor)
+        val context = contextOver(Mockito.mock(StorageManager::class.java))
+
+        val service = MediaStoreServiceFactory.create(context, setOf(photo))
+
+        assertIs<MediaStoreServiceImpl>(service)
+        assertEquals(emptyList(), service.getMedia(setOf(MediaType.PHOTO)))
+        // The service queries the context's resolver, not one of its own.
+        assertEquals(listOf(photo.uri), queriedUris())
+    }
+
+    @Test
+    fun `factory serves each collection it is given`() = runTest {
+        returns(
+            FakeCursor.over(emptyMap()).cursor,
+            FakeCursor.over(emptyMap()).cursor,
+        )
+
+        val service = MediaStoreServiceFactory.create(
+            contextOver(Mockito.mock(StorageManager::class.java)),
+            setOf(photo, video),
+        )
+
+        assertEquals(emptyList(), service.getMedia(setOf(MediaType.PHOTO, MediaType.VIDEO)))
+        assertEquals(listOf(photo.uri, video.uri), queriedUris())
+    }
+
+    @Test
+    fun `factory omits a type it was not given a collection for`() = runTest {
+        val context = contextOver(Mockito.mock(StorageManager::class.java))
+        val service = MediaStoreServiceFactory.create(context, setOf(photo))
+
+        assertFailsWith<NoSuchElementException> { service.getMedia(setOf(MediaType.VIDEO)) }
+        noQuery()
+    }
+
+    @Test
+    fun `factory asks the context for a storage manager`() {
+        val context = contextOver(Mockito.mock(StorageManager::class.java))
+
+        MediaStoreServiceFactory.create(context, setOf(photo))
+
+        Mockito.verify(context).getSystemService(StorageManager::class.java)
     }
 }

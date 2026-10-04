@@ -11,20 +11,6 @@ import com.ragibn5.media.provider.media_provider_android.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollection
 import java.io.File
 
-internal class MediaColumnsReaderFactory(
-    private val fileLocationResolver: FileLocationResolver,
-    private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
-    private val sdkInt: Int = Build.VERSION.SDK_INT,
-) {
-    fun create(cursor: Cursor): MediaColumnsReader =
-        MediaColumnsReader(
-            cursor = cursor,
-            fileLocationResolver = fileLocationResolver,
-            uriBuilder = uriBuilder,
-            sdkInt = sdkInt,
-        )
-}
-
 internal class MediaColumnsReader(
     private val cursor: Cursor,
     private val fileLocationResolver: FileLocationResolver,
@@ -117,5 +103,18 @@ internal class MediaColumnsReader(
 
         val projection: List<String> = projectionFor(Build.VERSION.SDK_INT)
     }
+}
 
+internal class MediaColumnsReaderFactory(
+    private val fileLocationResolver: FileLocationResolver,
+    private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
+    private val sdkInt: Int = Build.VERSION.SDK_INT,
+) {
+    fun create(cursor: Cursor): MediaColumnsReader =
+        MediaColumnsReader(
+            cursor = cursor,
+            fileLocationResolver = fileLocationResolver,
+            uriBuilder = uriBuilder,
+            sdkInt = sdkInt,
+        )
 }
