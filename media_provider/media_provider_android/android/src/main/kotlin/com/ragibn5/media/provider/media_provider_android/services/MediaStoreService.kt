@@ -63,12 +63,6 @@ internal class MediaStoreServiceImpl(
 }
 
 internal object MediaStoreServiceFactory {
-    /**
-     * Builds the object graph the plugin serves.
-     *
-     * @param collections the collections to serve. Injectable because reading
-     *   `MediaStore`'s own URIs only works on a device, so tests pass their own.
-     */
     fun create(
         context: Context,
         collections: Set<MediaStoreCollection> = setOf(
