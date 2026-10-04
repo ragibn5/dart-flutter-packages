@@ -19,6 +19,8 @@ class MediaItem {
 
   /// File name, including extension.
   ///
+  /// Android: read from `DISPLAY_NAME`.
+  ///
   /// `null` if unknown.
   final String? name;
 
@@ -35,17 +37,23 @@ class MediaItem {
   /// When the item was added to the device's media library, in milliseconds
   /// since epoch.
   ///
+  /// Android: converted from `DATE_ADDED`, which is in seconds.
+  ///
   /// `null` if unknown.
   final int? dateAddedInMillis;
 
   /// When the file was last modified, in milliseconds since epoch.
   ///
+  /// Android: converted from `DATE_MODIFIED`, which is in seconds.
+  ///
   /// `null` if unknown.
   final int? dateModifiedInMillis;
 
-  /// Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
+  /// Name of the storage volume the file was in.
   ///
-  /// Empty if the file sits directly in the volume root, `null` if unknown.
+  /// - for primary shared storage, it is `external_primary`.
+  /// - for secondary shared storage, it is the lowercased volume UUID.
+  /// - if the volume cannot be resolved, it is `null`.
   final String? volumeName;
 
   /// Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
