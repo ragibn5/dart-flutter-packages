@@ -110,6 +110,15 @@ void main() {
       );
     });
 
+    test('decodes a null uri, for platforms that have none', () {
+      final item = decodeMediaItem(<String, dynamic>{
+        ..._photoJson,
+        'uri': null,
+      });
+
+      expect(item.uri, isNull);
+    });
+
     test('throws a FormatException on an unknown type', () {
       expect(
         () => decodeMediaItem(<String, dynamic>{

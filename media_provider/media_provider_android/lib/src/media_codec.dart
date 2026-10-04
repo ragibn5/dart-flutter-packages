@@ -25,7 +25,7 @@ MediaItem decodeMediaItem(Map<String, dynamic> json) {
   return MediaItem(
     type: decodeMediaType(json['type'] as String),
     id: json['id'] as String,
-    uri: json['uri'] as String,
+    uri: json['uri'] as String?,
     name: json['name'] as String?,
     mimeType: json['mimeType'] as String?,
     sizeInBytes: json['sizeInBytes'] as int?,
