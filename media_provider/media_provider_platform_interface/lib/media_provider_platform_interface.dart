@@ -12,7 +12,7 @@ abstract class MediaProviderPlatform {
 
   /// Gets all media of [types] on the device.
   ///
-  /// [types] must not be empty.
+  /// NOTE: [types] must not be empty.
   Future<List<MediaItem>> getMedia(Set<MediaType> types);
 }
 

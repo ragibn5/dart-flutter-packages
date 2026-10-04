@@ -15,7 +15,9 @@ class MediaItem {
   /// Platform URI for opening the item.
   ///
   /// Android: a `content://` URI.
-  final String uri;
+  ///
+  /// `null` on platforms with no URI that a caller can resolve, such as iOS.
+  final String? uri;
 
   /// File name, including extension.
   ///
