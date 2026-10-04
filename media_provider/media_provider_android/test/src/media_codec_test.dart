@@ -13,6 +13,7 @@ const _photoJson = <String, dynamic>{
   'sizeInBytes': 2048,
   'dateAddedInMillis': 1700000000000,
   'dateModifiedInMillis': 1700000001000,
+  'volumeName': 'external_primary',
   'relativePath': 'DCIM/Camera/',
   'isPending': false,
   'isTrashed': false,
@@ -38,11 +39,13 @@ void main() {
       expect(
         () => decodeMediaType('audio'),
         throwsA(
-          isA<FormatException>().having(
-            (error) => error.message,
-            'message',
-            'Unknown media type',
-          ),
+          isA<FormatException>()
+              .having(
+                (error) => error.message,
+                'message',
+                'Unknown media type',
+              )
+              .having((error) => error.source, 'source', 'audio'),
         ),
       );
     });
@@ -61,6 +64,7 @@ void main() {
           sizeInBytes: 2048,
           dateAddedInMillis: 1700000000000,
           dateModifiedInMillis: 1700000001000,
+          volumeName: 'external_primary',
           relativePath: 'DCIM/Camera/',
           isPending: false,
           isTrashed: false,
@@ -79,6 +83,7 @@ void main() {
         'sizeInBytes': null,
         'dateAddedInMillis': null,
         'dateModifiedInMillis': null,
+        'volumeName': null,
         'relativePath': null,
         'isPending': null,
         'isTrashed': null,
@@ -96,6 +101,7 @@ void main() {
           sizeInBytes: null,
           dateAddedInMillis: null,
           dateModifiedInMillis: null,
+          volumeName: null,
           relativePath: null,
           isPending: null,
           isTrashed: null,

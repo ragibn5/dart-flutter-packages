@@ -17,6 +17,7 @@ const _photoJsonObject = '''
     "sizeInBytes": 2048,
     "dateAddedInMillis": 1700000000000,
     "dateModifiedInMillis": 1700000001000,
+    "volumeName": "external_primary",
     "relativePath": "DCIM/Camera/",
     "isPending": false,
     "isTrashed": false,
@@ -33,6 +34,7 @@ const _videoJsonObject = '''
     "sizeInBytes": 4096,
     "dateAddedInMillis": 1700000002000,
     "dateModifiedInMillis": 1700000003000,
+    "volumeName": null,
     "relativePath": "DCIM/Camera/",
     "isPending": true,
     "isTrashed": false,
@@ -51,6 +53,7 @@ const _photoItem = MediaItem(
   sizeInBytes: 2048,
   dateAddedInMillis: 1700000000000,
   dateModifiedInMillis: 1700000001000,
+  volumeName: 'external_primary',
   relativePath: 'DCIM/Camera/',
   isPending: false,
   isTrashed: false,
@@ -66,6 +69,7 @@ const _videoItem = MediaItem(
   sizeInBytes: 4096,
   dateAddedInMillis: 1700000002000,
   dateModifiedInMillis: 1700000003000,
+  volumeName: null,
   relativePath: 'DCIM/Camera/',
   isPending: true,
   isTrashed: false,
@@ -134,6 +138,17 @@ void main() {
       expect(result, [_photoItem, _videoItem]);
     });
 
+    test('decodes the volume name, null or an uuid for a secondary volume', () async {
+      const json = '[{"type":"photo","id":"1","uri":"content://x/1","volumeName":'
+          '"external_primary"},{"type":"photo","id":"2","uri":"content://x/2",'
+          '"volumeName":null}]';
+      mockGetMedia(json);
+
+      final result = await sut.getMedia({MediaType.photo});
+
+      expect(result.map((item) => item.volumeName), ['external_primary', null]);
+    });
+
     test('returns an empty list when the library is empty', () async {
       mockGetMedia('[]');
 
@@ -149,12 +164,13 @@ void main() {
       expect(log, isEmpty);
     });
 
-    test('propagates a PlatformException from the platform', () async {
+    test('propagates the code, message and details of a PlatformException', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {
             throw PlatformException(
-              code: 'permission_denied',
-              message: 'READ_MEDIA_IMAGES permission not granted',
+              code: 'invalid_argument',
+              message: "'types' must not be empty",
+              details: {'argument': 'types'},
             );
           });
 
@@ -162,11 +178,12 @@ void main() {
         sut.getMedia({MediaType.photo}),
         throwsA(
           isA<PlatformException>()
-              .having((e) => e.code, 'code', 'permission_denied')
+              .having((e) => e.code, 'code', 'invalid_argument')
+              .having((e) => e.message, 'message', "'types' must not be empty")
               .having(
-                (e) => e.message,
-                'message',
-                'READ_MEDIA_IMAGES permission not granted',
+                (e) => e.details,
+                'details',
+                <String, dynamic>{'argument': 'types'},
               ),
         ),
       );

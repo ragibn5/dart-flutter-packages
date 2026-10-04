@@ -2,6 +2,7 @@ package com.ragibn5.media.provider.media_provider_android.services
 
 import android.os.Build
 import android.provider.BaseColumns
+import android.provider.MediaStore
 import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeUriBuilder
 import com.ragibn5.media.provider.media_provider_android.fakeFileLocationResolver
@@ -122,8 +123,8 @@ internal class MediaColumnsReaderTest {
         val item = readerOver(data("DCIM", "Camera", "cat.png"), Build.VERSION_CODES.P)
             .read(collection)
 
-        // A primary volume reports no name, and the path is relative to its root.
-        assertNull(item.volumeName)
+        // The primary volume is named, and the path is relative to its root.
+        assertEquals(MediaStore.VOLUME_EXTERNAL_PRIMARY, item.volumeName)
         assertEquals("DCIM/Camera/", item.relativePath)
     }
 

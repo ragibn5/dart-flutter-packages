@@ -3,6 +3,7 @@ package com.ragibn5.media.provider.media_provider_android.services
 import android.content.Context
 import android.os.Build
 import android.os.storage.StorageManager
+import android.provider.MediaStore
 import android.os.storage.StorageVolume
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureNoTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
@@ -195,11 +196,22 @@ internal class FileLocationResolverTest {
 
         assertEquals(
             FileLocation(
-                volumeName = null,
+                volumeName = MediaStore.VOLUME_EXTERNAL_PRIMARY,
                 relativeParentPath = "DCIM/Camera/",
                 fileNameWithExtension = "cat.png",
             ),
             resolve("/storage/emulated/0/DCIM/Camera/cat.png"),
+        )
+    }
+
+    @Test
+    fun `names the primary volume rather than leaving it null`() {
+        resolverOn("/storage/emulated/0", isPrimary = true, uuid = null)
+
+        // `null` is reserved for "no volume", so the primary volume is named.
+        assertEquals(
+            MediaStore.VOLUME_EXTERNAL_PRIMARY,
+            resolve("/storage/emulated/0/DCIM/cat.png")?.volumeName,
         )
     }
 

@@ -1,7 +1,9 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
+import android.annotation.SuppressLint
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
+import android.provider.MediaStore
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.models.FileLocation
 import java.io.File
@@ -22,7 +24,16 @@ internal class FileLocationResolver(
         )
     }
 
+    /**
+     * The `VOLUME_NAME` the platform would report for this volume.
+     *
+     * [MediaStore.VOLUME_EXTERNAL_PRIMARY] for the primary volume, so a caller
+     * cannot tell "primary" from "unknown" the way it could when the primary
+     * volume reported `null`. It reads as the same `"external_primary"` the
+     * `VOLUME_NAME` column returns, so both spellings agree.
+     */
+    @SuppressLint("InlinedApi")
     private fun StorageVolume.getStorageVolumeName(): String? {
-        return if (isPrimary) null else uuid?.lowercase(Locale.US)
+        return if (isPrimary) MediaStore.VOLUME_EXTERNAL_PRIMARY else uuid?.lowercase(Locale.US)
     }
 }

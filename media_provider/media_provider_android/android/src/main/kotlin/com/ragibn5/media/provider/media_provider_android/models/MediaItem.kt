@@ -64,16 +64,16 @@ internal data class MediaItem(
     /**
      * Name of the storage volume the file was in.
      *
-     * Read from `VOLUME_NAME` on API 29 and above. `null` if unknown.
+     * - for primary shared storge, it is `external_primary`.
+     * - for secondary shared storage, it is the lowercased volume UUID.
+     * - if the volume cannot be resolved, it is `null`.
      */
     val volumeName: String?,
 
     /**
      * Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
      *
-     * Read from `RELATIVE_PATH` on API 29 and above, and derived from the
-     * deprecated `DATA` column below it. Empty if the file sits directly in the
-     * volume root. `null` if unknown.
+     * Empty if the file sits directly in the volume root, `null` if unknown.
      */
     val relativePath: String?,
 
