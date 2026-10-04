@@ -4,97 +4,110 @@ import android.annotation.SuppressLint
 import kotlinx.serialization.Serializable
 
 /**
- * A media item managed by `MediaStore`.
+ * A single media file tracked by the Android `MediaStore`, together with the metadata the
+ * platform exposes for it.
  *
- * Contains metadata shared across supported media collections.
+ * Every field maps directly to a `MediaStore` column. Values are read once when the item is
+ * queried and are not kept in sync with later changes made to the underlying file.
+ *
+ * Unless documented otherwise, every field is nullable: a property is `null` when the value is
+ * absent, when the corresponding column was not requested, or when the device does not report it
+ * (for example on an API level older than the one that introduced the column).
+ *
+ * @see MediaType
  */
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
 internal data class MediaItem(
     /**
-     * Which collection the item comes from.
+     * The `MediaStore` collection this item belongs to.
      */
     val type: MediaType,
 
     /**
-     * `MediaStore` row ID.
+     * The `MediaStore` row ID, as a string.
+     *
+     * Combined with [type] and [volumeName], this identifies the underlying file across mounts.
      */
     val id: String,
 
     /**
-     * `content://` URI for opening the item through `ContentResolver`.
+     * The `content://` URI used to open the item through `ContentResolver`.
      */
     val uri: String,
 
     /**
-     * File name, including extension.
+     * The display name of the file, including its extension.
      *
-     * Read from `DISPLAY_NAME`. `null` if unknown.
+     * Sourced from `MediaStore.MediaColumns.DISPLAY_NAME`.
      */
     val name: String?,
 
     /**
-     * MIME type, e.g. `image/jpeg`.
+     * The MIME type of the file, for example `image/jpeg`.
      *
-     * `null` if unknown.
+     * Sourced from `MediaStore.MediaColumns.MIME_TYPE`.
      */
     val mimeType: String?,
 
     /**
-     * File size in bytes.
+     * The size of the file, in bytes.
      *
-     * `null` if unknown.
+     * Sourced from `MediaStore.MediaColumns.SIZE`.
      */
     val sizeInBytes: Long?,
 
     /**
-     * When the item was added to the device's media library, in milliseconds since epoch.
+     * The time the item was added to the media library, in milliseconds since the Unix epoch.
      *
-     * Converted from `DATE_ADDED`, which is in seconds. `null` if unknown.
+     * Converted from `MediaStore.MediaColumns.DATE_ADDED`, which is expressed in seconds.
      */
     val dateAddedInMillis: Long?,
 
     /**
-     * When the file was last modified, in milliseconds since epoch.
+     * The time the file was last modified, in milliseconds since the Unix epoch.
      *
-     * Converted from `DATE_MODIFIED`, which is in seconds. `null` if unknown.
+     * Converted from `MediaStore.MediaColumns.DATE_MODIFIED`, which is expressed in seconds.
      */
     val dateModifiedInMillis: Long?,
 
     /**
-     * Name of the storage volume the file was in.
+     * The name of the storage volume holding the file.
      *
-     * - for primary shared storge, it is `external_primary`.
-     * - for secondary shared storage, it is the lowercased volume UUID.
-     * - if the volume cannot be resolved, it is `null`.
+     * - `external_primary` for the primary shared storage volume.
+     * - The lowercased volume UUID for secondary shared storage volumes.
+     * - `null` if the volume cannot be resolved.
      */
     val volumeName: String?,
 
     /**
-     * Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
+     * The path of the directory containing the file, relative to the root of its storage volume,
+     * for example `DCIM/Camera/`.
      *
-     * Empty if the file sits directly in the volume root, `null` if unknown.
+     * Sourced from `MediaStore.MediaColumns.RELATIVE_PATH`. Empty when the file sits directly in
+     * the volume root, `null` when the value is unknown.
      */
     val relativePath: String?,
 
     /**
-     * Whether the item is still being written.
+     * Whether the item is currently being written and is not yet ready to be opened.
      *
-     * `null` if unsupported by the device (below API 29).
+     * Sourced from `MediaStore.MediaColumns.IS_PENDING`. `null` below API level 29 (Q).
      */
     val isPending: Boolean?,
 
     /**
-     * Whether the item is in the trash.
+     * Whether the item has been moved to the trash and is therefore no longer visible in the
+     * collection it was queried from.
      *
-     * `null` if unsupported by the device (below API 30).
+     * Sourced from `MediaStore.MediaColumns.IS_TRASHED`. `null` below API level 30 (R).
      */
     val isTrashed: Boolean?,
 
     /**
-     * Whether the item is marked as favorite.
+     * Whether the item is marked as a favorite.
      *
-     * `null` if unsupported by the device (below API 30).
+     * Sourced from `MediaStore.MediaColumns.IS_FAVORITE`. `null` below API level 30 (R).
      */
     val isFavorite: Boolean?,
 )
