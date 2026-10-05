@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:media_provider_platform_interface/src/media_type.dart';
 import 'package:meta/meta.dart';
 
@@ -7,80 +9,93 @@ class MediaItem {
   /// What kind of media the item is.
   final MediaType type;
 
-  /// Platform identifier of the item.
+  /// Unique identifier of the item.
   ///
-  /// Android: the `MediaStore` row ID.
+  /// Platform values:
+  /// - Android: the `MediaStore` row ID (`_ID`), as a string.
   final String id;
 
-  /// Platform URI for opening the item.
+  /// Name of the host platform, obtained from [Platform.operatingSystem].
+  final String osName;
+
+  /// URI for opening the item.
   ///
-  /// Android: a `content://` URI.
-  ///
-  /// `null` on platforms with no URI that a caller can resolve, such as iOS.
+  /// Platform values:
+  /// - Android: a `content://` URI, openable through `ContentResolver`.
   final String? uri;
 
   /// File name, including extension.
   ///
-  /// Android: read from `DISPLAY_NAME`.
-  ///
-  /// `null` if unknown.
+  /// Platform values:
+  /// - Android: read from `DISPLAY_NAME`. `null` if unknown.
   final String? name;
 
-  /// MIME type, e.g. `image/jpeg`.
+  /// MIME type.
   ///
-  /// `null` if unknown.
+  /// Platform values:
+  /// - Android: read from `MIME_TYPE`, e.g. `image/jpeg`. `null` if unknown.
   final String? mimeType;
 
   /// File size in bytes.
   ///
-  /// `null` if unknown.
+  /// Platform values:
+  /// - Android: read from `SIZE`. `null` if unknown.
   final int? sizeInBytes;
 
-  /// When the item was added to the device's media library, in milliseconds
-  /// since epoch.
+  /// When the item was added to the device's media library,
+  /// in milliseconds since epoch.
   ///
-  /// Android: converted from `DATE_ADDED`, which is in seconds.
-  ///
-  /// `null` if unknown.
+  /// Platform values:
+  /// - Android: converted from `DATE_ADDED`, which is in seconds. `null`
+  ///   if unknown.
   final int? dateAddedInMillis;
 
   /// When the file was last modified, in milliseconds since epoch.
   ///
-  /// Android: converted from `DATE_MODIFIED`, which is in seconds.
-  ///
-  /// `null` if unknown.
+  /// Platform values:
+  /// - Android: converted from `DATE_MODIFIED`, which is in seconds.
+  ///   `null` if unknown.
   final int? dateModifiedInMillis;
 
   /// Name of the storage volume the file was in.
   ///
-  /// - for primary shared storage, it is `external_primary`.
-  /// - for secondary shared storage, it is the lowercased volume UUID.
-  /// - if the volume cannot be resolved, it is `null`.
+  /// Platform values:
+  /// - Android: derived from the file path, on all API levels.
+  ///   - `external_primary` for primary shared storage.
+  ///   - The lowercased volume UUID for secondary shared storage.
+  ///   - `null` if the volume cannot be resolved.
   final String? volumeName;
 
-  /// Directory relative to the storage volume root, e.g. `DCIM/Camera/`.
+  /// Directory relative to the storage volume root.
   ///
-  /// Empty if the file sits directly in the volume root, `null` if unknown.
+  /// Platform values:
+  /// - Android: derived from the file path, on all API levels, with a
+  ///   trailing slash, e.g. `DCIM/Camera/`. Empty if the file sits directly
+  ///   in the volume root, `null` if the path cannot be resolved.
   final String? relativePath;
 
   /// Whether the item is still being written.
   ///
-  /// `null` if unsupported by the device (Android: below API 29).
+  /// Platform values:
+  /// - Android: read from `IS_PENDING`. `null` below API 29.
   final bool? isPending;
 
   /// Whether the item is in the trash.
   ///
-  /// `null` if unsupported by the device (Android: below API 30).
+  /// Platform values:
+  /// - Android: read from `IS_TRASHED`. `null` below API 30.
   final bool? isTrashed;
 
   /// Whether the item is marked as favorite.
   ///
-  /// `null` if unsupported by the device (Android: below API 30).
+  /// Platform values:
+  /// - Android: read from `IS_FAVORITE`. `null` below API 30.
   final bool? isFavorite;
 
   const MediaItem({
     required this.type,
     required this.id,
+    required this.osName,
     required this.uri,
     required this.name,
     required this.mimeType,
@@ -101,6 +116,7 @@ class MediaItem {
           runtimeType == other.runtimeType &&
           type == other.type &&
           id == other.id &&
+          osName == other.osName &&
           uri == other.uri &&
           name == other.name &&
           mimeType == other.mimeType &&
@@ -117,6 +133,7 @@ class MediaItem {
   int get hashCode => Object.hash(
     type,
     id,
+    osName,
     uri,
     name,
     mimeType,
@@ -136,6 +153,7 @@ class MediaItem {
       'MediaItem {',
       ' type: $type,',
       ' id: $id,',
+      ' osName: $osName,',
       ' uri: $uri,',
       ' name: $name,',
       ' mimeType: $mimeType,',
