@@ -72,6 +72,9 @@ class MediaItem {
   /// - Android: derived from the file path, on all API levels, with a
   ///   trailing slash, e.g. `DCIM/Camera/`. Empty if the file sits directly
   ///   in the volume root, `null` if the path cannot be resolved.
+  ///
+  /// Note: the path separators are NOT platform-specific, it is always `/`,
+  /// for any platform.
   final String? relativePath;
 
   /// Whether the item is still being written.
