@@ -1,5 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android.dart';
@@ -44,9 +46,10 @@ const _videoJsonObject = '''
 /// The platform replies with a JSON array of media items.
 const _mixedJson = '[$_photoJsonObject,$_videoJsonObject]';
 
-const _photoItem = MediaItem(
+final _photoItem = MediaItem(
   type: MediaType.photo,
   id: '1',
+  osName: Platform.operatingSystem,
   uri: 'content://media/external/images/media/1',
   name: 'IMG_0001.jpg',
   mimeType: 'image/jpeg',
@@ -60,9 +63,10 @@ const _photoItem = MediaItem(
   isFavorite: false,
 );
 
-const _videoItem = MediaItem(
+final _videoItem = MediaItem(
   type: MediaType.video,
   id: '2',
+  osName: Platform.operatingSystem,
   uri: 'content://media/external/video/media/2',
   name: 'VID_0002.mp4',
   mimeType: 'video/mp4',

@@ -1,5 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/src/media_codec.dart';
 import 'package:media_provider_platform_interface/media_provider_platform_interface.dart';
@@ -40,11 +42,7 @@ void main() {
         () => decodeMediaType('audio'),
         throwsA(
           isA<FormatException>()
-              .having(
-                (error) => error.message,
-                'message',
-                'Unknown media type',
-              )
+              .having((error) => error.message, 'message', 'Unknown media type')
               .having((error) => error.source, 'source', 'audio'),
         ),
       );
@@ -55,9 +53,10 @@ void main() {
     test('decodes a fully populated payload', () {
       expect(
         decodeMediaItem(_photoJson),
-        const MediaItem(
+        MediaItem(
           type: MediaType.photo,
           id: '1',
+          osName: Platform.operatingSystem,
           uri: 'content://media/external/images/media/1',
           name: 'IMG_0001.jpg',
           mimeType: 'image/jpeg',
@@ -92,9 +91,10 @@ void main() {
 
       expect(
         item,
-        const MediaItem(
+        MediaItem(
           type: MediaType.photo,
           id: '1',
+          osName: Platform.operatingSystem,
           uri: 'content://media/external/images/media/1',
           name: null,
           mimeType: null,
