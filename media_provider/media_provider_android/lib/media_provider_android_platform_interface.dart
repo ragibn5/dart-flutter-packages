@@ -1,6 +1,6 @@
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
-import 'package:media_provider_android/src/media_item.dart';
-import 'package:media_provider_android/src/media_type.dart';
+import 'package:media_provider_android/src/android_media_item.dart';
+import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 abstract class MediaProviderAndroidPlatform extends PlatformInterface {
@@ -27,7 +27,7 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
   /// Gets all media of [types] on the device.
   ///
   /// NOTE: [types] must not be empty.
-  Future<List<MediaItem>> getMedia(Set<MediaType> types) {
+  Future<List<AndroidMediaItem>> getMedia(Set<AndroidMediaType> types) {
     throw UnimplementedError('getMedia() has not been implemented.');
   }
 }

@@ -1,11 +1,11 @@
-import 'package:media_provider_android/src/media_type.dart';
+import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:meta/meta.dart';
 
 /// A media item managed by the platform's media library.
 @immutable
-class MediaItem {
+class AndroidMediaItem {
   /// What kind of media the item is.
-  final MediaType type;
+  final AndroidMediaType type;
 
   /// Unique identifier of the item.
   ///
@@ -90,7 +90,7 @@ class MediaItem {
   /// - Android: read from `IS_FAVORITE`. `null` below API 30.
   final bool? isFavorite;
 
-  const MediaItem({
+  const AndroidMediaItem({
     required this.type,
     required this.id,
     required this.uri,
@@ -109,7 +109,7 @@ class MediaItem {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MediaItem &&
+      other is AndroidMediaItem &&
           runtimeType == other.runtimeType &&
           type == other.type &&
           id == other.id &&

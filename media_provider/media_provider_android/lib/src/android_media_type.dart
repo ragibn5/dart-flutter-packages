@@ -1,5 +1,5 @@
 /// The kind of a media item.
-enum MediaType {
+enum AndroidMediaType {
   /// A still image.
   photo,
 

@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:media_provider_android/media_provider_android_platform_interface.dart';
+import 'package:media_provider_android/src/android_media_item.dart';
+import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:media_provider_android/src/media_codec.dart';
-import 'package:media_provider_android/src/media_item.dart';
-import 'package:media_provider_android/src/media_type.dart';
 
 // ignore: lines_longer_than_80_chars
 /// An implementation of [MediaProviderAndroidPlatform] that uses method channels.
@@ -16,7 +16,7 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
   final methodChannel = const MethodChannel(CHANNEL_NAME);
 
   @override
-  Future<List<MediaItem>> getMedia(Set<MediaType> types) async {
+  Future<List<AndroidMediaItem>> getMedia(Set<AndroidMediaType> types) async {
     assert(types.isNotEmpty, 'types must not be empty');
 
     final result = await methodChannel.invokeMethod<String>('getMedia', {

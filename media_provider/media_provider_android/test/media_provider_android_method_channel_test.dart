@@ -3,8 +3,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
-import 'package:media_provider_android/src/media_item.dart';
-import 'package:media_provider_android/src/media_type.dart';
+import 'package:media_provider_android/src/android_media_item.dart';
+import 'package:media_provider_android/src/android_media_type.dart';
 
 /// JSON objects shaped exactly like `Json.encodeToString` of the Kotlin
 /// `MediaItem`: every field present, nullable fields explicitly `null`.
@@ -45,8 +45,8 @@ const _videoJsonObject = '''
 /// The platform replies with a JSON array of media items.
 const _mixedJson = '[$_photoJsonObject,$_videoJsonObject]';
 
-const _photoItem = MediaItem(
-  type: MediaType.photo,
+const _photoItem = AndroidMediaItem(
+  type: AndroidMediaType.photo,
   id: '1',
   uri: 'content://media/external/images/media/1',
   name: 'IMG_0001.jpg',
@@ -61,8 +61,8 @@ const _photoItem = MediaItem(
   isFavorite: false,
 );
 
-const _videoItem = MediaItem(
-  type: MediaType.video,
+const _videoItem = AndroidMediaItem(
+  type: AndroidMediaType.video,
   id: '2',
   uri: 'content://media/external/video/media/2',
   name: 'VID_0002.mp4',
@@ -109,8 +109,8 @@ void main() {
     test('invokes getMedia with the requested types as wire names', () async {
       mockGetMedia(_mixedJson);
 
-      await sut.getMedia({MediaType.photo, MediaType.video});
-      await sut.getMedia({MediaType.photo});
+      await sut.getMedia({AndroidMediaType.photo, AndroidMediaType.video});
+      await sut.getMedia({AndroidMediaType.photo});
 
       expect(log, hasLength(2));
       expect(log.first.method, 'getMedia');
@@ -125,7 +125,7 @@ void main() {
     test('decodes the reply into media items, preserving order', () async {
       mockGetMedia(_mixedJson);
 
-      final result = await sut.getMedia({MediaType.photo, MediaType.video});
+      final result = await sut.getMedia({AndroidMediaType.photo, AndroidMediaType.video});
 
       expect(result, [_photoItem, _videoItem]);
     });
@@ -139,7 +139,7 @@ void main() {
             '"volumeName":null}]';
         mockGetMedia(json);
 
-        final result = await sut.getMedia({MediaType.photo});
+        final result = await sut.getMedia({AndroidMediaType.photo});
 
         expect(result.map((item) => item.volumeName), [
           'external_primary',
@@ -151,7 +151,7 @@ void main() {
     test('returns an empty list when the library is empty', () async {
       mockGetMedia('[]');
 
-      final result = await sut.getMedia({MediaType.photo});
+      final result = await sut.getMedia({AndroidMediaType.photo});
 
       expect(result, isEmpty);
     });
@@ -176,7 +176,7 @@ void main() {
             });
 
         await expectLater(
-          sut.getMedia({MediaType.photo}),
+          sut.getMedia({AndroidMediaType.photo}),
           throwsA(
             isA<PlatformException>()
                 .having((e) => e.code, 'code', 'invalid_argument')

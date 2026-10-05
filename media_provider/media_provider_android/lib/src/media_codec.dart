@@ -4,26 +4,27 @@
 /// Wire names must match the `@SerialName`s of the Kotlin `MediaType` enum.
 library;
 
-import 'package:media_provider_android/src/media_item.dart';
-import 'package:media_provider_android/src/media_type.dart';
+import 'package:media_provider_android/src/android_media_item.dart';
+import 'package:media_provider_android/src/android_media_type.dart';
 
 /// The wire name of [type].
-String encodeMediaType(MediaType type) => switch (type) {
-  MediaType.photo => 'photo',
-  MediaType.video => 'video',
+String encodeMediaType(AndroidMediaType type) => switch (type) {
+  AndroidMediaType.photo => 'photo',
+  AndroidMediaType.video => 'video',
 };
 
-/// The [MediaType] whose wire name is [name].
+/// The [AndroidMediaType] whose wire name is [name].
 ///
 /// Throws a [FormatException] if [name] is unknown.
-MediaType decodeMediaType(String name) => MediaType.values.firstWhere(
-  (type) => encodeMediaType(type) == name,
-  orElse: () => throw FormatException('Unknown media type', name),
-);
+AndroidMediaType decodeMediaType(String name) =>
+    AndroidMediaType.values.firstWhere(
+      (type) => encodeMediaType(type) == name,
+      orElse: () => throw FormatException('Unknown media type', name),
+    );
 
 /// Decodes a `MediaItemData` sent by the Kotlin side.
-MediaItem decodeMediaItem(Map<String, dynamic> json) {
-  return MediaItem(
+AndroidMediaItem decodeMediaItem(Map<String, dynamic> json) {
+  return AndroidMediaItem(
     type: decodeMediaType(json['type'] as String),
     id: json['id'] as String,
     uri: json['uri'] as String?,

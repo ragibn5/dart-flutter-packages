@@ -9,8 +9,8 @@ class _MockMediaProviderAndroidPlatform extends Mock
     with MockPlatformInterfaceMixin
     implements MediaProviderAndroidPlatform {}
 
-const _photoItem = MediaItem(
-  type: MediaType.photo,
+const _photoItem = AndroidMediaItem(
+  type: AndroidMediaType.photo,
   id: '1',
   uri: 'content://media/external/images/media/1',
   name: 'IMG_0001.jpg',
@@ -25,8 +25,8 @@ const _photoItem = MediaItem(
   isFavorite: false,
 );
 
-const _videoItem = MediaItem(
-  type: MediaType.video,
+const _videoItem = AndroidMediaItem(
+  type: AndroidMediaType.video,
   id: '2',
   uri: 'content://media/external/video/media/2',
   name: 'VID_0002.mp4',
@@ -49,7 +49,7 @@ void main() {
   late MediaProviderAndroid sut;
 
   setUpAll(() {
-    registerFallbackValue(<MediaType>{});
+    registerFallbackValue(<AndroidMediaType>{});
   });
 
   setUp(() {
@@ -73,7 +73,10 @@ void main() {
     test(
       'delegates to the instance set at call time, returning its result',
       () async {
-        final types = <MediaType>{MediaType.photo, MediaType.video};
+        final types = <AndroidMediaType>{
+          AndroidMediaType.photo,
+          AndroidMediaType.video,
+        };
         MediaProviderAndroidPlatform.instance = first;
 
         expect(await sut.getMedia(types), [_photoItem, _videoItem]);
@@ -83,8 +86,8 @@ void main() {
         // had resolved the platform once at construction.
         MediaProviderAndroidPlatform.instance = second;
 
-        expect(await sut.getMedia({MediaType.video}), [_photoItem]);
-        verify(() => second.getMedia({MediaType.video})).called(1);
+        expect(await sut.getMedia({AndroidMediaType.video}), [_photoItem]);
+        verify(() => second.getMedia({AndroidMediaType.video})).called(1);
         verifyNoMoreInteractions(first);
       },
     );

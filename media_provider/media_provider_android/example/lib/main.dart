@@ -16,7 +16,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _mediaProviderAndroidPlugin = MediaProviderAndroid();
 
-  List<MediaItem>? _media;
+  List<AndroidMediaItem>? _media;
   String? _error;
 
   @override
@@ -30,8 +30,8 @@ class _MyAppState extends State<MyApp> {
     // system settings, otherwise the list is empty.
     try {
       final media = await _mediaProviderAndroidPlugin.getMedia({
-        MediaType.photo,
-        MediaType.video,
+        AndroidMediaType.photo,
+        AndroidMediaType.video,
       });
       if (!mounted) return;
       setState(() => _media = media);
@@ -65,8 +65,8 @@ class _MyAppState extends State<MyApp> {
         final item = media[index];
         return ListTile(
           leading: Icon(switch (item.type) {
-            MediaType.photo => Icons.photo,
-            MediaType.video => Icons.videocam,
+            AndroidMediaType.photo => Icons.photo,
+            AndroidMediaType.video => Icons.videocam,
           }),
           title: Text(item.name ?? item.id),
           subtitle: Text(item.mimeType ?? 'Unknown type'),

@@ -1,9 +1,9 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:media_provider_android/src/android_media_item.dart';
+import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:media_provider_android/src/media_codec.dart';
-import 'package:media_provider_android/src/media_item.dart';
-import 'package:media_provider_android/src/media_type.dart';
 
 const _photoJson = <String, dynamic>{
   'type': 'photo',
@@ -24,14 +24,14 @@ const _photoJson = <String, dynamic>{
 void main() {
   group('encodeMediaType', () {
     test('encodes to the wire names of the Kotlin MediaType enum', () {
-      expect(encodeMediaType(MediaType.photo), 'photo');
-      expect(encodeMediaType(MediaType.video), 'video');
+      expect(encodeMediaType(AndroidMediaType.photo), 'photo');
+      expect(encodeMediaType(AndroidMediaType.video), 'video');
     });
   });
 
   group('decodeMediaType', () {
     test('decodes every wire name produced by encodeMediaType', () {
-      for (final type in MediaType.values) {
+      for (final type in AndroidMediaType.values) {
         expect(decodeMediaType(encodeMediaType(type)), type);
       }
     });
@@ -52,8 +52,8 @@ void main() {
     test('decodes a fully populated payload', () {
       expect(
         decodeMediaItem(_photoJson),
-        const MediaItem(
-          type: MediaType.photo,
+        const AndroidMediaItem(
+          type: AndroidMediaType.photo,
           id: '1',
           uri: 'content://media/external/images/media/1',
           name: 'IMG_0001.jpg',
@@ -89,8 +89,8 @@ void main() {
 
       expect(
         item,
-        const MediaItem(
-          type: MediaType.photo,
+        const AndroidMediaItem(
+          type: AndroidMediaType.photo,
           id: '1',
           uri: 'content://media/external/images/media/1',
           name: null,

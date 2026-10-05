@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
 import 'package:media_provider_android/media_provider_android_platform_interface.dart';
-import 'package:media_provider_android/src/media_item.dart';
-import 'package:media_provider_android/src/media_type.dart';
+import 'package:media_provider_android/src/android_media_item.dart';
+import 'package:media_provider_android/src/android_media_type.dart';
 
 /// A platform implementation that extends the interface correctly, as the
 /// `plugin_platform_interface` contract requires.
@@ -40,7 +40,7 @@ void main() {
       final sut = _ExtendingPlatform();
 
       expect(
-        () => sut.getMedia({MediaType.photo}),
+        () => sut.getMedia({AndroidMediaType.photo}),
         throwsA(
           isA<UnimplementedError>().having(
             (error) => error.message,
@@ -56,5 +56,6 @@ void main() {
 /// Implements the interface without passing the verification token.
 class _BrokenPlatform implements MediaProviderAndroidPlatform {
   @override
-  Future<List<MediaItem>> getMedia(Set<MediaType> types) async => [];
+  Future<List<AndroidMediaItem>> getMedia(Set<AndroidMediaType> types) async =>
+      [];
 }
