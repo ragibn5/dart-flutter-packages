@@ -9,7 +9,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:media_provider_android/media_provider_android.dart';
-import 'package:media_provider_platform_interface/media_provider_platform_interface.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

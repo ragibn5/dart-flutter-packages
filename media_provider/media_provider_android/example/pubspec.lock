@@ -153,13 +153,6 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
-  media_provider_platform_interface:
-    dependency: "direct main"
-    description:
-      path: "../../media_provider_platform_interface"
-      relative: true
-    source: path
-    version: "1.0.0"
   meta:
     dependency: transitive
     description:

@@ -124,6 +124,6 @@ internal class MediaProviderAndroidPluginTest {
 
     private companion object {
         /** Mirrors the plugin's private channel name. */
-        const val CHANNEL = "media_provider"
+        const val CHANNEL = "media_provider_android"
     }
 }

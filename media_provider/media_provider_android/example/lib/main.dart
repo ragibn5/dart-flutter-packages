@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_provider_android/media_provider_android.dart';
-import 'package:media_provider_platform_interface/media_provider_platform_interface.dart';
 
 void main() {
   runApp(const MyApp());

@@ -1,6 +1,6 @@
 # media_provider_android
 
-Android platform implementation for the media_provider plugin.
+A media provider plugin for android.
 
 ## Installation
 

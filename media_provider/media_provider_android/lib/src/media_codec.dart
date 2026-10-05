@@ -4,9 +4,8 @@
 /// Wire names must match the `@SerialName`s of the Kotlin `MediaType` enum.
 library;
 
-import 'dart:io';
-
-import 'package:media_provider_platform_interface/media_provider_platform_interface.dart';
+import 'package:media_provider_android/src/media_item.dart';
+import 'package:media_provider_android/src/media_type.dart';
 
 /// The wire name of [type].
 String encodeMediaType(MediaType type) => switch (type) {
@@ -27,7 +26,6 @@ MediaItem decodeMediaItem(Map<String, dynamic> json) {
   return MediaItem(
     type: decodeMediaType(json['type'] as String),
     id: json['id'] as String,
-    osName: Platform.operatingSystem,
     uri: json['uri'] as String?,
     name: json['name'] as String?,
     mimeType: json['mimeType'] as String?,

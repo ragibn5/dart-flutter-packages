@@ -45,6 +45,6 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
     }
 
     private companion object {
-        private const val CHANNEL_NAME = "media_provider"
+        private const val CHANNEL_NAME = "media_provider_android"
     }
 }

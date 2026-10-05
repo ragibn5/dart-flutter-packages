@@ -1,29 +1,19 @@
-import 'dart:convert';
+/// A media provider plugin for android.
+library;
 
-import 'package:flutter/services.dart';
-import 'package:media_provider_android/src/media_codec.dart';
-import 'package:media_provider_platform_interface/media_provider_platform_interface.dart';
+import 'package:media_provider_android/media_provider_android_platform_interface.dart';
+import 'package:media_provider_android/src/media_item.dart';
+import 'package:media_provider_android/src/media_type.dart';
 
-class MediaProviderAndroid implements MediaProviderPlatform {
-  static const CHANNEL_NAME = 'media_provider';
-  static const GET_MEDIA_METHOD_NAME = 'getMedia';
+export 'src/media_codec.dart';
+export 'src/media_item.dart';
+export 'src/media_type.dart';
 
-  static const _channel = MethodChannel(CHANNEL_NAME);
-
-  static void registerWith() {
-    MediaProviderPlatform.instance = MediaProviderAndroid();
-  }
-
-  @override
-  Future<List<MediaItem>> getMedia(Set<MediaType> types) async {
-    assert(types.isNotEmpty, 'types must not be empty');
-
-    final result = await _channel.invokeMethod<String>(GET_MEDIA_METHOD_NAME, {
-      'types': types.map(encodeMediaType).toList(),
-    });
-    final items = jsonDecode(result!) as List<dynamic>;
-    return items
-        .map((item) => decodeMediaItem(item as Map<String, dynamic>))
-        .toList();
+class MediaProviderAndroid {
+  /// Gets all media of [types] on the device.
+  ///
+  /// [types] must not be empty.
+  Future<List<MediaItem>> getMedia(Set<MediaType> types) {
+    return MediaProviderAndroidPlatform.instance.getMedia(types);
   }
 }
