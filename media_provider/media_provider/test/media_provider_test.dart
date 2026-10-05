@@ -12,6 +12,7 @@ class _MockMediaProviderPlatform extends Mock
 const _photoItem = MediaItem(
   type: MediaType.photo,
   id: '1',
+  osName: 'android',
   uri: 'content://media/external/images/media/1',
   name: 'IMG_0001.jpg',
   mimeType: 'image/jpeg',
@@ -28,6 +29,7 @@ const _photoItem = MediaItem(
 const _videoItem = MediaItem(
   type: MediaType.video,
   id: '2',
+  osName: 'android',
   uri: 'content://media/external/video/media/2',
   name: 'VID_0002.mp4',
   mimeType: 'video/mp4',
