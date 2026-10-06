@@ -4,17 +4,7 @@ import android.annotation.SuppressLint
 import kotlinx.serialization.Serializable
 
 /**
- * A single media file tracked by the Android `MediaStore`, together with the metadata the
- * platform exposes for it.
- *
- * Every field maps directly to a `MediaStore` column. Values are read once when the item is
- * queried and are not kept in sync with later changes made to the underlying file.
- *
- * Unless documented otherwise, every field is nullable: a property is `null` when the value is
- * absent, when the corresponding column was not requested, or when the device does not report it
- * (for example on an API level older than the one that introduced the column).
- *
- * @see MediaType
+ * A single media file tracked by the Android `MediaStore`.
  */
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
