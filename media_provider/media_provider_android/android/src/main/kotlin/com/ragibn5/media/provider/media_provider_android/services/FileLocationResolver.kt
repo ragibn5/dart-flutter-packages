@@ -25,7 +25,7 @@ internal class FileLocationResolver(
     }
 
     /**
-     * The `VOLUME_NAME` the platform would report for this volume.
+     * The name the `VOLUME_NAME` column reports for this volume.
      *
      * [MediaStore.VOLUME_EXTERNAL_PRIMARY] for the primary volume, so a caller
      * cannot tell "primary" from "unknown" the way it could when the primary

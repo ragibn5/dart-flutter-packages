@@ -10,9 +10,10 @@ export 'src/android_media_type.dart';
 export 'src/media_codec.dart';
 
 class MediaProviderAndroid {
-  /// Gets all media of [types] on the device.
+  /// Queries `MediaStore` for every item of the given [types].
   ///
-  /// [types] must not be empty.
+  /// [types] must not be empty. Returns one [AndroidMediaItem] per matching
+  /// row, in the order the queries returned them.
   Future<List<AndroidMediaItem>> getMedia(Set<AndroidMediaType> types) {
     return MediaProviderAndroidPlatform.instance.getMedia(types);
   }

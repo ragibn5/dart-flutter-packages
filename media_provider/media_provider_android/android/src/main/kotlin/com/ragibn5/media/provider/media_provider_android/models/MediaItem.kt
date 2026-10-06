@@ -5,6 +5,12 @@ import kotlinx.serialization.Serializable
 
 /**
  * A single media file tracked by the Android `MediaStore`.
+ *
+ * Fields here (most of them, unless noted) corresponds to a column defined in
+ * [android.provider.MediaStore.MediaColumns]. See the documentation of that class
+ * for more information about each field's possible values. If any field's behavior
+ * deviates from the corresponding column documentation, it is explicitly documented
+ * here, in the field's documentation.
  */
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
@@ -17,6 +23,8 @@ internal data class MediaItem(
     /**
      * The `MediaStore` row ID, as a string.
      *
+     * Sourced from `BaseColumns._ID`, held as a string rather than a number.
+     *
      * Combined with [type] and [volumeName], this identifies the underlying file across mounts.
      */
     val id: String,
@@ -27,23 +35,24 @@ internal data class MediaItem(
     val uri: String,
 
     /**
-     * The display name of the file, including its extension.
+     * The display name of the file, including its extension, for example `IMG_0001.jpg`.
      *
-     * Sourced from `MediaStore.MediaColumns.DISPLAY_NAME`.
+     * Sourced from `MediaStore.MediaColumns.DISPLAY_NAME`. `null` when the row carries no name.
      */
     val name: String?,
 
     /**
      * The MIME type of the file, for example `image/jpeg`.
      *
-     * Sourced from `MediaStore.MediaColumns.MIME_TYPE`.
+     * Sourced from `MediaStore.MediaColumns.MIME_TYPE`. `null` when `MediaStore` has not
+     * determined one for the file.
      */
     val mimeType: String?,
 
     /**
-     * The size of the file, in bytes.
+     * The size of the file, in bytes, for example `2048`.
      *
-     * Sourced from `MediaStore.MediaColumns.SIZE`.
+     * Sourced from `MediaStore.MediaColumns.SIZE`. `null` when the row reports no size.
      */
     val sizeInBytes: Long?,
 
@@ -51,6 +60,7 @@ internal data class MediaItem(
      * The time the item was added to the media library, in milliseconds since the Unix epoch.
      *
      * Converted from `MediaStore.MediaColumns.DATE_ADDED`, which is expressed in seconds.
+     * `null` when the row carries no value.
      */
     val dateAddedInMillis: Long?,
 
@@ -58,25 +68,30 @@ internal data class MediaItem(
      * The time the file was last modified, in milliseconds since the Unix epoch.
      *
      * Converted from `MediaStore.MediaColumns.DATE_MODIFIED`, which is expressed in seconds.
+     * `null` when the row carries no value.
      */
     val dateModifiedInMillis: Long?,
 
     /**
      * The time the item was captured, in milliseconds since the Unix epoch.
      *
-     * Unlike [dateAddedInMillis] and [dateModifiedInMillis], `DATE_TAKEN` is
-     * already expressed in milliseconds, so no conversion happens here.
-     *
-     * Sourced from `MediaStore.MediaColumns.DATE_TAKEN`. `null` below API level 29 (Q).
+     * Sourced from `MediaStore.MediaColumns.DATE_TAKEN`. `null` below API level 29 (Q), and `null`
+     * when the file has no recorded capture time.
      */
     val dateTakenInMillis: Long?,
 
     /**
      * The name of the storage volume holding the file.
      *
+     * Read from `MediaStore.MediaColumns.VOLUME_NAME` on API level 29 (Q) and above. Below that
+     * the column does not exist, so the name is resolved from the `DATA` path instead; the same
+     * resolution is the fallback when the column is NULL.
+     *
+     * Possible values:
      * - `external_primary` for the primary shared storage volume.
      * - The lowercased volume UUID for secondary shared storage volumes.
-     * - `null` if the volume cannot be resolved.
+     *   same as obtained from [android.provider.MediaStore.getExternalVolumeNames]
+     * - `null` when neither source yields a name.
      */
     val volumeName: String?,
 
@@ -84,8 +99,9 @@ internal data class MediaItem(
      * The path of the directory containing the file, relative to the root of its storage volume,
      * for example `DCIM/Camera/`.
      *
-     * Sourced from `MediaStore.MediaColumns.RELATIVE_PATH`. Empty when the file sits directly in
-     * the volume root, `null` when the value is unknown.
+     * Read from `MediaStore.MediaColumns.RELATIVE_PATH` on API level 29 (Q) and above, falling
+     * back to the path resolved from `DATA` below that level or when the column is NULL. Empty
+     * when the file sits directly in the volume root, `null` when neither source yields a path.
      */
     val relativePath: String?,
 

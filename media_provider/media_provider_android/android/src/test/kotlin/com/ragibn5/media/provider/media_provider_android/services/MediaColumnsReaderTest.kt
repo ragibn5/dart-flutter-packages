@@ -19,9 +19,9 @@ import kotlin.test.assertTrue
  * [fakeFileLocationResolver] and the SDK level is injected, so these tests assert
  * on the reader's own mapping rules only.
  *
- * `volumeName` and `relativePath` are resolved from the `DATA` path at every
- * API level, so those tests pin the SDK level too: the columns are read on
- * API 29 and above but the reported values come from the path either way.
+ * `volumeName` and `relativePath` come from the `VOLUME_NAME` and `RELATIVE_PATH`
+ * columns on API 29 and above, and from the `DATA` path below that level or when
+ * those columns are NULL, so tests over them pin the SDK level too.
  */
 @Suppress("DEPRECATION")
 internal class MediaColumnsReaderTest {
@@ -181,7 +181,7 @@ internal class MediaColumnsReaderTest {
     }
 
     @Test
-    fun `keeps the resolved and the column-sourced paths independent`() {
+    fun `prefers the column-sourced paths over the resolved ones on API 29 and above`() {
         val item = readerOver(
             mapOf(
                 BaseColumns._ID to 1L,
@@ -191,6 +191,20 @@ internal class MediaColumnsReaderTest {
             ),
         ).read(collection)
 
+        assertEquals("external_primary", item.volumeName)
+        assertEquals("Pictures/", item.relativePath)
+    }
+
+    @Test
+    fun `falls back to the resolved paths when the columns are NULL`() {
+        val item = readerOver(
+            mapOf(
+                BaseColumns._ID to 1L,
+                MediaColumns.DATA to "/storage/emulated/0/DCIM/Camera/cat.png",
+            ),
+        ).read(collection)
+
+        assertEquals(MediaStore.VOLUME_EXTERNAL_PRIMARY, item.volumeName)
         assertEquals("DCIM/Camera/", item.relativePath)
     }
 

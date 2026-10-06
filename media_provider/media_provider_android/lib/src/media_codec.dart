@@ -1,5 +1,4 @@
-/// Converts between platform-interface models and the Android channel's wire
-/// format.
+/// Converts between the Kotlin side's wire format and the Android models.
 ///
 /// Wire names must match the `@SerialName`s of the Kotlin `MediaType` enum.
 library;
@@ -22,7 +21,8 @@ AndroidMediaType decodeMediaType(String name) =>
       orElse: () => throw FormatException('Unknown media type', name),
     );
 
-/// Decodes a `MediaItemData` sent by the Kotlin side.
+/// Decodes the JSON the Kotlin side sent for one `MediaStore` row into an
+/// [AndroidMediaItem].
 AndroidMediaItem decodeMediaItem(Map<String, dynamic> json) {
   return AndroidMediaItem(
     type: decodeMediaType(json['type'] as String),

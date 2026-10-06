@@ -24,9 +24,9 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  /// Gets all media of [types] on the device.
+  /// Queries `MediaStore` for every item of the given [types].
   ///
-  /// NOTE: [types] must not be empty.
+  /// [types] must not be empty.
   Future<List<AndroidMediaItem>> getMedia(Set<AndroidMediaType> types) {
     throw UnimplementedError('getMedia() has not been implemented.');
   }

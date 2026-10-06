@@ -1,8 +1,10 @@
-/// The kind of a media item.
+/// The kind of media an item is.
+///
+/// Matches the `MediaStore` collection the item is read from.
 enum AndroidMediaType {
-  /// A still image.
+  /// An image, read from the images collection.
   photo,
 
-  /// A video.
+  /// A video, read from the videos collection.
   video,
 }

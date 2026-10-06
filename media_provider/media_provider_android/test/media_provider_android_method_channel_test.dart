@@ -137,7 +137,10 @@ void main() {
     test('decodes the reply into media items, preserving order', () async {
       mockGetMedia(_mixedJson);
 
-      final result = await sut.getMedia({AndroidMediaType.photo, AndroidMediaType.video});
+      final result = await sut.getMedia({
+        AndroidMediaType.photo,
+        AndroidMediaType.video,
+      });
 
       expect(result, [_photoItem, _videoItem]);
     });

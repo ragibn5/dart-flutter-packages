@@ -1,113 +1,125 @@
 import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:meta/meta.dart';
 
-/// A media item managed by the platform's media library.
+/// A single media file tracked by the Android `MediaStore`.
+///
+/// Fields here (most of them, unless noted) corresponds to a column defined in
+/// `android.provider.MediaStore.MediaColumns`. See the documentation of that class
+/// for more information about each field's possible values. If any field's behavior
+/// deviates from the corresponding column documentation, it is explicitly documented
+/// here, in the field's documentation.
 @immutable
 class AndroidMediaItem {
-  /// What kind of media the item is.
+  /// The `MediaStore` collection this item belongs to.
   final AndroidMediaType type;
 
-  /// Unique identifier of the item.
+  /// The `MediaStore` row ID (`_ID`), as a string, for example `'42'`.
   ///
-  /// Platform values:
-  /// - Android: the `MediaStore` row ID (`_ID`), as a string.
+  /// Sourced from `BaseColumns._ID`, held as a string rather than a
+  /// number. Combined with [type] and [volumeName] it identifies the file
+  /// for as long as it stays in the library.
   final String id;
 
-  /// URI for opening the item.
-  ///
-  /// Platform values:
-  /// - Android: a `content://` URI, openable through `ContentResolver`.
+  /// The `content://` URI of the item, for example
+  /// `content://media/external/images/media/42`.
   final String? uri;
 
-  /// File name, including extension.
+  /// The display name of the file, including its extension, for example
+  /// `'IMG_0001.jpg'`.
   ///
-  /// Platform values:
-  /// - Android: read from `DISPLAY_NAME`. `null` if unknown.
+  /// Sourced from `MediaStore.MediaColumns.DISPLAY_NAME`. `null` when the
+  /// row carries no name.
   final String? name;
 
-  /// MIME type.
+  /// The MIME type of the file, for example `'image/jpeg'`.
   ///
-  /// Platform values:
-  /// - Android: read from `MIME_TYPE`, e.g. `image/jpeg`. `null` if unknown.
+  /// Sourced from `MediaStore.MediaColumns.MIME_TYPE`. `null` when
+  /// `MediaStore` has not determined one for the file.
   final String? mimeType;
 
-  /// File size in bytes.
+  /// The size of the file in bytes, for example `2048`.
   ///
-  /// Platform values:
-  /// - Android: read from `SIZE`. `null` if unknown.
+  /// Sourced from `MediaStore.MediaColumns.SIZE`. `null` when the row
+  /// reports no size.
   final int? sizeInBytes;
 
-  /// When the item was added to the device's media library,
-  /// in milliseconds since epoch.
+  /// When the item entered the media library, in milliseconds since the
+  /// Unix epoch.
   ///
-  /// Platform values:
-  /// - Android: converted from `DATE_ADDED`, which is in seconds. `null`
-  ///   if unknown.
+  /// Converted from `MediaStore.MediaColumns.DATE_ADDED`, which is
+  /// expressed in seconds. `null` when the row carries no value.
   final int? dateAddedInMillis;
 
-  /// When the file was last modified, in milliseconds since epoch.
+  /// When the file was last modified, in milliseconds since the Unix epoch.
   ///
-  /// Platform values:
-  /// - Android: converted from `DATE_MODIFIED`, which is in seconds.
-  ///   `null` if unknown.
+  /// Converted from `MediaStore.MediaColumns.DATE_MODIFIED`, which is
+  /// expressed in seconds. `null` when the row carries no value.
   final int? dateModifiedInMillis;
 
-  /// When the item was captured, in milliseconds since epoch.
+  /// When the item was captured, in milliseconds since the Unix epoch.
   ///
-  /// Platform values:
-  /// - Android: read from `DATE_TAKEN`, which is already in milliseconds.
-  ///   `null` below API 29.
+  /// Sourced from `MediaStore.MediaColumns.DATE_TAKEN`, which is already
+  /// expressed in milliseconds, so no conversion happens here. `null` below
+  /// API level 29 (Q), and `null` when the file has no recorded capture
+  /// time.
   final int? dateTakenInMillis;
 
-  /// Name of the storage volume the file was in.
+  /// The name of the storage volume the file sits on.
   ///
-  /// Platform values:
-  /// - Android: derived from the file path, on all API levels.
-  ///   - `external_primary` for primary shared storage.
-  ///   - The lowercased volume UUID for secondary shared storage.
-  ///   - `null` if the volume cannot be resolved.
+  /// Read from `MediaStore.MediaColumns.VOLUME_NAME` on API level 29 (Q)
+  /// and above. Below that the column does not exist, so the name is
+  /// resolved from the `DATA` path instead, which is also the fallback
+  /// when the column is NULL.
+  ///
+  /// Possible values:
+  /// - `external_primary` for the primary shared storage volume.
+  /// - The lowercased volume UUID for secondary shared storage volumes.
+  ///   same as obtained from [android.provider.MediaStore.getExternalVolumeNames]
+  /// - `null` when neither source yields a name.
   final String? volumeName;
 
-  /// Directory relative to the storage volume root.
+  /// The path of the directory containing the file, relative to the root
+  /// of its storage volume, with a trailing slash, for example
+  /// `'DCIM/Camera/'`.
   ///
-  /// Platform values:
-  /// - Android: derived from the file path, on all API levels, with a
-  ///   trailing slash, e.g. `DCIM/Camera/`. Empty if the file sits directly
-  ///   in the volume root, `null` if the path cannot be resolved.
-  ///
-  /// Note: the path separators are NOT platform-specific, it is always `/`,
-  /// for any platform.
+  /// Read from `MediaStore.MediaColumns.RELATIVE_PATH` on API level 29 (Q)
+  /// and above, falling back to the path resolved from `DATA` below that
+  /// level or when the column is NULL. Empty when the file sits directly
+  /// in the volume root, `null` when neither source yields a path.
+  /// Separators are always `/`.
   final String? relativePath;
 
-  /// Package name of the app that owns the item.
+  /// The package name of the app that owns the item, for example
+  /// `'com.android.camera'`.
   ///
-  /// Platform values:
-  /// - Android: read from `OWNER_PACKAGE_NAME`. `null` below API 29, and
-  ///   `null` when no app owns the item.
+  /// Sourced from `MediaStore.MediaColumns.OWNER_PACKAGE_NAME`. `null`
+  /// below API level 29 (Q), and `null` when the item is not owned by any
+  /// app.
   final String? ownerPackageName;
 
-  /// Whether the item is still being written.
+  /// Whether the item is still being written and not ready to be opened.
   ///
-  /// Platform values:
-  /// - Android: read from `IS_PENDING`. `null` below API 29.
+  /// Sourced from `MediaStore.MediaColumns.IS_PENDING`. `null` below API
+  /// level 29 (Q).
   final bool? isPending;
 
-  /// Whether the item is in the trash.
+  /// Whether the item has been moved to the trash and is therefore no
+  /// longer visible in the collection it was queried from.
   ///
-  /// Platform values:
-  /// - Android: read from `IS_TRASHED`. `null` below API 30.
+  /// Sourced from `MediaStore.MediaColumns.IS_TRASHED`. `null` below API
+  /// level 30 (R).
   final bool? isTrashed;
 
-  /// Whether the item is marked as favorite.
+  /// Whether the item is marked as a favorite.
   ///
-  /// Platform values:
-  /// - Android: read from `IS_FAVORITE`. `null` below API 30.
+  /// Sourced from `MediaStore.MediaColumns.IS_FAVORITE`. `null` below API
+  /// level 30 (R).
   final bool? isFavorite;
 
-  /// Whether the item belongs to the device's downloads collection.
+  /// Whether the item belongs to the Downloads collection.
   ///
-  /// Platform values:
-  /// - Android: read from `IS_DOWNLOAD`. `null` below API 30.
+  /// Sourced from `MediaStore.MediaColumns.IS_DOWNLOAD`. `null` below API
+  /// level 30 (R).
   final bool? isDownloaded;
 
   const AndroidMediaItem({
@@ -132,44 +144,45 @@ class AndroidMediaItem {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AndroidMediaItem &&
-          runtimeType == other.runtimeType &&
-          type == other.type &&
-          id == other.id &&
-          uri == other.uri &&
-          name == other.name &&
-          mimeType == other.mimeType &&
-          sizeInBytes == other.sizeInBytes &&
-          dateAddedInMillis == other.dateAddedInMillis &&
-          dateModifiedInMillis == other.dateModifiedInMillis &&
-          dateTakenInMillis == other.dateTakenInMillis &&
-          volumeName == other.volumeName &&
-          relativePath == other.relativePath &&
-          ownerPackageName == other.ownerPackageName &&
-          isPending == other.isPending &&
-          isTrashed == other.isTrashed &&
-          isFavorite == other.isFavorite &&
-          isDownloaded == other.isDownloaded;
+          other is AndroidMediaItem &&
+              runtimeType == other.runtimeType &&
+              type == other.type &&
+              id == other.id &&
+              uri == other.uri &&
+              name == other.name &&
+              mimeType == other.mimeType &&
+              sizeInBytes == other.sizeInBytes &&
+              dateAddedInMillis == other.dateAddedInMillis &&
+              dateModifiedInMillis == other.dateModifiedInMillis &&
+              dateTakenInMillis == other.dateTakenInMillis &&
+              volumeName == other.volumeName &&
+              relativePath == other.relativePath &&
+              ownerPackageName == other.ownerPackageName &&
+              isPending == other.isPending &&
+              isTrashed == other.isTrashed &&
+              isFavorite == other.isFavorite &&
+              isDownloaded == other.isDownloaded;
 
   @override
-  int get hashCode => Object.hash(
-    type,
-    id,
-    uri,
-    name,
-    mimeType,
-    sizeInBytes,
-    dateAddedInMillis,
-    dateModifiedInMillis,
-    dateTakenInMillis,
-    volumeName,
-    relativePath,
-    ownerPackageName,
-    isPending,
-    isTrashed,
-    isFavorite,
-    isDownloaded,
-  );
+  int get hashCode =>
+      Object.hash(
+        type,
+        id,
+        uri,
+        name,
+        mimeType,
+        sizeInBytes,
+        dateAddedInMillis,
+        dateModifiedInMillis,
+        dateTakenInMillis,
+        volumeName,
+        relativePath,
+        ownerPackageName,
+        isPending,
+        isTrashed,
+        isFavorite,
+        isDownloaded,
+      );
 
   @override
   String toString() {
