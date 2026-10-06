@@ -52,6 +52,13 @@ class AndroidMediaItem {
   ///   `null` if unknown.
   final int? dateModifiedInMillis;
 
+  /// When the item was captured, in milliseconds since epoch.
+  ///
+  /// Platform values:
+  /// - Android: read from `DATE_TAKEN`, which is already in milliseconds.
+  ///   `null` below API 29.
+  final int? dateTakenInMillis;
+
   /// Name of the storage volume the file was in.
   ///
   /// Platform values:
@@ -72,6 +79,13 @@ class AndroidMediaItem {
   /// for any platform.
   final String? relativePath;
 
+  /// Package name of the app that owns the item.
+  ///
+  /// Platform values:
+  /// - Android: read from `OWNER_PACKAGE_NAME`. `null` below API 29, and
+  ///   `null` when no app owns the item.
+  final String? ownerPackageName;
+
   /// Whether the item is still being written.
   ///
   /// Platform values:
@@ -90,6 +104,12 @@ class AndroidMediaItem {
   /// - Android: read from `IS_FAVORITE`. `null` below API 30.
   final bool? isFavorite;
 
+  /// Whether the item belongs to the device's downloads collection.
+  ///
+  /// Platform values:
+  /// - Android: read from `IS_DOWNLOAD`. `null` below API 30.
+  final bool? isDownloaded;
+
   const AndroidMediaItem({
     required this.type,
     required this.id,
@@ -99,11 +119,14 @@ class AndroidMediaItem {
     required this.sizeInBytes,
     required this.dateAddedInMillis,
     required this.dateModifiedInMillis,
+    required this.dateTakenInMillis,
     required this.volumeName,
     required this.relativePath,
+    required this.ownerPackageName,
     required this.isPending,
     required this.isTrashed,
     required this.isFavorite,
+    required this.isDownloaded,
   });
 
   @override
@@ -119,11 +142,14 @@ class AndroidMediaItem {
           sizeInBytes == other.sizeInBytes &&
           dateAddedInMillis == other.dateAddedInMillis &&
           dateModifiedInMillis == other.dateModifiedInMillis &&
+          dateTakenInMillis == other.dateTakenInMillis &&
           volumeName == other.volumeName &&
           relativePath == other.relativePath &&
+          ownerPackageName == other.ownerPackageName &&
           isPending == other.isPending &&
           isTrashed == other.isTrashed &&
-          isFavorite == other.isFavorite;
+          isFavorite == other.isFavorite &&
+          isDownloaded == other.isDownloaded;
 
   @override
   int get hashCode => Object.hash(
@@ -135,11 +161,14 @@ class AndroidMediaItem {
     sizeInBytes,
     dateAddedInMillis,
     dateModifiedInMillis,
+    dateTakenInMillis,
     volumeName,
     relativePath,
+    ownerPackageName,
     isPending,
     isTrashed,
     isFavorite,
+    isDownloaded,
   );
 
   @override
@@ -154,11 +183,14 @@ class AndroidMediaItem {
       ' sizeInBytes: $sizeInBytes,',
       ' dateAddedInMillis: $dateAddedInMillis,',
       ' dateModifiedInMillis: $dateModifiedInMillis,',
+      ' dateTakenInMillis: $dateTakenInMillis,',
       ' volumeName: $volumeName,',
       ' relativePath: $relativePath,',
+      ' ownerPackageName: $ownerPackageName,',
       ' isPending: $isPending,',
       ' isTrashed: $isTrashed,',
-      ' isFavorite: $isFavorite',
+      ' isFavorite: $isFavorite,',
+      ' isDownloaded: $isDownloaded',
       '}',
     ].join('\n');
   }

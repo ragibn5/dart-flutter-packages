@@ -62,6 +62,16 @@ internal data class MediaItem(
     val dateModifiedInMillis: Long?,
 
     /**
+     * The time the item was captured, in milliseconds since the Unix epoch.
+     *
+     * Unlike [dateAddedInMillis] and [dateModifiedInMillis], `DATE_TAKEN` is
+     * already expressed in milliseconds, so no conversion happens here.
+     *
+     * Sourced from `MediaStore.MediaColumns.DATE_TAKEN`. `null` below API level 29 (Q).
+     */
+    val dateTakenInMillis: Long?,
+
+    /**
      * The name of the storage volume holding the file.
      *
      * - `external_primary` for the primary shared storage volume.
@@ -78,6 +88,14 @@ internal data class MediaItem(
      * the volume root, `null` when the value is unknown.
      */
     val relativePath: String?,
+
+    /**
+     * The package name of the app that owns the item, for example `com.android.camera`.
+     *
+     * Sourced from `MediaStore.MediaColumns.OWNER_PACKAGE_NAME`. `null` below API level 29 (Q),
+     * and `null` when the item is not owned by any app.
+     */
+    val ownerPackageName: String?,
 
     /**
      * Whether the item is currently being written and is not yet ready to be opened.
@@ -100,4 +118,11 @@ internal data class MediaItem(
      * Sourced from `MediaStore.MediaColumns.IS_FAVORITE`. `null` below API level 30 (R).
      */
     val isFavorite: Boolean?,
+
+    /**
+     * Whether the item belongs to the Downloads collection.
+     *
+     * Sourced from `MediaStore.MediaColumns.IS_DOWNLOAD`. `null` below API level 30 (R).
+     */
+    val isDownloaded: Boolean?,
 )

@@ -39,6 +39,16 @@ internal class MediaColumnsReader(
     } else {
         null
     }
+    private val dateTakenColumn = if (hasApi29Columns) {
+        cursor.getColumnIndexOrThrow(MediaColumns.DATE_TAKEN)
+    } else {
+        null
+    }
+    private val ownerPackageNameColumn = if (hasApi29Columns) {
+        cursor.getColumnIndexOrThrow(MediaColumns.OWNER_PACKAGE_NAME)
+    } else {
+        null
+    }
     private val isTrashedColumn = if (hasApi30Columns) {
         cursor.getColumnIndexOrThrow(MediaColumns.IS_TRASHED)
     } else {
@@ -46,6 +56,11 @@ internal class MediaColumnsReader(
     }
     private val isFavoriteColumn = if (hasApi30Columns) {
         cursor.getColumnIndexOrThrow(MediaColumns.IS_FAVORITE)
+    } else {
+        null
+    }
+    private val isDownloadedColumn = if (hasApi30Columns) {
+        cursor.getColumnIndexOrThrow(MediaColumns.IS_DOWNLOAD)
     } else {
         null
     }
@@ -64,11 +79,16 @@ internal class MediaColumnsReader(
             sizeInBytes = cursor.getLongOrNull(sizeColumn),
             dateAddedInMillis = cursor.getLongOrNull(dateAddedColumn)?.times(1000),
             dateModifiedInMillis = cursor.getLongOrNull(dateModifiedColumn)?.times(1000),
-            volumeName = mediaFileInfo?.volumeName,
-            relativePath = mediaFileInfo?.relativeParentPath,
+            dateTakenInMillis = dateTakenColumn?.let(cursor::getLongOrNull),
+            volumeName = volumeNameColumn?.let(cursor::getStringOrNull)
+                ?: mediaFileInfo?.volumeName,
+            relativePath = relativePathColumn?.let(cursor::getStringOrNull)
+                ?: mediaFileInfo?.relativeParentPath,
+            ownerPackageName = ownerPackageNameColumn?.let(cursor::getStringOrNull),
             isPending = isPendingColumn?.let(cursor::getBooleanOrNull),
             isTrashed = isTrashedColumn?.let(cursor::getBooleanOrNull),
             isFavorite = isFavoriteColumn?.let(cursor::getBooleanOrNull),
+            isDownloaded = isDownloadedColumn?.let(cursor::getBooleanOrNull),
         )
     }
 
@@ -93,11 +113,14 @@ internal class MediaColumnsReader(
                 add(MediaColumns.VOLUME_NAME)
                 add(MediaColumns.RELATIVE_PATH)
                 add(MediaColumns.IS_PENDING)
+                add(MediaColumns.DATE_TAKEN)
+                add(MediaColumns.OWNER_PACKAGE_NAME)
             }
 
             if (sdkInt >= Build.VERSION_CODES.R) {
                 add(MediaColumns.IS_TRASHED)
                 add(MediaColumns.IS_FAVORITE)
+                add(MediaColumns.IS_DOWNLOAD)
             }
         }
 

@@ -26,6 +26,9 @@ internal val MEDIA_COLUMN_ORDER: List<String> = listOf(
     MediaColumns.IS_PENDING,
     MediaColumns.IS_TRASHED,
     MediaColumns.IS_FAVORITE,
+    MediaColumns.DATE_TAKEN,
+    MediaColumns.OWNER_PACKAGE_NAME,
+    MediaColumns.IS_DOWNLOAD,
 )
 
 private val COLUMN_INDEX: Map<String, Int> =

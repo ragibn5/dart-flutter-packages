@@ -33,10 +33,13 @@ AndroidMediaItem decodeMediaItem(Map<String, dynamic> json) {
     sizeInBytes: json['sizeInBytes'] as int?,
     dateAddedInMillis: json['dateAddedInMillis'] as int?,
     dateModifiedInMillis: json['dateModifiedInMillis'] as int?,
+    dateTakenInMillis: json['dateTakenInMillis'] as int?,
     volumeName: json['volumeName'] as String?,
     relativePath: json['relativePath'] as String?,
+    ownerPackageName: json['ownerPackageName'] as String?,
     isPending: json['isPending'] as bool?,
     isTrashed: json['isTrashed'] as bool?,
     isFavorite: json['isFavorite'] as bool?,
+    isDownloaded: json['isDownloaded'] as bool?,
   );
 }

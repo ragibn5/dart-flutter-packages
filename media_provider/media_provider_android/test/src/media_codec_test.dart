@@ -14,11 +14,14 @@ const _photoJson = <String, dynamic>{
   'sizeInBytes': 2048,
   'dateAddedInMillis': 1700000000000,
   'dateModifiedInMillis': 1700000001000,
+  'dateTakenInMillis': 1700000002000,
   'volumeName': 'external_primary',
   'relativePath': 'DCIM/Camera/',
+  'ownerPackageName': 'com.android.camera3',
   'isPending': false,
   'isTrashed': false,
   'isFavorite': false,
+  'isDownloaded': false,
 };
 
 void main() {
@@ -61,11 +64,14 @@ void main() {
           sizeInBytes: 2048,
           dateAddedInMillis: 1700000000000,
           dateModifiedInMillis: 1700000001000,
+          dateTakenInMillis: 1700000002000,
           volumeName: 'external_primary',
           relativePath: 'DCIM/Camera/',
+          ownerPackageName: 'com.android.camera3',
           isPending: false,
           isTrashed: false,
           isFavorite: false,
+          isDownloaded: false,
         ),
       );
     });
@@ -80,11 +86,14 @@ void main() {
         'sizeInBytes': null,
         'dateAddedInMillis': null,
         'dateModifiedInMillis': null,
+        'dateTakenInMillis': null,
         'volumeName': null,
         'relativePath': null,
+        'ownerPackageName': null,
         'isPending': null,
         'isTrashed': null,
         'isFavorite': null,
+        'isDownloaded': null,
       });
 
       expect(
@@ -98,11 +107,14 @@ void main() {
           sizeInBytes: null,
           dateAddedInMillis: null,
           dateModifiedInMillis: null,
+          dateTakenInMillis: null,
           volumeName: null,
           relativePath: null,
+          ownerPackageName: null,
           isPending: null,
           isTrashed: null,
           isFavorite: null,
+          isDownloaded: null,
         ),
       );
     });

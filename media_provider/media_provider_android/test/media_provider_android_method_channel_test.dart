@@ -18,11 +18,14 @@ const _photoJsonObject = '''
     "sizeInBytes": 2048,
     "dateAddedInMillis": 1700000000000,
     "dateModifiedInMillis": 1700000001000,
+    "dateTakenInMillis": 1700000002000,
     "volumeName": "external_primary",
     "relativePath": "DCIM/Camera/",
+    "ownerPackageName": "com.android.camera3",
     "isPending": false,
     "isTrashed": false,
-    "isFavorite": false
+    "isFavorite": false,
+    "isDownloaded": false
   }''';
 
 const _videoJsonObject = '''
@@ -35,11 +38,14 @@ const _videoJsonObject = '''
     "sizeInBytes": 4096,
     "dateAddedInMillis": 1700000002000,
     "dateModifiedInMillis": 1700000003000,
+    "dateTakenInMillis": null,
     "volumeName": null,
     "relativePath": "DCIM/Camera/",
+    "ownerPackageName": null,
     "isPending": true,
     "isTrashed": false,
-    "isFavorite": true
+    "isFavorite": true,
+    "isDownloaded": null
   }''';
 
 /// The platform replies with a JSON array of media items.
@@ -54,11 +60,14 @@ const _photoItem = AndroidMediaItem(
   sizeInBytes: 2048,
   dateAddedInMillis: 1700000000000,
   dateModifiedInMillis: 1700000001000,
+  dateTakenInMillis: 1700000002000,
   volumeName: 'external_primary',
   relativePath: 'DCIM/Camera/',
+  ownerPackageName: 'com.android.camera3',
   isPending: false,
   isTrashed: false,
   isFavorite: false,
+  isDownloaded: false,
 );
 
 const _videoItem = AndroidMediaItem(
@@ -70,11 +79,14 @@ const _videoItem = AndroidMediaItem(
   sizeInBytes: 4096,
   dateAddedInMillis: 1700000002000,
   dateModifiedInMillis: 1700000003000,
+  dateTakenInMillis: null,
   volumeName: null,
   relativePath: 'DCIM/Camera/',
+  ownerPackageName: null,
   isPending: true,
   isTrashed: false,
   isFavorite: true,
+  isDownloaded: null,
 );
 
 void main() {

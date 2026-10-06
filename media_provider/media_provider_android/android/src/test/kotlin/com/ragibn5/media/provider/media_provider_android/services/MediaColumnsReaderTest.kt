@@ -55,11 +55,14 @@ internal class MediaColumnsReaderTest {
                 MediaColumns.SIZE to 2048L,
                 MediaColumns.DATE_ADDED to 1_700_000_000L,
                 MediaColumns.DATE_MODIFIED to 1_700_000_500L,
+                MediaColumns.DATE_TAKEN to 1_700_000_750_000L,
                 MediaColumns.VOLUME_NAME to "external_primary",
                 MediaColumns.RELATIVE_PATH to "Pictures/",
+                MediaColumns.OWNER_PACKAGE_NAME to "com.android.camera",
                 MediaColumns.IS_PENDING to 0,
                 MediaColumns.IS_TRASHED to 1,
                 MediaColumns.IS_FAVORITE to 1,
+                MediaColumns.IS_DOWNLOAD to 1,
             ),
         ).read(collection)
 
@@ -70,9 +73,12 @@ internal class MediaColumnsReaderTest {
         assertEquals(2048L, item.sizeInBytes)
         assertEquals(1_700_000_000_000L, item.dateAddedInMillis)
         assertEquals(1_700_000_500_000L, item.dateModifiedInMillis)
+        assertEquals(1_700_000_750_000L, item.dateTakenInMillis)
+        assertEquals("com.android.camera", item.ownerPackageName)
         assertEquals(false, item.isPending)
         assertEquals(true, item.isTrashed)
         assertEquals(true, item.isFavorite)
+        assertEquals(true, item.isDownloaded)
     }
 
     @Test
@@ -82,11 +88,14 @@ internal class MediaColumnsReaderTest {
                 BaseColumns._ID to 1L,
                 MediaColumns.DATE_ADDED to 1_700_000_000L,
                 MediaColumns.DATE_MODIFIED to 1_700_000_500L,
+                // DATE_TAKEN is already milliseconds and must pass through untouched.
+                MediaColumns.DATE_TAKEN to 1_700_000_750_000L,
             ),
         ).read(collection)
 
         assertEquals(1_700_000_000_000L, item.dateAddedInMillis)
         assertEquals(1_700_000_500_000L, item.dateModifiedInMillis)
+        assertEquals(1_700_000_750_000L, item.dateTakenInMillis)
     }
 
     @Test
@@ -98,6 +107,9 @@ internal class MediaColumnsReaderTest {
         assertNull(item.sizeInBytes)
         assertNull(item.dateAddedInMillis)
         assertNull(item.dateModifiedInMillis)
+        assertNull(item.dateTakenInMillis)
+        assertNull(item.ownerPackageName)
+        assertNull(item.isDownloaded)
     }
 
     @Test
@@ -192,6 +204,9 @@ internal class MediaColumnsReaderTest {
                 MediaColumns.IS_PENDING to 1,
                 MediaColumns.IS_TRASHED to 1,
                 MediaColumns.IS_FAVORITE to 0,
+                MediaColumns.DATE_TAKEN to 1_700_000_750_000L,
+                MediaColumns.OWNER_PACKAGE_NAME to "com.android.camera",
+                MediaColumns.IS_DOWNLOAD to 0,
             ),
             sdkInt = Build.VERSION_CODES.R,
         ).read(collection)
@@ -199,6 +214,9 @@ internal class MediaColumnsReaderTest {
         assertEquals(true, item.isPending)
         assertEquals(true, item.isTrashed)
         assertEquals(false, item.isFavorite)
+        assertEquals(1_700_000_750_000L, item.dateTakenInMillis)
+        assertEquals("com.android.camera", item.ownerPackageName)
+        assertEquals(false, item.isDownloaded)
     }
 
     @Test
@@ -230,6 +248,16 @@ internal class MediaColumnsReaderTest {
                 MediaColumns.IS_PENDING in cursor.lookedUpColumns,
                 "IS_PENDING on API $sdkInt",
             )
+            assertEquals(
+                expectsApi29,
+                MediaColumns.DATE_TAKEN in cursor.lookedUpColumns,
+                "DATE_TAKEN on API $sdkInt",
+            )
+            assertEquals(
+                expectsApi29,
+                MediaColumns.OWNER_PACKAGE_NAME in cursor.lookedUpColumns,
+                "OWNER_PACKAGE_NAME on API $sdkInt",
+            )
         }
     }
 
@@ -243,6 +271,7 @@ internal class MediaColumnsReaderTest {
 
         assertTrue(MediaColumns.IS_TRASHED !in cursor.lookedUpColumns)
         assertTrue(MediaColumns.IS_FAVORITE !in cursor.lookedUpColumns)
+        assertTrue(MediaColumns.IS_DOWNLOAD !in cursor.lookedUpColumns)
     }
 
     @Test
