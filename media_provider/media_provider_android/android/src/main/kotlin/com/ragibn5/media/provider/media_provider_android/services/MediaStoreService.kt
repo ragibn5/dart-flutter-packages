@@ -73,15 +73,17 @@ internal object MediaStoreServiceFactory {
         val sdkInt: Int = Build.VERSION.SDK_INT
         val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT
         val storageManager = context.getSystemService(StorageManager::class.java)
+        val volumeInfoResolver = VolumeInfoResolver(storageManager, sdkInt)
         val volumePathResolver = VolumePathResolver(context, storageManager, sdkInt)
-        val fileLocationResolver = FileLocationResolver(storageManager, volumePathResolver, sdkInt)
+        val fileLocationResolver = FileLocationResolver(storageManager, volumePathResolver)
         return MediaStoreServiceImpl(
             contentResolver = context.contentResolver,
             collectionRegistry = MediaStoreCollectionRegistry(collections),
             mediaColumnsReaderFactory = MediaColumnsReaderFactory(
-                fileLocationResolver,
-                uriBuilder,
-                sdkInt
+                volumeInfoResolver = volumeInfoResolver,
+                fileLocationResolver = fileLocationResolver,
+                uriBuilder = uriBuilder,
+                sdkInt = sdkInt
             ),
         )
     }

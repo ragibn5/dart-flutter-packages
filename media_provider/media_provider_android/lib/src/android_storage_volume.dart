@@ -7,6 +7,9 @@ import 'package:meta/meta.dart';
 /// `android.provider.MediaStore.getExternalVolumeNames`.
 @immutable
 sealed class AndroidStorageVolume extends Equatable {
+  final bool isPrimary;
+  final String uuid;
+
   /// Creates a storage volume.
   const AndroidStorageVolume();
 

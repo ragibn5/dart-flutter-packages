@@ -10,6 +10,7 @@ import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeUriBuilder
 import com.ragibn5.media.provider.media_provider_android.fakeFileLocationResolver
+import com.ragibn5.media.provider.media_provider_android.fakeVolumeInfoResolver
 import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollectionRegistry
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,6 +45,7 @@ internal class MediaStoreServiceImplTest {
         // The `uriBuilder` is injected so no test depends on real `ContentUris`
         // behavior, and the reader is pinned to the same API level as the query.
         mediaColumnsReaderFactory = MediaColumnsReaderFactory(
+            volumeInfoResolver = fakeVolumeInfoResolver(),
             fileLocationResolver = fakeFileLocationResolver(),
             uriBuilder = FakeUriBuilder(),
             sdkInt = sdkInt,
@@ -186,6 +188,7 @@ internal class MediaStoreServiceImplTest {
             contentResolver = contentResolver,
             collectionRegistry = MediaStoreCollectionRegistry(setOf(photo)),
             mediaColumnsReaderFactory = MediaColumnsReaderFactory(
+                volumeInfoResolver = fakeVolumeInfoResolver(),
                 fileLocationResolver = fakeFileLocationResolver(),
                 uriBuilder = FakeUriBuilder(),
                 sdkInt = Build.VERSION_CODES.R,

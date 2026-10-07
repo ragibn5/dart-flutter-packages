@@ -13,6 +13,7 @@ import java.io.File
 
 internal class MediaColumnsReader(
     private val cursor: Cursor,
+    private val volumeInfoResolver: VolumeInfoResolver,
     private val fileLocationResolver: FileLocationResolver,
     private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
@@ -80,8 +81,9 @@ internal class MediaColumnsReader(
             dateAddedInMillis = cursor.getLongOrNull(dateAddedColumn)?.times(1000),
             dateModifiedInMillis = cursor.getLongOrNull(dateModifiedColumn)?.times(1000),
             dateTakenInMillis = dateTakenColumn?.let(cursor::getLongOrNull),
-            volumeName = volumeNameColumn?.let(cursor::getStringOrNull)
-                ?: mediaFileInfo?.volumeName,
+            volumeInfo = volumeNameColumn?.let(cursor::getStringOrNull)
+                ?.let { volumeInfoResolver.resolve(it) }
+                ?: mediaFileInfo?.volumeInfo,
             relativePath = relativePathColumn?.let(cursor::getStringOrNull)
                 ?: mediaFileInfo?.relativeParentPath,
             ownerPackageName = ownerPackageNameColumn?.let(cursor::getStringOrNull),
@@ -129,6 +131,7 @@ internal class MediaColumnsReader(
 }
 
 internal class MediaColumnsReaderFactory(
+    private val volumeInfoResolver: VolumeInfoResolver,
     private val fileLocationResolver: FileLocationResolver,
     private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
@@ -136,6 +139,7 @@ internal class MediaColumnsReaderFactory(
     fun create(cursor: Cursor): MediaColumnsReader =
         MediaColumnsReader(
             cursor = cursor,
+            volumeInfoResolver = volumeInfoResolver,
             fileLocationResolver = fileLocationResolver,
             uriBuilder = uriBuilder,
             sdkInt = sdkInt,

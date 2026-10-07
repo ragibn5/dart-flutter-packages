@@ -24,8 +24,6 @@ internal data class MediaItem(
      * The `MediaStore` row ID, as a string.
      *
      * Sourced from `BaseColumns._ID`, held as a string rather than a number.
-     *
-     * Combined with [type] and [volumeName], this identifies the underlying file across mounts.
      */
     val id: String,
 
@@ -81,19 +79,14 @@ internal data class MediaItem(
     val dateTakenInMillis: Long?,
 
     /**
-     * The name of the storage volume holding the file.
+     * The storage volume holding the file.
      *
-     * Read from `MediaStore.MediaColumns.VOLUME_NAME` on API level 29 (Q) and above. Below that
-     * the column does not exist, so the name is resolved from the `DATA` path instead; the same
-     * resolution is the fallback when the column is NULL.
-     *
-     * Possible values:
-     * - `external_primary` for the primary shared storage volume.
-     * - The lowercased volume UUID for secondary shared storage volumes.
-     *   same as obtained from [android.provider.MediaStore.getExternalVolumeNames]
-     * - `null` when neither source yields a name.
+     * On API level 29 (Q) and above, `MediaStore.MediaColumns.VOLUME_NAME` is used
+     * to resolve the item's containing storage volume. On API levels below 29 (Q),
+     * `MediaStore.MediaColumns.DATA` (the item's absolute filesystem path) is used
+     * instead. If neither source can be used to resolve a volume, `null` is returned.
      */
-    val volumeName: String?,
+    val volumeInfo: VolumeInfo?,
 
     /**
      * The path of the directory containing the file, relative to the root of its storage volume,

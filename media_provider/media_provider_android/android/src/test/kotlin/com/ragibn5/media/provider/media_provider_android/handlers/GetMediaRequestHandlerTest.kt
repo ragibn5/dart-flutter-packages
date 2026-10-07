@@ -67,6 +67,18 @@ internal class GetMediaRequestHandlerTest {
     }
 
     @Test
+    fun `replies with the volume nested under its own key`() = runTest {
+        service.items = listOf(photoItem())
+
+        val reply = handler.handle(callWithTypes(PHOTO)) as String
+
+        // The Dart side reads this key, so the shape is pinned here rather than
+        // left to whatever a round trip happens to agree with.
+        assertTrue(reply.contains("\"volumeInfo\":{\"isPrimary\":true,\"uuid\":null}"), reply)
+        assertTrue(!reply.contains("volumeName"), reply)
+    }
+
+    @Test
     fun `replies with an empty JSON array when the library is empty`() = runTest {
         service.items = emptyList()
 

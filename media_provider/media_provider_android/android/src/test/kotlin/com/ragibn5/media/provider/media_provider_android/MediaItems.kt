@@ -2,6 +2,7 @@ package com.ragibn5.media.provider.media_provider_android
 
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
 
 /**
  * Media as the plugin is expected to report it.
@@ -22,7 +23,7 @@ internal fun photoItem(
     dateAddedInMillis = 1_700_000_000_000,
     dateModifiedInMillis = 1_700_000_100_000,
     dateTakenInMillis = 1_700_000_100_000,
-    volumeName = "primary",
+    volumeInfo = VolumeInfo(isPrimary = true, uuid = null),
     relativePath = "DCIM/Camera/",
     ownerPackageName = "com.android.camera",
     isPending = false,
@@ -48,7 +49,7 @@ internal fun videoItem(
     dateAddedInMillis = null,
     dateModifiedInMillis = null,
     dateTakenInMillis = null,
-    volumeName = null,
+    volumeInfo = null,
     relativePath = null,
     ownerPackageName = null,
     isPending = null,
