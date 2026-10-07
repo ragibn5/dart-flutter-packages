@@ -55,7 +55,7 @@ void main() {
   late MediaProviderAndroid sut;
 
   setUpAll(() {
-    registerFallbackValue(<AndroidMediaType>{});
+    registerFallbackValue(AndroidMediaQuery(types: const {}, volumes: null));
   });
 
   setUp(() {
@@ -79,21 +79,26 @@ void main() {
     test(
       'delegates to the instance set at call time, returning its result',
       () async {
-        final types = <AndroidMediaType>{
-          AndroidMediaType.photo,
-          AndroidMediaType.video,
-        };
+        const query = AndroidMediaQuery(
+          types: {AndroidMediaType.photo, AndroidMediaType.video},
+          volumes: null,
+        );
         MediaProviderAndroidPlatform.instance = first;
 
-        expect(await sut.getMedia(types), [_photoItem, _videoItem]);
-        verify(() => first.getMedia(types)).called(1);
+        expect(await sut.getMedia(query), [_photoItem, _videoItem]);
+        verify(() => first.getMedia(query)).called(1);
 
         // Re-registering must take effect, which it would not if the facade
         // had resolved the platform once at construction.
         MediaProviderAndroidPlatform.instance = second;
 
-        expect(await sut.getMedia({AndroidMediaType.video}), [_photoItem]);
-        verify(() => second.getMedia({AndroidMediaType.video})).called(1);
+        const later = AndroidMediaQuery(
+          types: {AndroidMediaType.video},
+          volumes: null,
+        );
+
+        expect(await sut.getMedia(later), [_photoItem]);
+        verify(() => second.getMedia(later)).called(1);
         verifyNoMoreInteractions(first);
       },
     );

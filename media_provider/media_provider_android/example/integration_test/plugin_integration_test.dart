@@ -17,7 +17,12 @@ void main() {
     final MediaProviderAndroid plugin = MediaProviderAndroid();
     // Contents depend on the device's library and granted permissions, so
     // just assert that the call round-trips.
-    final media = await plugin.getMedia({AndroidMediaType.photo, AndroidMediaType.video});
+    final media = await plugin.getMedia(
+      AndroidMediaQuery(
+        types: {AndroidMediaType.photo, AndroidMediaType.video},
+        volumes: null,
+      ),
+    );
     expect(media, isA<List<AndroidMediaItem>>());
   });
 }

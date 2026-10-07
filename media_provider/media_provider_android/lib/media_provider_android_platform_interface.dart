@@ -1,6 +1,5 @@
+import 'package:media_provider_android/media_provider_android.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
-import 'package:media_provider_android/src/android_media_item.dart';
-import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 abstract class MediaProviderAndroidPlatform extends PlatformInterface {
@@ -24,10 +23,10 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  /// Queries `MediaStore` for every item of the given [types].
+  /// Queries `MediaStore` as per the given query.
   ///
-  /// [types] must not be empty.
-  Future<List<AndroidMediaItem>> getMedia(Set<AndroidMediaType> types) {
+  /// See the [AndroidMediaQuery] for more info.
+  Future<List<AndroidMediaItem>> getMedia(AndroidMediaQuery query) {
     throw UnimplementedError('getMedia() has not been implemented.');
   }
 }

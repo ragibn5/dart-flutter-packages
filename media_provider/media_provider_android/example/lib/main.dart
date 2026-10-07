@@ -29,10 +29,12 @@ class _MyAppState extends State<MyApp> {
     // Media permissions aren't requested here; grant them from the app's
     // system settings, otherwise the list is empty.
     try {
-      final media = await _mediaProviderAndroidPlugin.getMedia({
-        AndroidMediaType.photo,
-        AndroidMediaType.video,
-      });
+      final media = await _mediaProviderAndroidPlugin.getMedia(
+        AndroidMediaQuery(
+          types: {AndroidMediaType.photo, AndroidMediaType.video},
+          volumes: null,
+        ),
+      );
       if (!mounted) return;
       setState(() => _media = media);
     } on PlatformException catch (e) {
