@@ -17,7 +17,11 @@ AndroidMediaItem _$AndroidMediaItemFromJson(Map<String, dynamic> json) =>
       dateAddedInMillis: (json['dateAddedInMillis'] as num?)?.toInt(),
       dateModifiedInMillis: (json['dateModifiedInMillis'] as num?)?.toInt(),
       dateTakenInMillis: (json['dateTakenInMillis'] as num?)?.toInt(),
-      volumeName: json['volumeName'] as String?,
+      volumeInfo: json['volumeInfo'] == null
+          ? null
+          : AndroidStorageVolumeInfo.fromJson(
+              json['volumeInfo'] as Map<String, dynamic>,
+            ),
       relativePath: json['relativePath'] as String?,
       ownerPackageName: json['ownerPackageName'] as String?,
       isPending: json['isPending'] as bool?,
@@ -37,7 +41,7 @@ Map<String, dynamic> _$AndroidMediaItemToJson(AndroidMediaItem instance) =>
       'dateAddedInMillis': instance.dateAddedInMillis,
       'dateModifiedInMillis': instance.dateModifiedInMillis,
       'dateTakenInMillis': instance.dateTakenInMillis,
-      'volumeName': instance.volumeName,
+      'volumeInfo': instance.volumeInfo,
       'relativePath': instance.relativePath,
       'ownerPackageName': instance.ownerPackageName,
       'isPending': instance.isPending,

@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
 import 'package:media_provider_android/src/android_media_item.dart';
 import 'package:media_provider_android/src/android_media_type.dart';
+import 'package:media_provider_android/src/android_storage_volume_info.dart';
 
 /// JSON objects shaped exactly like `Json.encodeToString` of the Kotlin
 /// `MediaItem`: every field present, nullable fields explicitly `null`.
@@ -19,7 +20,7 @@ const _photoJsonObject = '''
     "dateAddedInMillis": 1700000000000,
     "dateModifiedInMillis": 1700000001000,
     "dateTakenInMillis": 1700000002000,
-    "volumeName": "external_primary",
+    "volumeInfo": {"isPrimary": true, "uuid": null},
     "relativePath": "DCIM/Camera/",
     "ownerPackageName": "com.android.camera3",
     "isPending": false,
@@ -39,7 +40,7 @@ const _videoJsonObject = '''
     "dateAddedInMillis": 1700000002000,
     "dateModifiedInMillis": 1700000003000,
     "dateTakenInMillis": null,
-    "volumeName": null,
+    "volumeInfo": null,
     "relativePath": "DCIM/Camera/",
     "ownerPackageName": null,
     "isPending": true,
@@ -61,7 +62,7 @@ const _photoItem = AndroidMediaItem(
   dateAddedInMillis: 1700000000000,
   dateModifiedInMillis: 1700000001000,
   dateTakenInMillis: 1700000002000,
-  volumeName: 'external_primary',
+  volumeInfo: AndroidStorageVolumeInfo(isPrimary: true, uuid: null),
   relativePath: 'DCIM/Camera/',
   ownerPackageName: 'com.android.camera3',
   isPending: false,
@@ -80,7 +81,7 @@ const _videoItem = AndroidMediaItem(
   dateAddedInMillis: 1700000002000,
   dateModifiedInMillis: 1700000003000,
   dateTakenInMillis: null,
-  volumeName: null,
+  volumeInfo: null,
   relativePath: 'DCIM/Camera/',
   ownerPackageName: null,
   isPending: true,
@@ -146,18 +147,21 @@ void main() {
     });
 
     test(
-      'decodes the volume name, null or an uuid for a secondary volume',
+      'decodes the volume info, null or an uuid for a secondary volume',
       () async {
         const json =
-            '[{"type":"PHOTO","id":"1","uri":"content://x/1","volumeName":'
-            '"external_primary"},{"type":"PHOTO","id":"2","uri":"content://x/2",'
-            '"volumeName":null}]';
+            '[{"type":"PHOTO","id":"1","uri":"content://x/1","volumeInfo":'
+            '{"isPrimary":true,"uuid":null}},{"type":"PHOTO","id":"2",'
+            '"uri":"content://x/2","volumeInfo":{"isPrimary":false,'
+            '"uuid":"1A2B-3C4D"}},{"type":"PHOTO","id":"3",'
+            '"uri":"content://x/3","volumeInfo":null}]';
         mockGetMedia(json);
 
         final result = await sut.getMedia({AndroidMediaType.photo});
 
-        expect(result.map((item) => item.volumeName), [
-          'external_primary',
+        expect(result.map((item) => item.volumeInfo), [
+          const AndroidStorageVolumeInfo(isPrimary: true, uuid: null),
+          const AndroidStorageVolumeInfo(isPrimary: false, uuid: '1A2B-3C4D'),
           null,
         ]);
       },

@@ -8,7 +8,7 @@ import 'package:media_provider_android/src/android_media_type.dart';
 export 'src/android_media_item.dart';
 export 'src/android_media_query.dart';
 export 'src/android_media_type.dart';
-export 'src/android_storage_volume.dart';
+export 'src/android_storage_volume_info.dart';
 
 class MediaProviderAndroid {
   /// Queries `MediaStore` for every item of the given [types].

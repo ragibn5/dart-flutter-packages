@@ -7,4 +7,8 @@ test:
 
 .PHONY: build-runner
 build-runner:
-	$(DART) run build_runner build --delete-conflicting-outputs
+	$(DART) run build_runner build
+
+.PHONY: build-runner-watch
+build-runner-watch:
+	$(DART) run build_runner watch --delete-conflicting-outputs

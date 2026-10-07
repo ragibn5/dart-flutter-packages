@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:media_provider_android/src/android_media_type.dart';
-import 'package:media_provider_android/src/android_storage_volume.dart';
+import 'package:media_provider_android/src/android_storage_volume_spec.dart';
 import 'package:meta/meta.dart';
 
 part 'android_media_query.g.dart';
@@ -18,7 +18,7 @@ class AndroidMediaQuery extends Equatable {
   ///
   /// If null or empty, no volume based filtration is done and the result
   /// may include media from all the available storage volumes on the device.
-  final Set<AndroidStorageVolume>? volumes;
+  final Set<AndroidStorageVolumeSpec>? volumes;
 
   const AndroidMediaQuery({required this.types, required this.volumes});
 
@@ -32,7 +32,7 @@ class AndroidMediaQuery extends Equatable {
 
   AndroidMediaQuery copyWith({
     Set<AndroidMediaType>? types,
-    Set<AndroidStorageVolume>? volumes,
+    Set<AndroidStorageVolumeSpec>? volumes,
   }) {
     return AndroidMediaQuery(
       types: types ?? this.types,

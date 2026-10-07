@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:media_provider_android/src/android_media_type.dart';
+import 'package:media_provider_android/src/android_storage_volume_info.dart';
 import 'package:meta/meta.dart';
 
 part 'android_media_item.g.dart';
@@ -21,7 +22,7 @@ class AndroidMediaItem extends Equatable {
   /// The `MediaStore` row ID (`_ID`), as a string, for example `'42'`.
   ///
   /// Sourced from `BaseColumns._ID`, held as a string rather than a
-  /// number. Combined with [type] and [volumeName] it identifies the file
+  /// number. Combined with [type] and [volumeInfo] it identifies the file
   /// for as long as it stays in the library.
   final String id;
 
@@ -69,19 +70,16 @@ class AndroidMediaItem extends Equatable {
   /// time.
   final int? dateTakenInMillis;
 
-  /// The name of the storage volume the file sits on.
+  /// The storage volume the file sits on.
   ///
-  /// Read from `MediaStore.MediaColumns.VOLUME_NAME` on API level 29 (Q)
-  /// and above. Below that the column does not exist, so the name is
-  /// resolved from the `DATA` path instead, which is also the fallback
-  /// when the column is NULL.
+  /// On API level 29 (Q) and above, `MediaStore.MediaColumns.VOLUME_NAME`
+  /// names the volume and it is then described by the native side. Below that
+  /// the column does not exist, so the volume is resolved from the `DATA`
+  /// path instead, which is also the fallback when the column is NULL or
+  /// names a volume that is no longer mounted.
   ///
-  /// Possible values:
-  /// - `external_primary` for the primary shared storage volume.
-  /// - The lowercased volume UUID for secondary shared storage volumes.
-  ///   same as from [android.provider.MediaStore.getExternalVolumeNames]
-  /// - `null` when neither source yields a name.
-  final String? volumeName;
+  /// Null when neither source yields a volume.
+  final AndroidStorageVolumeInfo? volumeInfo;
 
   /// The path of the directory containing the file, relative to the root
   /// of its storage volume, with a trailing slash, for example
@@ -137,7 +135,7 @@ class AndroidMediaItem extends Equatable {
     required this.dateAddedInMillis,
     required this.dateModifiedInMillis,
     required this.dateTakenInMillis,
-    required this.volumeName,
+    required this.volumeInfo,
     required this.relativePath,
     required this.ownerPackageName,
     required this.isPending,
@@ -162,7 +160,7 @@ class AndroidMediaItem extends Equatable {
     dateAddedInMillis,
     dateModifiedInMillis,
     dateTakenInMillis,
-    volumeName,
+    volumeInfo,
     relativePath,
     ownerPackageName,
     isPending,
