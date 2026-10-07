@@ -1,15 +1,20 @@
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:meta/meta.dart';
 
+part 'android_media_item.g.dart';
+
 /// A single media file tracked by the Android `MediaStore`.
 ///
-/// Fields here (most of them, unless noted) corresponds to a column defined in
-/// `android.provider.MediaStore.MediaColumns`. See the documentation of that class
-/// for more information about each field's possible values. If any field's behavior
-/// deviates from the corresponding column documentation, it is explicitly documented
-/// here, in the field's documentation.
+/// Fields here (most of them, unless noted) corresponds to a column defined
+/// in `android.provider.MediaStore.MediaColumns`. See the documentation of
+/// that class for more information about each field's possible values. If any
+/// field's behavior deviates from the corresponding column documentation, it
+/// is explicitly documented here, in the field's documentation.
+@JsonSerializable()
 @immutable
-class AndroidMediaItem {
+class AndroidMediaItem extends Equatable {
   /// The `MediaStore` collection this item belongs to.
   final AndroidMediaType type;
 
@@ -74,7 +79,7 @@ class AndroidMediaItem {
   /// Possible values:
   /// - `external_primary` for the primary shared storage volume.
   /// - The lowercased volume UUID for secondary shared storage volumes.
-  ///   same as obtained from [android.provider.MediaStore.getExternalVolumeNames]
+  ///   same as from [android.provider.MediaStore.getExternalVolumeNames]
   /// - `null` when neither source yields a name.
   final String? volumeName;
 
@@ -141,70 +146,28 @@ class AndroidMediaItem {
     required this.isDownloaded,
   });
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is AndroidMediaItem &&
-              runtimeType == other.runtimeType &&
-              type == other.type &&
-              id == other.id &&
-              uri == other.uri &&
-              name == other.name &&
-              mimeType == other.mimeType &&
-              sizeInBytes == other.sizeInBytes &&
-              dateAddedInMillis == other.dateAddedInMillis &&
-              dateModifiedInMillis == other.dateModifiedInMillis &&
-              dateTakenInMillis == other.dateTakenInMillis &&
-              volumeName == other.volumeName &&
-              relativePath == other.relativePath &&
-              ownerPackageName == other.ownerPackageName &&
-              isPending == other.isPending &&
-              isTrashed == other.isTrashed &&
-              isFavorite == other.isFavorite &&
-              isDownloaded == other.isDownloaded;
+  Map<String, dynamic> toJson() => _$AndroidMediaItemToJson(this);
+
+  factory AndroidMediaItem.fromJson(Map<String, dynamic> json) =>
+      _$AndroidMediaItemFromJson(json);
 
   @override
-  int get hashCode =>
-      Object.hash(
-        type,
-        id,
-        uri,
-        name,
-        mimeType,
-        sizeInBytes,
-        dateAddedInMillis,
-        dateModifiedInMillis,
-        dateTakenInMillis,
-        volumeName,
-        relativePath,
-        ownerPackageName,
-        isPending,
-        isTrashed,
-        isFavorite,
-        isDownloaded,
-      );
-
-  @override
-  String toString() {
-    return [
-      'MediaItem {',
-      ' type: $type,',
-      ' id: $id,',
-      ' uri: $uri,',
-      ' name: $name,',
-      ' mimeType: $mimeType,',
-      ' sizeInBytes: $sizeInBytes,',
-      ' dateAddedInMillis: $dateAddedInMillis,',
-      ' dateModifiedInMillis: $dateModifiedInMillis,',
-      ' dateTakenInMillis: $dateTakenInMillis,',
-      ' volumeName: $volumeName,',
-      ' relativePath: $relativePath,',
-      ' ownerPackageName: $ownerPackageName,',
-      ' isPending: $isPending,',
-      ' isTrashed: $isTrashed,',
-      ' isFavorite: $isFavorite,',
-      ' isDownloaded: $isDownloaded',
-      '}',
-    ].join('\n');
-  }
+  List<Object?> get props => [
+    type,
+    id,
+    uri,
+    name,
+    mimeType,
+    sizeInBytes,
+    dateAddedInMillis,
+    dateModifiedInMillis,
+    dateTakenInMillis,
+    volumeName,
+    relativePath,
+    ownerPackageName,
+    isPending,
+    isTrashed,
+    isFavorite,
+    isDownloaded,
+  ];
 }
