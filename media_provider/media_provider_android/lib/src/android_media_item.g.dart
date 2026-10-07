@@ -32,7 +32,7 @@ AndroidMediaItem _$AndroidMediaItemFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$AndroidMediaItemToJson(AndroidMediaItem instance) =>
     <String, dynamic>{
-      'type': _$AndroidMediaTypeEnumMap[instance.type]!,
+      'type': _$AndroidMediaTypeEnumMap[instance.type],
       'id': instance.id,
       'uri': instance.uri,
       'name': instance.name,

@@ -55,7 +55,7 @@ void main() {
   late MediaProviderAndroid sut;
 
   setUpAll(() {
-    registerFallbackValue(AndroidMediaQuery(types: const {}, volumes: null));
+    registerFallbackValue(const AndroidMediaQuery(types: {}, volumes: null));
   });
 
   setUp(() {

@@ -35,5 +35,5 @@ class AndroidStorageVolumeSpec extends Equatable {
       _$AndroidStorageVolumeSpecFromJson(json);
 
   @override
-  List<Object?> get props => const [];
+  List<Object?> get props => [isPrimary, uuid];
 }

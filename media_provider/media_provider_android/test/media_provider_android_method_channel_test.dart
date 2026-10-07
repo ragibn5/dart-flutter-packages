@@ -7,6 +7,7 @@ import 'package:media_provider_android/src/android_media_item.dart';
 import 'package:media_provider_android/src/android_media_query.dart';
 import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:media_provider_android/src/android_storage_volume_info.dart';
+import 'package:media_provider_android/src/android_storage_volume_spec.dart';
 
 /// JSON objects shaped exactly like `Json.encodeToString` of the Kotlin
 /// `MediaItem`: every field present, nullable fields explicitly `null`.
@@ -124,13 +125,13 @@ void main() {
       mockGetMedia(_mixedJson);
 
       await sut.getMedia(
-        AndroidMediaQuery(
+        const AndroidMediaQuery(
           types: {AndroidMediaType.photo, AndroidMediaType.video},
           volumes: null,
         ),
       );
       await sut.getMedia(
-        AndroidMediaQuery(types: {AndroidMediaType.photo}, volumes: null),
+        const AndroidMediaQuery(types: {AndroidMediaType.photo}, volumes: null),
       );
 
       expect(log, hasLength(2));
@@ -149,23 +150,33 @@ void main() {
       });
     });
 
-    // NOTE: no assertion on the encoded `volumes` payload yet.
-    //
-    // `AndroidMediaQuery.toJson` currently emits the volume objects verbatim
-    // (`'volumes': instance.volumes?.toList()`) instead of calling `toJson`
-    // on them, so the channel receives `AndroidStorageVolumeSpec` instances
-    // where a `Map<String, dynamic>` is required. Encoding them here, plus
-    // decoding them back, fails with a `TypeError`. That is a defect in the
-    // generated code, not in the channel, so it is left uncovered rather than
-    // pinned down by a test that would lock the broken shape in.
-    // Once `volumes` encodes to a list of objects, assert it here and add the
-    // matching `AndroidMediaQuery.fromJson` round trip.
+    test('encodes each requested volume as its own object', () async {
+      mockGetMedia(_mixedJson);
+
+      await sut.getMedia(
+        AndroidMediaQuery(
+          types: const {AndroidMediaType.photo},
+          volumes: {
+            AndroidStorageVolumeSpec.primary(),
+            AndroidStorageVolumeSpec.external(uuid: '1A2B-3C4D'),
+          },
+        ),
+      );
+
+      expect(
+        (log.single.arguments as Map)['query'],
+        containsPair('volumes', [
+          <String, dynamic>{'isPrimary': true, 'uuid': null},
+          <String, dynamic>{'isPrimary': false, 'uuid': '1A2B-3C4D'},
+        ]),
+      );
+    });
 
     test('decodes the reply into media items, preserving order', () async {
       mockGetMedia(_mixedJson);
 
       final result = await sut.getMedia(
-        AndroidMediaQuery(
+        const AndroidMediaQuery(
           types: {AndroidMediaType.photo, AndroidMediaType.video},
           volumes: null,
         ),
@@ -186,7 +197,10 @@ void main() {
         mockGetMedia(json);
 
         final result = await sut.getMedia(
-          AndroidMediaQuery(types: {AndroidMediaType.photo}, volumes: null),
+          const AndroidMediaQuery(
+            types: {AndroidMediaType.photo},
+            volumes: null,
+          ),
         );
 
         expect(result.map((item) => item.volumeInfo), [
@@ -201,7 +215,7 @@ void main() {
       mockGetMedia('[]');
 
       final result = await sut.getMedia(
-        AndroidMediaQuery(types: {AndroidMediaType.photo}, volumes: null),
+        const AndroidMediaQuery(types: {AndroidMediaType.photo}, volumes: null),
       );
 
       expect(result, isEmpty);
@@ -213,7 +227,7 @@ void main() {
       // The emptiness rule is enforced by the platform side, which replies
       // with an 'invalid_argument' PlatformException. The Dart side must not
       // reject the query on its own.
-      await sut.getMedia(AndroidMediaQuery(types: const {}, volumes: null));
+      await sut.getMedia(const AndroidMediaQuery(types: {}, volumes: null));
 
       expect(log, hasLength(1));
       expect(log.single.arguments, <String, dynamic>{
@@ -235,7 +249,10 @@ void main() {
 
         await expectLater(
           sut.getMedia(
-            AndroidMediaQuery(types: {AndroidMediaType.photo}, volumes: null),
+            const AndroidMediaQuery(
+              types: {AndroidMediaType.photo},
+              volumes: null,
+            ),
           ),
           throwsA(
             isA<PlatformException>()
