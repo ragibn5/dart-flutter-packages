@@ -176,18 +176,38 @@ internal class FileLocationResolverTest {
     private val volume: StorageVolume = Mockito.mock(StorageVolume::class.java)
     private val context: Context = Mockito.mock(Context::class.java)
 
-    private fun resolverOn(volumePath: String?, isPrimary: Boolean = true, uuid: String? = null) {
+    /**
+     * [mediaStoreVolumeName] is only read from API 30 on, [isPrimary] and [uuid]
+     * only below it, so all three are stubbed and [sdkInt] picks the branch.
+     */
+    private fun resolverOn(
+        volumePath: String?,
+        isPrimary: Boolean = true,
+        uuid: String? = null,
+        mediaStoreVolumeName: String? = MediaStore.VOLUME_EXTERNAL_PRIMARY,
+    ) {
         Mockito.`when`(storageManager.getStorageVolume(Mockito.any(File::class.java)))
             .thenReturn(volume)
         Mockito.`when`(volume.directory).thenReturn(volumePath?.let(::File))
         Mockito.`when`(volume.isPrimary).thenReturn(isPrimary)
         Mockito.`when`(volume.uuid).thenReturn(uuid)
+        Mockito.`when`(volume.mediaStoreVolumeName).thenReturn(mediaStoreVolumeName)
     }
 
-    private fun resolve(path: String) =
+    /**
+     * [sdkInt] pins the level `FileLocationResolver` names the volume at. The
+     * volume path always comes from `StorageManager`, so pinning it here does not
+     * duplicate what [VolumePathResolverTest] covers.
+     */
+    private fun resolve(path: String, sdkInt: Int = Build.VERSION_CODES.R) =
         FileLocationResolver(
             storageManager,
-            VolumePathResolver(context, storageManager, Build.VERSION_CODES.R),
+            VolumePathResolver(
+                context,
+                storageManager,
+                Build.VERSION_CODES.R,
+            ),
+            sdkInt,
         ).resolve(File(path))
 
     @Test
@@ -206,7 +226,12 @@ internal class FileLocationResolverTest {
 
     @Test
     fun `names the primary volume rather than leaving it null`() {
-        resolverOn("/storage/emulated/0", isPrimary = true, uuid = null)
+        resolverOn(
+            "/storage/emulated/0",
+            isPrimary = true,
+            uuid = null,
+            mediaStoreVolumeName = MediaStore.VOLUME_EXTERNAL_PRIMARY,
+        )
 
         // `null` is reserved for "no volume", so the primary volume is named.
         assertEquals(
@@ -223,10 +248,29 @@ internal class FileLocationResolverTest {
     }
 
     @Test
+    fun `takes the volume name from the volume itself on API 30 and above`() {
+        resolverOn(
+            "/storage/1234-5678",
+            isPrimary = false,
+            uuid = "1A2B-3C4D",
+            mediaStoreVolumeName = "1234-5678",
+        )
+
+        assertEquals("1234-5678", resolve("/storage/1234-5678/DCIM/cat.png")?.volumeName)
+    }
+
+    @Test
+    fun `reports no volume name when the volume has none on API 30`() {
+        resolverOn("/storage/1234-5678", mediaStoreVolumeName = null)
+
+        assertNull(resolve("/storage/1234-5678/DCIM/cat.png")?.volumeName)
+    }
+
+    @Test
     fun `lowercases the UUID of a secondary volume into the volume name`() {
         resolverOn("/storage/1234-5678", isPrimary = false, uuid = "1A2B-3C4D")
 
-        val location = resolve("/storage/1234-5678/DCIM/cat.png")
+        val location = resolve("/storage/1234-5678/DCIM/cat.png", sdkInt = Build.VERSION_CODES.P)
 
         assertEquals("1a2b-3c4d", location?.volumeName)
         assertEquals("DCIM/", location?.relativeParentPath)
@@ -236,7 +280,19 @@ internal class FileLocationResolverTest {
     fun `reports no volume name for a secondary volume without a UUID`() {
         resolverOn("/storage/1234-5678", isPrimary = false, uuid = null)
 
-        assertNull(resolve("/storage/1234-5678/DCIM/cat.png")?.volumeName)
+        assertNull(
+            resolve("/storage/1234-5678/DCIM/cat.png", sdkInt = Build.VERSION_CODES.P)?.volumeName,
+        )
+    }
+
+    @Test
+    fun `names the primary volume below API 30 too`() {
+        resolverOn("/storage/emulated/0", isPrimary = true, uuid = null)
+
+        assertEquals(
+            MediaStore.VOLUME_EXTERNAL_PRIMARY,
+            resolve("/storage/emulated/0/DCIM/cat.png", sdkInt = Build.VERSION_CODES.P)?.volumeName,
+        )
     }
 
     @Test

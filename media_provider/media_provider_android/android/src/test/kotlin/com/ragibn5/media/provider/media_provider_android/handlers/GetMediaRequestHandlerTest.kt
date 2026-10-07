@@ -26,13 +26,24 @@ internal class GetMediaRequestHandlerTest {
     private fun callWithTypes(vararg types: Any?) =
         MethodCall("getMedia", mapOf("types" to types.toList()))
 
+    private companion object {
+        /** What the Dart side sends for `AndroidMediaType.photo`. */
+        const val PHOTO = "PHOTO"
+
+        /** What the Dart side sends for `AndroidMediaType.video`. */
+        const val VIDEO = "VIDEO"
+
+        /** A name matching no `MediaType` entry. */
+        const val UNKNOWN = "AUDIO"
+    }
+
     @Test
     fun `replies with the service's media encoded as JSON`() = runTest {
         service.items = listOf(photoItem(), videoItem())
 
         assertEquals(
             Json.encodeToString(service.items),
-            handler.handle(callWithTypes("photo", "video")),
+            handler.handle(callWithTypes(PHOTO, VIDEO)),
         )
     }
 
@@ -40,17 +51,17 @@ internal class GetMediaRequestHandlerTest {
     fun `encodes media types by their wire name, not their enum name`() = runTest {
         service.items = listOf(photoItem())
 
-        val reply = handler.handle(callWithTypes("photo")) as String
+        val reply = handler.handle(callWithTypes(PHOTO)) as String
 
-        assertTrue(reply.contains("\"type\":\"photo\""), reply)
-        assertTrue(!reply.contains("PHOTO"), reply)
+        assertTrue(reply.contains("\"type\":\"$PHOTO\""), reply)
+        assertTrue(!reply.contains("photo"), reply)
     }
 
     @Test
     fun `replies with media the caller can decode back`() = runTest {
         service.items = listOf(photoItem(), videoItem())
 
-        val reply = handler.handle(callWithTypes("photo", "video")) as String
+        val reply = handler.handle(callWithTypes(PHOTO, VIDEO)) as String
 
         assertEquals(service.items, Json.decodeFromString<List<MediaItem>>(reply))
     }
@@ -59,19 +70,19 @@ internal class GetMediaRequestHandlerTest {
     fun `replies with an empty JSON array when the library is empty`() = runTest {
         service.items = emptyList()
 
-        assertEquals("[]", handler.handle(callWithTypes("photo")))
+        assertEquals("[]", handler.handle(callWithTypes(PHOTO)))
     }
 
     @Test
     fun `queries the service with every requested type`() = runTest {
-        handler.handle(callWithTypes("photo", "video"))
+        handler.handle(callWithTypes(PHOTO, VIDEO))
 
         assertEquals(setOf(MediaType.PHOTO, MediaType.VIDEO), service.requestedTypes)
     }
 
     @Test
     fun `queries the service once per distinct type`() = runTest {
-        handler.handle(callWithTypes("photo", "video", "photo"))
+        handler.handle(callWithTypes(PHOTO, VIDEO, PHOTO))
 
         assertEquals(setOf(MediaType.PHOTO, MediaType.VIDEO), service.requestedTypes)
     }
@@ -106,7 +117,7 @@ internal class GetMediaRequestHandlerTest {
     @Test
     fun `rejects a non-string entry in 'types'`() = runTest {
         val error =
-            assertFailsWith<MethodCallException> { handler.handle(callWithTypes("photo", 1)) }
+            assertFailsWith<MethodCallException> { handler.handle(callWithTypes(PHOTO, 1)) }
 
         assertEquals("invalid_argument", error.code)
         assertEquals("Unknown media type: 1", error.message)
@@ -114,22 +125,22 @@ internal class GetMediaRequestHandlerTest {
 
     @Test
     fun `rejects an unknown media type name`() = runTest {
-        val error = assertFailsWith<MethodCallException> { handler.handle(callWithTypes("audio")) }
+        val error = assertFailsWith<MethodCallException> { handler.handle(callWithTypes(UNKNOWN)) }
 
         assertEquals("invalid_argument", error.code)
-        assertEquals("Unknown media type: audio", error.message)
+        assertEquals("Unknown media type: $UNKNOWN", error.message)
     }
 
     @Test
     fun `keeps the serialization failure that caused a rejected media type`() = runTest {
-        val error = assertFailsWith<MethodCallException> { handler.handle(callWithTypes("audio")) }
+        val error = assertFailsWith<MethodCallException> { handler.handle(callWithTypes(UNKNOWN)) }
 
         assertTrue(error.cause is SerializationException, "${error.cause}")
     }
 
     @Test
     fun `does not query the service when the arguments are invalid`() = runTest {
-        assertFailsWith<MethodCallException> { handler.handle(callWithTypes("audio")) }
+        assertFailsWith<MethodCallException> { handler.handle(callWithTypes(UNKNOWN)) }
 
         assertNull(service.requestedTypes)
     }

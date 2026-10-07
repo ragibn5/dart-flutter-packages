@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_provider_android/media_provider_android.dart';
+import 'package:media_provider_android/src/android_media_type.dart';
+import 'package:media_provider_android/src/android_storage_volume.dart';
 import 'package:meta/meta.dart';
 
 @immutable

@@ -19,7 +19,7 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
     assert(types.isNotEmpty, 'types must not be empty');
 
     final result = await methodChannel.invokeMethod<String>('getMedia', {
-      'types': types.map((type) => type.name).toList(),
+      'types': types.map((type) => type.jsonValue).toList(),
     });
     final items = jsonDecode(result!) as List<dynamic>;
     return items

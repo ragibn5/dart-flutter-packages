@@ -171,7 +171,11 @@ internal class MediaColumnsReaderTest {
     fun `reports the lowercased volume UUID for a secondary volume`() {
         val item = MediaColumnsReader(
             FakeCursor.over(data("DCIM", "cat.png")).cursor,
-            fakeFileLocationResolver(isPrimary = false, uuid = "1A2B-3C4D"),
+            fakeFileLocationResolver(
+                isPrimary = false,
+                uuid = "1A2B-3C4D",
+                sdkInt = Build.VERSION_CODES.P,
+            ),
             uriBuilder,
             Build.VERSION_CODES.P,
         ).read(collection)

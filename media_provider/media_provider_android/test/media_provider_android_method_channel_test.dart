@@ -10,7 +10,7 @@ import 'package:media_provider_android/src/android_media_type.dart';
 /// `MediaItem`: every field present, nullable fields explicitly `null`.
 const _photoJsonObject = '''
   {
-    "type": "photo",
+    "type": "PHOTO",
     "id": "1",
     "uri": "content://media/external/images/media/1",
     "name": "IMG_0001.jpg",
@@ -30,7 +30,7 @@ const _photoJsonObject = '''
 
 const _videoJsonObject = '''
   {
-    "type": "video",
+    "type": "VIDEO",
     "id": "2",
     "uri": "content://media/external/video/media/2",
     "name": "VID_0002.mp4",
@@ -127,10 +127,10 @@ void main() {
       expect(log, hasLength(2));
       expect(log.first.method, 'getMedia');
       expect(log.first.arguments, <String, dynamic>{
-        'types': ['photo', 'video'],
+        'types': ['PHOTO', 'VIDEO'],
       });
       expect(log.last.arguments, <String, dynamic>{
-        'types': ['photo'],
+        'types': ['PHOTO'],
       });
     });
 
@@ -149,8 +149,8 @@ void main() {
       'decodes the volume name, null or an uuid for a secondary volume',
       () async {
         const json =
-            '[{"type":"photo","id":"1","uri":"content://x/1","volumeName":'
-            '"external_primary"},{"type":"photo","id":"2","uri":"content://x/2",'
+            '[{"type":"PHOTO","id":"1","uri":"content://x/1","volumeName":'
+            '"external_primary"},{"type":"PHOTO","id":"2","uri":"content://x/2",'
             '"volumeName":null}]';
         mockGetMedia(json);
 
