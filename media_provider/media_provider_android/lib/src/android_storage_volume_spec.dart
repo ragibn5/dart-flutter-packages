@@ -17,17 +17,21 @@ class AndroidStorageVolumeSpec extends Equatable {
   /// The filesystem UUID of the volume.
   ///
   /// > Note:
-  /// > - This must be non-null for non-primary external volumes.
+  /// > - For non-primary external volumes, this is always non-null.
   /// > - For primary volume, this field is not relevant and not used.
   final String? uuid;
 
   factory AndroidStorageVolumeSpec.primary() =>
-      const AndroidStorageVolumeSpec._(isPrimary: true);
+      AndroidStorageVolumeSpec._(isPrimary: true);
 
   factory AndroidStorageVolumeSpec.external({required String uuid}) =>
       AndroidStorageVolumeSpec._(isPrimary: false, uuid: uuid);
 
-  const AndroidStorageVolumeSpec._({required this.isPrimary, this.uuid});
+  AndroidStorageVolumeSpec._({required this.isPrimary, this.uuid}) {
+    if (!isPrimary && uuid == null) {
+      throw ArgumentError('uuid must be non-null for non-primary volumes');
+    }
+  }
 
   Map<String, dynamic> toJson() => _$AndroidStorageVolumeSpecToJson(this);
 
