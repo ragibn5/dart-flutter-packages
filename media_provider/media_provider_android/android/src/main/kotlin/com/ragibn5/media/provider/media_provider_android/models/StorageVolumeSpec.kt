@@ -18,9 +18,9 @@ internal data class StorageVolumeSpec(
     /**
      * The filesystem UUID of the volume.
      *
-     * > Note:
-     * > - For non-primary external volumes, this is always non-null.
-     * > - For primary volume, this field is not relevant and not used.
+     * Note:
+     * - For non-primary external volumes, this is always non-null.
+     * - For primary volume, this field is not relevant and not used.
      * */
     val uuid: String?,
 ) {
