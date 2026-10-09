@@ -38,8 +38,8 @@ internal class VolumeInfoResolverTest {
         Mockito.`when`(this.uuid).thenReturn(uuid)
     }
 
-    private fun resolve(volumeName: String, sdkInt: Int = Build.VERSION_CODES.R) =
-        VolumeInfoResolver(storageManager, sdkInt).resolve(volumeName)
+    private fun fromName(volumeName: String, sdkInt: Int = Build.VERSION_CODES.R) =
+        VolumeInfoResolver(storageManager, sdkInt).fromName(volumeName)
 
     @Test
     fun `resolves a volume by the name it reports on API 30 and above`() {
@@ -51,7 +51,7 @@ internal class VolumeInfoResolverTest {
             )
         )
 
-        assertEquals(VolumeInfo(isPrimary = false, uuid = "1A2B"), resolve("1234-5678"))
+        assertEquals(VolumeInfo(isPrimary = false, uuid = "1A2B"), fromName("1234-5678"))
     }
 
     @Test
@@ -60,7 +60,7 @@ internal class VolumeInfoResolverTest {
 
         assertEquals(
             VolumeInfo(isPrimary = true, uuid = null),
-            resolve(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            fromName(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         )
     }
 
@@ -72,21 +72,21 @@ internal class VolumeInfoResolverTest {
             volumeOn(mediaStoreVolumeName = "3333-3333", isPrimary = false, uuid = "C3"),
         )
 
-        assertEquals(VolumeInfo(isPrimary = false, uuid = "C3"), resolve("3333-3333"))
+        assertEquals(VolumeInfo(isPrimary = false, uuid = "C3"), fromName("3333-3333"))
     }
 
     @Test
     fun `returns null when no mounted volume carries the name`() {
         storageVolumes(volumeOn(mediaStoreVolumeName = "1111-1111"))
 
-        assertNull(resolve("2222-2222"))
+        assertNull(fromName("2222-2222"))
     }
 
     @Test
     fun `returns null when the device reports no volumes`() {
         storageVolumes()
 
-        assertNull(resolve(MediaStore.VOLUME_EXTERNAL_PRIMARY))
+        assertNull(fromName(MediaStore.VOLUME_EXTERNAL_PRIMARY))
     }
 
     @Test
@@ -95,7 +95,7 @@ internal class VolumeInfoResolverTest {
 
         assertEquals(
             VolumeInfo(isPrimary = true, uuid = null),
-            resolve(MediaStore.VOLUME_EXTERNAL_PRIMARY, sdkInt = Build.VERSION_CODES.P),
+            fromName(MediaStore.VOLUME_EXTERNAL_PRIMARY, sdkInt = Build.VERSION_CODES.P),
         )
     }
 
@@ -107,7 +107,7 @@ internal class VolumeInfoResolverTest {
 
         assertEquals(
             VolumeInfo(isPrimary = false, uuid = "1A2B-3C4D"),
-            resolve("1a2b-3c4d", sdkInt = Build.VERSION_CODES.P),
+            fromName("1a2b-3c4d", sdkInt = Build.VERSION_CODES.P),
         )
     }
 
@@ -116,7 +116,7 @@ internal class VolumeInfoResolverTest {
         // Nothing derives a name from a volume that has neither.
         storageVolumes(volumeOn(mediaStoreVolumeName = null, isPrimary = false, uuid = null))
 
-        assertNull(resolve("1a2b-3c4d", sdkInt = Build.VERSION_CODES.P))
+        assertNull(fromName("1a2b-3c4d", sdkInt = Build.VERSION_CODES.P))
     }
 
     @Test
@@ -129,6 +129,6 @@ internal class VolumeInfoResolverTest {
             )
         )
 
-        assertNull(resolve("1234-5678", sdkInt = Build.VERSION_CODES.P))
+        assertNull(fromName("1234-5678", sdkInt = Build.VERSION_CODES.P))
     }
 }
