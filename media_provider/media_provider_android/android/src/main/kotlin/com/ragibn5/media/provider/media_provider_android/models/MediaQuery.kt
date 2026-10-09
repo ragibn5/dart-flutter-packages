@@ -1,26 +1,28 @@
 package com.ragibn5.media.provider.media_provider_android.models
 
-import android.annotation.SuppressLint
-import kotlinx.serialization.Serializable
+import android.net.Uri
 
-/**
- * A query describing the media to fetch from the `MediaStore`.
- */
-@SuppressLint("UnsafeOptInUsageError")
-@Serializable
 internal data class MediaQuery(
-    /**
-     * The media types to include in the query result.
-     *
-     * If null or empty, empty results will be returned.
-     */
-    val types: Set<MediaType>? = null,
+    val type: MediaType,
+    val uri: Uri,
+    val selection: String?,
+    val selectionArgs: Array<String>?,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MediaQuery) return false
 
-    /**
-     * The storage volumes to search.
-     *
-     * If null or empty, no volume based filtration is done and the result may
-     * include media from all the available storage volumes on the device.
-     */
-    val volumes: Set<StorageVolumeSpec>? = null,
-)
+        return type == other.type &&
+                uri == other.uri &&
+                selection == other.selection &&
+                selectionArgs.contentEquals(other.selectionArgs)
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + uri.hashCode()
+        result = 31 * result + (selection?.hashCode() ?: 0)
+        result = 31 * result + (selectionArgs?.contentHashCode() ?: 0)
+        return result
+    }
+}
