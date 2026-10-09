@@ -10,15 +10,10 @@ part 'android_media_query.g.dart';
 @JsonSerializable()
 class AndroidMediaQuery extends Equatable {
   /// The media types to include in the query result.
-  ///
-  /// If null or empty, empty results will be returned.
-  final Set<AndroidMediaType>? types;
+  final Set<AndroidMediaType> types;
 
   /// The storage volumes to search.
-  ///
-  /// If null or empty, no volume based filtration is done and the result
-  /// may include media from all the available storage volumes on the device.
-  final Set<AndroidStorageVolumeSpec>? volumes;
+  final Set<AndroidStorageVolumeSpec> volumes;
 
   const AndroidMediaQuery({required this.types, required this.volumes});
 
