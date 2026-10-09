@@ -17,7 +17,7 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
   @override
   Future<List<AndroidMediaItem>> getMedia(AndroidMediaQuery query) async {
     final result = await methodChannel.invokeMethod<String>('getMedia', {
-      'query': query.toJson(),
+      'query': jsonEncode(query.toJson()),
     });
     final items = jsonDecode(result!) as List<dynamic>;
     return items
