@@ -1,6 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
 import android.database.Cursor
+import android.net.Uri
 import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
@@ -8,7 +9,7 @@ import com.ragibn5.media.provider.media_provider_android.extensions.getBooleanOr
 import com.ragibn5.media.provider.media_provider_android.extensions.getLongOrNull
 import com.ragibn5.media.provider.media_provider_android.extensions.getStringOrNull
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
-import com.ragibn5.media.provider.media_provider_android.models.MediaStoreCollection
+import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import java.io.File
 
 internal class MediaColumnsReader(
@@ -66,13 +67,13 @@ internal class MediaColumnsReader(
         null
     }
 
-    fun read(collection: MediaStoreCollection): MediaItem {
+    fun read(type: MediaType, collectionUri: Uri): MediaItem {
         val id = cursor.getLong(idColumn)
-        val uri = uriBuilder.build(collection.uri, id)
+        val uri = uriBuilder.build(collectionUri, id)
         val filePath = cursor.getStringOrNull(dataColumn)
         val mediaFileInfo = filePath?.let { fileLocationResolver.resolve(File(it)) }
         return MediaItem(
-            type = collection.type,
+            type = type,
             id = id.toString(),
             uri = uri,
             name = cursor.getStringOrNull(nameColumn),
@@ -82,7 +83,7 @@ internal class MediaColumnsReader(
             dateModifiedInMillis = cursor.getLongOrNull(dateModifiedColumn)?.times(1000),
             dateTakenInMillis = dateTakenColumn?.let(cursor::getLongOrNull),
             volumeInfo = volumeNameColumn?.let(cursor::getStringOrNull)
-                ?.let { volumeInfoResolver.resolve(it) }
+                ?.let { volumeInfoResolver.fromName(it) }
                 ?: mediaFileInfo?.volumeInfo,
             relativePath = relativePathColumn?.let(cursor::getStringOrNull)
                 ?: mediaFileInfo?.relativeParentPath,
