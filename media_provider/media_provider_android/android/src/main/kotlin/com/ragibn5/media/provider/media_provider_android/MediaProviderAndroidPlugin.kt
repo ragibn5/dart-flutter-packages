@@ -5,7 +5,7 @@ import androidx.annotation.VisibleForTesting
 import com.ragibn5.media.provider.media_provider_android.handlers.GetMediaRequestHandler
 import com.ragibn5.media.provider.media_provider_android.handlers.GetVolumesHandler
 import com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceFactory
-import com.ragibn5.media.provider.media_provider_android.services.VolumesInfoProviderServiceFactory
+import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceFactory
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -35,7 +35,7 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
         requestDispatcher = MethodCallDispatcher(
             listOf(
                 GetMediaRequestHandler(MediaStoreServiceFactory.create(appContext)),
-                GetVolumesHandler(VolumesInfoProviderServiceFactory.create(appContext)),
+                GetVolumesHandler(VolumeProviderServiceFactory.create(appContext)),
             ),
         )
         channel = MethodChannel(binaryMessenger, CHANNEL_NAME)

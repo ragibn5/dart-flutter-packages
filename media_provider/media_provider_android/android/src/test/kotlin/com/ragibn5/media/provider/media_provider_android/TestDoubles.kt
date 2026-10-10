@@ -5,11 +5,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
-import android.provider.MediaStore
-import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
 import com.ragibn5.media.provider.media_provider_android.services.FileLocationResolver
-import com.ragibn5.media.provider.media_provider_android.services.MediaUriBuilder
-import com.ragibn5.media.provider.media_provider_android.services.VolumeInfoResolver
+import com.ragibn5.media.provider.media_provider_android.services.MediaItemUriBuilder
 import com.ragibn5.media.provider.media_provider_android.services.VolumePathResolver
 import io.flutter.plugin.common.MethodChannel
 import org.mockito.Mockito
@@ -55,12 +52,12 @@ internal class RecordingMethodChannelResult : MethodChannel.Result {
 }
 
 /**
- * A [MediaUriBuilder] that never touches `ContentUris`.
+ * A [MediaItemUriBuilder] that never touches `ContentUris`.
  *
  * Records every row it was asked to address, and gives each the URI
  * `<collection>/<id>`.
  */
-internal class FakeUriBuilder : MediaUriBuilder {
+internal class FakeItemUriBuilder : MediaItemUriBuilder {
     private val requested = mutableListOf<Pair<Uri, Long>>()
 
     /** The URIs it was asked to build, in order. */
@@ -94,7 +91,7 @@ internal fun fakeFileLocationResolver(
     isPrimary: Boolean = true,
     uuid: String? = null,
 ): FileLocationResolver {
-    val storageManager = fakeStorageManager(volumePath, isPrimary, uuid)
+    val storageManager = fakeStorageManagerReportingVolume(volumePath, isPrimary, uuid)
     return FileLocationResolver(
         storageManager = storageManager,
         volumePathResolver = VolumePathResolver(
@@ -109,67 +106,71 @@ internal fun fakeFileLocationResolver(
 }
 
 /**
- * A real [VolumeInfoResolver] over a mocked [StorageManager] reporting one
- * volume, so a name resolves to [VolumeInfo] without a device.
- *
- * @param volumeName the name that resolves to the volume.
- * @param isPrimary whether the volume reports itself as the primary one.
- * @param uuid the volume UUID.
- * @param sdkInt the SDK level to resolve at. Defaults to API 30 so the real code
- *   path runs; `Build.VERSION.SDK_INT` is 0 off-device and would silently take
- *   the pre-API 30 naming instead.
- */
-internal fun fakeVolumeInfoResolver(
-    volumeName: String = MediaStore.VOLUME_EXTERNAL_PRIMARY,
-    isPrimary: Boolean = true,
-    uuid: String? = null,
-    sdkInt: Int = Build.VERSION_CODES.R,
-): VolumeInfoResolver {
-    val volume = fakeVolume(volumeName, isPrimary, uuid)
-    val storageManager = Mockito.mock(StorageManager::class.java)
-    Mockito.`when`(storageManager.storageVolumes).thenReturn(listOf(volume))
-
-    return VolumeInfoResolver(storageManager, sdkInt)
-}
-
-/**
- * A [StorageManager] that reports a single volume for any file.
+ * A [StorageManager] reporting a single volume, whatever file is looked up.
  *
  * @param volumePath the volume root, or `null` for a volume that reports none.
  */
-private fun fakeStorageManager(
+internal fun fakeStorageManagerReportingVolume(
     volumePath: String?,
-    isPrimary: Boolean,
-    uuid: String?,
-): StorageManager {
-    val volume = Mockito.mock(StorageVolume::class.java)
-    Mockito.`when`(volume.directory).thenReturn(volumePath?.let(::File))
-    Mockito.`when`(volume.isPrimary).thenReturn(isPrimary)
-    Mockito.`when`(volume.uuid).thenReturn(uuid)
+    isPrimary: Boolean = true,
+    uuid: String? = null,
+): StorageManager = fakeStorageManager(
+    volumes = listOf(
+        fakeVolume(isPrimary = isPrimary, uuid = uuid, directory = volumePath),
+    ),
+    primaryPath = volumePath,
+)
 
-    val storageManager = Mockito.mock(StorageManager::class.java)
-    Mockito.`when`(storageManager.getStorageVolume(Mockito.any(File::class.java)))
-        .thenReturn(volume)
-
-    return storageManager
+/**
+ * A [StorageVolume] reporting the given properties, and never the name the
+ * `MediaStore` columns carry, since nothing reads it any more.
+ *
+ * @param directory the volume root, or `null` for a volume that reports none.
+ */
+internal fun fakeVolume(
+    isPrimary: Boolean = false,
+    uuid: String? = null,
+    directory: String? = null,
+): StorageVolume = Mockito.mock(StorageVolume::class.java).apply {
+    Mockito.`when`(this.isPrimary).thenReturn(isPrimary)
+    Mockito.`when`(this.uuid).thenReturn(uuid)
+    Mockito.`when`(this.directory).thenReturn(directory?.let(::File))
 }
 
 /**
- * A [StorageVolume] reporting one name, at whichever level [VolumeInfoResolver]
- * asks for it.
+ * A [StorageManager] reporting the given volumes as the device's storage.
  *
- * @param volumeName what the volume reports as `mediaStoreVolumeName`, or `null`
- *   for a volume that reports no name at all.
+ * Each volume is mounted at the root matching its UUID, or at [primaryPath] when
+ * it reports itself as the primary one.
+ *
+ * @param primaryPath where the primary volume is mounted, or `null` for a device
+ *   with no primary volume at all.
  */
-private fun fakeVolume(
-    volumeName: String?,
-    isPrimary: Boolean,
-    uuid: String?,
-): StorageVolume {
-    val volume = Mockito.mock(StorageVolume::class.java)
-    Mockito.`when`(volume.mediaStoreVolumeName).thenReturn(volumeName)
-    Mockito.`when`(volume.isPrimary).thenReturn(isPrimary)
-    Mockito.`when`(volume.uuid).thenReturn(uuid)
+internal fun fakeStorageManager(
+    volumes: List<StorageVolume>,
+    primaryPath: String? = "/storage/emulated/0",
+    volumeDirectories: Map<String?, String?> = emptyMap(),
+): StorageManager {
+    // Read off the volumes up front: Mockito treats a call on one mock made while
+    // another's stubbing is open as a stubbing of its own.
+    val roots: List<String?> = volumes.map { volume ->
+        if (volume.isPrimary) primaryPath else volumeDirectories[volume.uuid]
+    }
+    val primary = volumes.indices.firstOrNull { volumes[it].isPrimary }?.let(volumes::get)
 
-    return volume
+    return Mockito.mock(StorageManager::class.java).apply {
+        Mockito.`when`(storageVolumes).thenReturn(volumes)
+        Mockito.`when`(primaryStorageVolume).thenReturn(primary)
+        volumes.forEachIndexed { index, volume ->
+            Mockito.`when`(volume.directory).thenReturn(roots[index]?.let(::File))
+        }
+        // `getStorageVolume` is only ever asked where a file might sit, so a
+        // volume answers for any path under its own root.
+        Mockito.`when`(getStorageVolume(Mockito.any(File::class.java))).thenAnswer { answer ->
+            val path = (answer.arguments.first() as File).absolutePath
+            roots.indices.firstOrNull { index ->
+                roots[index]?.let { root -> path == root || path.startsWith("$root/") } == true
+            }?.let(volumes::get)
+        }
+    }
 }

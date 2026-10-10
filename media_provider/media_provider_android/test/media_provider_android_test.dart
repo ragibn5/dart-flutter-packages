@@ -19,7 +19,7 @@ const _photoItem = AndroidMediaItem(
   dateAddedInMillis: 1700000000000,
   dateModifiedInMillis: 1700000001000,
   dateTakenInMillis: 1700000002000,
-  volumeInfo: AndroidStorageVolumeInfo(isPrimary: true, uuid: null),
+  volumeInfo: VolumeInfo(isPrimary: true, uuid: null),
   relativePath: 'DCIM/Camera/',
   ownerPackageName: 'com.android.camera3',
   isPending: false,
@@ -55,7 +55,7 @@ void main() {
   late MediaProviderAndroid sut;
 
   setUpAll(() {
-    registerFallbackValue(const AndroidMediaQuery(types: {}, volumes: null));
+    registerFallbackValue(const QuerySpec(types: {}, volumes: null));
   });
 
   setUp(() {
@@ -79,7 +79,7 @@ void main() {
     test(
       'delegates to the instance set at call time, returning its result',
       () async {
-        const query = AndroidMediaQuery(
+        const query = QuerySpec(
           types: {AndroidMediaType.photo, AndroidMediaType.video},
           volumes: null,
         );
@@ -92,7 +92,7 @@ void main() {
         // had resolved the platform once at construction.
         MediaProviderAndroidPlatform.instance = second;
 
-        const later = AndroidMediaQuery(
+        const later = QuerySpec(
           types: {AndroidMediaType.video},
           volumes: null,
         );

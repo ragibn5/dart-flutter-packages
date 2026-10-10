@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
-internal data class MediaQueryRequest(
+internal data class QuerySpec(
     val types: Set<MediaType>,
-    val volumes: Set<StorageVolumeSpec>,
+    val volumes: Set<VolumeSpec>,
 )

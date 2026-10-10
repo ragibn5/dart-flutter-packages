@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:media_provider_android/src/android_media_type.dart';
-import 'package:media_provider_android/src/android_storage_volume_info.dart';
+import 'package:media_provider_android/src/models/media_type.dart';
+import 'package:media_provider_android/src/models/volume_info.dart';
 import 'package:meta/meta.dart';
 
-part 'android_media_item.g.dart';
+part 'media_item.g.dart';
 
 /// A single media file tracked by the Android `MediaStore`.
 ///
@@ -15,9 +15,9 @@ part 'android_media_item.g.dart';
 /// is explicitly documented here, in the field's documentation.
 @JsonSerializable()
 @immutable
-class AndroidMediaItem extends Equatable {
+class MediaItem extends Equatable {
   /// The `MediaStore` collection this item belongs to.
-  final AndroidMediaType type;
+  final MediaType type;
 
   /// The `MediaStore` row ID (`_ID`), as a string, for example `'42'`.
   ///
@@ -79,7 +79,7 @@ class AndroidMediaItem extends Equatable {
   /// names a volume that is no longer mounted.
   ///
   /// Null when neither source yields a volume.
-  final AndroidStorageVolumeInfo? volumeInfo;
+  final VolumeInfo? volumeInfo;
 
   /// The path of the directory containing the file, relative to the root
   /// of its storage volume, with a trailing slash, for example
@@ -125,7 +125,7 @@ class AndroidMediaItem extends Equatable {
   /// level 30 (R).
   final bool? isDownloaded;
 
-  const AndroidMediaItem({
+  const MediaItem({
     required this.type,
     required this.id,
     required this.uri,
@@ -144,10 +144,10 @@ class AndroidMediaItem extends Equatable {
     required this.isDownloaded,
   });
 
-  Map<String, dynamic> toJson() => _$AndroidMediaItemToJson(this);
+  Map<String, dynamic> toJson() => _$MediaItemToJson(this);
 
-  factory AndroidMediaItem.fromJson(Map<String, dynamic> json) =>
-      _$AndroidMediaItemFromJson(json);
+  factory MediaItem.fromJson(Map<String, dynamic> json) =>
+      _$MediaItemFromJson(json);
 
   @override
   List<Object?> get props => [

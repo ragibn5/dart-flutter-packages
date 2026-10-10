@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
     // system settings, otherwise the list is empty.
     try {
       final media = await _mediaProviderAndroidPlugin.getMedia(
-        AndroidMediaQuery(
+        MediaQuery(
           types: {AndroidMediaType.photo, AndroidMediaType.video},
           volumes: null,
         ),

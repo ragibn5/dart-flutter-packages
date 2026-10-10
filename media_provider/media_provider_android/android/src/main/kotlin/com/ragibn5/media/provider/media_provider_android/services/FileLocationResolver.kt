@@ -12,7 +12,7 @@ internal class FileLocationResolver(
 ) {
     fun resolve(file: File): FileLocation? {
         val volume = storageManager.getStorageVolume(file) ?: return null
-        val volumePath = volumePathResolver.resolve(file)?.ensureTrailingSlash() ?: return null
+        val volumePath = volumePathResolver.resolve(volume)?.ensureTrailingSlash() ?: return null
         val fileParentPath = file.parentFile?.absolutePath?.ensureTrailingSlash() ?: return null
         return FileLocation(
             volumeInfo = VolumeInfo(volume.isPrimary, volume.uuid),

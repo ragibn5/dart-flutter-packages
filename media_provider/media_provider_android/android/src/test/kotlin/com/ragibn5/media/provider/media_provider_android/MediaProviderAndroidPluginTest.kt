@@ -1,8 +1,8 @@
 package com.ragibn5.media.provider.media_provider_android
 
-import com.ragibn5.media.provider.media_provider_android.models.MediaItem
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
-import com.ragibn5.media.provider.media_provider_android.services.MediaStoreService
+import android.content.ContentResolver
+import android.content.Context
+import android.os.storage.StorageManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import kotlinx.coroutines.Dispatchers
@@ -21,14 +21,27 @@ import kotlin.test.assertTrue
 
 /**
  * [MediaProviderAndroidPlugin] owns the channel name and the attach/detach
- * lifecycle. These tests drive those two concerns through [attach], which takes
- * the service as an argument, so no part of this depends on `MediaStore` or on
- * a device context.
+ * lifecycle. These tests drive those two concerns through [attach], which builds
+ * the real services over a mocked context, so no part of this depends on
+ * `MediaStore` or on a device.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class MediaProviderAndroidPluginTest {
     private val messenger = FakeBinaryMessenger()
-    private val service = FakeMediaStoreService()
+    private val storageManager: StorageManager = Mockito.mock(StorageManager::class.java)
+
+    /**
+     * A context that answers the one lookup the factories make.
+     *
+     * Nothing is queried through it: every call below is either rejected before
+     * the service is reached or answered `notImplemented`.
+     */
+    private val context: Context = Mockito.mock(Context::class.java).apply {
+        Mockito.`when`(getSystemService(StorageManager::class.java)).thenReturn(storageManager)
+        Mockito.`when`(contentResolver)
+            .thenReturn(Mockito.mock(ContentResolver::class.java))
+    }
+
     private val plugin = MediaProviderAndroidPlugin()
 
     @BeforeEach
@@ -42,7 +55,7 @@ internal class MediaProviderAndroidPluginTest {
         Dispatchers.resetMain()
     }
 
-    private fun attach() = plugin.attach(messenger, service)
+    private fun attach() = plugin.attach(context, messenger)
 
     @Test
     fun `registers a handler on its own channel`() {
@@ -77,19 +90,25 @@ internal class MediaProviderAndroidPluginTest {
     }
 
     @Test
-    fun `rejects getMedia with invalid arguments instead of querying`() {
+    fun `serves getMedia`() {
         attach()
 
+        // Rejected on its arguments, but served: the reply is a decoded error
+        // rather than the null `notImplemented` sends.
         val error = messenger.decodeError(
-            messenger.dispatch(
-                CHANNEL,
-                MethodCall("getMedia", mapOf("types" to emptyList<String>()))
-            ),
+            messenger.dispatch(CHANNEL, MethodCall("getMedia", mapOf("query" to "{}"))),
         )
 
         assertEquals("invalid_argument", error.code)
-        assertEquals("'types' must not be empty", error.message)
-        assertNull(service.requestedTypes, "the service must not be queried")
+    }
+
+    @Test
+    fun `serves getVolumes`() {
+        attach()
+
+        val reply = messenger.dispatch(CHANNEL, getVolumesCall())
+
+        assertNotNull(reply, "getVolumes must be served, not answered notImplemented")
     }
 
     @Test
@@ -97,7 +116,7 @@ internal class MediaProviderAndroidPluginTest {
         attach()
         plugin.onDetachedFromEngine(detachBinding())
 
-        val error = runCatching { messenger.dispatch(CHANNEL, getMediaCall(listOf("photo"))) }
+        val error = runCatching { messenger.dispatch(CHANNEL, getVolumesCall()) }
 
         assertTrue(error.isFailure, "the channel should no longer be served")
     }
@@ -111,16 +130,6 @@ internal class MediaProviderAndroidPluginTest {
     }
 
     private fun detachBinding() = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java)
-
-    private class FakeMediaStoreService : MediaStoreService {
-        var items: List<MediaItem> = emptyList()
-        var requestedTypes: Set<MediaType>? = null
-
-        override suspend fun getMedia(types: Set<MediaType>): List<MediaItem> {
-            requestedTypes = types
-            return items
-        }
-    }
 
     private companion object {
         /** Mirrors the plugin's private channel name. */

@@ -3,11 +3,11 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
-import 'package:media_provider_android/src/android_media_item.dart';
-import 'package:media_provider_android/src/android_media_query.dart';
+import 'package:media_provider_android/src/models/android_media_item.dart';
+import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/android_media_type.dart';
-import 'package:media_provider_android/src/android_storage_volume_info.dart';
-import 'package:media_provider_android/src/android_storage_volume_spec.dart';
+import 'package:media_provider_android/src/models/volume_info.dart';
+import 'package:media_provider_android/src/models/volume_spec.dart';
 
 /// JSON objects shaped exactly like `Json.encodeToString` of the Kotlin
 /// `MediaItem`: every field present, nullable fields explicitly `null`.
@@ -64,7 +64,7 @@ const _photoItem = AndroidMediaItem(
   dateAddedInMillis: 1700000000000,
   dateModifiedInMillis: 1700000001000,
   dateTakenInMillis: 1700000002000,
-  volumeInfo: AndroidStorageVolumeInfo(isPrimary: true, uuid: null),
+  volumeInfo: VolumeInfo(isPrimary: true, uuid: null),
   relativePath: 'DCIM/Camera/',
   ownerPackageName: 'com.android.camera3',
   isPending: false,
@@ -125,13 +125,13 @@ void main() {
       mockGetMedia(_mixedJson);
 
       await sut.getMedia(
-        const AndroidMediaQuery(
+        const QuerySpec(
           types: {AndroidMediaType.photo, AndroidMediaType.video},
           volumes: null,
         ),
       );
       await sut.getMedia(
-        const AndroidMediaQuery(types: {AndroidMediaType.photo}, volumes: null),
+        const QuerySpec(types: {AndroidMediaType.photo}, volumes: null),
       );
 
       expect(log, hasLength(2));
@@ -154,11 +154,11 @@ void main() {
       mockGetMedia(_mixedJson);
 
       await sut.getMedia(
-        AndroidMediaQuery(
+        QuerySpec(
           types: const {AndroidMediaType.photo},
           volumes: {
-            AndroidStorageVolumeSpec.primary(),
-            AndroidStorageVolumeSpec.external(uuid: '1A2B-3C4D'),
+            VolumeSpec.primary(),
+            VolumeSpec.external(uuid: '1A2B-3C4D'),
           },
         ),
       );
@@ -176,7 +176,7 @@ void main() {
       mockGetMedia(_mixedJson);
 
       final result = await sut.getMedia(
-        const AndroidMediaQuery(
+        const QuerySpec(
           types: {AndroidMediaType.photo, AndroidMediaType.video},
           volumes: null,
         ),
@@ -197,15 +197,15 @@ void main() {
         mockGetMedia(json);
 
         final result = await sut.getMedia(
-          const AndroidMediaQuery(
+          const QuerySpec(
             types: {AndroidMediaType.photo},
             volumes: null,
           ),
         );
 
         expect(result.map((item) => item.volumeInfo), [
-          const AndroidStorageVolumeInfo(isPrimary: true, uuid: null),
-          const AndroidStorageVolumeInfo(isPrimary: false, uuid: '1A2B-3C4D'),
+          const VolumeInfo(isPrimary: true, uuid: null),
+          const VolumeInfo(isPrimary: false, uuid: '1A2B-3C4D'),
           null,
         ]);
       },
@@ -215,7 +215,7 @@ void main() {
       mockGetMedia('[]');
 
       final result = await sut.getMedia(
-        const AndroidMediaQuery(types: {AndroidMediaType.photo}, volumes: null),
+        const QuerySpec(types: {AndroidMediaType.photo}, volumes: null),
       );
 
       expect(result, isEmpty);
@@ -227,7 +227,7 @@ void main() {
       // The emptiness rule is enforced by the platform side, which replies
       // with an 'invalid_argument' PlatformException. The Dart side must not
       // reject the query on its own.
-      await sut.getMedia(const AndroidMediaQuery(types: {}, volumes: null));
+      await sut.getMedia(const QuerySpec(types: {}, volumes: null));
 
       expect(log, hasLength(1));
       expect(log.single.arguments, <String, dynamic>{
@@ -249,7 +249,7 @@ void main() {
 
         await expectLater(
           sut.getMedia(
-            const AndroidMediaQuery(
+            const QuerySpec(
               types: {AndroidMediaType.photo},
               volumes: null,
             ),

@@ -2,7 +2,7 @@ package com.ragibn5.media.provider.media_provider_android.handlers
 
 import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
 import com.ragibn5.media.provider.media_provider_android.exceptions.MethodCallException
-import com.ragibn5.media.provider.media_provider_android.models.MediaQueryRequest
+import com.ragibn5.media.provider.media_provider_android.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.services.MediaStoreService
 import io.flutter.plugin.common.MethodCall
 import kotlinx.coroutines.CoroutineDispatcher
@@ -28,12 +28,12 @@ internal class GetMediaRequestHandler(
         }
     }
 
-    private fun parseRequest(call: MethodCall): MediaQueryRequest {
+    private fun parseRequest(call: MethodCall): QuerySpec {
         val argument = call.argument<String>(QUERY_ARGUMENT)
-            ?: throw invalidArgument("'$QUERY_ARGUMENT' must be a valid JSON representation of $MediaQueryRequest")
+            ?: throw invalidArgument("'$QUERY_ARGUMENT' must be a valid JSON representation of $QuerySpec")
 
         val request = try {
-            json.decodeFromString<MediaQueryRequest>(argument)
+            json.decodeFromString<QuerySpec>(argument)
         } catch (e: SerializationException) {
             throw invalidArgument("'$QUERY_ARGUMENT' is malformed", e)
         } catch (e: IllegalArgumentException) {

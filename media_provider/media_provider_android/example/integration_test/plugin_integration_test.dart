@@ -18,7 +18,7 @@ void main() {
     // Contents depend on the device's library and granted permissions, so
     // just assert that the call round-trips.
     final media = await plugin.getMedia(
-      AndroidMediaQuery(
+      QuerySpec(
         types: {AndroidMediaType.photo, AndroidMediaType.video},
         volumes: null,
       ),

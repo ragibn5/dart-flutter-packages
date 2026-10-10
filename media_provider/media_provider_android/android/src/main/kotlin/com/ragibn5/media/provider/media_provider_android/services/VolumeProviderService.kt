@@ -4,20 +4,20 @@ import android.content.Context
 import android.os.storage.StorageManager
 import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
 
-internal interface VolumesInfoProviderService {
+internal interface VolumeProviderService {
     fun getVolumes(): List<VolumeInfo>
 }
 
-internal object VolumesInfoProviderServiceFactory {
-    fun create(context: Context): VolumesInfoProviderService {
+internal object VolumeProviderServiceFactory {
+    fun create(context: Context): VolumeProviderService {
         val storageManager = context.getSystemService(StorageManager::class.java)
-        return VolumesInfoProviderServiceImpl(storageManager)
+        return VolumeProviderServiceImpl(storageManager)
     }
 }
 
-internal class VolumesInfoProviderServiceImpl(
+internal class VolumeProviderServiceImpl(
     private val storageManager: StorageManager
-) : VolumesInfoProviderService {
+) : VolumeProviderService {
     override fun getVolumes(): List<VolumeInfo> {
         return storageManager.storageVolumes.map { VolumeInfo(it.isPrimary, it.uuid) }
     }

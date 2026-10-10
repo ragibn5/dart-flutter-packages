@@ -69,6 +69,18 @@ internal class FakeBinaryMessenger : BinaryMessenger {
     }
 }
 
-/** The `getMedia` call the plugin serves, with the given [types]. */
-internal fun getMediaCall(types: List<String>): MethodCall =
-    MethodCall("getMedia", mapOf("types" to types))
+/**
+ * The `getMedia` call the plugin serves, with the given [types] searched on the
+ * primary volume. The spec goes over the wire as JSON under `"query"`, the way
+ * the Dart side sends it.
+ */
+internal fun getMediaCall(types: List<String>): MethodCall = MethodCall(
+    "getMedia",
+    mapOf(
+        "query" to
+                """{"types":[${types.joinToString(",")}],"volumes":[{"type":"primary"}]}""",
+    ),
+)
+
+/** The `getVolumes` call the plugin serves. It takes no arguments. */
+internal fun getVolumesCall(): MethodCall = MethodCall("getVolumes", null)

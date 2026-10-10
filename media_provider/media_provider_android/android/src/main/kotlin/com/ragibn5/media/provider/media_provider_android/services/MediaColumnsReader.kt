@@ -14,9 +14,8 @@ import java.io.File
 
 internal class MediaColumnsReader(
     private val cursor: Cursor,
-    private val volumeInfoResolver: VolumeInfoResolver,
     private val fileLocationResolver: FileLocationResolver,
-    private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
+    private val uriBuilder: MediaItemUriBuilder = MediaItemUriBuilder.DEFAULT,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) {
     private val idColumn = cursor.getColumnIndexOrThrow(BaseColumns._ID)
@@ -26,16 +25,6 @@ internal class MediaColumnsReader(
     private val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaColumns.DATE_ADDED)
     private val dateModifiedColumn = cursor.getColumnIndexOrThrow(MediaColumns.DATE_MODIFIED)
     private val dataColumn = cursor.getColumnIndexOrThrow(MediaColumns.DATA)
-    private val volumeNameColumn = if (hasApi29Columns) {
-        cursor.getColumnIndexOrThrow(MediaColumns.VOLUME_NAME)
-    } else {
-        null
-    }
-    private val relativePathColumn = if (hasApi29Columns) {
-        cursor.getColumnIndexOrThrow(MediaColumns.RELATIVE_PATH)
-    } else {
-        null
-    }
     private val isPendingColumn = if (hasApi29Columns) {
         cursor.getColumnIndexOrThrow(MediaColumns.IS_PENDING)
     } else {
@@ -82,11 +71,8 @@ internal class MediaColumnsReader(
             dateAddedInMillis = cursor.getLongOrNull(dateAddedColumn)?.times(1000),
             dateModifiedInMillis = cursor.getLongOrNull(dateModifiedColumn)?.times(1000),
             dateTakenInMillis = dateTakenColumn?.let(cursor::getLongOrNull),
-            volumeInfo = volumeNameColumn?.let(cursor::getStringOrNull)
-                ?.let { volumeInfoResolver.fromName(it) }
-                ?: mediaFileInfo?.volumeInfo,
-            relativePath = relativePathColumn?.let(cursor::getStringOrNull)
-                ?: mediaFileInfo?.relativeParentPath,
+            volumeInfo = mediaFileInfo?.volumeInfo,
+            relativePath = mediaFileInfo?.relativeParentPath,
             ownerPackageName = ownerPackageNameColumn?.let(cursor::getStringOrNull),
             isPending = isPendingColumn?.let(cursor::getBooleanOrNull),
             isTrashed = isTrashedColumn?.let(cursor::getBooleanOrNull),
@@ -132,15 +118,13 @@ internal class MediaColumnsReader(
 }
 
 internal class MediaColumnsReaderFactory(
-    private val volumeInfoResolver: VolumeInfoResolver,
     private val fileLocationResolver: FileLocationResolver,
-    private val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT,
+    private val uriBuilder: MediaItemUriBuilder = MediaItemUriBuilder.DEFAULT,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) {
     fun create(cursor: Cursor): MediaColumnsReader =
         MediaColumnsReader(
             cursor = cursor,
-            volumeInfoResolver = volumeInfoResolver,
             fileLocationResolver = fileLocationResolver,
             uriBuilder = uriBuilder,
             sdkInt = sdkInt,
