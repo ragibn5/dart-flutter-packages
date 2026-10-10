@@ -125,9 +125,11 @@ internal class VolumePathResolverTest {
         val result = resolver(Build.VERSION_CODES.P)
             .resolve(volumeOn("/storage/emulated/0", isPrimary = false, uuid = "1111-1111"))
 
-        // Trimmed of the four path segments below the root. The trailing slash
-        // is kept: it is what makes the root a usable prefix in a `LIKE`.
-        assertEquals("/storage/emulated/0/", result)
+        // Trimmed of the four path segments below the root. No trailing slash:
+        // `resolve` reports a bare root, and callers add the slash they need —
+        // `MediaQueryBuilder` for its `LIKE`, `FileLocationResolver` for its
+        // `substring`.
+        assertEquals("/storage/emulated/0", result)
     }
 
     @Test
@@ -150,17 +152,18 @@ internal class VolumePathResolverTest {
         val result = resolver(Build.VERSION_CODES.P)
             .resolve(volumeOn("/storage/1234-5678", isPrimary = false, uuid = "1234-5678"))
 
-        assertEquals("/storage/1234-5678/", result)
+        assertEquals("/storage/1234-5678", result)
     }
 
     @Test
     fun `matches a directory below API 30 despite its trailing slash`() {
-        externalDirs("/storage/1234-5678/Android/data/com.example/files")
+        // The app dir carries a trailing slash; the root reported for it does not.
+        externalDirs("/storage/1234-5678/Android/data/com.example/files/")
 
         val result = resolver(Build.VERSION_CODES.P)
             .resolve(volumeOn("/storage/1234-5678", isPrimary = false, uuid = "1234-5678"))
 
-        assertEquals("/storage/1234-5678/", result)
+        assertEquals("/storage/1234-5678", result)
     }
 
     @Test

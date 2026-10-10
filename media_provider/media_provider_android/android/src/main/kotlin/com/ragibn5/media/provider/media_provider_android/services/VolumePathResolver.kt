@@ -6,7 +6,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
-import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
+import com.ragibn5.media.provider.media_provider_android.extensions.ensureNoTrailingSlash
 import java.io.File
 
 internal class VolumePathResolver(
@@ -25,12 +25,12 @@ internal class VolumePathResolver(
         }
 
         val uuid = storageVolume.uuid ?: return null
-        return getVolumePath(uuid)
+        return getVolumePath(uuid)?.ensureNoTrailingSlash()
     }
 
     private fun getVolumePath(uuid: String): String? {
         val volumeRoots = appContext.getExternalFilesDirs(null)
-            .map { it.absolutePath.trimToVolumeRoot(true).ensureTrailingSlash() }
+            .map { it.absolutePath.trimToVolumeRoot(true) }
         val rootsToVolumeMap = volumeRoots
             .associateWith { storageManager.getStorageVolume(File(it)) }
         return rootsToVolumeMap.entries.firstOrNull { it.value?.uuid == uuid }?.key

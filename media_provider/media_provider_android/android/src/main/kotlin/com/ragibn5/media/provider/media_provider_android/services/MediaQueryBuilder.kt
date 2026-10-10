@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import android.provider.MediaStore
+import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.models.MediaQuery
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import com.ragibn5.media.provider.media_provider_android.models.QuerySpec
@@ -29,11 +30,12 @@ internal class MediaQueryBuilder(
 
     private fun buildFor(type: MediaType, volume: VolumeSpec): MediaQuery? {
         val volume = volume.mediaStoreVolume() ?: return null
+        val volumePath = volumePathResolver.resolve(volume) ?: return null
         return MediaQuery(
             type = type,
             uri = type.toCollectionUri(),
             selection = "${MediaStore.MediaColumns.DATA} LIKE ?",
-            selectionArgs = arrayOf("${volumePathResolver.resolve(volume)}%")
+            selectionArgs = arrayOf("${volumePath.ensureTrailingSlash()}%")
         )
     }
 
