@@ -50,14 +50,14 @@ internal class MediaStoreServiceImplTest {
         contentResolver = contentResolver,
         queryBuilder = queryBuilder,
         // The `uriBuilder` is injected so no test depends on real `ContentUris`
-        // behavior, and the reader is pinned to the same API level as the query.
+        // behavior. The factory holds the API level, and the projection the query
+        // uses comes from it, so a test only has to pin one.
         mediaColumnsReaderFactory = MediaColumnsReaderFactory(
             fileLocationResolver = fakeFileLocationResolver(),
             uriBuilder = FakeItemUriBuilder(),
             sdkInt = sdkInt,
         ),
         dispatcher = UnconfinedTestDispatcher(),
-        sdkInt = sdkInt,
     )
 
     private fun spec(

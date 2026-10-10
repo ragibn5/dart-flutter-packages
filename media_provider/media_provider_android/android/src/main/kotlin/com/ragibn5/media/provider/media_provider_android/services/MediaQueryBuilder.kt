@@ -1,6 +1,5 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
-import android.net.Uri
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import android.provider.MediaStore
@@ -19,6 +18,7 @@ import com.ragibn5.media.provider.media_provider_android.models.VolumeSpec
 internal class MediaQueryBuilder(
     private val storageManager: StorageManager,
     private val volumePathResolver: VolumePathResolver,
+    private val collectionUriResolver: MediaCollectionUriResolver = MediaCollectionUriResolver.DEFAULT,
 ) {
     fun build(request: QuerySpec): List<MediaQuery> = buildList {
         request.types.forEach { type ->
@@ -33,17 +33,10 @@ internal class MediaQueryBuilder(
         val volumePath = volumePathResolver.resolve(volume) ?: return null
         return MediaQuery(
             type = type,
-            uri = type.toCollectionUri(),
+            uri = collectionUriResolver.collectionFor(type),
             selection = "${MediaStore.MediaColumns.DATA} LIKE ?",
             selectionArgs = arrayOf("${volumePath.ensureTrailingSlash()}%")
         )
-    }
-
-    private fun MediaType.toCollectionUri(): Uri {
-        return when (this) {
-            MediaType.PHOTO -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            MediaType.VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        }
     }
 
     private fun VolumeSpec.mediaStoreVolume(): StorageVolume? {

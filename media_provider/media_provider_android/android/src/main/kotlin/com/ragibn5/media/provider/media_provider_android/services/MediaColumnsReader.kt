@@ -126,6 +126,8 @@ internal class MediaColumnsReaderFactory(
     private val uriBuilder: MediaItemUriBuilder = MediaItemUriBuilder.DEFAULT,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) {
+    val projection: List<String> = MediaColumnsReader.projectionFor(sdkInt)
+
     fun create(cursor: Cursor): MediaColumnsReader =
         MediaColumnsReader(
             cursor = cursor,

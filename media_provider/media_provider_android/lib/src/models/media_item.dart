@@ -72,24 +72,16 @@ class MediaItem extends Equatable {
 
   /// The storage volume the file sits on.
   ///
-  /// On API level 29 (Q) and above, `MediaStore.MediaColumns.VOLUME_NAME`
-  /// names the volume and it is then described by the native side. Below that
-  /// the column does not exist, so the volume is resolved from the `DATA`
-  /// path instead, which is also the fallback when the column is NULL or
-  /// names a volume that is no longer mounted.
-  ///
-  /// Null when neither source yields a volume.
+  /// Null when the volume cannot be resolved.
   final VolumeInfo? volumeInfo;
 
   /// The path of the directory containing the file, relative to the root
-  /// of its storage volume, with a trailing slash, for example
-  /// `'DCIM/Camera/'`.
+  /// of its storage volume, for example `'DCIM/Camera/'`.
   ///
-  /// Read from `MediaStore.MediaColumns.RELATIVE_PATH` on API level 29 (Q)
-  /// and above, falling back to the path resolved from `DATA` below that
-  /// level or when the column is NULL. Empty when the file sits directly
-  /// in the volume root, `null` when neither source yields a path.
-  /// Separators are always `/`.
+  /// Possible values:
+  /// - When the file sits directly in the volume root, it is an empty string.
+  /// - When not within the volume root, it always ends with a path separator.
+  /// - `null` when the path cannot be resolved.
   final String? relativePath;
 
   /// The package name of the app that owns the item, for example

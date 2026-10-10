@@ -81,10 +81,7 @@ internal data class MediaItem(
     /**
      * The storage volume holding the file.
      *
-     * On API level 29 (Q) and above, `MediaStore.MediaColumns.VOLUME_NAME` is used
-     * to resolve the item's containing storage volume. On API levels below 29 (Q),
-     * `MediaStore.MediaColumns.DATA` (the item's absolute filesystem path) is used
-     * instead. If neither source can be used to resolve a volume, `null` is returned.
+     * Null when the volume cannot be resolved.
      */
     val volumeInfo: VolumeInfo?,
 
@@ -92,9 +89,10 @@ internal data class MediaItem(
      * The path of the directory containing the file, relative to the root of its storage volume,
      * for example `DCIM/Camera/`.
      *
-     * Read from `MediaStore.MediaColumns.RELATIVE_PATH` on API level 29 (Q) and above, falling
-     * back to the path resolved from `DATA` below that level or when the column is NULL. Empty
-     * when the file sits directly in the volume root, `null` when neither source yields a path.
+     * Possible values:
+     * - When the file sits directly in the volume root, it is an empty string.
+     * - When not within the volume root, it always ends with a path separator.
+     * - `null` when the path cannot be resolved.
      */
     val relativePath: String?,
 

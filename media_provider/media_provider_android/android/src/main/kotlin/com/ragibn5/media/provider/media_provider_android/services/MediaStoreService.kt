@@ -39,7 +39,6 @@ internal object MediaStoreServiceFactory {
                 uriBuilder = uriBuilder,
                 sdkInt = sdkInt
             ),
-            sdkInt = sdkInt,
         )
     }
 }
@@ -49,7 +48,6 @@ internal class MediaStoreServiceImpl(
     private val queryBuilder: MediaQueryBuilder,
     private val mediaColumnsReaderFactory: MediaColumnsReaderFactory,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) : MediaStoreService {
     override suspend fun getMedia(spec: QuerySpec): List<MediaItem> {
         if (spec.types.isEmpty() || spec.volumes.isEmpty()) {
@@ -71,7 +69,7 @@ internal class MediaStoreServiceImpl(
 
         contentResolver.query(
             query.uri,
-            MediaColumnsReader.projectionFor(sdkInt).toTypedArray(),
+            mediaColumnsReaderFactory.projection.toTypedArray(),
             query.selection,
             query.selectionArgs,
             null,
