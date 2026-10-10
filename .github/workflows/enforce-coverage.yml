@@ -1,0 +1,71 @@
+name: Enforce coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  enforce-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # fvm is only needed to run dev_tools itself (via its own .fvmrc pin)
+      # — every scanned package's own tests run on the global Flutter/Dart
+      # below instead, since matching each package's exact pinned SDK isn't
+      # necessary just to run its tests.
+      - name: Install fvm
+        run: curl -fsSL https://fvm.app/install.sh | bash
+
+      - name: Add fvm to PATH
+        run: echo "$HOME/fvm/bin" >> "$GITHUB_PATH"
+
+      - name: Cache fvm SDK versions
+        uses: actions/cache@v4
+        with:
+          path: ~/fvm/versions
+          key: fvm-versions-${{ hashFiles('dev_tools/.fvmrc') }}
+          restore-keys: fvm-versions-
+
+      - name: Install pinned Flutter SDK version via FVM
+        working-directory: dev_tools
+        run: fvm install
+
+      - name: Install dev_tools dependencies
+        working-directory: dev_tools
+        run: fvm dart pub get
+
+      # dev_tools/.fvmrc pins a Flutter version, so the step above already
+      # made fvm download the full SDK (bundled Dart included) into
+      # ~/fvm/versions — the same directory cached above. Point plain
+      # flutter/dart at that instead of installing a second SDK copy via
+      # flutter-action.
+      - name: Add FVM's downloaded Flutter SDK to PATH
+        run: |
+          FLUTTER_VERSION=$(jq -r .flutter dev_tools/.fvmrc)
+          echo "$HOME/fvm/versions/$FLUTTER_VERSION/bin" >> "$GITHUB_PATH"
+
+      # Needed to convert a pure-Dart package's raw `dart test --coverage`
+      # output into lcov — see RunPackageTestsWithCoverage.
+      - name: Activate the coverage package
+        run: dart pub global activate coverage
+
+      # lcov (used by CalculateCoverage to read each package's coverage
+      # percentage) isn't preinstalled on ubuntu-latest.
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
+
+      - name: Check coverage across touched packages
+        working-directory: dev_tools
+        run: |
+          mapfile -t ARGS < <(fvm dart run bin/dev_tools.dart packages get-touched --from ${{ github.event.pull_request.base.sha }} | sed 's/^/--package=/')
+          if [ ${#ARGS[@]} -eq 0 ]; then
+            echo "No packages touched; nothing to check."
+            exit 0
+          fi
+          fvm dart run bin/dev_tools.dart coverage verify --fail-fast "${ARGS[@]}"

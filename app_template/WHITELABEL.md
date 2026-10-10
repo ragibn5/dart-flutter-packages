@@ -15,7 +15,7 @@ See [Running the app][running-app] in the main README.
 
 ## Set up app identifiers, resources, and services
 
-▶️ **To run the automated setup script:** `bash scripts/whitelabel/whitelabel.sh`
+▶️ **To run the automated setup:** `make whitelabel-setup`
 
 Or, follow the manual steps below.
 
@@ -73,8 +73,8 @@ fvm dart run flutter_native_splash:create --all-flavors
 
 1. Ensure `flutterfire` CLI is installed ([guide][firebase-setup] — steps 1–2 only).
 2. Create Firebase projects (one per flavor recommended, but a single project works too).
-3. Open [`scripts/firebase/firebase_setup.sh`][firebase-script] and update `default_project`, `default_ios_bundle`, and `default_android_pkg` for each flavor.
-4. Run the script — it creates missing Firebase apps and overwrites the config files.
+3. Open [`dev_tools_whitelabel_config.yaml`][whitelabel-config] and update the `firebase` section's `project_id`, `ios_bundle_id`, and `android_package_name` for each flavor.
+4. Run `make whitelabel-setup` (or `dev_tools whitelabel firebase` directly) — it creates missing Firebase apps and overwrites the config files per flavor.
 
 ## Final TODOs
 
@@ -91,6 +91,6 @@ fvm dart run flutter_native_splash:create --all-flavors
 
 [icon-guide]: assets/external/guides/ios_launcher_icon_flavored_values.jpeg
 
-[firebase-script]: scripts/firebase/firebase_setup.sh
+[whitelabel-config]: dev_tools_whitelabel_config.yaml
 
 [firebase-setup]: https://firebase.google.com/docs/flutter/setup?platform=android

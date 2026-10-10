@@ -21,7 +21,7 @@ void main() {
   });
 
   test('If not authenticated should redirect to login', () async {
-    when(() => mockIsAuthed()).thenAnswer((_) async => true);
+    when(() => mockIsAuthed()).thenAnswer((_) async => false);
 
     final result = await sut.onNavigationRequest(
       _FakeBuildContext(),
@@ -37,7 +37,7 @@ void main() {
   });
 
   test('If authenticated should redirect to home', () async {
-    when(() => mockIsAuthed()).thenAnswer((_) async => false);
+    when(() => mockIsAuthed()).thenAnswer((_) async => true);
 
     final result = await sut.onNavigationRequest(
       _FakeBuildContext(),

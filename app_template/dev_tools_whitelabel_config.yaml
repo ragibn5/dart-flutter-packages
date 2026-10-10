@@ -1,0 +1,53 @@
+# Project-root-relative glob patterns not included in a white-label project.
+exclude:
+  - .dart_tool
+  - build
+  - .idea
+  - coverage
+  - .flutter-plugins
+  - .flutter-plugins-dependencies
+  - .packages
+  - pubspec.lock
+  - android/build
+  - android/.cxx
+  - android/app/.cxx
+  - android/app/.gradle
+  - ios/build
+  - ios/.symlinks
+  - ios/Pods
+  - ios/Podfile.lock
+  - linux/build
+  - macos/build
+  - windows/build
+  - '**/*.iml'
+
+# This project's flavors, used by the whitelabel commands (Firebase setup,
+# platform package rename, and the app-name/launcher-icon/splash guides).
+# Optional — an absent key defaults to no flavors — but this project has
+# flavors, so it's declared explicitly.
+flavors: [dev, exp, stage, prod]
+
+# Default per-flavor Firebase settings, pre-filling the whitelabel firebase
+# setup prompts. Update these to match your own Firebase projects.
+firebase:
+  # Where flutterfire configure writes its generated files.
+  output:
+    ios: ios/Config/Firebase/{flavor}/GoogleService-Info.plist
+    android: android/app/src/{flavor}/google-services.json
+    dart: lib/features/app/infrastructure/config/firebase/firebase_options_{flavor}.dart
+  dev:
+    project_id: flutter-app-template-b1e3c
+    ios_bundle_id: com.ragibn5.fat.dev
+    android_package_name: com.ragibn5.fat.dev
+  exp:
+    project_id: flutter-app-template-b1e3c
+    ios_bundle_id: com.ragibn5.fat.exp
+    android_package_name: com.ragibn5.fat.exp
+  stage:
+    project_id: flutter-app-template-b1e3c
+    ios_bundle_id: com.ragibn5.fat.stage
+    android_package_name: com.ragibn5.fat.stage
+  prod:
+    project_id: flutter-app-template-b1e3c
+    ios_bundle_id: com.ragibn5.fat
+    android_package_name: com.ragibn5.fat

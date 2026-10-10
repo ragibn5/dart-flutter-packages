@@ -1,0 +1,62 @@
+name: Publish release candidates
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches:
+      - main
+
+jobs:
+  publish-release-candidates:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      # Checked out by branch name, not by sha, since
+      # `github.event.pull_request.merge_commit_sha` can still be null right
+      # as the "closed" event fires — this always lands on main's true tip.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+
+      # fvm's standalone install script needs no pre-existing Dart/Flutter,
+      # so it bootstraps everything itself — including running dev_tools
+      # via its own .fvmrc pin — with no separate SDK-install step needed.
+      - name: Install fvm
+        run: curl -fsSL https://fvm.app/install.sh | bash
+
+      - name: Add fvm to PATH
+        run: echo "$HOME/fvm/bin" >> "$GITHUB_PATH"
+
+      # fvm downloads a pinned version on first use (no prior "fvm install"
+      # needed), so this just caches whatever gets downloaded across runs
+      # instead of re-fetching it every time.
+      - name: Cache fvm SDK versions
+        uses: actions/cache@v4
+        with:
+          path: ~/fvm/versions
+          key: fvm-versions-${{ hashFiles('**/.fvmrc') }}
+          restore-keys: fvm-versions-
+
+      # fvm resolves a pinned version from its own working directory, not
+      # from a "-C"/"--directory" flag passed through to dart — so these
+      # steps must actually run with cwd inside dev_tools for it to pick up
+      # dev_tools/.fvmrc, rather than "fvm dart ... -C dev_tools" from the
+      # repo root.
+      - name: Install dev_tools dependencies
+        working-directory: dev_tools
+        run: fvm dart pub get
+
+      - name: Publish release candidates
+        working-directory: dev_tools
+        run: |
+          mapfile -t ARGS < <(fvm dart run bin/dev_tools.dart packages get-touched --from ${{ github.event.pull_request.base.sha }} --to HEAD | sed 's/^/--package=/')
+          if [ ${#ARGS[@]} -eq 0 ]; then
+            echo "No packages touched; nothing to publish."
+            exit 0
+          fi
+          fvm dart run bin/dev_tools.dart publish publish-release-candidates "${ARGS[@]}"

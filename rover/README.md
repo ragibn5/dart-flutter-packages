@@ -10,7 +10,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  rover: ^1.0.0
+  rover: ^2.0.0
 ```
 
 #### Or, From Git repo
@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: rover
-      ref: rover-1.0.0
+      ref: rover-2.0.0
 ```
 
 ## ✨ Features
@@ -129,8 +129,10 @@ class AuthGuard implements RouteGuard {
       RouteContext next,) async {
     final isLoggedIn = await authService.isLoggedIn();
     return isLoggedIn
-        ? ContinueNavigation()
+        ? ContinueNavigation(current: current, next: next)
         : RedirectNavigation(
+      current: current,
+      redirectRoute:
       const RouteContext(info: RouteInfo('login', '/login')),
     );
   }

@@ -1,35 +1,47 @@
-# Please replace the colors and images with your desired ones.
-# Provided ones are just for demonstration.
-#
-# `splash.png` should have the following property:
-# - Frame/Canvas: 1152 * 1152 pixels, transparent background.
-# - Icon/Content: Content should be fully inside a circle of diameter 768,
-#                 centered at the previously described frame of 1152 * 1152.
-#                 That is, it should be at most 543.1 * 543.1 pixels. Any larger,
-#                 and the content may be cut out by system.
-#                 Recommended: 384 * 384.
-# `branding.png` should be at least 200(width) * 80(height), or larger, but of same aspect ratio.
-#
-# Finally, run the following command to generate required files and apply the changes:
-# ```bash
-# dart run flutter_native_splash:create --all-flavors
-# ```
-#
-# For more customization options, please see:
+# ============================================================
+# SPLASH IMAGE SIZE SPECS — from flutter_native_splash docs
 # https://pub.dev/packages/flutter_native_splash
+# ============================================================
+#
+# TOP-LEVEL KEYS (Android < 12, iOS, web — NOT Android 12+):
+#   image:     PNG sized for 4x pixel density (xxxhdpi).
+#              Use 1152 x 1152 px transparent canvas, content inside
+#              a 768 px-diameter centered circle (recommended content
+#              size 384 x 384 to 512 x 512 px).
+#   branding:  PNG at least 200(w) x 80(h), same aspect ratio.
+#   branding_bottom_padding:  bottom offset in px (default 0).
+#
+# ANDROID 12+ KEYS (android_12: — system splash, different rules):
+#   image:     1152 x 1152 px, content inside a 768 px-diameter circle.
+#   branding:  MUST be 800 x 320 px.
+#
+# Regenerate after changes:
+#   dart run flutter_native_splash:create --all-flavors
+# ============================================================
 flutter_native_splash:
+  # Window/screen background color (Android < 12, iOS, web). Required.
   color: "#ffffff"
+  # Center splash logomark. PNG, 4x density (1152x1152 frame / content within 768px circle).
   image: assets/external/images/splash.png
+  # Branding logo near screen bottom. PNG, at least 200x80, same aspect ratio.
   branding: assets/external/images/branding.png
+
+  # Dark-mode variants (same size rules as the light versions above).
   color_dark: "#121212"
   image_dark: assets/external/images/splash.png
   branding_dark: assets/external/images/branding.png
+
+  # Bottom offset of the branding image (Android < 12, iOS). Default 0.
   branding_bottom_padding: 24
 
+  # ================= ANDROID 12+ ONLY =================
   android_12:
+    # Center icon. No icon_background_color -> 1152 x 1152 px with content
+    # inside a 768 px-diameter circle; blends directly with the window bg.
     image: assets/external/images/splash.png
-    icon_background_color: "#ffffff"
     image_dark: assets/external/images/splash.png
-    icon_background_color_dark: "#121212"
+    # Android 12+ branding MUST be 800 x 320 px.
+    branding: assets/external/images/branding.png
+    branding_dark: assets/external/images/branding.png
 
   web: false

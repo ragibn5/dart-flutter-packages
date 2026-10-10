@@ -63,7 +63,7 @@ dependencies:
   crashlykit: ^1.0.0
   base_auth_interceptor: ^1.0.0
   feature_api_client: ^1.0.0
-  rover: ^1.0.0
+  rover: ^2.0.0
   snacker: ^1.0.0
 
   # App-private packages
@@ -94,6 +94,10 @@ dev_dependencies:
   very_good_analysis: ^7.0.0
   bloc_lint: ^0.3.7
 
+  # Dev tooling
+  dev_tools:
+    path: ../dev_tools
+
   # Generators
   build_runner: ^2.4.15
 
@@ -102,7 +106,6 @@ dev_dependencies:
   json_serializable: ^6.9.4
   injectable_generator: ^2.7.0
   flutter_gen_runner: ^5.10.0
-  package_rename: ^1.10.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
