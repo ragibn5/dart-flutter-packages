@@ -88,6 +88,14 @@ internal class MediaColumnsReader(
         get() = sdkInt >= Build.VERSION_CODES.R
 
     companion object {
+        /**
+         * The columns a reader reads at [sdkInt], in the order it looks them up.
+         *
+         * Exactly the columns [read] resolves, so a query that projects this and
+         * hands the cursor to a reader at the same level cannot be missing one
+         * the reader then throws on. `VOLUME_NAME` and `RELATIVE_PATH` are absent
+         * deliberately: volume and relative path are resolved from `DATA`.
+         */
         @Suppress("DEPRECATION")
         fun projectionFor(sdkInt: Int): List<String> = buildList {
             add(BaseColumns._ID)
@@ -99,8 +107,6 @@ internal class MediaColumnsReader(
             add(MediaColumns.DATA)
 
             if (sdkInt >= Build.VERSION_CODES.Q) {
-                add(MediaColumns.VOLUME_NAME)
-                add(MediaColumns.RELATIVE_PATH)
                 add(MediaColumns.IS_PENDING)
                 add(MediaColumns.DATE_TAKEN)
                 add(MediaColumns.OWNER_PACKAGE_NAME)
@@ -112,8 +118,6 @@ internal class MediaColumnsReader(
                 add(MediaColumns.IS_DOWNLOAD)
             }
         }
-
-        val projection: List<String> = projectionFor(Build.VERSION.SDK_INT)
     }
 }
 

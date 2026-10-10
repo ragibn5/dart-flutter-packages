@@ -235,28 +235,6 @@ internal class MediaColumnsReaderTest {
         assertTrue(MediaColumns.IS_DOWNLOAD !in cursor.lookedUpColumns)
     }
 
-    @Test
-    fun `only reads columns its projection requests`() {
-        // Both branches, since each API level reads a different set of columns.
-        listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.R).forEach { sdkInt ->
-            val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
-
-            MediaColumnsReader(
-                cursor = cursor.cursor,
-                fileLocationResolver = fakeFileLocationResolver(),
-                uriBuilder = uriBuilder,
-                sdkInt = sdkInt,
-            ).readPhoto()
-
-            assertTrue(
-                cursor.lookedUpColumns.all {
-                    it in MediaColumnsReader.projectionFor(sdkInt)
-                },
-                "columns read on API $sdkInt: ${cursor.lookedUpColumns}",
-            )
-        }
-    }
-
     /**
      * [MediaColumnsReaderFactory] holds the dependencies a
      * [MediaStoreServiceImpl](com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceImpl)
@@ -302,11 +280,30 @@ internal class MediaColumnsReaderTest {
         assertNull(item.relativePath)
     }
 
+    /**
+     * The reader resolves its columns with `getColumnIndexOrThrow`, so a
+     * projection missing any of them throws mid-query. Equality — not a subset
+     * check — pins that the projection and the reader cannot drift apart, in
+     * either direction: a column projected but never read is waste, and one read
+     * but not projected is a crash.
+     */
     @Test
-    fun `the default projection matches the API level the reader reads`() {
-        assertEquals(
-            MediaColumnsReader.projectionFor(Build.VERSION.SDK_INT),
-            MediaColumnsReader.projection,
-        )
+    fun `the projection is exactly what the reader looks up`() {
+        // Each branch, since each level reads a different set.
+        listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.R).forEach { sdkInt ->
+            val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
+
+            MediaColumnsReader(
+                cursor = cursor.cursor,
+                fileLocationResolver = fakeFileLocationResolver(),
+                sdkInt = sdkInt,
+            )
+
+            assertEquals(
+                MediaColumnsReader.projectionFor(sdkInt),
+                cursor.lookedUpColumns,
+                "projection vs looked-up columns on API $sdkInt",
+            )
+        }
     }
 }
