@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:media_provider_android/media_provider_android_platform_interface.dart';
 import 'package:media_provider_android/src/android_media_item.dart';
 import 'package:media_provider_android/src/android_media_query.dart';
+import 'package:media_provider_android/src/android_storage_volume_info.dart';
 
 // ignore: lines_longer_than_80_chars
 /// An implementation of [MediaProviderAndroidPlatform] that uses method channels.
@@ -13,6 +14,18 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
 
   @visibleForTesting
   final methodChannel = const MethodChannel(CHANNEL_NAME);
+
+  @override
+  Future<List<AndroidStorageVolumeInfo>> getVolumes() async {
+    final result = await methodChannel.invokeMethod<String>('getVolumes');
+    final items = jsonDecode(result!) as List<dynamic>;
+    return items
+        .map(
+          (item) =>
+              AndroidStorageVolumeInfo.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
 
   @override
   Future<List<AndroidMediaItem>> getMedia(AndroidMediaQuery query) async {
