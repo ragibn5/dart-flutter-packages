@@ -21,6 +21,30 @@ internal interface MediaStoreService {
     suspend fun getMedia(request: MediaQueryRequest): List<MediaItem>
 }
 
+internal object MediaStoreServiceFactory {
+    fun create(context: Context): MediaStoreService {
+        val sdkInt: Int = Build.VERSION.SDK_INT
+        val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT
+        val storageManager = context.getSystemService(StorageManager::class.java)
+        val volumeInfoResolver = VolumeInfoResolver(storageManager, sdkInt)
+        val volumePathResolver = VolumePathResolver(context, storageManager, sdkInt)
+        val fileLocationResolver = FileLocationResolver(storageManager, volumePathResolver)
+        return MediaStoreServiceImpl(
+            contentResolver = context.contentResolver,
+            queryBuilder = MediaStoreQueryBuilder(
+                mediaUriFactory = MediaUriFactory(volumeInfoResolver),
+            ),
+            mediaColumnsReaderFactory = MediaColumnsReaderFactory(
+                volumeInfoResolver = volumeInfoResolver,
+                fileLocationResolver = fileLocationResolver,
+                uriBuilder = uriBuilder,
+                sdkInt = sdkInt
+            ),
+            sdkInt = sdkInt,
+        )
+    }
+}
+
 internal class MediaStoreServiceImpl(
     private val contentResolver: ContentResolver,
     private val queryBuilder: MediaStoreQueryBuilder,
@@ -60,29 +84,5 @@ internal class MediaStoreServiceImpl(
         }
 
         return media
-    }
-}
-
-internal object MediaStoreServiceFactory {
-    fun create(context: Context): MediaStoreService {
-        val sdkInt: Int = Build.VERSION.SDK_INT
-        val uriBuilder: MediaUriBuilder = MediaUriBuilder.DEFAULT
-        val storageManager = context.getSystemService(StorageManager::class.java)
-        val volumeInfoResolver = VolumeInfoResolver(storageManager, sdkInt)
-        val volumePathResolver = VolumePathResolver(context, storageManager, sdkInt)
-        val fileLocationResolver = FileLocationResolver(storageManager, volumePathResolver)
-        return MediaStoreServiceImpl(
-            contentResolver = context.contentResolver,
-            queryBuilder = MediaStoreQueryBuilder(
-                mediaUriFactory = MediaUriFactory(volumeInfoResolver),
-            ),
-            mediaColumnsReaderFactory = MediaColumnsReaderFactory(
-                volumeInfoResolver = volumeInfoResolver,
-                fileLocationResolver = fileLocationResolver,
-                uriBuilder = uriBuilder,
-                sdkInt = sdkInt
-            ),
-            sdkInt = sdkInt,
-        )
     }
 }

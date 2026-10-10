@@ -34,7 +34,7 @@ internal class VolumeInfoResolver(
             mediaStoreVolumeName
         } else {
             @SuppressLint("InlinedApi")
-            if (isPrimary) MediaStore.VOLUME_EXTERNAL_PRIMARY else normalizeUuid(uuid)
+            if (isPrimary) MediaStore.VOLUME_EXTERNAL else normalizeUuid(uuid)
         }
     }
 
