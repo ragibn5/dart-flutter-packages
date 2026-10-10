@@ -25,7 +25,7 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
 
   /// Get all storage volumes.
   Future<List<VolumeInfo>> getVolumes() {
-    throw UnimplementedError('getMedia() has not been implemented.');
+    throw UnimplementedError('getVolumes() has not been implemented.');
   }
 
   /// Queries `MediaStore` as per the given query.

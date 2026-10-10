@@ -1,11 +1,13 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
-import 'package:media_provider_android/src/models/android_media_item.dart';
+import 'package:media_provider_android/src/models/media_item.dart';
+import 'package:media_provider_android/src/models/media_type.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
-import 'package:media_provider_android/src/android_media_type.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 import 'package:media_provider_android/src/models/volume_spec.dart';
 
@@ -54,8 +56,15 @@ const _videoJsonObject = '''
 /// The platform replies with a JSON array of media items.
 const _mixedJson = '[$_photoJsonObject,$_videoJsonObject]';
 
-const _photoItem = AndroidMediaItem(
-  type: AndroidMediaType.photo,
+/// A JSON array of volumes, shaped like the Kotlin `List<VolumeInfo>`.
+const _volumesJson = '''
+  [
+    {"isPrimary": true, "uuid": null},
+    {"isPrimary": false, "uuid": "1A2B-3C4D"}
+  ]''';
+
+const _photoItem = MediaItem(
+  type: MediaType.photo,
   id: '1',
   uri: 'content://media/external/images/media/1',
   name: 'IMG_0001.jpg',
@@ -73,8 +82,8 @@ const _photoItem = AndroidMediaItem(
   isDownloaded: false,
 );
 
-const _videoItem = AndroidMediaItem(
-  type: AndroidMediaType.video,
+const _videoItem = MediaItem(
+  type: MediaType.video,
   id: '2',
   uri: 'content://media/external/video/media/2',
   name: 'VID_0002.mp4',
@@ -120,54 +129,64 @@ void main() {
         .setMockMethodCallHandler(channel, null);
   });
 
+  /// The `query` argument of [call], decoded from the JSON string it is sent as.
+  Map<String, dynamic> queryOf(MethodCall call) =>
+      jsonDecode((call.arguments as Map)['query'] as String)
+          as Map<String, dynamic>;
+
   group('getMedia', () {
-    test('invokes getMedia with the query as a nested argument', () async {
-      mockGetMedia(_mixedJson);
-
-      await sut.getMedia(
-        const QuerySpec(
-          types: {AndroidMediaType.photo, AndroidMediaType.video},
-          volumes: null,
-        ),
-      );
-      await sut.getMedia(
-        const QuerySpec(types: {AndroidMediaType.photo}, volumes: null),
-      );
-
-      expect(log, hasLength(2));
-      expect(log.first.method, 'getMedia');
-      expect(log.first.arguments, <String, dynamic>{
-        'query': <String, dynamic>{
-          'types': ['PHOTO', 'VIDEO'],
-          'volumes': null,
-        },
-      });
-      expect(log.last.arguments, <String, dynamic>{
-        'query': <String, dynamic>{
-          'types': ['PHOTO'],
-          'volumes': null,
-        },
-      });
-    });
-
-    test('encodes each requested volume as its own object', () async {
+    test('invokes getMedia with the query as a JSON string', () async {
       mockGetMedia(_mixedJson);
 
       await sut.getMedia(
         QuerySpec(
-          types: const {AndroidMediaType.photo},
+          types: const {MediaType.photo, MediaType.video},
+          volumes: {const VolumeSpec.primary()},
+        ),
+      );
+      await sut.getMedia(
+        QuerySpec(
+          types: const {MediaType.photo},
+          volumes: {const VolumeSpec.primary()},
+        ),
+      );
+
+      expect(log, hasLength(2));
+      expect(log.first.method, 'getMedia');
+      // The whole spec crosses the channel as one JSON string, so it is
+      // decoded here rather than compared as a nested map.
+      expect(queryOf(log.first), <String, dynamic>{
+        'types': ['PHOTO', 'VIDEO'],
+        'volumes': [
+          {'type': 'primary'},
+        ],
+      });
+      expect(queryOf(log.last), <String, dynamic>{
+        'types': ['PHOTO'],
+        'volumes': [
+          {'type': 'primary'},
+        ],
+      });
+    });
+
+    test('encodes each requested volume with its type discriminator', () async {
+      mockGetMedia(_mixedJson);
+
+      await sut.getMedia(
+        QuerySpec(
+          types: const {MediaType.photo},
           volumes: {
-            VolumeSpec.primary(),
-            VolumeSpec.external(uuid: '1A2B-3C4D'),
+            const VolumeSpec.primary(),
+            const VolumeSpec.external(uuid: '1A2B-3C4D'),
           },
         ),
       );
 
       expect(
-        (log.single.arguments as Map)['query'],
+        queryOf(log.single),
         containsPair('volumes', [
-          <String, dynamic>{'isPrimary': true, 'uuid': null},
-          <String, dynamic>{'isPrimary': false, 'uuid': '1A2B-3C4D'},
+          <String, dynamic>{'type': 'primary'},
+          <String, dynamic>{'type': 'external', 'uuid': '1A2B-3C4D'},
         ]),
       );
     });
@@ -176,9 +195,9 @@ void main() {
       mockGetMedia(_mixedJson);
 
       final result = await sut.getMedia(
-        const QuerySpec(
-          types: {AndroidMediaType.photo, AndroidMediaType.video},
-          volumes: null,
+        QuerySpec(
+          types: const {MediaType.photo, MediaType.video},
+          volumes: {const VolumeSpec.primary()},
         ),
       );
 
@@ -197,9 +216,9 @@ void main() {
         mockGetMedia(json);
 
         final result = await sut.getMedia(
-          const QuerySpec(
-            types: {AndroidMediaType.photo},
-            volumes: null,
+          QuerySpec(
+            types: const {MediaType.photo},
+            volumes: {const VolumeSpec.primary()},
           ),
         );
 
@@ -215,7 +234,10 @@ void main() {
       mockGetMedia('[]');
 
       final result = await sut.getMedia(
-        const QuerySpec(types: {AndroidMediaType.photo}, volumes: null),
+        QuerySpec(
+          types: const {MediaType.photo},
+          volumes: {const VolumeSpec.primary()},
+        ),
       );
 
       expect(result, isEmpty);
@@ -227,11 +249,16 @@ void main() {
       // The emptiness rule is enforced by the platform side, which replies
       // with an 'invalid_argument' PlatformException. The Dart side must not
       // reject the query on its own.
-      await sut.getMedia(const QuerySpec(types: {}, volumes: null));
+      await sut.getMedia(
+        QuerySpec(types: const {}, volumes: {const VolumeSpec.primary()}),
+      );
 
       expect(log, hasLength(1));
-      expect(log.single.arguments, <String, dynamic>{
-        'query': <String, dynamic>{'types': <String>[], 'volumes': null},
+      expect(queryOf(log.single), <String, dynamic>{
+        'types': <String>[],
+        'volumes': [
+          {'type': 'primary'},
+        ],
       });
     });
 
@@ -249,9 +276,9 @@ void main() {
 
         await expectLater(
           sut.getMedia(
-            const QuerySpec(
-              types: {AndroidMediaType.photo},
-              volumes: null,
+            QuerySpec(
+              types: const {MediaType.photo},
+              volumes: {const VolumeSpec.primary()},
             ),
           ),
           throwsA(
@@ -269,5 +296,59 @@ void main() {
         );
       },
     );
+  });
+
+  group('getVolumes', () {
+    /// Installs a platform side that answers `getVolumes` with [response].
+    void mockGetVolumes(Object? response) {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            log.add(call);
+            return response;
+          });
+    }
+
+    test('invokes getVolumes without arguments', () async {
+      mockGetVolumes(_volumesJson);
+
+      await sut.getVolumes();
+
+      expect(log, hasLength(1));
+      expect(log.single.method, 'getVolumes');
+      expect(log.single.arguments, isNull);
+    });
+
+    test('decodes the reply into volume infos', () async {
+      mockGetVolumes(_volumesJson);
+
+      final result = await sut.getVolumes();
+
+      expect(result, const [
+        VolumeInfo(isPrimary: true, uuid: null),
+        VolumeInfo(isPrimary: false, uuid: '1A2B-3C4D'),
+      ]);
+    });
+
+    test('returns an empty list when the device reports no volumes', () async {
+      mockGetVolumes('[]');
+
+      expect(await sut.getVolumes(), isEmpty);
+    });
+
+    test('propagates a PlatformException from the platform side', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            throw PlatformException(code: 'unexpected_error', message: 'boom');
+          });
+
+      await expectLater(
+        sut.getVolumes(),
+        throwsA(
+          isA<PlatformException>()
+              .having((e) => e.code, 'code', 'unexpected_error')
+              .having((e) => e.message, 'message', 'boom'),
+        ),
+      );
+    });
   });
 }

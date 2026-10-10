@@ -9,8 +9,8 @@ class _MockMediaProviderAndroidPlatform extends Mock
     with MockPlatformInterfaceMixin
     implements MediaProviderAndroidPlatform {}
 
-const _photoItem = AndroidMediaItem(
-  type: AndroidMediaType.photo,
+const _photoItem = MediaItem(
+  type: MediaType.photo,
   id: '1',
   uri: 'content://media/external/images/media/1',
   name: 'IMG_0001.jpg',
@@ -28,8 +28,8 @@ const _photoItem = AndroidMediaItem(
   isDownloaded: false,
 );
 
-const _videoItem = AndroidMediaItem(
-  type: AndroidMediaType.video,
+const _videoItem = MediaItem(
+  type: MediaType.video,
   id: '2',
   uri: 'content://media/external/video/media/2',
   name: 'VID_0002.mp4',
@@ -47,6 +47,8 @@ const _videoItem = AndroidMediaItem(
   isDownloaded: null,
 );
 
+const _primaryVolume = VolumeInfo(isPrimary: true, uuid: null);
+
 void main() {
   late _MockMediaProviderAndroidPlatform first;
 
@@ -55,7 +57,7 @@ void main() {
   late MediaProviderAndroid sut;
 
   setUpAll(() {
-    registerFallbackValue(const QuerySpec(types: {}, volumes: null));
+    registerFallbackValue(const QuerySpec(types: {}, volumes: {}));
   });
 
   setUp(() {
@@ -65,6 +67,8 @@ void main() {
       () => first.getMedia(any()),
     ).thenAnswer((_) async => [_photoItem, _videoItem]);
     when(() => second.getMedia(any())).thenAnswer((_) async => [_photoItem]);
+    when(first.getVolumes).thenAnswer((_) async => [_primaryVolume]);
+    when(second.getVolumes).thenAnswer((_) async => <VolumeInfo>[]);
 
     sut = MediaProviderAndroid();
   });
@@ -80,8 +84,8 @@ void main() {
       'delegates to the instance set at call time, returning its result',
       () async {
         const query = QuerySpec(
-          types: {AndroidMediaType.photo, AndroidMediaType.video},
-          volumes: null,
+          types: {MediaType.photo, MediaType.video},
+          volumes: {},
         );
         MediaProviderAndroidPlatform.instance = first;
 
@@ -92,15 +96,24 @@ void main() {
         // had resolved the platform once at construction.
         MediaProviderAndroidPlatform.instance = second;
 
-        const later = QuerySpec(
-          types: {AndroidMediaType.video},
-          volumes: null,
-        );
+        const later = QuerySpec(types: {MediaType.video}, volumes: {});
 
         expect(await sut.getMedia(later), [_photoItem]);
         verify(() => second.getMedia(later)).called(1);
         verifyNoMoreInteractions(first);
       },
     );
+
+    test('delegates getVolumes to the instance set at call time', () async {
+      MediaProviderAndroidPlatform.instance = first;
+
+      expect(await sut.getVolumes(), [_primaryVolume]);
+      verify(first.getVolumes).called(1);
+
+      MediaProviderAndroidPlatform.instance = second;
+
+      expect(await sut.getVolumes(), isEmpty);
+      verify(second.getVolumes).called(1);
+    });
   });
 }
