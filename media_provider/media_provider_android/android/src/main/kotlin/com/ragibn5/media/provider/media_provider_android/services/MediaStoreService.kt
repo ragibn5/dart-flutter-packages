@@ -30,7 +30,6 @@ internal object MediaStoreServiceFactory {
         val fileLocationResolver = FileLocationResolver(
             storageManager = storageManager,
             volumePathResolver = volumePathResolver,
-            volumeTypeResolver = VolumeTypeResolver()
         )
         return MediaStoreServiceImpl(
             contentResolver = context.contentResolver,

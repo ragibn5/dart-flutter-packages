@@ -1,6 +1,5 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
-import android.os.StatFs
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
@@ -11,7 +10,8 @@ import java.io.File
 internal class FileLocationResolver(
     private val storageManager: StorageManager,
     private val volumePathResolver: VolumePathResolver,
-    private val volumeTypeResolver: VolumeTypeResolver,
+    private val volumeTypeResolver: VolumeTypeResolver = VolumeTypeResolver(),
+    private val fileStatsResolver: FileStatsResolver = FileStatsResolver(),
 ) {
     fun resolve(file: File): FileLocation? {
         val volume = storageManager.getStorageVolume(file) ?: return null
@@ -25,13 +25,13 @@ internal class FileLocationResolver(
     }
 
     private fun StorageVolume.toVolumeIdentity(volumePath: String): VolumeIdentity {
-        val volumeStats = StatFs(volumePath)
+        val stats = fileStatsResolver.resolve(volumePath)
         return VolumeIdentity(
             isPrimary = isPrimary,
             isRemovable = isRemovable,
             isEmulated = isEmulated,
             uuid = uuid,
-            capacityInBytes = volumeStats.totalBytes,
+            capacityInBytes = stats?.capacityInBytes ?: 0,
             type = volumeTypeResolver.resolve(this),
         )
     }

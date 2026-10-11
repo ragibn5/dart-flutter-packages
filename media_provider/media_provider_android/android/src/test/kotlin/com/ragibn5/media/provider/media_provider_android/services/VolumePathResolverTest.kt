@@ -2,6 +2,7 @@ package com.ragibn5.media.provider.media_provider_android.services
 
 import android.content.Context
 import android.os.Build
+import android.os.StatFs
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureNoTrailingSlash
@@ -245,6 +246,22 @@ internal class FileLocationResolverTest {
             // what the expectations below assert.
             VolumeTypeResolver(),
         ).resolve(File(path))
+
+    @Test
+    fun `reports a file whose volume size cannot be read rather than failing`() {
+        // A file on a volume whose filesystem has gone away must still be
+        // reported: the resolver reports what it can, with no capacity, rather
+        // than dropping the file out of the media list.
+        resolverOn("/storage/1234-5678", isPrimary = false, uuid = "1A2B-3C4D")
+        Mockito.mockConstruction(StatFs::class.java) { _, _ ->
+            throw IllegalArgumentException("path does not exist")
+        }.use {
+            val location = resolve("/storage/1234-5678/DCIM/cat.png")
+
+            assertEquals(0, location?.volumeIdentity?.capacityInBytes)
+            assertEquals("DCIM/", location?.relativeParentPath)
+        }
+    }
 
     @Test
     fun `splits a path into its volume, relative parent and name`() {

@@ -17,7 +17,7 @@ QuerySpec _$QuerySpecFromJson(Map<String, dynamic> json) => QuerySpec(
 
 Map<String, dynamic> _$QuerySpecToJson(QuerySpec instance) => <String, dynamic>{
   'types': instance.types.map((e) => _$MediaTypeEnumMap[e]!).toList(),
-  'volumes': instance.volumes.toList(),
+  'volumes': instance.volumes.map((e) => e.toJson()).toList(),
 };
 
 const _$MediaTypeEnumMap = {MediaType.photo: 'PHOTO', MediaType.video: 'VIDEO'};

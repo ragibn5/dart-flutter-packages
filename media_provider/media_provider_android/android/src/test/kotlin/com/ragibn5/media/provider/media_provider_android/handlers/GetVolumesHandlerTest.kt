@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import android.os.Environment
+import android.os.StatFs
 import com.ragibn5.media.provider.media_provider_android.models.VolumeIdentity
 import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
 import com.ragibn5.media.provider.media_provider_android.models.VolumeState
@@ -19,6 +20,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import java.io.File
 import kotlin.test.assertEquals
 
 internal class GetVolumesHandlerTest {
@@ -109,12 +111,17 @@ internal class GetVolumesHandlerTest {
 internal class VolumeProviderServiceImplTest {
     private val storageManager: StorageManager = Mockito.mock(StorageManager::class.java)
 
+    /**
+     * @param path where the volume is mounted. A volume reports no root at all
+     *   when this is `null`, which is how an unmounted volume looks.
+     */
     private fun volumeOn(
         isPrimary: Boolean,
         uuid: String?,
         isRemovable: Boolean = false,
         isEmulated: Boolean = false,
         state: String? = Environment.MEDIA_MOUNTED,
+        path: String? = null,
     ): StorageVolume =
         Mockito.mock(StorageVolume::class.java).apply {
             Mockito.`when`(this.isPrimary).thenReturn(isPrimary)
@@ -122,6 +129,7 @@ internal class VolumeProviderServiceImplTest {
             Mockito.`when`(this.isRemovable).thenReturn(isRemovable)
             Mockito.`when`(this.isEmulated).thenReturn(isEmulated)
             Mockito.`when`(this.state).thenReturn(state)
+            Mockito.`when`(this.directory).thenReturn(path?.let(::File))
         }
 
     private fun serviceOver(vararg volumes: StorageVolume) =
@@ -252,6 +260,91 @@ internal class VolumeProviderServiceImplTest {
     @Test
     fun `reports nothing on a device with no volumes`() {
         assertEquals(emptyList(), serviceOver().getVolumes())
+    }
+
+    @Test
+    fun `reports the filesystem's total as capacity and its free space as available`() {
+        // The two are deliberately different values: reading the wrong `StatFs`
+        // property would otherwise still produce a plausible number.
+        Mockito.mockConstruction(StatFs::class.java) { stats, _ ->
+            Mockito.`when`(stats.totalBytes).thenReturn(128_000_000_000L)
+            Mockito.`when`(stats.availableBytes).thenReturn(64_000_000_000L)
+        }.use {
+            val volume = serviceOver(
+                volumeOn(
+                    isPrimary = true,
+                    uuid = null,
+                    isEmulated = true,
+                    path = "/storage/emulated/0",
+                ),
+            ).getVolumes().single()
+
+            assertEquals(128_000_000_000L, volume.identity.capacityInBytes)
+            assertEquals(64_000_000_000L, volume.availableSpaceInBytes)
+        }
+    }
+
+    @Test
+    fun `reports a volume with no root as having no capacity or free space`() {
+        // No directory is stubbed, so the volume resolves to no path at all.
+        val volume = serviceOver(
+            volumeOn(isPrimary = true, uuid = null, isEmulated = true),
+        ).getVolumes().single()
+
+        assertEquals(0L, volume.identity.capacityInBytes)
+        assertEquals(0L, volume.availableSpaceInBytes)
+    }
+
+    @Test
+    fun `reports a volume whose filesystem cannot be read as having no capacity`() {
+        // A path that resolves but whose filesystem is gone is what an ejected
+        // card looks like; reading it throws rather than returning no root.
+        Mockito.mockConstruction(StatFs::class.java) { _, _ ->
+            throw IllegalArgumentException("path does not exist")
+        }.use {
+            val volume = serviceOver(
+                volumeOn(
+                    isPrimary = false,
+                    uuid = "1234-5678",
+                    isRemovable = true,
+                    path = "/storage/1234-5678",
+                ),
+            ).getVolumes().single()
+
+            assertEquals(0L, volume.identity.capacityInBytes)
+            assertEquals(0L, volume.availableSpaceInBytes)
+        }
+    }
+
+    @Test
+    fun `reports every volume even when one of them cannot be read`() {
+        // The unreadable volume must not take the readable ones down with it.
+        Mockito.mockConstruction(StatFs::class.java) { stats, context ->
+            val path = context.arguments().firstOrNull() as? String
+            if (path == "/storage/1234-5678") {
+                throw IllegalArgumentException("path does not exist")
+            }
+            Mockito.`when`(stats.totalBytes).thenReturn(4096L)
+            Mockito.`when`(stats.availableBytes).thenReturn(1024L)
+        }.use {
+            val volumes = serviceOver(
+                volumeOn(
+                    isPrimary = true,
+                    uuid = null,
+                    isEmulated = true,
+                    path = "/storage/emulated/0",
+                ),
+                volumeOn(
+                    isPrimary = false,
+                    uuid = "1234-5678",
+                    isRemovable = true,
+                    path = "/storage/1234-5678",
+                ),
+            ).getVolumes()
+
+            assertEquals(listOf(4096L, 0L), volumes.map { it.identity.capacityInBytes })
+            assertEquals(listOf(1024L, 0L), volumes.map { it.availableSpaceInBytes })
+        }
     }
 
     @Test

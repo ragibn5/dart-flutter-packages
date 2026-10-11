@@ -28,6 +28,8 @@ internal data class VolumeIdentity(
 
     /**
      * The total capacity of the volume, in bytes.
+     *
+     * Can be zero if the capacity could not be read.
      */
     val capacityInBytes: Long,
 

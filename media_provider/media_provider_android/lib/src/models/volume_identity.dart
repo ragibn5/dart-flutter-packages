@@ -24,7 +24,7 @@ class VolumeIdentity extends Equatable {
 
   /// The total capacity of the volume, in bytes.
   ///
-  /// Zero when the volume is not mounted and so has no readable filesystem.
+  /// Can be zero if the capacity could not be read.
   final int capacityInBytes;
 
   /// The filesystem UUID of the volume, or null when the platform does not

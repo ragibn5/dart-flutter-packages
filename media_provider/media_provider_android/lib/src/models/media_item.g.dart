@@ -37,7 +37,7 @@ Map<String, dynamic> _$MediaItemToJson(MediaItem instance) => <String, dynamic>{
   'dateAddedInMillis': instance.dateAddedInMillis,
   'dateModifiedInMillis': instance.dateModifiedInMillis,
   'dateTakenInMillis': instance.dateTakenInMillis,
-  'volumeIdentity': instance.volumeIdentity,
+  'volumeIdentity': instance.volumeIdentity?.toJson(),
   'relativePath': instance.relativePath,
   'ownerPackageName': instance.ownerPackageName,
   'isPending': instance.isPending,
