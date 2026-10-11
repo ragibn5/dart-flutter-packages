@@ -7,7 +7,7 @@ import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeItemUriBuilder
 import com.ragibn5.media.provider.media_provider_android.fakeFileLocationResolver
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
-import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
+import com.ragibn5.media.provider.media_provider_android.volumeIdentity
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
  * [fakeFileLocationResolver] and the SDK level is injected, so these tests assert
  * on the reader's own mapping rules only.
  *
- * `volumeInfo` and `relativePath` are both derived from the `DATA` path, so the
+ * `volumeIdentity` and `relativePath` are both derived from the `DATA` path, so the
  * tests over them pin the resolver rather than the SDK level.
  */
 @Suppress("DEPRECATION")
@@ -31,7 +31,7 @@ internal class MediaColumnsReaderTest {
     private val uriBuilder = FakeItemUriBuilder()
 
     /** What [fakeFileLocationResolver] reports for the primary volume. */
-    private val primaryVolume = VolumeInfo(isPrimary = true, uuid = null)
+    private val primaryVolume = volumeIdentity()
 
     private fun readerOver(
         values: Map<String, Any?>,
@@ -147,7 +147,7 @@ internal class MediaColumnsReaderTest {
         val item = readerOver(data("DCIM", "Camera", "cat.png"), Build.VERSION_CODES.P)
             .readPhoto()
 
-        assertEquals(primaryVolume, item.volumeInfo)
+        assertEquals(primaryVolume, item.volumeIdentity)
         assertEquals("DCIM/Camera/", item.relativePath)
     }
 
@@ -156,7 +156,7 @@ internal class MediaColumnsReaderTest {
         // The columns no longer take part: both fields come from the path.
         val item = readerOver(data("DCIM", "Camera", "cat.png")).readPhoto()
 
-        assertEquals(primaryVolume, item.volumeInfo)
+        assertEquals(primaryVolume, item.volumeIdentity)
         assertEquals("DCIM/Camera/", item.relativePath)
     }
 
@@ -167,7 +167,7 @@ internal class MediaColumnsReaderTest {
             sdkInt = Build.VERSION_CODES.P,
         ).readPhoto()
 
-        assertNull(item.volumeInfo)
+        assertNull(item.volumeIdentity)
         assertNull(item.relativePath)
     }
 
@@ -183,7 +183,7 @@ internal class MediaColumnsReaderTest {
             volumePath = null,
         ).readPhoto()
 
-        assertNull(item.volumeInfo)
+        assertNull(item.volumeIdentity)
         assertNull(item.relativePath)
     }
 

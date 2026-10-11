@@ -2,7 +2,28 @@ package com.ragibn5.media.provider.media_provider_android
 
 import com.ragibn5.media.provider.media_provider_android.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
-import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
+import com.ragibn5.media.provider.media_provider_android.models.VolumeIdentity
+import com.ragibn5.media.provider.media_provider_android.models.VolumeType
+
+/**
+ * The volume a mocked `StorageVolume` reports, as a [VolumeIdentity].
+ *
+ * Defaults describe the primary volume [fakeFileLocationResolver] reports its
+ * files as sitting on: emulated, non-removable and without a UUID.
+ */
+internal fun volumeIdentity(
+    isPrimary: Boolean = true,
+    uuid: String? = null,
+    isRemovable: Boolean = false,
+    isEmulated: Boolean = isPrimary,
+    type: VolumeType = if (isPrimary) VolumeType.PRIMARY else VolumeType.UNKNOWN,
+): VolumeIdentity = VolumeIdentity(
+    isPrimary = isPrimary,
+    isRemovable = isRemovable,
+    isEmulated = isEmulated,
+    uuid = uuid,
+    type = type,
+)
 
 /**
  * Media as the plugin is expected to report it.
@@ -23,7 +44,7 @@ internal fun photoItem(
     dateAddedInMillis = 1_700_000_000_000,
     dateModifiedInMillis = 1_700_000_100_000,
     dateTakenInMillis = 1_700_000_100_000,
-    volumeInfo = VolumeInfo(isPrimary = true, uuid = null),
+    volumeIdentity = volumeIdentity(),
     relativePath = "DCIM/Camera/",
     ownerPackageName = "com.android.camera",
     isPending = false,
@@ -49,7 +70,7 @@ internal fun videoItem(
     dateAddedInMillis = null,
     dateModifiedInMillis = null,
     dateTakenInMillis = null,
-    volumeInfo = null,
+    volumeIdentity = null,
     relativePath = null,
     ownerPackageName = null,
     isPending = null,

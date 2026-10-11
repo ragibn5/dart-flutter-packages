@@ -7,7 +7,8 @@ import android.os.storage.StorageVolume
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureNoTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.models.FileLocation
-import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
+import com.ragibn5.media.provider.media_provider_android.models.VolumeType
+import com.ragibn5.media.provider.media_provider_android.volumeIdentity
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import java.io.File
@@ -217,12 +218,17 @@ internal class FileLocationResolverTest {
         volumePath: String?,
         isPrimary: Boolean = true,
         uuid: String? = null,
+        isRemovable: Boolean = false,
     ) {
         Mockito.`when`(storageManager.getStorageVolume(Mockito.any(File::class.java)))
             .thenReturn(volume)
         Mockito.`when`(volume.directory).thenReturn(volumePath?.let(::File))
         Mockito.`when`(volume.isPrimary).thenReturn(isPrimary)
         Mockito.`when`(volume.uuid).thenReturn(uuid)
+        Mockito.`when`(volume.isRemovable).thenReturn(isRemovable)
+        // Only the primary volume is emulated, so the secondary tests below
+        // report the default `false` a bare mock hands back.
+        Mockito.`when`(volume.isEmulated).thenReturn(isPrimary)
     }
 
     /**
@@ -242,7 +248,7 @@ internal class FileLocationResolverTest {
 
         assertEquals(
             FileLocation(
-                volumeInfo = VolumeInfo(isPrimary = true, uuid = "1A2B-3C4D"),
+                volumeIdentity = volumeIdentity(isPrimary = true, uuid = "1A2B-3C4D"),
                 relativeParentPath = "DCIM/Camera/",
                 fileNameWithExtension = "cat.png",
             ),
@@ -257,8 +263,13 @@ internal class FileLocationResolverTest {
         val location = resolve("/storage/1234-5678/DCIM/cat.png")
 
         assertEquals(
-            VolumeInfo(isPrimary = false, uuid = "1A2B-3C4D"),
-            location?.volumeInfo,
+            volumeIdentity(
+                isPrimary = false,
+                uuid = "1A2B-3C4D",
+                isEmulated = false,
+                type = VolumeType.UNKNOWN,
+            ),
+            location?.volumeIdentity,
         )
         assertEquals("DCIM/", location?.relativeParentPath)
     }
@@ -268,8 +279,30 @@ internal class FileLocationResolverTest {
         resolverOn("/storage/1234-5678", isPrimary = false, uuid = null)
 
         assertEquals(
-            VolumeInfo(isPrimary = false, uuid = null),
-            resolve("/storage/1234-5678/DCIM/cat.png")?.volumeInfo,
+            volumeIdentity(
+                isPrimary = false,
+                uuid = null,
+                isEmulated = false,
+                type = VolumeType.UNKNOWN,
+            ),
+            resolve("/storage/1234-5678/DCIM/cat.png")?.volumeIdentity,
+        )
+    }
+
+    @Test
+    fun `reports a removable volume whose type cannot be told apart`() {
+        resolverOn("/storage/1234-5678", isPrimary = false, uuid = "1A2B-3C4D", isRemovable = true)
+
+        // No block device id is readable off a mock, so SD and USB stay apart.
+        assertEquals(
+            volumeIdentity(
+                isPrimary = false,
+                uuid = "1A2B-3C4D",
+                isRemovable = true,
+                isEmulated = false,
+                type = VolumeType.UNKNOWN_REMOVABLE,
+            ),
+            resolve("/storage/1234-5678/DCIM/cat.png")?.volumeIdentity,
         )
     }
 

@@ -71,7 +71,7 @@ internal class MediaColumnsReader(
             dateAddedInMillis = cursor.getLongOrNull(dateAddedColumn)?.times(1000),
             dateModifiedInMillis = cursor.getLongOrNull(dateModifiedColumn)?.times(1000),
             dateTakenInMillis = dateTakenColumn?.let(cursor::getLongOrNull),
-            volumeInfo = mediaFileInfo?.volumeInfo,
+            volumeIdentity = mediaFileInfo?.volumeIdentity,
             relativePath = mediaFileInfo?.relativeParentPath,
             ownerPackageName = ownerPackageNameColumn?.let(cursor::getStringOrNull),
             isPending = isPendingColumn?.let(cursor::getBooleanOrNull),

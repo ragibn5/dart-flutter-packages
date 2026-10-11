@@ -79,11 +79,11 @@ internal data class MediaItem(
     val dateTakenInMillis: Long?,
 
     /**
-     * The storage volume holding the file.
+     * The identity of the storage volume holding the file.
      *
-     * Null when the volume cannot be resolved.
+     * Null when the volume identity cannot be resolved.
      */
-    val volumeInfo: VolumeInfo?,
+    val volumeIdentity: VolumeIdentity?,
 
     /**
      * The path of the directory containing the file, relative to the root of its storage volume,

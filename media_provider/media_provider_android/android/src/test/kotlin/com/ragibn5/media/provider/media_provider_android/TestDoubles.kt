@@ -131,10 +131,15 @@ internal fun fakeVolume(
     isPrimary: Boolean = false,
     uuid: String? = null,
     directory: String? = null,
+    isRemovable: Boolean = false,
+    // A primary volume is emulated unless the test says otherwise.
+    isEmulated: Boolean = isPrimary,
 ): StorageVolume = Mockito.mock(StorageVolume::class.java).apply {
     Mockito.`when`(this.isPrimary).thenReturn(isPrimary)
     Mockito.`when`(this.uuid).thenReturn(uuid)
     Mockito.`when`(this.directory).thenReturn(directory?.let(::File))
+    Mockito.`when`(this.isRemovable).thenReturn(isRemovable)
+    Mockito.`when`(this.isEmulated).thenReturn(isEmulated)
 }
 
 /**

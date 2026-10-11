@@ -100,7 +100,14 @@ internal class GetMediaRequestHandlerTest {
 
         // The Dart side reads this key, so the shape is pinned here rather than
         // left to whatever a round trip happens to agree with.
-        assertTrue(reply.contains("\"volumeInfo\":{\"isPrimary\":true,\"uuid\":null}"), reply)
+        assertTrue(
+            reply.contains(
+                "\"volumeIdentity\":" +
+                    "{\"isPrimary\":true,\"isRemovable\":false,\"isEmulated\":true," +
+                    "\"type\":\"PRIMARY\",\"uuid\":null}",
+            ),
+            reply,
+        )
         assertTrue(!reply.contains("volumeName"), reply)
     }
 

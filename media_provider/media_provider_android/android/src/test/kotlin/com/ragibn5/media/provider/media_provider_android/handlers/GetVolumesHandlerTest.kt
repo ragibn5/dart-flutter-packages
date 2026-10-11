@@ -3,7 +3,11 @@ package com.ragibn5.media.provider.media_provider_android.handlers
 import android.content.Context
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
+import android.os.Environment
+import com.ragibn5.media.provider.media_provider_android.models.VolumeIdentity
 import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
+import com.ragibn5.media.provider.media_provider_android.models.VolumeState
+import com.ragibn5.media.provider.media_provider_android.models.VolumeType
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderService
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceFactory
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceImpl
@@ -28,8 +32,8 @@ internal class GetVolumesHandlerTest {
     @Test
     fun `replies with the service's volumes encoded as JSON`() = runTest {
         service.items = listOf(
-            VolumeInfo(isPrimary = true, uuid = null),
-            VolumeInfo(isPrimary = false, uuid = "1234-5678"),
+            primaryVolume(),
+            secondaryVolume(),
         )
 
         assertEquals(
@@ -41,8 +45,8 @@ internal class GetVolumesHandlerTest {
     @Test
     fun `replies with volumes the caller can decode back`() = runTest {
         service.items = listOf(
-            VolumeInfo(isPrimary = true, uuid = null),
-            VolumeInfo(isPrimary = false, uuid = "1234-5678"),
+            primaryVolume(),
+            secondaryVolume(),
         )
 
         val reply = handler.handle(call()) as String
@@ -55,6 +59,30 @@ internal class GetVolumesHandlerTest {
         service.items = emptyList()
 
         assertEquals("[]", handler.handle(call()))
+    }
+
+    private companion object {
+        fun primaryVolume() = VolumeInfo(
+            state = VolumeState.MOUNTED,
+            identity = VolumeIdentity(
+                isPrimary = true,
+                isRemovable = false,
+                isEmulated = true,
+                uuid = null,
+                type = VolumeType.PRIMARY,
+            ),
+        )
+
+        fun secondaryVolume() = VolumeInfo(
+            state = VolumeState.MOUNTED_READ_ONLY,
+            identity = VolumeIdentity(
+                isPrimary = false,
+                isRemovable = true,
+                isEmulated = false,
+                uuid = "1234-5678",
+                type = VolumeType.SD_CARD,
+            ),
+        )
     }
 
     private class FakeVolumeProviderService : VolumeProviderService {
@@ -74,10 +102,19 @@ internal class GetVolumesHandlerTest {
 internal class VolumeProviderServiceImplTest {
     private val storageManager: StorageManager = Mockito.mock(StorageManager::class.java)
 
-    private fun volumeOn(isPrimary: Boolean, uuid: String?): StorageVolume =
+    private fun volumeOn(
+        isPrimary: Boolean,
+        uuid: String?,
+        isRemovable: Boolean = false,
+        isEmulated: Boolean = false,
+        state: String? = Environment.MEDIA_MOUNTED,
+    ): StorageVolume =
         Mockito.mock(StorageVolume::class.java).apply {
             Mockito.`when`(this.isPrimary).thenReturn(isPrimary)
             Mockito.`when`(this.uuid).thenReturn(uuid)
+            Mockito.`when`(this.isRemovable).thenReturn(isRemovable)
+            Mockito.`when`(this.isEmulated).thenReturn(isEmulated)
+            Mockito.`when`(this.state).thenReturn(state)
         }
 
     private fun serviceOver(vararg volumes: StorageVolume) =
@@ -85,17 +122,44 @@ internal class VolumeProviderServiceImplTest {
             Mockito.`when`(storageManager.storageVolumes).thenReturn(volumes.toList())
         }
 
+    private fun identity(
+        isPrimary: Boolean,
+        uuid: String?,
+        isRemovable: Boolean = false,
+        isEmulated: Boolean = false,
+        type: VolumeType,
+    ) = VolumeIdentity(
+        isPrimary = isPrimary,
+        isRemovable = isRemovable,
+        isEmulated = isEmulated,
+        uuid = uuid,
+        type = type,
+    )
+
     @Test
     fun `reports each mounted volume in the order the device lists them`() {
         val service = serviceOver(
-            volumeOn(isPrimary = true, uuid = null),
-            volumeOn(isPrimary = false, uuid = "1234-5678"),
+            volumeOn(isPrimary = true, uuid = null, isEmulated = true),
+            volumeOn(isPrimary = false, uuid = "1234-5678", isRemovable = true),
         )
 
         assertEquals(
             listOf(
-                VolumeInfo(isPrimary = true, uuid = null),
-                VolumeInfo(isPrimary = false, uuid = "1234-5678"),
+                VolumeInfo(
+                    state = VolumeState.MOUNTED,
+                    identity = identity(true, null, isEmulated = true, type = VolumeType.PRIMARY),
+                ),
+                VolumeInfo(
+                    state = VolumeState.MOUNTED,
+                    identity = identity(
+                        false,
+                        "1234-5678",
+                        isRemovable = true,
+                        // No block device id is readable on a mock, so the type
+                        // stays unresolved.
+                        type = VolumeType.UNKNOWN_REMOVABLE,
+                    ),
+                ),
             ),
             service.getVolumes(),
         )
@@ -105,7 +169,62 @@ internal class VolumeProviderServiceImplTest {
     fun `reports the primary volume as having no UUID`() {
         val service = serviceOver(volumeOn(isPrimary = true, uuid = null))
 
-        assertEquals(listOf(VolumeInfo(isPrimary = true, uuid = null)), service.getVolumes())
+        assertEquals(
+            listOf(
+                VolumeInfo(
+                    state = VolumeState.MOUNTED,
+                    identity = identity(true, null, type = VolumeType.PRIMARY),
+                ),
+            ),
+            service.getVolumes(),
+        )
+    }
+
+    @Test
+    fun `reports a non-primary non-removable volume as unknown`() {
+        val service = serviceOver(volumeOn(isPrimary = false, uuid = "1234-5678"))
+
+        assertEquals(
+            listOf(
+                VolumeInfo(
+                    state = VolumeState.MOUNTED,
+                    identity = identity(false, "1234-5678", type = VolumeType.UNKNOWN),
+                ),
+            ),
+            service.getVolumes(),
+        )
+    }
+
+    @Test
+    fun `maps the volume's state onto the report`() {
+        val service = serviceOver(
+            volumeOn(isPrimary = true, uuid = null, state = Environment.MEDIA_EJECTING),
+            volumeOn(
+                isPrimary = false,
+                uuid = "1234-5678",
+                isRemovable = true,
+                state = Environment.MEDIA_UNMOUNTED,
+            ),
+        )
+
+        assertEquals(
+            listOf(VolumeState.EJECTING, VolumeState.UNMOUNTED),
+            service.getVolumes().map { it.state },
+        )
+    }
+
+    @Test
+    fun `reports an unrecognized volume state as unknown`() {
+        val service = serviceOver(volumeOn(isPrimary = true, uuid = null, state = "something-else"))
+
+        assertEquals(listOf(VolumeState.UNKNOWN), service.getVolumes().map { it.state })
+    }
+
+    @Test
+    fun `reports a volume reporting no state as unknown`() {
+        val service = serviceOver(volumeOn(isPrimary = true, uuid = null, state = null))
+
+        assertEquals(listOf(VolumeState.UNKNOWN), service.getVolumes().map { it.state })
     }
 
     @Test
