@@ -10,7 +10,7 @@ import java.io.File
 internal class FileLocationResolver(
     private val storageManager: StorageManager,
     private val volumePathResolver: VolumePathResolver,
-    private val volumeTypeResolver: VolumeTypeResolver = VolumeTypeResolver,
+    private val volumeTypeResolver: VolumeTypeResolver,
 ) {
     fun resolve(file: File): FileLocation? {
         val volume = storageManager.getStorageVolume(file) ?: return null

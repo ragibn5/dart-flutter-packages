@@ -13,13 +13,13 @@ internal interface VolumeProviderService {
 internal object VolumeProviderServiceFactory {
     fun create(context: Context): VolumeProviderService {
         val storageManager = context.getSystemService(StorageManager::class.java)
-        return VolumeProviderServiceImpl(storageManager)
+        return VolumeProviderServiceImpl(storageManager, VolumeTypeResolver())
     }
 }
 
 internal class VolumeProviderServiceImpl(
     private val storageManager: StorageManager,
-    private val volumeTypeResolver: VolumeTypeResolver = VolumeTypeResolver,
+    private val volumeTypeResolver: VolumeTypeResolver,
 ) : VolumeProviderService {
     override fun getVolumes(): List<VolumeInfo> {
         return storageManager.storageVolumes.map {

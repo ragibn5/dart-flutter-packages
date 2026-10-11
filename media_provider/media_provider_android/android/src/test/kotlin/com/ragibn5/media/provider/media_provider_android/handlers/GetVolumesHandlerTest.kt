@@ -11,6 +11,7 @@ import com.ragibn5.media.provider.media_provider_android.models.VolumeType
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderService
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceFactory
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceImpl
+import com.ragibn5.media.provider.media_provider_android.services.VolumeTypeResolver
 import io.flutter.plugin.common.MethodCall
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -118,7 +119,7 @@ internal class VolumeProviderServiceImplTest {
         }
 
     private fun serviceOver(vararg volumes: StorageVolume) =
-        VolumeProviderServiceImpl(storageManager).apply {
+        VolumeProviderServiceImpl(storageManager, VolumeTypeResolver()).apply {
             Mockito.`when`(storageManager.storageVolumes).thenReturn(volumes.toList())
         }
 

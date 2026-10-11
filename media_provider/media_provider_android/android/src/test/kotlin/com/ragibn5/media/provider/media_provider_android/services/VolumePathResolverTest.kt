@@ -240,6 +240,10 @@ internal class FileLocationResolverTest {
         FileLocationResolver(
             storageManager,
             VolumePathResolver(context, storageManager, Build.VERSION_CODES.R),
+            // Stateless; which volume type it reports is VolumeTypeResolverTest's
+            // business. On a mock it reports UNKNOWN/UNKNOWN_REMOVABLE, which is
+            // what the expectations below assert.
+            VolumeTypeResolver(),
         ).resolve(File(path))
 
     @Test

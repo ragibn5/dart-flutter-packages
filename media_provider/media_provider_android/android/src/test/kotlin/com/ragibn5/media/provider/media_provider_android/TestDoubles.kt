@@ -8,6 +8,7 @@ import android.os.storage.StorageVolume
 import com.ragibn5.media.provider.media_provider_android.services.FileLocationResolver
 import com.ragibn5.media.provider.media_provider_android.services.MediaItemUriBuilder
 import com.ragibn5.media.provider.media_provider_android.services.VolumePathResolver
+import com.ragibn5.media.provider.media_provider_android.services.VolumeTypeResolver
 import io.flutter.plugin.common.MethodChannel
 import org.mockito.Mockito
 import java.io.File
@@ -102,6 +103,9 @@ internal fun fakeFileLocationResolver(
             // covered by VolumePathResolverTest.
             sdkInt = Build.VERSION_CODES.R,
         ),
+        // The real resolver: it holds no state, and which volume type it reports
+        // is VolumeTypeResolverTest's business.
+        volumeTypeResolver = VolumeTypeResolver(),
     )
 }
 
