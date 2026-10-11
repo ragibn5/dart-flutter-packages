@@ -13,12 +13,14 @@ VolumeInfo _$VolumeInfoFromJson(Map<String, dynamic> json) => VolumeInfo(
     json['state'],
     unknownValue: VolumeState.unknown,
   ),
+  availableSpaceInBytes: (json['availableSpaceInBytes'] as num).toInt(),
 );
 
 Map<String, dynamic> _$VolumeInfoToJson(VolumeInfo instance) =>
     <String, dynamic>{
       'identity': instance.identity,
       'state': _$VolumeStateEnumMap[instance.state]!,
+      'availableSpaceInBytes': instance.availableSpaceInBytes,
     };
 
 const _$VolumeStateEnumMap = {

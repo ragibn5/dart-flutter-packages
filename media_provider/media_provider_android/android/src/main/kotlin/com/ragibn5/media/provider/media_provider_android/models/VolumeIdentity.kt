@@ -27,6 +27,11 @@ internal data class VolumeIdentity(
     val type: VolumeType,
 
     /**
+     * The total capacity of the volume, in bytes.
+     */
+    val capacityInBytes: Long,
+
+    /**
      * The filesystem UUID of the volume, obtained from [android.os.storage.StorageVolume.getUuid].
      *
      * > Note: This may not be available when the volume is not mounted, or in case of incompatible

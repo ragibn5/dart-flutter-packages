@@ -75,6 +75,12 @@ android {
 
     testOptions {
         unitTests {
+            // `StatFs` is a framework stub under unit tests and throws unless it
+            // is told what to hand back. Reporting volumes and file locations
+            // reads a volume's size, so the stub is answered with its default
+            // (zero) rather than failing every test that touches one.
+            isReturnDefaultValues = true
+
             all {
                 it.useJUnitPlatform()
 

@@ -104,7 +104,7 @@ internal class GetMediaRequestHandlerTest {
             reply.contains(
                 "\"volumeIdentity\":" +
                     "{\"isPrimary\":true,\"isRemovable\":false,\"isEmulated\":true," +
-                    "\"type\":\"PRIMARY\",\"uuid\":null}",
+                    "\"type\":\"PRIMARY\",\"capacityInBytes\":0,\"uuid\":null}",
             ),
             reply,
         )

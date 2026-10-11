@@ -52,11 +52,13 @@ const _primaryVolumeIdentity = VolumeIdentity(
   isRemovable: false,
   isEmulated: true,
   type: VolumeType.primary,
+  capacityInBytes: 128000000000,
   uuid: null,
 );
 
 const _primaryVolume = VolumeInfo(
   state: VolumeState.mounted,
+  availableSpaceInBytes: 64000000000,
   identity: _primaryVolumeIdentity,
 );
 

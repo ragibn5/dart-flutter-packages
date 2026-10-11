@@ -1,6 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android.handlers
 
 import android.content.Context
+import android.os.Build
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import android.os.Environment
@@ -10,6 +11,7 @@ import com.ragibn5.media.provider.media_provider_android.models.VolumeState
 import com.ragibn5.media.provider.media_provider_android.models.VolumeType
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderService
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceFactory
+import com.ragibn5.media.provider.media_provider_android.services.VolumePathResolver
 import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceImpl
 import com.ragibn5.media.provider.media_provider_android.services.VolumeTypeResolver
 import io.flutter.plugin.common.MethodCall
@@ -65,22 +67,26 @@ internal class GetVolumesHandlerTest {
     private companion object {
         fun primaryVolume() = VolumeInfo(
             state = VolumeState.MOUNTED,
+            availableSpaceInBytes = 1024,
             identity = VolumeIdentity(
                 isPrimary = true,
                 isRemovable = false,
                 isEmulated = true,
                 uuid = null,
+                capacityInBytes = 4096,
                 type = VolumeType.PRIMARY,
             ),
         )
 
         fun secondaryVolume() = VolumeInfo(
             state = VolumeState.MOUNTED_READ_ONLY,
+            availableSpaceInBytes = 512,
             identity = VolumeIdentity(
                 isPrimary = false,
                 isRemovable = true,
                 isEmulated = false,
                 uuid = "1234-5678",
+                capacityInBytes = 2048,
                 type = VolumeType.SD_CARD,
             ),
         )
@@ -119,7 +125,17 @@ internal class VolumeProviderServiceImplTest {
         }
 
     private fun serviceOver(vararg volumes: StorageVolume) =
-        VolumeProviderServiceImpl(storageManager, VolumeTypeResolver()).apply {
+        VolumeProviderServiceImpl(
+            storageManager,
+            VolumePathResolver(
+                Mockito.mock(Context::class.java),
+                storageManager,
+                // Pinned because a mock reports no API level, and the branch the
+                // resolver takes is what VolumePathResolverTest covers.
+                Build.VERSION_CODES.R,
+            ),
+            VolumeTypeResolver(),
+        ).apply {
             Mockito.`when`(storageManager.storageVolumes).thenReturn(volumes.toList())
         }
 
@@ -134,6 +150,7 @@ internal class VolumeProviderServiceImplTest {
         isRemovable = isRemovable,
         isEmulated = isEmulated,
         uuid = uuid,
+        capacityInBytes = 0,
         type = type,
     )
 
@@ -148,10 +165,12 @@ internal class VolumeProviderServiceImplTest {
             listOf(
                 VolumeInfo(
                     state = VolumeState.MOUNTED,
+                    availableSpaceInBytes = 0,
                     identity = identity(true, null, isEmulated = true, type = VolumeType.PRIMARY),
                 ),
                 VolumeInfo(
                     state = VolumeState.MOUNTED,
+                    availableSpaceInBytes = 0,
                     identity = identity(
                         false,
                         "1234-5678",
@@ -174,6 +193,7 @@ internal class VolumeProviderServiceImplTest {
             listOf(
                 VolumeInfo(
                     state = VolumeState.MOUNTED,
+                    availableSpaceInBytes = 0,
                     identity = identity(true, null, type = VolumeType.PRIMARY),
                 ),
             ),
@@ -189,6 +209,7 @@ internal class VolumeProviderServiceImplTest {
             listOf(
                 VolumeInfo(
                     state = VolumeState.MOUNTED,
+                    availableSpaceInBytes = 0,
                     identity = identity(false, "1234-5678", type = VolumeType.UNKNOWN),
                 ),
             ),

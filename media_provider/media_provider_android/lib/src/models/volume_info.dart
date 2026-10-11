@@ -17,7 +17,16 @@ class VolumeInfo extends Equatable {
   @JsonKey(unknownEnumValue: VolumeState.unknown)
   final VolumeState state;
 
-  const VolumeInfo({required this.identity, required this.state});
+  /// The space still available on the volume, in bytes.
+  ///
+  /// Zero when the volume is not mounted and so has no readable filesystem.
+  final int availableSpaceInBytes;
+
+  const VolumeInfo({
+    required this.identity,
+    required this.state,
+    required this.availableSpaceInBytes,
+  });
 
   factory VolumeInfo.fromJson(Map<String, dynamic> json) =>
       _$VolumeInfoFromJson(json);
@@ -25,5 +34,5 @@ class VolumeInfo extends Equatable {
   Map<String, dynamic> toJson() => _$VolumeInfoToJson(this);
 
   @override
-  List<Object?> get props => [identity, state];
+  List<Object?> get props => [identity, state, availableSpaceInBytes];
 }

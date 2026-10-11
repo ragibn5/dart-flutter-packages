@@ -28,7 +28,8 @@ const _photoJsonObject = '''
     "dateModifiedInMillis": 1700000001000,
     "dateTakenInMillis": 1700000002000,
     "volumeIdentity": {"isPrimary": true, "isRemovable": false,
-                       "isEmulated": true, "type": "PRIMARY", "uuid": null},
+                       "isEmulated": true, "type": "PRIMARY",
+                       "capacityInBytes": 128000000000, "uuid": null},
     "relativePath": "DCIM/Camera/",
     "ownerPackageName": "com.android.camera3",
     "isPending": false,
@@ -63,12 +64,14 @@ const _mixedJson = '[$_photoJsonObject,$_videoJsonObject]';
 /// A JSON array of volumes, shaped like the Kotlin `List<VolumeInfo>`.
 const _volumesJson = '''
   [
-    {"state": "MOUNTED",
+    {"state": "MOUNTED", "availableSpaceInBytes": 64000000000,
      "identity": {"isPrimary": true, "isRemovable": false, "isEmulated": true,
-                  "type": "PRIMARY", "uuid": null}},
-    {"state": "MOUNTED_READ_ONLY",
+                  "type": "PRIMARY", "capacityInBytes": 128000000000,
+                  "uuid": null}},
+    {"state": "MOUNTED_READ_ONLY", "availableSpaceInBytes": 16000000000,
      "identity": {"isPrimary": false, "isRemovable": true, "isEmulated": false,
-                  "type": "SD_CARD", "uuid": "1A2B-3C4D"}}
+                  "type": "SD_CARD", "capacityInBytes": 32000000000,
+                  "uuid": "1A2B-3C4D"}}
   ]''';
 
 const _primaryVolumeIdentity = VolumeIdentity(
@@ -76,6 +79,7 @@ const _primaryVolumeIdentity = VolumeIdentity(
   isRemovable: false,
   isEmulated: true,
   type: VolumeType.primary,
+  capacityInBytes: 128000000000,
   uuid: null,
 );
 
@@ -226,10 +230,12 @@ void main() {
         const json =
             '[{"type":"PHOTO","id":"1","uri":"content://x/1","volumeIdentity":'
             '{"isPrimary":true,"isRemovable":false,"isEmulated":true,'
-            '"type":"PRIMARY","uuid":null}},{"type":"PHOTO","id":"2",'
+            '"type":"PRIMARY","capacityInBytes":128000000000,"uuid":null}},'
+            '{"type":"PHOTO","id":"2",'
             '"uri":"content://x/2","volumeIdentity":{"isPrimary":false,'
             '"isRemovable":true,"isEmulated":false,"type":"SD_CARD",'
-            '"uuid":"1A2B-3C4D"}},{"type":"PHOTO","id":"3",'
+            '"capacityInBytes":32000000000,"uuid":"1A2B-3C4D"}},'
+            '{"type":"PHOTO","id":"3",'
             '"uri":"content://x/3","volumeIdentity":null}]';
         mockGetMedia(json);
 
@@ -247,6 +253,7 @@ void main() {
             isRemovable: true,
             isEmulated: false,
             type: VolumeType.sdCard,
+            capacityInBytes: 32000000000,
             uuid: '1A2B-3C4D',
           ),
           null,
@@ -350,15 +357,18 @@ void main() {
       expect(result, const [
         VolumeInfo(
           state: VolumeState.mounted,
+          availableSpaceInBytes: 64000000000,
           identity: _primaryVolumeIdentity,
         ),
         VolumeInfo(
           state: VolumeState.mountedReadOnly,
+          availableSpaceInBytes: 16000000000,
           identity: VolumeIdentity(
             isPrimary: false,
             isRemovable: true,
             isEmulated: false,
             type: VolumeType.sdCard,
+            capacityInBytes: 32000000000,
             uuid: '1A2B-3C4D',
           ),
         ),
@@ -375,10 +385,10 @@ void main() {
       // A platform side newer than this one can name a state or a type that is
       // absent here; the reply must still decode rather than throw.
       mockGetVolumes('''
-        [{"state": "FORMATTING",
+        [{"state": "FORMATTING", "availableSpaceInBytes": 0,
           "identity": {"isPrimary": true, "isRemovable": false,
                        "isEmulated": true, "type": "CARGO_CART",
-                       "uuid": null}}]''');
+                       "capacityInBytes": 0, "uuid": null}}]''');
 
       final result = await sut.getVolumes();
 

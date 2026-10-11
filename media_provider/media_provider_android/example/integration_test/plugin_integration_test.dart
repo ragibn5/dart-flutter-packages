@@ -42,5 +42,15 @@ void main() {
           .map((volume) => volume.identity.type),
       everyElement(VolumeType.primary),
     );
+    // A mounted volume has a real filesystem behind it, so it reports a capacity
+    // and some free space, neither of which exceeds the other.
+    for (final volume
+        in volumes.where((volume) => volume.state == VolumeState.mounted)) {
+      expect(volume.identity.capacityInBytes, greaterThan(0));
+      expect(
+        volume.availableSpaceInBytes,
+        lessThanOrEqualTo(volume.identity.capacityInBytes),
+      );
+    }
   });
 }

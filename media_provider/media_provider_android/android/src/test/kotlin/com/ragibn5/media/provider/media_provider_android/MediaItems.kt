@@ -9,19 +9,22 @@ import com.ragibn5.media.provider.media_provider_android.models.VolumeType
  * The volume a mocked `StorageVolume` reports, as a [VolumeIdentity].
  *
  * Defaults describe the primary volume [fakeFileLocationResolver] reports its
- * files as sitting on: emulated, non-removable and without a UUID.
+ * files as sitting on: emulated, non-removable and without a UUID. The size
+ * defaults to zero, since a mocked volume has no filesystem behind it.
  */
 internal fun volumeIdentity(
     isPrimary: Boolean = true,
     uuid: String? = null,
     isRemovable: Boolean = false,
     isEmulated: Boolean = isPrimary,
+    capacityInBytes: Long = 0,
     type: VolumeType = if (isPrimary) VolumeType.PRIMARY else VolumeType.UNKNOWN,
 ): VolumeIdentity = VolumeIdentity(
     isPrimary = isPrimary,
     isRemovable = isRemovable,
     isEmulated = isEmulated,
     uuid = uuid,
+    capacityInBytes = capacityInBytes,
     type = type,
 )
 

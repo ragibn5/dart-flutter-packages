@@ -22,6 +22,11 @@ class VolumeIdentity extends Equatable {
   @JsonKey(unknownEnumValue: VolumeType.unknown)
   final VolumeType type;
 
+  /// The total capacity of the volume, in bytes.
+  ///
+  /// Zero when the volume is not mounted and so has no readable filesystem.
+  final int capacityInBytes;
+
   /// The filesystem UUID of the volume, or null when the platform does not
   /// report one.
   ///
@@ -34,6 +39,7 @@ class VolumeIdentity extends Equatable {
     required this.isRemovable,
     required this.isEmulated,
     required this.type,
+    required this.capacityInBytes,
     required this.uuid,
   });
 
@@ -43,5 +49,12 @@ class VolumeIdentity extends Equatable {
   Map<String, dynamic> toJson() => _$VolumeIdentityToJson(this);
 
   @override
-  List<Object?> get props => [isPrimary, isRemovable, isEmulated, type, uuid];
+  List<Object?> get props => [
+    isPrimary,
+    isRemovable,
+    isEmulated,
+    type,
+    capacityInBytes,
+    uuid,
+  ];
 }

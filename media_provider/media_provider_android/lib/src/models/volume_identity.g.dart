@@ -16,6 +16,7 @@ VolumeIdentity _$VolumeIdentityFromJson(Map<String, dynamic> json) =>
         json['type'],
         unknownValue: VolumeType.unknown,
       ),
+      capacityInBytes: (json['capacityInBytes'] as num).toInt(),
       uuid: json['uuid'] as String?,
     );
 
@@ -25,6 +26,7 @@ Map<String, dynamic> _$VolumeIdentityToJson(VolumeIdentity instance) =>
       'isRemovable': instance.isRemovable,
       'isEmulated': instance.isEmulated,
       'type': _$VolumeTypeEnumMap[instance.type]!,
+      'capacityInBytes': instance.capacityInBytes,
       'uuid': instance.uuid,
     };
 
