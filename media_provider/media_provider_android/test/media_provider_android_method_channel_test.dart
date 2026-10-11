@@ -8,8 +8,11 @@ import 'package:media_provider_android/media_provider_android_method_channel.dar
 import 'package:media_provider_android/src/models/media_item.dart';
 import 'package:media_provider_android/src/models/media_type.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
+import 'package:media_provider_android/src/models/volume_identity.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 import 'package:media_provider_android/src/models/volume_spec.dart';
+import 'package:media_provider_android/src/models/volume_state.dart';
+import 'package:media_provider_android/src/models/volume_type.dart';
 
 /// JSON objects shaped exactly like `Json.encodeToString` of the Kotlin
 /// `MediaItem`: every field present, nullable fields explicitly `null`.
@@ -24,7 +27,8 @@ const _photoJsonObject = '''
     "dateAddedInMillis": 1700000000000,
     "dateModifiedInMillis": 1700000001000,
     "dateTakenInMillis": 1700000002000,
-    "volumeInfo": {"isPrimary": true, "uuid": null},
+    "volumeIdentity": {"isPrimary": true, "isRemovable": false,
+                       "isEmulated": true, "type": "PRIMARY", "uuid": null},
     "relativePath": "DCIM/Camera/",
     "ownerPackageName": "com.android.camera3",
     "isPending": false,
@@ -44,7 +48,7 @@ const _videoJsonObject = '''
     "dateAddedInMillis": 1700000002000,
     "dateModifiedInMillis": 1700000003000,
     "dateTakenInMillis": null,
-    "volumeInfo": null,
+    "volumeIdentity": null,
     "relativePath": "DCIM/Camera/",
     "ownerPackageName": null,
     "isPending": true,
@@ -59,9 +63,21 @@ const _mixedJson = '[$_photoJsonObject,$_videoJsonObject]';
 /// A JSON array of volumes, shaped like the Kotlin `List<VolumeInfo>`.
 const _volumesJson = '''
   [
-    {"isPrimary": true, "uuid": null},
-    {"isPrimary": false, "uuid": "1A2B-3C4D"}
+    {"state": "MOUNTED",
+     "identity": {"isPrimary": true, "isRemovable": false, "isEmulated": true,
+                  "type": "PRIMARY", "uuid": null}},
+    {"state": "MOUNTED_READ_ONLY",
+     "identity": {"isPrimary": false, "isRemovable": true, "isEmulated": false,
+                  "type": "SD_CARD", "uuid": "1A2B-3C4D"}}
   ]''';
+
+const _primaryVolumeIdentity = VolumeIdentity(
+  isPrimary: true,
+  isRemovable: false,
+  isEmulated: true,
+  type: VolumeType.primary,
+  uuid: null,
+);
 
 const _photoItem = MediaItem(
   type: MediaType.photo,
@@ -73,7 +89,7 @@ const _photoItem = MediaItem(
   dateAddedInMillis: 1700000000000,
   dateModifiedInMillis: 1700000001000,
   dateTakenInMillis: 1700000002000,
-  volumeInfo: VolumeInfo(isPrimary: true, uuid: null),
+  volumeIdentity: _primaryVolumeIdentity,
   relativePath: 'DCIM/Camera/',
   ownerPackageName: 'com.android.camera3',
   isPending: false,
@@ -92,7 +108,7 @@ const _videoItem = MediaItem(
   dateAddedInMillis: 1700000002000,
   dateModifiedInMillis: 1700000003000,
   dateTakenInMillis: null,
-  volumeInfo: null,
+  volumeIdentity: null,
   relativePath: 'DCIM/Camera/',
   ownerPackageName: null,
   isPending: true,
@@ -205,14 +221,16 @@ void main() {
     });
 
     test(
-      'decodes the volume info, null or an uuid for a secondary volume',
+      'decodes the volume identity, null or an uuid for a secondary volume',
       () async {
         const json =
-            '[{"type":"PHOTO","id":"1","uri":"content://x/1","volumeInfo":'
-            '{"isPrimary":true,"uuid":null}},{"type":"PHOTO","id":"2",'
-            '"uri":"content://x/2","volumeInfo":{"isPrimary":false,'
+            '[{"type":"PHOTO","id":"1","uri":"content://x/1","volumeIdentity":'
+            '{"isPrimary":true,"isRemovable":false,"isEmulated":true,'
+            '"type":"PRIMARY","uuid":null}},{"type":"PHOTO","id":"2",'
+            '"uri":"content://x/2","volumeIdentity":{"isPrimary":false,'
+            '"isRemovable":true,"isEmulated":false,"type":"SD_CARD",'
             '"uuid":"1A2B-3C4D"}},{"type":"PHOTO","id":"3",'
-            '"uri":"content://x/3","volumeInfo":null}]';
+            '"uri":"content://x/3","volumeIdentity":null}]';
         mockGetMedia(json);
 
         final result = await sut.getMedia(
@@ -222,9 +240,15 @@ void main() {
           ),
         );
 
-        expect(result.map((item) => item.volumeInfo), [
-          const VolumeInfo(isPrimary: true, uuid: null),
-          const VolumeInfo(isPrimary: false, uuid: '1A2B-3C4D'),
+        expect(result.map((item) => item.volumeIdentity), [
+          _primaryVolumeIdentity,
+          const VolumeIdentity(
+            isPrimary: false,
+            isRemovable: true,
+            isEmulated: false,
+            type: VolumeType.sdCard,
+            uuid: '1A2B-3C4D',
+          ),
           null,
         ]);
       },
@@ -324,8 +348,20 @@ void main() {
       final result = await sut.getVolumes();
 
       expect(result, const [
-        VolumeInfo(isPrimary: true, uuid: null),
-        VolumeInfo(isPrimary: false, uuid: '1A2B-3C4D'),
+        VolumeInfo(
+          state: VolumeState.mounted,
+          identity: _primaryVolumeIdentity,
+        ),
+        VolumeInfo(
+          state: VolumeState.mountedReadOnly,
+          identity: VolumeIdentity(
+            isPrimary: false,
+            isRemovable: true,
+            isEmulated: false,
+            type: VolumeType.sdCard,
+            uuid: '1A2B-3C4D',
+          ),
+        ),
       ]);
     });
 

@@ -19,7 +19,7 @@ const _photoItem = MediaItem(
   dateAddedInMillis: 1700000000000,
   dateModifiedInMillis: 1700000001000,
   dateTakenInMillis: 1700000002000,
-  volumeInfo: VolumeInfo(isPrimary: true, uuid: null),
+  volumeIdentity: _primaryVolumeIdentity,
   relativePath: 'DCIM/Camera/',
   ownerPackageName: 'com.android.camera3',
   isPending: false,
@@ -38,7 +38,7 @@ const _videoItem = MediaItem(
   dateAddedInMillis: 1700000002000,
   dateModifiedInMillis: 1700000003000,
   dateTakenInMillis: null,
-  volumeInfo: null,
+  volumeIdentity: null,
   relativePath: 'DCIM/Camera/',
   ownerPackageName: null,
   isPending: true,
@@ -47,7 +47,18 @@ const _videoItem = MediaItem(
   isDownloaded: null,
 );
 
-const _primaryVolume = VolumeInfo(isPrimary: true, uuid: null);
+const _primaryVolumeIdentity = VolumeIdentity(
+  isPrimary: true,
+  isRemovable: false,
+  isEmulated: true,
+  type: VolumeType.primary,
+  uuid: null,
+);
+
+const _primaryVolume = VolumeInfo(
+  state: VolumeState.mounted,
+  identity: _primaryVolumeIdentity,
+);
 
 void main() {
   late _MockMediaProviderAndroidPlatform first;

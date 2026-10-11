@@ -7,9 +7,25 @@ part of 'volume_info.dart';
 // **************************************************************************
 
 VolumeInfo _$VolumeInfoFromJson(Map<String, dynamic> json) => VolumeInfo(
-  isPrimary: json['isPrimary'] as bool,
-  uuid: json['uuid'] as String?,
+  identity: VolumeIdentity.fromJson(json['identity'] as Map<String, dynamic>),
+  state: $enumDecode(_$VolumeStateEnumMap, json['state']),
 );
 
 Map<String, dynamic> _$VolumeInfoToJson(VolumeInfo instance) =>
-    <String, dynamic>{'isPrimary': instance.isPrimary, 'uuid': instance.uuid};
+    <String, dynamic>{
+      'identity': instance.identity,
+      'state': _$VolumeStateEnumMap[instance.state]!,
+    };
+
+const _$VolumeStateEnumMap = {
+  VolumeState.mounted: 'MOUNTED',
+  VolumeState.mountedReadOnly: 'MOUNTED_READ_ONLY',
+  VolumeState.unmounted: 'UNMOUNTED',
+  VolumeState.checking: 'CHECKING',
+  VolumeState.ejecting: 'EJECTING',
+  VolumeState.removed: 'REMOVED',
+  VolumeState.badRemoval: 'BAD_REMOVAL',
+  VolumeState.unmountable: 'UNMOUNTABLE',
+  VolumeState.noFilesystem: 'NO_FILESYSTEM',
+  VolumeState.unknown: 'UNKNOWN',
+};

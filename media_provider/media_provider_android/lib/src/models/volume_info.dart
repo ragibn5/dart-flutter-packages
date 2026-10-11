@@ -1,23 +1,22 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:media_provider_android/src/models/volume_identity.dart';
+import 'package:media_provider_android/src/models/volume_state.dart';
 import 'package:meta/meta.dart';
 
 part 'volume_info.g.dart';
 
+/// A storage volume the device has, as reported by `getVolumes`.
 @JsonSerializable()
 @immutable
 class VolumeInfo extends Equatable {
-  /// Whether this is the primary shared/external storage volume.
-  final bool isPrimary;
+  /// What identifies the volume.
+  final VolumeIdentity identity;
 
-  /// The filesystem UUID of the volume, or null when the platform does not
-  /// report one.
-  ///
-  /// > Note: This may not be available when the volume is not mounted,
-  /// > or in case of incompatible volumes.
-  final String? uuid;
+  /// Where the volume currently is in its lifecycle.
+  final VolumeState state;
 
-  const VolumeInfo({required this.isPrimary, required this.uuid});
+  const VolumeInfo({required this.identity, required this.state});
 
   factory VolumeInfo.fromJson(Map<String, dynamic> json) =>
       _$VolumeInfoFromJson(json);
@@ -25,5 +24,5 @@ class VolumeInfo extends Equatable {
   Map<String, dynamic> toJson() => _$VolumeInfoToJson(this);
 
   @override
-  List<Object?> get props => [isPrimary, uuid];
+  List<Object?> get props => [identity, state];
 }
