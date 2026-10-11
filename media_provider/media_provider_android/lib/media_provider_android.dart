@@ -7,8 +7,8 @@ import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 
 export 'src/models/media_item.dart';
-export 'src/models/query_spec.dart';
 export 'src/models/media_type.dart';
+export 'src/models/query_spec.dart';
 export 'src/models/volume_identity.dart';
 export 'src/models/volume_info.dart';
 export 'src/models/volume_spec.dart';

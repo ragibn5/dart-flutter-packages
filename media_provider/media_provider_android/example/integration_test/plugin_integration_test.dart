@@ -19,10 +19,28 @@ void main() {
     // just assert that the call round-trips.
     final media = await plugin.getMedia(
       QuerySpec(
-        types: {AndroidMediaType.photo, AndroidMediaType.video},
-        volumes: null,
+        types: const {MediaType.photo, MediaType.video},
+        volumes: {const VolumeSpec.primary()},
       ),
     );
-    expect(media, isA<List<AndroidMediaItem>>());
+    expect(media, isA<List<MediaItem>>());
+  });
+
+  testWidgets('getVolumes test', (WidgetTester tester) async {
+    final MediaProviderAndroid plugin = MediaProviderAndroid();
+    // A device always has at least its primary volume, so this one can be
+    // asserted on regardless of the library's contents.
+    final volumes = await plugin.getVolumes();
+    expect(volumes, isA<List<VolumeInfo>>());
+    expect(
+      volumes.map((volume) => volume.state),
+      isNot(contains(VolumeState.unknown)),
+    );
+    expect(
+      volumes
+          .where((volume) => volume.identity.isPrimary)
+          .map((volume) => volume.identity.type),
+      everyElement(VolumeType.primary),
+    );
   });
 }

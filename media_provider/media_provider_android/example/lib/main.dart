@@ -16,7 +16,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _mediaProviderAndroidPlugin = MediaProviderAndroid();
 
-  List<AndroidMediaItem>? _media;
+  List<MediaItem>? _media;
   String? _error;
 
   @override
@@ -25,14 +25,28 @@ class _MyAppState extends State<MyApp> {
     _loadMedia();
   }
 
+  /// The volumes media is searched on: every volume the device reports, or the
+  /// primary one alone when the device reports none.
+  Future<Set<VolumeSpec>> _volumesToSearch() async {
+    final volumes = await _mediaProviderAndroidPlugin.getVolumes();
+    final specs = <VolumeSpec>{
+      for (final volume in volumes)
+        if (volume.identity.uuid != null)
+          VolumeSpec.external(uuid: volume.identity.uuid!)
+        else if (volume.identity.isPrimary)
+          const VolumeSpec.primary(),
+    };
+    return specs.isEmpty ? {const VolumeSpec.primary()} : specs;
+  }
+
   Future<void> _loadMedia() async {
     // Media permissions aren't requested here; grant them from the app's
     // system settings, otherwise the list is empty.
     try {
       final media = await _mediaProviderAndroidPlugin.getMedia(
-        MediaQuery(
-          types: {AndroidMediaType.photo, AndroidMediaType.video},
-          volumes: null,
+        QuerySpec(
+          types: {MediaType.photo, MediaType.video},
+          volumes: await _volumesToSearch(),
         ),
       );
       if (!mounted) return;
@@ -67,11 +81,14 @@ class _MyAppState extends State<MyApp> {
         final item = media[index];
         return ListTile(
           leading: Icon(switch (item.type) {
-            AndroidMediaType.photo => Icons.photo,
-            AndroidMediaType.video => Icons.videocam,
+            MediaType.photo => Icons.photo,
+            MediaType.video => Icons.videocam,
           }),
           title: Text(item.name ?? item.id),
           subtitle: Text(item.mimeType ?? 'Unknown type'),
+          trailing: item.volumeIdentity == null
+              ? null
+              : Text(item.volumeIdentity!.type.name),
         );
       },
     );
