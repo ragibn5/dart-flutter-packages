@@ -11,7 +11,11 @@ VolumeIdentity _$VolumeIdentityFromJson(Map<String, dynamic> json) =>
       isPrimary: json['isPrimary'] as bool,
       isRemovable: json['isRemovable'] as bool,
       isEmulated: json['isEmulated'] as bool,
-      type: $enumDecode(_$VolumeTypeEnumMap, json['type']),
+      type: $enumDecode(
+        _$VolumeTypeEnumMap,
+        json['type'],
+        unknownValue: VolumeType.unknown,
+      ),
       uuid: json['uuid'] as String?,
     );
 

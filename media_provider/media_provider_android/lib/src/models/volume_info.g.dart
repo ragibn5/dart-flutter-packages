@@ -8,7 +8,11 @@ part of 'volume_info.dart';
 
 VolumeInfo _$VolumeInfoFromJson(Map<String, dynamic> json) => VolumeInfo(
   identity: VolumeIdentity.fromJson(json['identity'] as Map<String, dynamic>),
-  state: $enumDecode(_$VolumeStateEnumMap, json['state']),
+  state: $enumDecode(
+    _$VolumeStateEnumMap,
+    json['state'],
+    unknownValue: VolumeState.unknown,
+  ),
 );
 
 Map<String, dynamic> _$VolumeInfoToJson(VolumeInfo instance) =>

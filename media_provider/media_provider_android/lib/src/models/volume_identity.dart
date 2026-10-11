@@ -19,6 +19,7 @@ class VolumeIdentity extends Equatable {
   final bool isEmulated;
 
   /// The type of the volume.
+  @JsonKey(unknownEnumValue: VolumeType.unknown)
   final VolumeType type;
 
   /// The filesystem UUID of the volume, or null when the platform does not

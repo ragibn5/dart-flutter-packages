@@ -371,6 +371,21 @@ void main() {
       expect(await sut.getVolumes(), isEmpty);
     });
 
+    test('decodes a state and type it does not know as unknown', () async {
+      // A platform side newer than this one can name a state or a type that is
+      // absent here; the reply must still decode rather than throw.
+      mockGetVolumes('''
+        [{"state": "FORMATTING",
+          "identity": {"isPrimary": true, "isRemovable": false,
+                       "isEmulated": true, "type": "CARGO_CART",
+                       "uuid": null}}]''');
+
+      final result = await sut.getVolumes();
+
+      expect(result.single.state, VolumeState.unknown);
+      expect(result.single.identity.type, VolumeType.unknown);
+    });
+
     test('propagates a PlatformException from the platform side', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {

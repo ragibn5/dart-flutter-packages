@@ -14,6 +14,7 @@ class VolumeInfo extends Equatable {
   final VolumeIdentity identity;
 
   /// Where the volume currently is in its lifecycle.
+  @JsonKey(unknownEnumValue: VolumeState.unknown)
   final VolumeState state;
 
   const VolumeInfo({required this.identity, required this.state});
