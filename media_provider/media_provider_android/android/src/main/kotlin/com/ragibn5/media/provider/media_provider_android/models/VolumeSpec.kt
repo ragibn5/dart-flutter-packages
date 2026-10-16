@@ -10,6 +10,8 @@ import kotlinx.serialization.Serializable
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
 internal sealed interface VolumeSpec {
+    val relativePathScope: String
+
     /**
      * The primary shared/external storage volume.
      *
@@ -18,7 +20,9 @@ internal sealed interface VolumeSpec {
      */
     @Serializable
     @SerialName("primary")
-    data object Primary : VolumeSpec
+    data class Primary(
+        override val relativePathScope: String = "",
+    ) : VolumeSpec
 
     /**
      * A secondary external volume (SD card, USB storage), identified by its
@@ -30,5 +34,8 @@ internal sealed interface VolumeSpec {
      */
     @Serializable
     @SerialName("external")
-    data class External(val uuid: String) : VolumeSpec
+    data class External(
+        val uuid: String,
+        override val relativePathScope: String = ""
+    ) : VolumeSpec
 }

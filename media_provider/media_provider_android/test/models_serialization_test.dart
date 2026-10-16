@@ -44,11 +44,18 @@ void main() {
     });
 
     test('survives a round trip through JSON', () {
-      expect(VolumeInfo.fromJson(jsonDecode(jsonEncode(volume)) as Map<String, dynamic>), volume);
+      expect(
+        VolumeInfo.fromJson(
+          jsonDecode(jsonEncode(volume)) as Map<String, dynamic>,
+        ),
+        volume,
+      );
     });
 
     test('carries the sizes through the round trip', () {
-      final decoded = VolumeInfo.fromJson(jsonDecode(jsonEncode(volume)) as Map<String, dynamic>);
+      final decoded = VolumeInfo.fromJson(
+        jsonDecode(jsonEncode(volume)) as Map<String, dynamic>,
+      );
 
       expect(decoded.identity.capacityInBytes, 128000000000);
       expect(decoded.availableSpaceInBytes, 64000000000);
@@ -87,13 +94,20 @@ void main() {
     });
 
     test('carries the volume size through the round trip', () {
-      final decoded = MediaItem.fromJson(jsonDecode(jsonEncode(item)) as Map<String, dynamic>);
+      final decoded = MediaItem.fromJson(
+        jsonDecode(jsonEncode(item)) as Map<String, dynamic>,
+      );
 
       expect(decoded.volumeIdentity?.capacityInBytes, 128000000000);
     });
 
     test('survives a round trip through JSON', () {
-      expect(MediaItem.fromJson(jsonDecode(jsonEncode(item)) as Map<String, dynamic>), item);
+      expect(
+        MediaItem.fromJson(
+          jsonDecode(jsonEncode(item)) as Map<String, dynamic>,
+        ),
+        item,
+      );
     });
   });
 
@@ -114,7 +128,34 @@ void main() {
     });
 
     test('survives a round trip through JSON', () {
-      expect(QuerySpec.fromJson(jsonDecode(jsonEncode(spec)) as Map<String, dynamic>), spec);
+      expect(
+        QuerySpec.fromJson(
+          jsonDecode(jsonEncode(spec)) as Map<String, dynamic>,
+        ),
+        spec,
+      );
+    });
+
+    test('keeps the relative path scope per volume', () {
+      final scoped = QuerySpec(
+        types: const {MediaType.photo},
+        volumes: {
+          const PrimaryVolumeSpec(relativePathScope: 'Pictures/Trip'),
+          const ExternalVolumeSpec(
+            uuid: '1A2B-3C4D',
+            relativePathScope: 'DCIM',
+          ),
+        },
+      );
+
+      final decoded = QuerySpec.fromJson(
+        jsonDecode(jsonEncode(scoped)) as Map<String, dynamic>,
+      );
+      expect(decoded, scoped);
+      expect(
+        decoded.volumes.first,
+        const PrimaryVolumeSpec(relativePathScope: 'Pictures/Trip'),
+      );
     });
   });
 }

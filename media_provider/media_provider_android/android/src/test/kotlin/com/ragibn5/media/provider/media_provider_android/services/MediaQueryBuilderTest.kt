@@ -64,7 +64,7 @@ internal class MediaQueryBuilderTest {
 
     private fun spec(
         types: Set<MediaType> = setOf(MediaType.PHOTO),
-        volumes: Set<VolumeSpec> = setOf(VolumeSpec.Primary),
+        volumes: Set<VolumeSpec> = setOf(VolumeSpec.Primary()),
     ) = QuerySpec(types = types, volumes = volumes)
 
     @Test
@@ -77,7 +77,7 @@ internal class MediaQueryBuilderTest {
     @Test
     fun `builds one query per requested volume`() {
         val queries = builder().build(
-            spec(volumes = setOf(VolumeSpec.Primary, VolumeSpec.External("1234-5678"))),
+            spec(volumes = setOf(VolumeSpec.Primary(), VolumeSpec.External("1234-5678"))),
         )
 
         assertEquals(
@@ -91,7 +91,7 @@ internal class MediaQueryBuilderTest {
         val queries = builder().build(
             spec(
                 types = setOf(MediaType.PHOTO, MediaType.VIDEO),
-                volumes = setOf(VolumeSpec.Primary, VolumeSpec.External("1234-5678")),
+                volumes = setOf(VolumeSpec.Primary(), VolumeSpec.External("1234-5678")),
             ),
         )
 
@@ -148,7 +148,7 @@ internal class MediaQueryBuilderTest {
     @Test
     fun `still builds the other volumes when one is missing`() {
         val queries = builder().build(
-            spec(volumes = setOf(VolumeSpec.Primary, VolumeSpec.External("9999-9999"))),
+            spec(volumes = setOf(VolumeSpec.Primary(), VolumeSpec.External("9999-9999"))),
         )
 
         assertEquals(listOf("$primaryPath/%"), queries.map { it.selectionArgs?.single() })
@@ -183,11 +183,46 @@ internal class MediaQueryBuilderTest {
     }
 
     @Test
+    fun `scopes a query to the relative path of its volume`() {
+        val queries = builder().build(
+            spec(
+                volumes = setOf(
+                    VolumeSpec.Primary(relativePathScope = "Pictures/Trip"),
+                    VolumeSpec.External("1234-5678", relativePathScope = "DCIM/Camera"),
+                ),
+            ),
+        )
+
+        assertEquals(
+            listOf("$primaryPath/Pictures/Trip/%", "$externalPath/DCIM/Camera/%"),
+            queries.map { it.selectionArgs?.single() },
+        )
+    }
+
+    @Test
+    fun `does not double the separator when the relative path ends in one`() {
+        val queries = builder().build(
+            spec(volumes = setOf(VolumeSpec.Primary(relativePathScope = "Pictures/Trip/"))),
+        )
+
+        assertEquals("$primaryPath/Pictures/Trip/%", queries.single().selectionArgs?.single())
+    }
+
+    @Test
+    fun `does not double the separator when the relative path starts in one`() {
+        val queries = builder().build(
+            spec(volumes = setOf(VolumeSpec.Primary(relativePathScope = "/Pictures/Trip"))),
+        )
+
+        assertEquals("$primaryPath/Pictures/Trip/%", queries.single().selectionArgs?.single())
+    }
+
+    @Test
     fun `builds a query per distinct type, not per repeated entry`() {
         val queries = builder().build(
             QuerySpec(
                 types = setOf(MediaType.PHOTO, MediaType.PHOTO, MediaType.VIDEO),
-                volumes = setOf(VolumeSpec.Primary),
+                volumes = setOf(VolumeSpec.Primary()),
             ),
         )
 

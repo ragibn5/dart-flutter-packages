@@ -10,8 +10,8 @@ part 'volume_spec.g.dart';
 ///
 /// Serialized polymorphically with a `"type"` discriminator,
 /// matching the Android side:
-/// - `{"type":"primary"}`
-/// - `{"type":"external","uuid":"1a2b-3c4d"}`
+/// - `{"type":"primary","relativePathScope":""}`
+/// - `{"type":"external","uuid":"1a2b-3c4d","relativePathScope":""}`
 ///
 /// The discriminator values are part of the wire format.
 /// Changing them requires a matching change in the Kotlin `@SerialName`s.
@@ -19,11 +19,19 @@ sealed class VolumeSpec extends Equatable {
   const VolumeSpec();
 
   /// The primary shared/external storage volume.
-  const factory VolumeSpec.primary() = PrimaryVolumeSpec;
+  const factory VolumeSpec.primary({String relativePathScope}) =
+      PrimaryVolumeSpec;
 
   /// A secondary external volume, identified by its filesystem [uuid].
-  const factory VolumeSpec.external({required String uuid}) =
-      ExternalVolumeSpec;
+  const factory VolumeSpec.external({
+    required String uuid,
+    String relativePathScope,
+  }) = ExternalVolumeSpec;
+
+  /// A path relative to the volume root which the query is scoped to.
+  ///
+  /// An empty string (the default) searches the whole volume.
+  String get relativePathScope;
 
   /// Decodes a [VolumeSpec] by dispatching on the `"type"` discriminator.
   ///
@@ -31,7 +39,7 @@ sealed class VolumeSpec extends Equatable {
   factory VolumeSpec.fromJson(Map<String, dynamic> json) {
     final type = json['type'];
     return switch (type) {
-      'primary' => const PrimaryVolumeSpec(),
+      'primary' => PrimaryVolumeSpec.fromJson(json),
       'external' => ExternalVolumeSpec.fromJson(json),
       _ => throw FormatException('Unknown VolumeSpec type: $type'),
     };
@@ -43,13 +51,24 @@ sealed class VolumeSpec extends Equatable {
 
 /// The primary shared/external storage volume.
 final class PrimaryVolumeSpec extends VolumeSpec {
-  const PrimaryVolumeSpec();
+  @override
+  final String relativePathScope;
+
+  const PrimaryVolumeSpec({this.relativePathScope = ''});
+
+  factory PrimaryVolumeSpec.fromJson(Map<String, dynamic> json) =>
+      PrimaryVolumeSpec(
+        relativePathScope: json['relativePathScope'] as String? ?? '',
+      );
 
   @override
-  Map<String, dynamic> toJson() => const {'type': 'primary'};
+  Map<String, dynamic> toJson() => {
+    'type': 'primary',
+    'relativePathScope': relativePathScope,
+  };
 
   @override
-  List<Object?> get props => const [];
+  List<Object?> get props => [relativePathScope];
 }
 
 /// A secondary external volume (e.g., SD card, USB storage).
@@ -58,7 +77,13 @@ final class ExternalVolumeSpec extends VolumeSpec {
   /// The filesystem UUID of the volume, as reported by the system.
   final String uuid;
 
-  const ExternalVolumeSpec({required this.uuid});
+  @override
+  final String relativePathScope;
+
+  const ExternalVolumeSpec({
+    required this.uuid,
+    this.relativePathScope = '',
+  });
 
   factory ExternalVolumeSpec.fromJson(Map<String, dynamic> json) =>
       _$ExternalVolumeSpecFromJson(json);
@@ -70,5 +95,5 @@ final class ExternalVolumeSpec extends VolumeSpec {
   };
 
   @override
-  List<Object?> get props => [uuid];
+  List<Object?> get props => [uuid, relativePathScope];
 }

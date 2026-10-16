@@ -103,8 +103,8 @@ internal class GetMediaRequestHandlerTest {
         assertTrue(
             reply.contains(
                 "\"volumeIdentity\":" +
-                    "{\"isPrimary\":true,\"isRemovable\":false,\"isEmulated\":true," +
-                    "\"type\":\"PRIMARY\",\"capacityInBytes\":0,\"uuid\":null}",
+                        "{\"isPrimary\":true,\"isRemovable\":false,\"isEmulated\":true," +
+                        "\"type\":\"PRIMARY\",\"capacityInBytes\":0,\"uuid\":null}",
             ),
             reply,
         )
@@ -129,7 +129,7 @@ internal class GetMediaRequestHandlerTest {
 
         assertEquals(setOf(MediaType.PHOTO, MediaType.VIDEO), service.requestedSpec?.types)
         assertEquals(
-            setOf(VolumeSpec.Primary, VolumeSpec.External("1234-5678")),
+            setOf(VolumeSpec.Primary(), VolumeSpec.External("1234-5678")),
             service.requestedSpec?.volumes,
         )
     }

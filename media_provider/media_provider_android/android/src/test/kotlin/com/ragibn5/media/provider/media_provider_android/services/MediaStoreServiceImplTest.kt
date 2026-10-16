@@ -62,7 +62,7 @@ internal class MediaStoreServiceImplTest {
 
     private fun spec(
         types: Set<MediaType> = setOf(MediaType.PHOTO),
-        volumes: Set<VolumeSpec> = setOf(VolumeSpec.Primary),
+        volumes: Set<VolumeSpec> = setOf(VolumeSpec.Primary()),
     ) = QuerySpec(types = types, volumes = volumes)
 
     /**

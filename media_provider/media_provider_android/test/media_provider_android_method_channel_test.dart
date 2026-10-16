@@ -178,13 +178,13 @@ void main() {
       expect(queryOf(log.first), <String, dynamic>{
         'types': ['PHOTO', 'VIDEO'],
         'volumes': [
-          {'type': 'primary'},
+          {'type': 'primary', 'relativePathScope': ''},
         ],
       });
       expect(queryOf(log.last), <String, dynamic>{
         'types': ['PHOTO'],
         'volumes': [
-          {'type': 'primary'},
+          {'type': 'primary', 'relativePathScope': ''},
         ],
       });
     });
@@ -205,8 +205,12 @@ void main() {
       expect(
         queryOf(log.single),
         containsPair('volumes', [
-          <String, dynamic>{'type': 'primary'},
-          <String, dynamic>{'type': 'external', 'uuid': '1A2B-3C4D'},
+          <String, dynamic>{'type': 'primary', 'relativePathScope': ''},
+          <String, dynamic>{
+            'type': 'external',
+            'uuid': '1A2B-3C4D',
+            'relativePathScope': '',
+          },
         ]),
       );
     });
@@ -288,7 +292,7 @@ void main() {
       expect(queryOf(log.single), <String, dynamic>{
         'types': <String>[],
         'volumes': [
-          {'type': 'primary'},
+          {'type': 'primary', 'relativePathScope': ''},
         ],
       });
     });

@@ -8,6 +8,7 @@ import com.ragibn5.media.provider.media_provider_android.models.MediaQuery
 import com.ragibn5.media.provider.media_provider_android.models.MediaType
 import com.ragibn5.media.provider.media_provider_android.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.models.VolumeSpec
+import java.io.File
 
 /**
  * Expands a [QuerySpec] into the individual [MediaQuery]s it asks for.
@@ -28,20 +29,28 @@ internal class MediaQueryBuilder(
         }
     }
 
-    private fun buildFor(type: MediaType, volume: VolumeSpec): MediaQuery? {
-        val volume = volume.mediaStoreVolume() ?: return null
-        val volumePath = volumePathResolver.resolve(volume) ?: return null
+    private fun buildFor(type: MediaType, volumeSpec: VolumeSpec): MediaQuery? {
+        val prefixPath = buildPrefixPath(volumeSpec) ?: return null
         return MediaQuery(
             type = type,
             uri = collectionUriResolver.collectionFor(type),
             selection = "${MediaStore.MediaColumns.DATA} LIKE ?",
-            selectionArgs = arrayOf("${volumePath.ensureTrailingSlash()}%")
+            selectionArgs = arrayOf("${prefixPath}%")
         )
+    }
+
+    private fun buildPrefixPath(volumeSpec: VolumeSpec): String? {
+        val volume = volumeSpec.mediaStoreVolume() ?: return null
+        val volumePath = volumePathResolver.resolve(volume) ?: return null
+        val scope =
+            volumeSpec.relativePathScope.trim(File.separatorChar)
+                .let { if (it.isEmpty()) "" else it.ensureTrailingSlash() }
+        return volumePath.ensureTrailingSlash() + scope
     }
 
     private fun VolumeSpec.mediaStoreVolume(): StorageVolume? {
         return when (this) {
-            VolumeSpec.Primary -> storageManager.primaryStorageVolume
+            is VolumeSpec.Primary -> storageManager.primaryStorageVolume
             is VolumeSpec.External ->
                 storageManager.storageVolumes
                     .firstOrNull { it.uuid == uuid }

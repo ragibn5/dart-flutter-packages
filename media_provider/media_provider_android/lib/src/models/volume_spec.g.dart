@@ -7,7 +7,13 @@ part of 'volume_spec.dart';
 // **************************************************************************
 
 ExternalVolumeSpec _$ExternalVolumeSpecFromJson(Map<String, dynamic> json) =>
-    ExternalVolumeSpec(uuid: json['uuid'] as String);
+    ExternalVolumeSpec(
+      uuid: json['uuid'] as String,
+      relativePathScope: json['relativePathScope'] as String? ?? '',
+    );
 
 Map<String, dynamic> _$ExternalVolumeSpecToJson(ExternalVolumeSpec instance) =>
-    <String, dynamic>{'uuid': instance.uuid};
+    <String, dynamic>{
+      'uuid': instance.uuid,
+      'relativePathScope': instance.relativePathScope,
+    };
