@@ -1,0 +1,14 @@
+targets:
+  $default:
+    sources:
+      - lib/**
+      - test/**
+      - $package$
+    builders:
+      json_serializable:
+        options:
+          # Without this, a nested model is emitted as the object itself rather
+          # than as the map `toJson` returns, which only survives `jsonEncode`
+          # because that recurses into it. Any direct call to a parent's
+          # `toJson` then hands back something that cannot be encoded.
+          explicit_to_json: true
