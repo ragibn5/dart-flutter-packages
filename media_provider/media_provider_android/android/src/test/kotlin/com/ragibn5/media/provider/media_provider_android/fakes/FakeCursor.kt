@@ -1,4 +1,4 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.fakes
 
 import android.database.Cursor
 import android.net.Uri

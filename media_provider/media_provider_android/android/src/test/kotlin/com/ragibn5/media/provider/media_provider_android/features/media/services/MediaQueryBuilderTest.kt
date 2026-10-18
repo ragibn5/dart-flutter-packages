@@ -1,17 +1,17 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.media.services
 
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.storage.StorageManager
-import android.provider.MediaStore
-import com.ragibn5.media.provider.media_provider_android.fakeStorageManager
-import com.ragibn5.media.provider.media_provider_android.fakeVolume
+import android.provider.MediaStore.MediaColumns
+import com.ragibn5.media.provider.media_provider_android.fakes.fakeStorageManager
+import com.ragibn5.media.provider.media_provider_android.fakes.fakeUri
+import com.ragibn5.media.provider.media_provider_android.fakes.fakeVolume
 import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
-import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaQueryBuilder
-import com.ragibn5.media.provider.media_provider_android.features.volume.domain.models.VolumeSpec
-import com.ragibn5.media.provider.media_provider_android.features.volume.infra.VolumePathResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeSpec
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumePathResolver
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import kotlin.test.assertEquals
@@ -116,7 +116,7 @@ internal class MediaQueryBuilderTest {
     fun `pins each query to its volume root with a slash before the wildcard`() {
         val query = builder().build(spec()).single()
 
-        assertEquals("${MediaStore.MediaColumns.DATA} LIKE ?", query.selection)
+        assertEquals("${MediaColumns.DATA} LIKE ?", query.selection)
         assertEquals("$primaryPath/%", query.selectionArgs?.single())
     }
 

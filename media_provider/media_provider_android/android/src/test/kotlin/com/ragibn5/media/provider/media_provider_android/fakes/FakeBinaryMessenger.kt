@@ -1,4 +1,4 @@
-package com.ragibn5.media.provider.media_provider_android
+package com.ragibn5.media.provider.media_provider_android.fakes
 
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.FlutterException

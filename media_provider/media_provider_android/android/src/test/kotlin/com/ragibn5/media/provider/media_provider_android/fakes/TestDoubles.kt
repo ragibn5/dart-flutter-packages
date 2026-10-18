@@ -1,13 +1,14 @@
-package com.ragibn5.media.provider.media_provider_android
+package com.ragibn5.media.provider.media_provider_android.fakes
 
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
-import com.ragibn5.media.provider.media_provider_android.features.volume.infra.VolumeTypeResolver
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaItemUriBuilder
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileLocationResolver
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumePathResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumeTypeResolver
 import io.flutter.plugin.common.MethodChannel
 import org.mockito.Mockito
 import java.io.File
@@ -55,10 +56,19 @@ internal class RecordingMethodChannelResult : MethodChannel.Result {
  * A [MediaItemUriBuilder] that never touches `ContentUris`.
  *
  * Records every row it was asked to address, and gives each the URI
- * `<collection>/<id>`.
+ * `<collection>/<id>`. [MediaItemUriBuilder] is a final `object`, so [builder] is
+ * a Mockito mock that answers every call itself.
  */
-internal class FakeItemUriBuilder : MediaItemUriBuilder {
+internal class FakeItemUriBuilder {
     private val requested = mutableListOf<Pair<Uri, Long>>()
+
+    /** The builder to inject in place of the real one. */
+    val builder: MediaItemUriBuilder = Mockito.mock(MediaItemUriBuilder::class.java) { invocation ->
+        val collection = invocation.arguments[0] as Uri
+        val id = invocation.arguments[1] as Long
+        requested += collection to id
+        "$collection/$id"
+    }
 
     /** The URIs it was asked to build, in order. */
     val requestedUris: List<String>
@@ -67,9 +77,6 @@ internal class FakeItemUriBuilder : MediaItemUriBuilder {
     /** The rows it was asked to address, in order. */
     val requestedRows: List<Pair<Uri, Long>>
         get() = requested
-
-    override fun build(collection: Uri, id: Long): String =
-        "$collection/$id".also { requested += collection to id }
 }
 
 /**

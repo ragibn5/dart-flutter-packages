@@ -1,8 +1,7 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.volume.services
 
 import android.os.StatFs
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.FileSystemStats
-import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileStatsResolver
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import kotlin.test.assertEquals

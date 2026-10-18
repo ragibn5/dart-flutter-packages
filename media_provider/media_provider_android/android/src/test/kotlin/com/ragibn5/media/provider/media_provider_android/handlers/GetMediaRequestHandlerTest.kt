@@ -1,13 +1,13 @@
 package com.ragibn5.media.provider.media_provider_android.handlers
 
 import com.ragibn5.media.provider.media_provider_android.exceptions.MethodCallException
+import com.ragibn5.media.provider.media_provider_android.fakes.photoItem
+import com.ragibn5.media.provider.media_provider_android.fakes.videoItem
 import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaItem
 import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeSpec
-import com.ragibn5.media.provider.media_provider_android.photoItem
-import com.ragibn5.media.provider.media_provider_android.videoItem
 import io.flutter.plugin.common.MethodCall
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
