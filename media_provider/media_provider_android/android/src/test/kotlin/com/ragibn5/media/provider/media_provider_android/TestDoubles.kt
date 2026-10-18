@@ -5,10 +5,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
-import com.ragibn5.media.provider.media_provider_android.services.FileLocationResolver
-import com.ragibn5.media.provider.media_provider_android.services.MediaItemUriBuilder
-import com.ragibn5.media.provider.media_provider_android.services.VolumePathResolver
-import com.ragibn5.media.provider.media_provider_android.services.VolumeTypeResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.infra.VolumeTypeResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileLocationResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumePathResolver
 import io.flutter.plugin.common.MethodChannel
 import org.mockito.Mockito
 import java.io.File

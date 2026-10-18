@@ -1,8 +1,8 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.volume.services
 
 import android.os.storage.StorageVolume
 import androidx.annotation.VisibleForTesting
-import com.ragibn5.media.provider.media_provider_android.models.VolumeType
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeType
 
 internal class VolumeTypeResolver {
     fun resolve(volume: StorageVolume): VolumeType =

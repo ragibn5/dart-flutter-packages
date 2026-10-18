@@ -1,4 +1,4 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.volume.services
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,7 +15,7 @@ internal class VolumePathResolver(
     private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) {
     /**
-     * Resolves the absolute filesystem root path for a given [StorageVolume].
+     * Resolves the absolute filesystem root path for a given [android.os.storage.StorageVolume].
      * Returns null if the volume is invalid, disconnected, or unmounted.
      */
     fun resolve(storageVolume: StorageVolume): String? {

@@ -1,4 +1,4 @@
-package com.ragibn5.media.provider.media_provider_android.models
+package com.ragibn5.media.provider.media_provider_android.features.volume.models
 
 import kotlinx.serialization.Serializable
 

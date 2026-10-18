@@ -1,4 +1,4 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.media.services
 
 import android.database.Cursor
 import android.net.Uri
@@ -8,14 +8,14 @@ import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.extensions.getBooleanOrNull
 import com.ragibn5.media.provider.media_provider_android.extensions.getLongOrNull
 import com.ragibn5.media.provider.media_provider_android.extensions.getStringOrNull
-import com.ragibn5.media.provider.media_provider_android.models.MediaItem
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
-import java.io.File
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaItem
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileLocationResolver
 
 internal class MediaColumnsReader(
     private val cursor: Cursor,
     private val fileLocationResolver: FileLocationResolver,
-    private val uriBuilder: MediaItemUriBuilder = MediaItemUriBuilder.DEFAULT,
+    private val uriBuilder: MediaItemUriBuilder = MediaItemUriBuilder,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) {
     private val idColumn = cursor.getColumnIndexOrThrow(BaseColumns._ID)
@@ -60,7 +60,7 @@ internal class MediaColumnsReader(
         val id = cursor.getLong(idColumn)
         val uri = uriBuilder.build(collectionUri, id)
         val filePath = cursor.getStringOrNull(dataColumn)
-        val mediaFileInfo = filePath?.let { fileLocationResolver.resolve(File(it)) }
+        val mediaFileInfo = filePath?.let { fileLocationResolver.resolve(it) }
         return MediaItem(
             type = type,
             id = id.toString(),
@@ -121,18 +121,4 @@ internal class MediaColumnsReader(
     }
 }
 
-internal class MediaColumnsReaderFactory(
-    private val fileLocationResolver: FileLocationResolver,
-    private val uriBuilder: MediaItemUriBuilder = MediaItemUriBuilder.DEFAULT,
-    private val sdkInt: Int = Build.VERSION.SDK_INT,
-) {
-    val projection: List<String> = MediaColumnsReader.projectionFor(sdkInt)
 
-    fun create(cursor: Cursor): MediaColumnsReader =
-        MediaColumnsReader(
-            cursor = cursor,
-            fileLocationResolver = fileLocationResolver,
-            uriBuilder = uriBuilder,
-            sdkInt = sdkInt,
-        )
-}

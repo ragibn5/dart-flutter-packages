@@ -1,7 +1,7 @@
-package com.ragibn5.media.provider.media_provider_android.models
+package com.ragibn5.media.provider.media_provider_android.features.volume.models
 
 import android.os.Environment
-import com.ragibn5.media.provider.media_provider_android.models.VolumeState.Companion.from
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeState.Companion.from
 import kotlinx.serialization.Serializable
 
 /**

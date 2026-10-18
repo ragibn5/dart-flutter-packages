@@ -1,7 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android.handlers
 
 import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
-import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderService
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumeProviderService
 import io.flutter.plugin.common.MethodCall
 import kotlinx.serialization.json.Json
 

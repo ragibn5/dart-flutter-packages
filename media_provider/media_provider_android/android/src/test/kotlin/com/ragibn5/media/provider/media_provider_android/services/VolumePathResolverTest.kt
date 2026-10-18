@@ -7,8 +7,11 @@ import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureNoTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
-import com.ragibn5.media.provider.media_provider_android.models.FileLocation
-import com.ragibn5.media.provider.media_provider_android.models.VolumeType
+import com.ragibn5.media.provider.media_provider_android.features.volume.infra.VolumeTypeResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.FileLocation
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeType
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileLocationResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumePathResolver
 import com.ragibn5.media.provider.media_provider_android.volumeIdentity
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito

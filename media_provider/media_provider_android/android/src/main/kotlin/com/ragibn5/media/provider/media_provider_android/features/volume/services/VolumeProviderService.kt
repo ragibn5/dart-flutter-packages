@@ -1,21 +1,13 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.volume.services
 
-import android.content.Context
 import android.os.storage.StorageManager
-import com.ragibn5.media.provider.media_provider_android.models.VolumeIdentity
-import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
-import com.ragibn5.media.provider.media_provider_android.models.VolumeState
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeIdentity
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeInfo
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeState
+
 
 internal interface VolumeProviderService {
     fun getVolumes(): List<VolumeInfo>
-}
-
-internal object VolumeProviderServiceFactory {
-    fun create(context: Context): VolumeProviderService {
-        val storageManager = context.getSystemService(StorageManager::class.java)
-        val volumePathResolver = VolumePathResolver(context, storageManager)
-        return VolumeProviderServiceImpl(storageManager, volumePathResolver)
-    }
 }
 
 internal class VolumeProviderServiceImpl(

@@ -11,10 +11,11 @@ import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeItemUriBuilder
 import com.ragibn5.media.provider.media_provider_android.fakeFileLocationResolver
 import com.ragibn5.media.provider.media_provider_android.fakeStorageManager
-import com.ragibn5.media.provider.media_provider_android.models.MediaQuery
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
-import com.ragibn5.media.provider.media_provider_android.models.QuerySpec
-import com.ragibn5.media.provider.media_provider_android.models.VolumeSpec
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaQuery
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaQueryBuilder
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeSpec
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -27,9 +28,9 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 /**
- * [MediaStoreServiceImpl] runs the queries a [MediaQueryBuilder] hands it and
+ * [com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaStoreServiceImpl] runs the queries a [MediaQueryBuilder] hands it and
  * turns the rows that come back into
- * [com.ragibn5.media.provider.media_provider_android.models.MediaItem]s.
+ * [com.ragibn5.media.provider.media_provider_android.features.media.models.MediaItem]s.
  *
  * The `ContentResolver` and the builder are mocked and the SDK level is injected,
  * so these tests describe the service's own rules. The builder is mocked rather
@@ -46,19 +47,20 @@ internal class MediaStoreServiceImplTest {
     private val photoUri: Uri = fakeUri("content://test/photo")
     private val videoUri: Uri = fakeUri("content://test/video")
 
-    private fun service(sdkInt: Int = Build.VERSION_CODES.R) = MediaStoreServiceImpl(
-        contentResolver = contentResolver,
-        queryBuilder = queryBuilder,
-        // The `uriBuilder` is injected so no test depends on real `ContentUris`
-        // behavior. The factory holds the API level, and the projection the query
-        // uses comes from it, so a test only has to pin one.
-        mediaColumnsReaderFactory = MediaColumnsReaderFactory(
-            fileLocationResolver = fakeFileLocationResolver(),
-            uriBuilder = FakeItemUriBuilder(),
-            sdkInt = sdkInt,
-        ),
-        dispatcher = UnconfinedTestDispatcher(),
-    )
+    private fun service(sdkInt: Int = Build.VERSION_CODES.R) =
+        _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaStoreServiceImpl(
+            contentResolver = contentResolver,
+            queryBuilder = queryBuilder,
+            // The `uriBuilder` is injected so no test depends on real `ContentUris`
+            // behavior. The factory holds the API level, and the projection the query
+            // uses comes from it, so a test only has to pin one.
+            mediaColumnsReaderFactory = _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReaderFactory(
+                fileLocationResolver = fakeFileLocationResolver(),
+                uriBuilder = FakeItemUriBuilder(),
+                sdkInt = sdkInt,
+            ),
+            dispatcher = UnconfinedTestDispatcher(),
+        )
 
     private fun spec(
         types: Set<MediaType> = setOf(MediaType.PHOTO),
@@ -202,7 +204,9 @@ internal class MediaStoreServiceImplTest {
         )
         // Arrays compare by identity, so compare their contents.
         assertEquals(
-            MediaColumnsReader.projectionFor(Build.VERSION_CODES.P),
+            _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReader.projectionFor(
+                Build.VERSION_CODES.P
+            ),
             projection.value.toList(),
         )
     }
@@ -286,7 +290,7 @@ internal class MediaStoreServiceImplTest {
     }
 
     /**
-     * [MediaStoreServiceFactory] is the one place the plugin's object graph is
+     * [com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaStoreServiceFactory] is the one place the plugin's object graph is
      * assembled, so this asserts the wiring rather than the querying: the context
      * is asked for the storage manager the volume lookups go through, and the
      * service it builds is served over the context's resolver.
@@ -305,9 +309,14 @@ internal class MediaStoreServiceImplTest {
             .thenReturn(storageManager)
         Mockito.`when`(context.contentResolver).thenReturn(contentResolver)
 
-        val service = MediaStoreServiceFactory.create(context)
+        val service =
+            _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaStoreServiceFactory.create(
+                context
+            )
 
-        assertIs<MediaStoreServiceImpl>(service)
+        assertIs<com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaStoreServiceImpl>(
+            service
+        )
         Mockito.verify(context).getSystemService(StorageManager::class.java)
     }
 }

@@ -1,10 +1,10 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.volume.services
 
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
-import com.ragibn5.media.provider.media_provider_android.models.FileLocation
-import com.ragibn5.media.provider.media_provider_android.models.VolumeIdentity
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.FileLocation
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeIdentity
 import java.io.File
 
 internal class FileLocationResolver(
@@ -13,7 +13,8 @@ internal class FileLocationResolver(
     private val volumeTypeResolver: VolumeTypeResolver = VolumeTypeResolver(),
     private val fileStatsResolver: FileStatsResolver = FileStatsResolver(),
 ) {
-    fun resolve(file: File): FileLocation? {
+    fun resolve(path: String): FileLocation? {
+        val file = File(path)
         val volume = storageManager.getStorageVolume(file) ?: return null
         val volumePath = volumePathResolver.resolve(volume)?.ensureTrailingSlash() ?: return null
         val fileParentPath = file.parentFile?.absolutePath?.ensureTrailingSlash() ?: return null

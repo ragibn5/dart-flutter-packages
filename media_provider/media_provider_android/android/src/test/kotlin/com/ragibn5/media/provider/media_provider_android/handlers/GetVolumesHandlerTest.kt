@@ -2,19 +2,19 @@ package com.ragibn5.media.provider.media_provider_android.handlers
 
 import android.content.Context
 import android.os.Build
-import android.os.storage.StorageManager
-import android.os.storage.StorageVolume
 import android.os.Environment
 import android.os.StatFs
-import com.ragibn5.media.provider.media_provider_android.models.VolumeIdentity
-import com.ragibn5.media.provider.media_provider_android.models.VolumeInfo
-import com.ragibn5.media.provider.media_provider_android.models.VolumeState
-import com.ragibn5.media.provider.media_provider_android.models.VolumeType
-import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderService
-import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceFactory
-import com.ragibn5.media.provider.media_provider_android.services.VolumePathResolver
-import com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceImpl
-import com.ragibn5.media.provider.media_provider_android.services.VolumeTypeResolver
+import android.os.storage.StorageManager
+import android.os.storage.StorageVolume
+import com.ragibn5.media.provider.media_provider_android.features.volume.domain.services.VolumeProviderServiceFactory
+import com.ragibn5.media.provider.media_provider_android.features.volume.domain.services.VolumeProviderServiceImpl
+import com.ragibn5.media.provider.media_provider_android.features.volume.infra.VolumeTypeResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeIdentity
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeInfo
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeState
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeType
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumePathResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumeProviderService
 import io.flutter.plugin.common.MethodCall
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -102,7 +102,7 @@ internal class GetVolumesHandlerTest {
 }
 
 /**
- * [com.ragibn5.media.provider.media_provider_android.services.VolumeProviderServiceImpl] reports the
+ * [VolumeProviderServiceImpl] reports the
  * device's storage volumes, which is what a `QuerySpec` is later matched against.
  *
  * `StorageManager` is mocked so the volumes and their order are the test's, not a

@@ -1,12 +1,10 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.media.services
 
 import android.content.ContentResolver
-import android.content.Context
-import android.os.Build
-import android.os.storage.StorageManager
-import com.ragibn5.media.provider.media_provider_android.models.MediaItem
-import com.ragibn5.media.provider.media_provider_android.models.MediaQuery
-import com.ragibn5.media.provider.media_provider_android.models.QuerySpec
+import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaColumnsReaderFactory
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaItem
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaQuery
+import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,31 +17,6 @@ internal interface MediaStoreService {
      * requested volumes exist on the device.
      */
     suspend fun getMedia(spec: QuerySpec): List<MediaItem>
-}
-
-internal object MediaStoreServiceFactory {
-    fun create(context: Context): MediaStoreService {
-        val sdkInt: Int = Build.VERSION.SDK_INT
-        val uriBuilder: MediaItemUriBuilder = MediaItemUriBuilder.DEFAULT
-        val storageManager = context.getSystemService(StorageManager::class.java)
-        val volumePathResolver = VolumePathResolver(context, storageManager, sdkInt)
-        val fileLocationResolver = FileLocationResolver(
-            storageManager = storageManager,
-            volumePathResolver = volumePathResolver,
-        )
-        return MediaStoreServiceImpl(
-            contentResolver = context.contentResolver,
-            queryBuilder = MediaQueryBuilder(
-                storageManager = storageManager,
-                volumePathResolver = volumePathResolver,
-            ),
-            mediaColumnsReaderFactory = MediaColumnsReaderFactory(
-                fileLocationResolver = fileLocationResolver,
-                uriBuilder = uriBuilder,
-                sdkInt = sdkInt
-            ),
-        )
-    }
 }
 
 internal class MediaStoreServiceImpl(

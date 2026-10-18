@@ -6,7 +6,7 @@ import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.FakeItemUriBuilder
 import com.ragibn5.media.provider.media_provider_android.fakeFileLocationResolver
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
 import com.ragibn5.media.provider.media_provider_android.volumeIdentity
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -14,7 +14,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * [MediaColumnsReader] converts one cursor row into a [com.ragibn5.media.provider.media_provider_android.models.MediaItem].
+ * [com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReader] converts one cursor row into a [com.ragibn5.media.provider.media_provider_android.features.media.models.MediaItem].
  *
  * The cursor is a [FakeCursor], the file's location comes from a
  * [fakeFileLocationResolver] and the SDK level is injected, so these tests assert
@@ -37,15 +37,17 @@ internal class MediaColumnsReaderTest {
         values: Map<String, Any?>,
         sdkInt: Int = Build.VERSION_CODES.R,
         volumePath: String? = "/storage/emulated/0",
-    ) = MediaColumnsReader(
-        cursor = FakeCursor.over(values).cursor,
-        fileLocationResolver = fakeFileLocationResolver(volumePath = volumePath),
-        uriBuilder = uriBuilder,
-        sdkInt = sdkInt,
-    )
+    ) =
+        _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReader(
+            cursor = FakeCursor.over(values).cursor,
+            fileLocationResolver = fakeFileLocationResolver(volumePath = volumePath),
+            uriBuilder = uriBuilder,
+            sdkInt = sdkInt,
+        )
 
     /** Reads one row as a photo, the type the tests below assert on. */
-    private fun MediaColumnsReader.readPhoto() = read(MediaType.PHOTO, collectionUri)
+    private fun com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReader.readPhoto() =
+        read(MediaType.PHOTO, collectionUri)
 
     /** A `DATA` path under the volume [fakeFileLocationResolver] reports. */
     private fun data(vararg segments: String) =
@@ -193,7 +195,7 @@ internal class MediaColumnsReaderTest {
         listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.P + 1).forEach { sdkInt ->
             val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-            MediaColumnsReader(
+            _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReader(
                 cursor = cursor.cursor,
                 fileLocationResolver = fakeFileLocationResolver(),
                 uriBuilder = uriBuilder,
@@ -223,7 +225,7 @@ internal class MediaColumnsReaderTest {
     fun `does not read the API 30 columns below API 30`() {
         val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-        MediaColumnsReader(
+        _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReader(
             cursor = cursor.cursor,
             fileLocationResolver = fakeFileLocationResolver(),
             uriBuilder = uriBuilder,
@@ -236,19 +238,20 @@ internal class MediaColumnsReaderTest {
     }
 
     /**
-     * [MediaColumnsReaderFactory] holds the dependencies a
+     * [com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReaderFactory] holds the dependencies a
      * [MediaStoreServiceImpl](com.ragibn5.media.provider.media_provider_android.services.MediaStoreServiceImpl)
      * cannot pass on per query, so these tests assert it forwards each of them to
      * the reader it creates rather than falling back to a device default.
      */
     @Test
     fun `factory builds a reader with its own uri builder`() {
-        val item = MediaColumnsReaderFactory(
-            fileLocationResolver = fakeFileLocationResolver(),
-            uriBuilder = uriBuilder,
-            sdkInt = Build.VERSION_CODES.R,
-        ).create(FakeCursor.over(mapOf(BaseColumns._ID to 42L)).cursor)
-            .readPhoto()
+        val item =
+            _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReaderFactory(
+                fileLocationResolver = fakeFileLocationResolver(),
+                uriBuilder = uriBuilder,
+                sdkInt = Build.VERSION_CODES.R,
+            ).create(FakeCursor.over(mapOf(BaseColumns._ID to 42L)).cursor)
+                .readPhoto()
 
         assertEquals("$collectionUri/42", item.uri)
         assertEquals(listOf("$collectionUri/42"), uriBuilder.requestedUris)
@@ -258,7 +261,7 @@ internal class MediaColumnsReaderTest {
     fun `factory builds a reader at its own API level`() {
         val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-        MediaColumnsReaderFactory(
+        _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReaderFactory(
             fileLocationResolver = fakeFileLocationResolver(),
             uriBuilder = uriBuilder,
             // Below API 29, so the API 29 columns must go unread.
@@ -270,12 +273,13 @@ internal class MediaColumnsReaderTest {
 
     @Test
     fun `factory builds a reader with its own file location resolver`() {
-        val item = MediaColumnsReaderFactory(
-            fileLocationResolver = fakeFileLocationResolver(volumePath = null),
-            uriBuilder = uriBuilder,
-            sdkInt = Build.VERSION_CODES.P,
-        ).create(FakeCursor.over(data("DCIM", "cat.png")).cursor)
-            .readPhoto()
+        val item =
+            _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReaderFactory(
+                fileLocationResolver = fakeFileLocationResolver(volumePath = null),
+                uriBuilder = uriBuilder,
+                sdkInt = Build.VERSION_CODES.P,
+            ).create(FakeCursor.over(data("DCIM", "cat.png")).cursor)
+                .readPhoto()
 
         assertNull(item.relativePath)
     }
@@ -293,14 +297,16 @@ internal class MediaColumnsReaderTest {
         listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.R).forEach { sdkInt ->
             val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
 
-            MediaColumnsReader(
+            _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReader(
                 cursor = cursor.cursor,
                 fileLocationResolver = fakeFileLocationResolver(),
                 sdkInt = sdkInt,
             )
 
             assertEquals(
-                MediaColumnsReader.projectionFor(sdkInt),
+                _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaColumnsReader.projectionFor(
+                    sdkInt
+                ),
                 cursor.lookedUpColumns,
                 "projection vs looked-up columns on API $sdkInt",
             )

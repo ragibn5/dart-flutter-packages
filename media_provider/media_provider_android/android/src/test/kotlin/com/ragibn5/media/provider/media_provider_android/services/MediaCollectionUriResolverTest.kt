@@ -1,13 +1,13 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
 import android.net.Uri
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 /**
- * [MediaCollectionUriResolver] maps each [MediaType] to the collection it is read
+ * [com.ragibn5.media.provider.media_provider_android.features.media.domain.services.MediaCollectionUriResolver] maps each [MediaType] to the collection it is read
  * from.
  *
  * The collections are supplied rather than read from `MediaStore`, whose

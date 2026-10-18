@@ -1,6 +1,7 @@
-package com.ragibn5.media.provider.media_provider_android.models
+package com.ragibn5.media.provider.media_provider_android.features.media.models
 
 import android.annotation.SuppressLint
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeSpec
 import kotlinx.serialization.Serializable
 
 @SuppressLint("UnsafeOptInUsageError")

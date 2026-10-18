@@ -1,14 +1,15 @@
 package com.ragibn5.media.provider.media_provider_android.services
 
 import android.os.storage.StorageVolume
-import com.ragibn5.media.provider.media_provider_android.models.VolumeType
+import com.ragibn5.media.provider.media_provider_android.features.volume.infra.VolumeTypeResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeType
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /**
- * [VolumeTypeResolver] classifies a [StorageVolume] as primary, an SD card, a USB
+ * [com.ragibn5.media.provider.media_provider_android.features.volume.infra.VolumeTypeResolver] classifies a [StorageVolume] as primary, an SD card, a USB
  * drive, or something it cannot tell apart.
  *
  * The volume's own block-device id comes from `getId`, which is hidden and so
@@ -22,7 +23,11 @@ internal class VolumeTypeResolverTest {
     private val resolver = VolumeTypeResolver()
 
     /** Classify the volume the way [VolumeTypeResolver.resolve] does. */
-    private fun classify(blockMajor: Int?, isPrimary: Boolean = false, isRemovable: Boolean = true) =
+    private fun classify(
+        blockMajor: Int?,
+        isPrimary: Boolean = false,
+        isRemovable: Boolean = true
+    ) =
         resolver.resolve(
             isPrimary = isPrimary,
             isRemovable = isRemovable,

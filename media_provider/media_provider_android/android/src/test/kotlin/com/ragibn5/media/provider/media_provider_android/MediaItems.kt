@@ -1,9 +1,9 @@
 package com.ragibn5.media.provider.media_provider_android
 
-import com.ragibn5.media.provider.media_provider_android.models.MediaItem
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
-import com.ragibn5.media.provider.media_provider_android.models.VolumeIdentity
-import com.ragibn5.media.provider.media_provider_android.models.VolumeType
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaItem
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.features.volume.domain.models.VolumeIdentity
+import com.ragibn5.media.provider.media_provider_android.features.volume.domain.models.VolumeType
 
 /**
  * The volume a mocked `StorageVolume` reports, as a [VolumeIdentity].

@@ -1,13 +1,14 @@
-package com.ragibn5.media.provider.media_provider_android.services
+package com.ragibn5.media.provider.media_provider_android.features.media.services
 
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import android.provider.MediaStore
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
-import com.ragibn5.media.provider.media_provider_android.models.MediaQuery
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
-import com.ragibn5.media.provider.media_provider_android.models.QuerySpec
-import com.ragibn5.media.provider.media_provider_android.models.VolumeSpec
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaQuery
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
+import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeSpec
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumePathResolver
 import java.io.File
 
 /**
@@ -31,7 +32,7 @@ internal class MediaQueryBuilder(
 
     private fun buildFor(type: MediaType, volumeSpec: VolumeSpec): MediaQuery? {
         val prefixPath = buildPrefixPath(volumeSpec) ?: return null
-        return MediaQuery(
+        return _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.models.MediaQuery(
             type = type,
             uri = collectionUriResolver.collectionFor(type),
             selection = "${MediaStore.MediaColumns.DATA} LIKE ?",

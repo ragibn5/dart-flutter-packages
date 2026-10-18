@@ -7,9 +7,11 @@ import android.os.storage.StorageManager
 import android.provider.MediaStore
 import com.ragibn5.media.provider.media_provider_android.fakeStorageManager
 import com.ragibn5.media.provider.media_provider_android.fakeVolume
-import com.ragibn5.media.provider.media_provider_android.models.MediaType
-import com.ragibn5.media.provider.media_provider_android.models.QuerySpec
-import com.ragibn5.media.provider.media_provider_android.models.VolumeSpec
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaQueryBuilder
+import com.ragibn5.media.provider.media_provider_android.features.volume.domain.models.VolumeSpec
+import com.ragibn5.media.provider.media_provider_android.features.volume.infra.VolumePathResolver
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import kotlin.test.assertEquals
