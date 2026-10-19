@@ -1,6 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android
 
-import com.ragibn5.media.provider.media_provider_android.exceptions.CommonExceptionConstants
+import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderCommonErrorCodes
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 internal class MethodCallDispatcher(
     handlers: List<MethodCallRequestHandler>,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
+    private val commonErrorCodes: MediaProviderCommonErrorCodes = MediaProviderCommonErrorCodes,
 ) : MethodChannel.MethodCallHandler {
     private val handlersByMethod: Map<String, MethodCallRequestHandler> =
         handlers.associateBy { it.method }
@@ -36,7 +37,7 @@ internal class MethodCallDispatcher(
                 return@launch result.error(e.code, e.message, e.details)
             } catch (e: Exception) {
                 return@launch result.error(
-                    CommonExceptionConstants.ERROR_CODE_UNEXPECTED,
+                    commonErrorCodes.ERROR_CODE_UNEXPECTED,
                     e.message,
                     null
                 )

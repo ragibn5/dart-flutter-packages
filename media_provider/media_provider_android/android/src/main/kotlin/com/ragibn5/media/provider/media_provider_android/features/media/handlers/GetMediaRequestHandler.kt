@@ -1,21 +1,22 @@
-package com.ragibn5.media.provider.media_provider_android.handlers
+package com.ragibn5.media.provider.media_provider_android.features.media.handlers
 
 import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
-import com.ragibn5.media.provider.media_provider_android.exceptions.CommonExceptionConstants
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
+import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaErrorCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
+import com.ragibn5.media.provider.media_provider_android.features.media.services.QuerySpecDecoder
 import io.flutter.plugin.common.MethodCall
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 internal class GetMediaRequestHandler(
     private val mediaStoreService: MediaStoreService,
-    private val json: Json = Json { ignoreUnknownKeys = true },
+    private val querySpecDecoder: QuerySpecDecoder = QuerySpecDecoder(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val errorCodes: MediaErrorCodes = MediaErrorCodes,
 ) : MethodCallRequestHandler {
     override val method = "getMedia"
 
@@ -31,32 +32,13 @@ internal class GetMediaRequestHandler(
 
     private fun parseRequest(call: MethodCall): QuerySpec {
         val argument = call.argument<String>(QUERY_ARGUMENT)
-            ?: throw invalidArgument("'$QUERY_ARGUMENT' must be a valid JSON representation of $QuerySpec")
-
-        val request = try {
-            json.decodeFromString<QuerySpec>(argument)
-        } catch (e: SerializationException) {
-            throw invalidArgument("'$QUERY_ARGUMENT' is malformed", e)
-        } catch (e: IllegalArgumentException) {
-            throw invalidArgument(e.message ?: "'$QUERY_ARGUMENT' is malformed", e)
-        }
-
-        if (request.types.isEmpty()) {
-            throw invalidArgument("'types' must not be empty")
-        }
-        if (request.volumes.isEmpty()) {
-            throw invalidArgument("'volumes' must not be empty")
-        }
-
-        return request
+            ?: throw MediaProviderException(
+                code = errorCodes.INVALID_ARGUMENT,
+                message = "You must provide a valid JSON representation of $QuerySpec via the '$QUERY_ARGUMENT' argument"
+            )
+        return querySpecDecoder.decode(argument)
+            .getOrThrow()
     }
-
-    private fun invalidArgument(message: String, cause: Throwable? = null) =
-        MediaProviderException(
-            CommonExceptionConstants.ERROR_CODE_INVALID_ARGUMENT,
-            message,
-            cause = cause
-        )
 
     private companion object {
         private const val QUERY_ARGUMENT = "query"

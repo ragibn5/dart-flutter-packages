@@ -3,8 +3,8 @@ package com.ragibn5.media.provider.media_provider_android
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaStoreServiceFactory
+import com.ragibn5.media.provider.media_provider_android.features.media.handlers.GetMediaRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.volume.di.VolumeProviderServiceFactory
-import com.ragibn5.media.provider.media_provider_android.handlers.GetMediaRequestHandler
 import com.ragibn5.media.provider.media_provider_android.handlers.GetVolumesHandler
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
