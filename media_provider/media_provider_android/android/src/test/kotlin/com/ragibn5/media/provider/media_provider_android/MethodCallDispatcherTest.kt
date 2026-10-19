@@ -114,11 +114,7 @@ internal class MethodCallDispatcherTest {
         dispatcher.onMethodCall(MethodCall("getMedia", null), result)
 
         assertEquals(
-            MethodChannelReply.Error(
-                MethodCallDispatcher.UNEXPECTED_ERROR_CODE,
-                "boom",
-                null,
-            ),
+            MethodChannelReply.Error(ERROR_CODE_UNEXPECTED, "boom", null),
             result.reply,
         )
     }
@@ -186,5 +182,9 @@ internal class MethodCallDispatcherTest {
 
         val reply = assertIs<MethodChannelReply.Success>(result.reply)
         assertNull(reply.value)
+    }
+
+    companion object {
+        const val ERROR_CODE_UNEXPECTED = "unexpected_error"
     }
 }

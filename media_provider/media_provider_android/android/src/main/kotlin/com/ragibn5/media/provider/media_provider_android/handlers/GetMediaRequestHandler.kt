@@ -1,6 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android.handlers
 
 import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
+import com.ragibn5.media.provider.media_provider_android.exceptions.CommonExceptionConstants
 import com.ragibn5.media.provider.media_provider_android.exceptions.MethodCallException
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
@@ -51,10 +52,13 @@ internal class GetMediaRequestHandler(
     }
 
     private fun invalidArgument(message: String, cause: Throwable? = null) =
-        MethodCallException(INVALID_ARGUMENT_CODE, message, cause = cause)
+        MethodCallException(
+            CommonExceptionConstants.ERROR_CODE_INVALID_ARGUMENT,
+            message,
+            cause = cause
+        )
 
     private companion object {
         private const val QUERY_ARGUMENT = "query"
-        private const val INVALID_ARGUMENT_CODE = "invalid_argument"
     }
 }
