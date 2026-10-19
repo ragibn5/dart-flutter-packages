@@ -5,7 +5,7 @@ import androidx.annotation.VisibleForTesting
 import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaStoreServiceFactory
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.GetMediaRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.volume.di.VolumeProviderServiceFactory
-import com.ragibn5.media.provider.media_provider_android.handlers.GetVolumesHandler
+import com.ragibn5.media.provider.media_provider_android.features.volume.handlers.GetVolumesHandler
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel

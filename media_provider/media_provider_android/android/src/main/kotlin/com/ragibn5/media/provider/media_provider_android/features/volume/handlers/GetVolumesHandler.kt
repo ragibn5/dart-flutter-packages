@@ -1,4 +1,4 @@
-package com.ragibn5.media.provider.media_provider_android.handlers
+package com.ragibn5.media.provider.media_provider_android.features.volume.handlers
 
 import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumeProviderService
