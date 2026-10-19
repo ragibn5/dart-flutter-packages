@@ -24,6 +24,8 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
   }
 
   /// Get all storage volumes.
+  ///
+  /// See the [VolumeInfo] for more info.
   Future<List<VolumeInfo>> getVolumes() {
     throw UnimplementedError('getVolumes() has not been implemented.');
   }
@@ -33,5 +35,12 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
   /// See the [QuerySpec] for more info.
   Future<List<MediaItem>> getMedia(QuerySpec query) {
     throw UnimplementedError('getMedia() has not been implemented.');
+  }
+
+  /// Opens a session for reading the item [request] points to.
+  ///
+  /// See [MediaReadSession] for more info.
+  Future<MediaReadSession> openReadSession(MediaReadRequest request) {
+    throw UnimplementedError('openReadSession() has not been implemented.');
   }
 }

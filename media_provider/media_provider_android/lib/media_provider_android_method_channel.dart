@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:media_provider_android/media_provider_android_platform_interface.dart';
+import 'package:media_provider_android/src/io/media_read_session.dart';
+import 'package:media_provider_android/src/io/method_channel_media_read_session.dart';
 import 'package:media_provider_android/src/models/media_item.dart';
+import 'package:media_provider_android/src/models/media_read_request.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 
@@ -33,5 +36,18 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
     return items
         .map((item) => MediaItem.fromJson(item as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<MediaReadSession> openReadSession(MediaReadRequest request) async {
+    final result = await methodChannel.invokeMethod<String>('openReadSession', {
+      'request': jsonEncode(request.toJson()),
+    });
+    final reply = jsonDecode(result!) as Map<String, dynamic>;
+    return MethodChannelMediaReadSession(
+      channel: methodChannel,
+      id: reply['sessionId'] as String,
+      size: reply['size'] as int?,
+    );
   }
 }

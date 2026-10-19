@@ -81,4 +81,10 @@ class _BrokenPlatform implements MediaProviderAndroidPlatform {
 
   @override
   Future<List<VolumeInfo>> getVolumes() async => [];
+
+  @override
+  Future<MediaReadSession> openReadSession(MediaReadRequest request) {
+    // TODO: implement openReadSession
+    throw UnimplementedError();
+  }
 }
