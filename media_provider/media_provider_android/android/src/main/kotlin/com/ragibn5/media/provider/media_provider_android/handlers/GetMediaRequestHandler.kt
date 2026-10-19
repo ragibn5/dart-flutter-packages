@@ -2,7 +2,7 @@ package com.ragibn5.media.provider.media_provider_android.handlers
 
 import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
 import com.ragibn5.media.provider.media_provider_android.exceptions.CommonExceptionConstants
-import com.ragibn5.media.provider.media_provider_android.exceptions.MethodCallException
+import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
 import io.flutter.plugin.common.MethodCall
@@ -52,7 +52,7 @@ internal class GetMediaRequestHandler(
     }
 
     private fun invalidArgument(message: String, cause: Throwable? = null) =
-        MethodCallException(
+        MediaProviderException(
             CommonExceptionConstants.ERROR_CODE_INVALID_ARGUMENT,
             message,
             cause = cause

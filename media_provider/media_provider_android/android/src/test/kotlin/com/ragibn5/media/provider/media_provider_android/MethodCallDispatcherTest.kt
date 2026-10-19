@@ -1,6 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android
 
-import com.ragibn5.media.provider.media_provider_android.exceptions.MethodCallException
+import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.fakes.MethodChannelReply
 import com.ragibn5.media.provider.media_provider_android.fakes.RecordingMethodChannelResult
 import io.flutter.plugin.common.MethodCall
@@ -90,7 +90,7 @@ internal class MethodCallDispatcherTest {
         val cause = IllegalStateException("root cause")
         val dispatcher = dispatcher(
             handlerFor("getMedia") {
-                throw MethodCallException(
+                throw MediaProviderException(
                     "invalid_argument",
                     "bad",
                     42,

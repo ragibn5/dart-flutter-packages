@@ -1,7 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android
 
 import com.ragibn5.media.provider.media_provider_android.exceptions.CommonExceptionConstants
-import com.ragibn5.media.provider.media_provider_android.exceptions.MethodCallException
+import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CancellationException
@@ -32,7 +32,7 @@ internal class MethodCallDispatcher(
                 handler.handle(call)
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: MethodCallException) {
+            } catch (e: MediaProviderException) {
                 return@launch result.error(e.code, e.message, e.details)
             } catch (e: Exception) {
                 return@launch result.error(
