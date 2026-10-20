@@ -73,15 +73,15 @@ final class ReadingException extends MediaReadException {
 /// A failure the plugin didn't anticipate.
 final class UnexpectedException extends MediaReadException {
   /// The error code the platform replied with.
-  final String code;
+  final String? code;
 
-  const UnexpectedException(super.message, {required this.code});
+  const UnexpectedException(super.message, {this.code});
 }
 
 class MediaReadErrorMapper {
   static const _permissionDeniedCode = 'permission_denied';
   static const _notFoundCode = 'not_found';
-  static const _invalidArgumentCode = 'invalid_argument';
+  static const _invalidRequestCode = 'invalid_request';
   static const _unsupportedCode = 'unsupported';
   static const _sessionNotFoundCode = 'session_not_found';
   static const _ioErrorCode = 'io_error';
@@ -108,7 +108,7 @@ class MediaReadErrorMapper {
         uri: details['uri'] as String?,
         partialAccess: details['partialAccess'] as bool? ?? false,
       ),
-      _invalidArgumentCode => InvalidRequestException(e.message),
+      _invalidRequestCode => InvalidRequestException(e.message),
       _unsupportedCode => UnsupportedOperationException(e.message),
       _sessionNotFoundCode => SessionClosedException(
         e.message,
