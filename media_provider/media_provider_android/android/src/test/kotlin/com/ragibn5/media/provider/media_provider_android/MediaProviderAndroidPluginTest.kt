@@ -101,7 +101,7 @@ internal class MediaProviderAndroidPluginTest {
             messenger.dispatch(CHANNEL, MethodCall("getMedia", mapOf("query" to "{}"))),
         )
 
-        assertEquals("invalid_argument", error.code)
+        assertEquals("invalid_request", error.code)
     }
 
     @Test

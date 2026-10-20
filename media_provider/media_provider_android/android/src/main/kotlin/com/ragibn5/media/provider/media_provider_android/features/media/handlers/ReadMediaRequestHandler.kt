@@ -2,7 +2,7 @@ package com.ragibn5.media.provider.media_provider_android.features.media.handler
 
 import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
-import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaErrorCodes
+import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaQueryErrorCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
 import com.ragibn5.media.provider.media_provider_android.features.media.services.QuerySpecDecoder
@@ -16,7 +16,7 @@ internal class ReadMediaRequestHandler(
     private val mediaStoreService: MediaStoreService,
     private val querySpecDecoder: QuerySpecDecoder = QuerySpecDecoder(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
-    private val errorCodes: MediaErrorCodes = MediaErrorCodes,
+    private val errorCodes: MediaQueryErrorCodes = MediaQueryErrorCodes,
 ) : MethodCallRequestHandler {
     override val method = "getMedia"
 
@@ -26,14 +26,14 @@ internal class ReadMediaRequestHandler(
             // Encoding a large library is CPU-bound.
             // So the whole reply is built off the main thread.
             // Querying from Default also avoids a hop back to main in between.
-            Json.encodeToString(mediaStoreService.getMedia(request))
+            Json.encodeToString(mediaStoreService.queryMedia(request))
         }
     }
 
     private fun parseRequest(call: MethodCall): QuerySpec {
         val argument = call.argument<String>(QUERY_ARGUMENT)
             ?: throw MediaProviderException(
-                code = errorCodes.INVALID_ARGUMENT,
+                code = errorCodes.INVALID_REQUEST,
                 message = "You must provide a valid JSON representation of $QuerySpec via the '$QUERY_ARGUMENT' argument"
             )
         return querySpecDecoder.decode(argument)

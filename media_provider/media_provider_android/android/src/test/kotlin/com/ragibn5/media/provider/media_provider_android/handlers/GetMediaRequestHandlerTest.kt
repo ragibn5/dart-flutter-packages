@@ -47,7 +47,7 @@ internal class GetMediaRequestHandlerTest {
                 """"volumes":[${volumes.joinToString(",")}]}"""
 
     private companion object {
-        private const val ERROR_CODE_INVALID_ARGUMENT = "invalid_argument"
+        private const val ERROR_CODE_INVALID_REQUEST = "invalid_request"
 
         /** What the Dart side sends for `MediaType.photo`. */
         const val PHOTO = "PHOTO"
@@ -148,7 +148,7 @@ internal class GetMediaRequestHandlerTest {
         val error =
             assertFailsWith<MethodCallException> { handler.handle(MethodCall("getMedia", null)) }
 
-        assertEquals(ERROR_CODE_INVALID_ARGUMENT, error.code)
+        assertEquals(ERROR_CODE_INVALID_REQUEST, error.code)
         assertNotNull(error.message)
     }
 
@@ -158,7 +158,7 @@ internal class GetMediaRequestHandlerTest {
             handler.handle(MethodCall("getMedia", mapOf("query" to "{not json")))
         }
 
-        assertEquals(ERROR_CODE_INVALID_ARGUMENT, error.code)
+        assertEquals(ERROR_CODE_INVALID_REQUEST, error.code)
         assertNotNull(error.cause, "the decoding failure must be kept as the cause")
     }
 
@@ -168,7 +168,7 @@ internal class GetMediaRequestHandlerTest {
             handler.handle(callWith(types = emptyList()))
         }
 
-        assertEquals(ERROR_CODE_INVALID_ARGUMENT, error.code)
+        assertEquals(ERROR_CODE_INVALID_REQUEST, error.code)
         assertEquals("'types' must not be empty", error.message)
     }
 
@@ -178,7 +178,7 @@ internal class GetMediaRequestHandlerTest {
             handler.handle(callWith(volumes = emptyList()))
         }
 
-        assertEquals(ERROR_CODE_INVALID_ARGUMENT, error.code)
+        assertEquals(ERROR_CODE_INVALID_REQUEST, error.code)
         assertEquals("'volumes' must not be empty", error.message)
     }
 
@@ -188,7 +188,7 @@ internal class GetMediaRequestHandlerTest {
             handler.handle(callWith(types = listOf(UNKNOWN)))
         }
 
-        assertEquals(ERROR_CODE_INVALID_ARGUMENT, error.code)
+        assertEquals(ERROR_CODE_INVALID_REQUEST, error.code)
     }
 
     @Test
@@ -197,7 +197,7 @@ internal class GetMediaRequestHandlerTest {
             handler.handle(callWith(volumes = listOf("""{"type":"removable"}""")))
         }
 
-        assertEquals(ERROR_CODE_INVALID_ARGUMENT, error.code)
+        assertEquals(ERROR_CODE_INVALID_REQUEST, error.code)
     }
 
     @Test

@@ -1,14 +1,14 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.services
 
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
-import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaErrorCodes
+import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaQueryErrorCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 internal class QuerySpecDecoder(
     private val json: Json = Json { ignoreUnknownKeys = true },
-    private val errorCodes: MediaErrorCodes = MediaErrorCodes,
+    private val errorCodes: MediaQueryErrorCodes = MediaQueryErrorCodes,
 ) {
     fun decode(encodedQuerySpec: String): Result<QuerySpec> = runCatching {
         val request = try {
@@ -32,5 +32,5 @@ internal class QuerySpecDecoder(
     }
 
     private fun invalidArgument(message: String, cause: Throwable? = null) =
-        MediaProviderException(errorCodes.INVALID_ARGUMENT, message, cause = cause)
+        MediaProviderException(errorCodes.INVALID_REQUEST, message, cause = cause)
 }

@@ -3,7 +3,7 @@ package com.ragibn5.media.provider.media_provider_android
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaStoreServiceFactory
-import com.ragibn5.media.provider.media_provider_android.features.media.handlers.GetMediaRequestHandler
+import com.ragibn5.media.provider.media_provider_android.features.media.handlers.QueryMediaRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.volume.di.VolumeProviderServiceFactory
 import com.ragibn5.media.provider.media_provider_android.features.volume.handlers.GetVolumesHandler
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -34,7 +34,7 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
     internal fun attach(appContext: Context, binaryMessenger: BinaryMessenger) {
         requestDispatcher = MethodCallDispatcher(
             listOf(
-                GetMediaRequestHandler(MediaStoreServiceFactory.create(appContext)),
+                QueryMediaRequestHandler(MediaStoreServiceFactory.create(appContext)),
                 GetVolumesHandler(VolumeProviderServiceFactory.create(appContext)),
             ),
         )

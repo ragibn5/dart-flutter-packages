@@ -91,7 +91,7 @@ internal class MethodCallDispatcherTest {
         val dispatcher = dispatcher(
             handlerFor("getMedia") {
                 throw MediaProviderException(
-                    "invalid_argument",
+                    "invalid_request",
                     "bad",
                     42,
                     cause
@@ -102,7 +102,7 @@ internal class MethodCallDispatcherTest {
         dispatcher.onMethodCall(MethodCall("getMedia", null), result)
 
         assertEquals(
-            MethodChannelReply.Error("invalid_argument", "bad", 42),
+            MethodChannelReply.Error("invalid_request", "bad", 42),
             result.reply,
         )
     }

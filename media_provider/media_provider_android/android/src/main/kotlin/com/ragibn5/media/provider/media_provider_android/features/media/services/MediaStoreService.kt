@@ -16,7 +16,7 @@ internal interface MediaStoreService {
      * @return An empty list if the request selects nothing, or if none of the
      * requested volumes exist on the device.
      */
-    suspend fun getMedia(spec: QuerySpec): List<MediaItem>
+    suspend fun queryMedia(spec: QuerySpec): List<MediaItem>
 }
 
 internal class MediaStoreServiceImpl(
@@ -25,7 +25,7 @@ internal class MediaStoreServiceImpl(
     private val mediaColumnsReaderFactory: MediaColumnsReaderFactory,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MediaStoreService {
-    override suspend fun getMedia(spec: QuerySpec): List<MediaItem> {
+    override suspend fun queryMedia(spec: QuerySpec): List<MediaItem> {
         if (spec.types.isEmpty() || spec.volumes.isEmpty()) {
             return emptyList()
         }
