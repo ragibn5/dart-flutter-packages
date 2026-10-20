@@ -2,7 +2,7 @@ package com.ragibn5.media.provider.media_provider_android.features.media.handler
 
 import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
-import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaQueryErrorCodes
+import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaQueryExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
 import com.ragibn5.media.provider.media_provider_android.features.media.services.QuerySpecDecoder
@@ -16,7 +16,7 @@ internal class QueryMediaRequestHandler(
     private val mediaStoreService: MediaStoreService,
     private val querySpecDecoder: QuerySpecDecoder = QuerySpecDecoder(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
-    private val errorCodes: MediaQueryErrorCodes = MediaQueryErrorCodes,
+    private val errorCodes: MediaQueryExceptionCodes = MediaQueryExceptionCodes,
 ) : MethodCallRequestHandler {
     override val method = "queryMedia"
 

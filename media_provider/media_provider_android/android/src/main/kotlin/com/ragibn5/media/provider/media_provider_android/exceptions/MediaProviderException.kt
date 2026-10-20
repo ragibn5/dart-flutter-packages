@@ -1,6 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android.exceptions
 
-internal object MediaProviderCommonErrorCodes {
+internal object MediaProviderCommonExceptionCodes {
     const val ERROR_CODE_UNEXPECTED = "unexpected_error"
 }
 

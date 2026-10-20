@@ -1,14 +1,14 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.services
 
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
-import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaQueryErrorCodes
+import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaQueryExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 internal class QuerySpecDecoder(
     private val json: Json = Json { ignoreUnknownKeys = true },
-    private val errorCodes: MediaQueryErrorCodes = MediaQueryErrorCodes,
+    private val errorCodes: MediaQueryExceptionCodes = MediaQueryExceptionCodes,
 ) {
     fun decode(encodedQuerySpec: String): Result<QuerySpec> = runCatching {
         val request = try {
