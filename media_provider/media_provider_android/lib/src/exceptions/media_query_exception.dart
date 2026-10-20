@@ -11,34 +11,25 @@ sealed class MediaQueryException implements Exception {
   String toString() => '$_typeName: ${message ?? 'no message'}';
 
   String get _typeName => switch (this) {
-    InvalidRequestException() => '$InvalidRequestException',
-    UnexpectedException() => '$UnexpectedException',
+    InvalidRequestError() => '$InvalidRequestError',
   };
 }
 
 /// The request is malformed, or asks for something the target can't do.
-final class InvalidRequestException extends MediaQueryException {
-  const InvalidRequestException(super.message);
+final class InvalidRequestError extends MediaQueryException {
+  const InvalidRequestError(super.message);
 }
 
-/// A failure the plugin didn't anticipate.
-final class UnexpectedException extends MediaQueryException {
-  /// The error code the platform replied with.
-  final String? code;
-
-  const UnexpectedException(super.message, {this.code});
-}
-
-class MediaQueryErrorMapper {
+class MediaQueryExceptionMapper {
   static const _invalidRequestCode = 'invalid_request';
 
-  const MediaQueryErrorMapper();
+  const MediaQueryExceptionMapper();
 
   /// Maps a [PlatformException] to a [MediaQueryException].
-  MediaQueryException map(PlatformException e) {
+  Exception map(PlatformException e) {
     return switch (e.code) {
-      _invalidRequestCode => InvalidRequestException(e.message),
-      _ => UnexpectedException(e.message, code: e.code),
+      _invalidRequestCode => InvalidRequestError(e.message),
+      _ => e,
     };
   }
 }

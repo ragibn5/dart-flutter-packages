@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:media_provider_android/src/exceptions/media_read_exception.dart';
+import 'package:media_provider_android/src/exceptions/media_read_open_exception.dart';
 
 /// A handle for reading one `MediaStore` item.
 abstract interface class MediaReadSession {

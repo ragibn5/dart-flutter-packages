@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 /// A [MediaReadSession] backed by a session on the platform side of [_channel].
 final class MethodChannelMediaReadSession implements MediaReadSession {
   final MethodChannel _channel;
-  final MediaReadErrorMapper _mediaReadErrorMapper;
+  final MediaReadExceptionMapper _mediaReadExceptionMapper;
 
   @override
   final String id;
@@ -31,9 +31,9 @@ final class MethodChannelMediaReadSession implements MediaReadSession {
     required this.id,
     required this.size,
     @visibleForTesting
-    MediaReadErrorMapper errorMapper = const MediaReadErrorMapper(),
+    MediaReadExceptionMapper errorMapper = const MediaReadExceptionMapper(),
   }) : _channel = channel,
-       _mediaReadErrorMapper = errorMapper;
+       _mediaReadExceptionMapper = errorMapper;
 
   @override
   Future<Uint8List> read(int length, {int? position}) {
@@ -56,7 +56,7 @@ final class MethodChannelMediaReadSession implements MediaReadSession {
             'length': length,
             'position': position,
           }),
-          _mediaReadErrorMapper.map,
+          _mediaReadExceptionMapper.map,
         );
         return bytes!;
       } catch (_) {
