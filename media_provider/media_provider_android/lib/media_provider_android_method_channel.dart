@@ -60,7 +60,7 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
   @override
   Future<MediaReadSession> openReadSession(MediaReadRequest request) async {
     final result = await guardPlatformCall(
-      () => methodChannel.invokeMethod<String>('openReadSession', {
+      () => methodChannel.invokeMethod<String>('openMediaForReading', {
         'request': jsonEncode(request.toJson()),
       }),
       _openReadSessionExceptionMapper.map,
