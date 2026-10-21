@@ -8,7 +8,7 @@ import 'package:media_provider_android/src/exceptions/media_read_exception.dart'
 import 'package:media_provider_android/src/io/media_read_session.dart';
 import 'package:media_provider_android/src/io/method_channel_media_read_session.dart';
 import 'package:media_provider_android/src/models/media_item.dart';
-import 'package:media_provider_android/src/models/media_read_request.dart';
+import 'package:media_provider_android/src/models/open_media_read_request.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 import 'package:media_provider_android/src/utils/platform_exception_mapper.dart';
@@ -58,9 +58,9 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
   }
 
   @override
-  Future<MediaReadSession> openReadSession(MediaReadRequest request) async {
+  Future<MediaReadSession> openReadSession(OpenMediaReadRequest request) async {
     final result = await guardPlatformCall(
-      () => methodChannel.invokeMethod<String>('openReadSession', {
+      () => methodChannel.invokeMethod<String>('openMediaReadSession', {
         'request': jsonEncode(request.toJson()),
       }),
       _openReadSessionExceptionMapper.map,

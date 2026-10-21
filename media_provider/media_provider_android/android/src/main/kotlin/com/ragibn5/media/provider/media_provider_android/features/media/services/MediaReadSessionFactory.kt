@@ -4,10 +4,10 @@ import android.content.ContentResolver
 import android.os.Build
 import androidx.core.net.toUri
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
-import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaReadOpenExceptionCodes
+import com.ragibn5.media.provider.media_provider_android.features.media.constants.OpenMediaReadExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaColumnsReaderFactory
-import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaReadRequest
 import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaReadSession
+import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaReadRequest
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileLocationResolver
 import java.io.File
 import java.util.UUID
@@ -18,10 +18,10 @@ internal class MediaReadSessionFactory(
     private val mediaColumnsReaderFactory: MediaColumnsReaderFactory,
     val sdkInt: Int = Build.VERSION.SDK_INT
 ) {
-    fun create(request: MediaReadRequest): Result<MediaReadSession> = runCatching {
+    fun create(request: OpenMediaReadRequest): Result<MediaReadSession> = runCatching {
         if (!isPermissionAvailable()) {
             throw MediaProviderException(
-                MediaReadOpenExceptionCodes.PERMISSION_DENIED,
+                OpenMediaReadExceptionCodes.PERMISSION_DENIED,
                 "The required permissions for reading the media item is not granted"
             )
         }
@@ -33,7 +33,7 @@ internal class MediaReadSessionFactory(
         )?.use {
             if (!it.moveToFirst()) {
                 throw MediaProviderException(
-                    MediaReadOpenExceptionCodes.MEDIA_NOT_FOUND,
+                    OpenMediaReadExceptionCodes.MEDIA_NOT_FOUND,
                     "The requested media item does not seem to exist"
                 )
             }
@@ -41,7 +41,7 @@ internal class MediaReadSessionFactory(
             val reader = mediaColumnsReaderFactory.create(it)
             return@use reader.read()
         } ?: throw MediaProviderException(
-            MediaReadOpenExceptionCodes.INVALID_STATE,
+            OpenMediaReadExceptionCodes.INVALID_STATE,
             "The media provider is not responding"
         )
 

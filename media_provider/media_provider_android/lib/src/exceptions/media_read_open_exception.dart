@@ -41,12 +41,9 @@ final class MediaNotFoundException extends MediaReadOpenException {
   });
 }
 
-/// The app lacks permission(s) the operation needs.
+/// The app lacks permission to perform the operation.
 final class PermissionDeniedException extends MediaReadOpenException {
-  /// The permissions that would satisfy the request.
-  final List<String> permissions;
-
-  const PermissionDeniedException(super.message, {required this.permissions});
+  const PermissionDeniedException(super.message);
 }
 
 /// The operation isn't supported for this item.
@@ -70,13 +67,7 @@ class MediaReadOpenErrorMapper {
     };
 
     return switch (e.code) {
-      _permissionDeniedCode => PermissionDeniedException(
-        e.message,
-        permissions: [
-          for (final permission in details['permissions'] as List? ?? const [])
-            permission as String,
-        ],
-      ),
+      _permissionDeniedCode => PermissionDeniedException(e.message),
       _notFoundCode => MediaNotFoundException(
         e.message,
         uri: details['uri'] as String?,

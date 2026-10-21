@@ -1,5 +1,6 @@
 import 'package:media_provider_android/media_provider_android.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
+import 'package:media_provider_android/src/models/open_media_read_request.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 abstract class MediaProviderAndroidPlatform extends PlatformInterface {
@@ -40,7 +41,7 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
   /// Opens a session for reading the item [request] points to.
   ///
   /// See [MediaReadSession] for more info.
-  Future<MediaReadSession> openReadSession(MediaReadRequest request) {
+  Future<MediaReadSession> openReadSession(OpenMediaReadRequest request) {
     throw UnimplementedError('openReadSession() has not been implemented.');
   }
 }
