@@ -15,12 +15,14 @@ internal class MediaReadRequestDecoder(
             json.decodeFromString<MediaReadRequest>(encodedRequest)
         } catch (e: SerializationException) {
             throw invalidArgument(
-                "The input is not a valid JSON representation of $MediaReadRequest",
+                "The input is not a valid JSON representation of ${MediaReadRequest::class.java.simpleName}",
                 e
             )
         } catch (e: IllegalArgumentException) {
             throw invalidArgument(
-                e.message ?: "The input could not be converted to a $MediaReadRequest object", e
+                e.message
+                    ?: "The input could not be converted to a ${MediaReadRequest::class.java.simpleName} object",
+                e
             )
         }
 

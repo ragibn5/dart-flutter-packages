@@ -32,7 +32,7 @@ internal class MediaQueryBuilder(
 
     private fun buildFor(type: MediaType, volumeSpec: VolumeSpec): MediaQuery? {
         val prefixPath = buildPrefixPath(volumeSpec) ?: return null
-        return _root_ide_package_.com.ragibn5.media.provider.media_provider_android.features.media.models.MediaQuery(
+        return MediaQuery(
             type = type,
             uri = collectionUriResolver.collectionFor(type),
             selection = "${MediaStore.MediaColumns.DATA} LIKE ?",

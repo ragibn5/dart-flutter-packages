@@ -2,6 +2,7 @@ package com.ragibn5.media.provider.media_provider_android.features.volume.servic
 
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
+import com.ragibn5.media.provider.media_provider_android.extensions.ensureNoTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.FileLocation
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeIdentity
@@ -28,12 +29,13 @@ internal class FileLocationResolver(
     private fun StorageVolume.toVolumeIdentity(volumePath: String): VolumeIdentity {
         val stats = fileStatsResolver.resolve(volumePath)
         return VolumeIdentity(
+            uuid = uuid,
+            type = volumeTypeResolver.resolve(this),
+            volumePath = volumePath.ensureNoTrailingSlash(),
+            capacityInBytes = stats?.capacityInBytes ?: 0,
             isPrimary = isPrimary,
             isRemovable = isRemovable,
             isEmulated = isEmulated,
-            uuid = uuid,
-            capacityInBytes = stats?.capacityInBytes ?: 0,
-            type = volumeTypeResolver.resolve(this),
         )
     }
 }

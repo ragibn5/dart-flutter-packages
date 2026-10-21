@@ -7,28 +7,18 @@ import com.ragibn5.media.provider.media_provider_android.features.media.models.M
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadRequestDecoder
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
 import io.flutter.plugin.common.MethodCall
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 internal class ReadMediaRequestHandler(
     private val mediaStoreService: MediaStoreService,
     private val readRequestDecoder: MediaReadRequestDecoder = MediaReadRequestDecoder(),
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val errorCodes: MediaReadOpenExceptionCodes = MediaReadOpenExceptionCodes,
 ) : MethodCallRequestHandler {
-    override val method = "openMediaForReading"
-
+    override val method = "openReadSession"
 
     override suspend fun handle(call: MethodCall): Any {
         val request = parseRequest(call)
-        return withContext(dispatcher) {
-            // Encoding a large library is CPU-bound.
-            // So the whole reply is built off the main thread.
-            // Querying from Default also avoids a hop back to main in between.
-            Json.encodeToString(mediaStoreService.openMediaForReading(request))
-        }
+        return Json.encodeToString(mediaStoreService.openReadSession(request))
     }
 
     private fun parseRequest(call: MethodCall): MediaReadRequest {

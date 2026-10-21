@@ -3,6 +3,7 @@ package com.ragibn5.media.provider.media_provider_android.features.media.di
 import android.content.Context
 import android.os.Build
 import android.os.storage.StorageManager
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaCollectionUriResolver
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaItemUriBuilder
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaQueryBuilder
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadSessionFactory
@@ -14,29 +15,28 @@ import com.ragibn5.media.provider.media_provider_android.features.volume.service
 internal object MediaStoreServiceFactory {
     fun create(context: Context): MediaStoreService {
         val sdkInt: Int = Build.VERSION.SDK_INT
-        val uriBuilder = MediaItemUriBuilder
         val storageManager = context.getSystemService(StorageManager::class.java)
+        val contentResolver = context.contentResolver
+        val collectionUriResolver = MediaCollectionUriResolver.DEFAULT
         val volumePathResolver = VolumePathResolver(context, storageManager, sdkInt)
-        val fileLocationResolver =
-            FileLocationResolver(
-                storageManager = storageManager,
-                volumePathResolver = volumePathResolver,
-            )
+        val fileLocationResolver = FileLocationResolver(storageManager, volumePathResolver)
+        val mediaColumnsReaderFactory = MediaColumnsReaderFactory(sdkInt = sdkInt)
         return MediaStoreServiceImpl(
-            contentResolver = context.contentResolver,
-            queryBuilder = MediaQueryBuilder(
-                storageManager = storageManager,
-                volumePathResolver = volumePathResolver,
+            contentResolver = contentResolver,
+            fileLocationResolver = fileLocationResolver,
+            mediaQueryBuilder = MediaQueryBuilder(
+                storageManager,
+                volumePathResolver,
+                collectionUriResolver
             ),
+            mediaItemUriBuilder = MediaItemUriBuilder,
             mediaReadSessionFactory = MediaReadSessionFactory(
-                context,
+                contentResolver,
+                fileLocationResolver,
+                mediaColumnsReaderFactory,
                 sdkInt
             ),
-            mediaColumnsReaderFactory = MediaColumnsReaderFactory(
-                fileLocationResolver = fileLocationResolver,
-                uriBuilder = uriBuilder,
-                sdkInt = sdkInt
-            ),
+            mediaColumnsReaderFactory = mediaColumnsReaderFactory,
         )
     }
 }

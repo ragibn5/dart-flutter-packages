@@ -8,6 +8,31 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class VolumeIdentity(
     /**
+     * The filesystem UUID of the volume, obtained from [android.os.storage.StorageVolume.getUuid].
+     *
+     * > Note: This may not be available when the volume is not mounted, or in case of incompatible
+     * > volumes.
+     */
+    val uuid: String?,
+
+    /**
+     * The type of the volume.
+     */
+    val type: VolumeType,
+
+    /**
+     * The filesystem path of the volume.
+     * */
+    val volumePath: String,
+
+    /**
+     * The total capacity of the volume, in bytes.
+     *
+     * Can be null if the capacity could not be read.
+     */
+    val capacityInBytes: Long?,
+
+    /**
      * Whether this is the primary shared/external storage volume.
      */
     val isPrimary: Boolean,
@@ -21,24 +46,4 @@ internal data class VolumeIdentity(
      * Whether this storage volume is emulated.
      */
     val isEmulated: Boolean,
-
-    /**
-     * The type of the volume.
-     */
-    val type: VolumeType,
-
-    /**
-     * The total capacity of the volume, in bytes.
-     *
-     * Can be zero if the capacity could not be read.
-     */
-    val capacityInBytes: Long,
-
-    /**
-     * The filesystem UUID of the volume, obtained from [android.os.storage.StorageVolume.getUuid].
-     *
-     * > Note: This may not be available when the volume is not mounted, or in case of incompatible
-     * > volumes.
-     */
-    val uuid: String?,
 )

@@ -1,6 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android.features.volume.services
 
 import android.os.storage.StorageManager
+import com.ragibn5.media.provider.media_provider_android.extensions.ensureNoTrailingSlash
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeIdentity
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeInfo
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeState
@@ -17,19 +18,20 @@ internal class VolumeProviderServiceImpl(
     private val fileStatsResolver: FileStatsResolver = FileStatsResolver(),
 ) : VolumeProviderService {
     override fun getVolumes(): List<VolumeInfo> {
-        return storageManager.storageVolumes.map { volume ->
-            val path = volumePathResolver.resolve(volume)
-            val stats = path?.let { fileStatsResolver.resolve(path) }
+        return storageManager.storageVolumes.mapNotNull { volume ->
+            val path = volumePathResolver.resolve(volume) ?: return@mapNotNull null
+            val stats = path.let { fileStatsResolver.resolve(path) }
             VolumeInfo(
                 state = VolumeState.from(volume.state),
-                availableSpaceInBytes = stats?.availableSpaceInBytes ?: 0,
+                availableSpaceInBytes = stats?.availableSpaceInBytes,
                 identity = VolumeIdentity(
+                    uuid = volume.uuid,
+                    type = volumeTypeResolver.resolve(volume),
+                    volumePath = path.ensureNoTrailingSlash(),
+                    capacityInBytes = stats?.capacityInBytes,
                     isPrimary = volume.isPrimary,
                     isRemovable = volume.isRemovable,
                     isEmulated = volume.isEmulated,
-                    uuid = volume.uuid,
-                    capacityInBytes = stats?.capacityInBytes ?: 0,
-                    type = volumeTypeResolver.resolve(volume),
                 ),
             )
         }

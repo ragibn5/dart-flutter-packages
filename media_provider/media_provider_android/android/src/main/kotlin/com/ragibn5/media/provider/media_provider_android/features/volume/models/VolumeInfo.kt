@@ -21,7 +21,7 @@ internal data class VolumeInfo(
     /**
      * The space still available on the volume, in bytes.
      *
-     * Can be zero if the availability could not be read.
+     * Can be null if the availability could not be read.
      */
-    val availableSpaceInBytes: Long,
+    val availableSpaceInBytes: Long?,
 )

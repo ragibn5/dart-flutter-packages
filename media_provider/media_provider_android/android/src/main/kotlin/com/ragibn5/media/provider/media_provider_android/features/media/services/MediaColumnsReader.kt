@@ -1,21 +1,16 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.services
 
 import android.database.Cursor
-import android.net.Uri
 import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
 import com.ragibn5.media.provider.media_provider_android.extensions.getBooleanOrNull
 import com.ragibn5.media.provider.media_provider_android.extensions.getLongOrNull
 import com.ragibn5.media.provider.media_provider_android.extensions.getStringOrNull
-import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaItem
-import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
-import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileLocationResolver
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaColumn
 
 internal class MediaColumnsReader(
     private val cursor: Cursor,
-    private val fileLocationResolver: FileLocationResolver,
-    private val uriBuilder: MediaItemUriBuilder = MediaItemUriBuilder,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) {
     private val idColumn = cursor.getColumnIndexOrThrow(BaseColumns._ID)
@@ -56,24 +51,18 @@ internal class MediaColumnsReader(
         null
     }
 
-    fun read(type: MediaType, collectionUri: Uri): MediaItem {
+    fun read(): MediaColumn {
         val id = cursor.getLong(idColumn)
-        val uri = uriBuilder.build(collectionUri, id)
-        val filePath = cursor.getStringOrNull(dataColumn)
-        val mediaFileInfo = filePath?.let { fileLocationResolver.resolve(it) }
-        return MediaItem(
-            type = type,
+        return MediaColumn(
             id = id.toString(),
-            uri = uri,
             name = cursor.getStringOrNull(nameColumn),
             mimeType = cursor.getStringOrNull(mimeTypeColumn),
             sizeInBytes = cursor.getLongOrNull(sizeColumn),
             dateAddedInMillis = cursor.getLongOrNull(dateAddedColumn)?.times(1000),
             dateModifiedInMillis = cursor.getLongOrNull(dateModifiedColumn)?.times(1000),
             dateTakenInMillis = dateTakenColumn?.let(cursor::getLongOrNull),
-            volumeIdentity = mediaFileInfo?.volumeIdentity,
-            relativePath = mediaFileInfo?.relativeParentPath,
             ownerPackageName = ownerPackageNameColumn?.let(cursor::getStringOrNull),
+            data = cursor.getStringOrNull(dataColumn),
             isPending = isPendingColumn?.let(cursor::getBooleanOrNull),
             isTrashed = isTrashedColumn?.let(cursor::getBooleanOrNull),
             isFavorite = isFavoriteColumn?.let(cursor::getBooleanOrNull),
