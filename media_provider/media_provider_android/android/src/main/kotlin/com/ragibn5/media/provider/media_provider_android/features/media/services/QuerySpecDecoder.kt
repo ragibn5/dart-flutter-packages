@@ -28,7 +28,7 @@ internal class QuerySpecDecoder(
             throw invalidArgument("'${QuerySpec::volumes}' must not be empty")
         }
 
-        return Result.success(request)
+        return@runCatching request
     }
 
     private fun invalidArgument(message: String, cause: Throwable? = null) =
