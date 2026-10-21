@@ -11,25 +11,32 @@ final class MethodChannelMediaReadSession implements MediaReadSession {
   final MethodChannel _channel;
   final MediaReadExceptionMapper _mediaReadExceptionMapper;
 
-  @override
-  final String id;
+  bool _isClosed = false;
 
   @override
-  final int? size;
+  final String sessionId;
+
+  @override
+  final String contentUri;
+
+  @override
+  final int? sizeInBytes;
+
+  @override
+  final bool isSeekable;
 
   @override
   bool get isClosed => _isClosed;
-
-  /// Whether the session is closed.
-  bool _isClosed = false;
 
   /// Completes when the most recent call has finished, successfully or not.
   Future<void> _lastCall = Future.value();
 
   MethodChannelMediaReadSession({
     required MethodChannel channel,
-    required this.id,
-    required this.size,
+    required this.sessionId,
+    required this.contentUri,
+    required this.sizeInBytes,
+    required this.isSeekable,
     @visibleForTesting
     MediaReadExceptionMapper errorMapper = const MediaReadExceptionMapper(),
   }) : _channel = channel,
@@ -46,13 +53,16 @@ final class MethodChannelMediaReadSession implements MediaReadSession {
 
     return _serialized(() async {
       if (_isClosed) {
-        throw SessionClosedException('Session $id is closed', sessionId: id);
+        throw SessionClosedException(
+          'Session $sessionId is closed',
+          sessionId: sessionId,
+        );
       }
 
       try {
         final bytes = await guardPlatformCall(
           () => _channel.invokeMethod<Uint8List>('readFromSession', {
-            'sessionId': id,
+            'sessionId': sessionId,
             'length': length,
             'position': position,
           }),
@@ -111,7 +121,7 @@ final class MethodChannelMediaReadSession implements MediaReadSession {
 
       try {
         await _channel.invokeMethod<void>('closeReadSession', {
-          'sessionId': id,
+          'sessionId': sessionId,
         });
       } catch (_) {
         // Nothing the caller could do about it. The platform also closes the

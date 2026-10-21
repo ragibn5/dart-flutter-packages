@@ -60,7 +60,7 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
   @override
   Future<MediaReadSession> openReadSession(MediaReadRequest request) async {
     final result = await guardPlatformCall(
-      () => methodChannel.invokeMethod<String>('openMediaForReading', {
+      () => methodChannel.invokeMethod<String>('openReadSession', {
         'request': jsonEncode(request.toJson()),
       }),
       _openReadSessionExceptionMapper.map,
@@ -68,8 +68,10 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
     final reply = jsonDecode(result!) as Map<String, dynamic>;
     return MethodChannelMediaReadSession(
       channel: methodChannel,
-      id: reply['sessionId'] as String,
-      size: reply['size'] as int?,
+      sessionId: reply['sessionId'] as String,
+      contentUri: reply['contentUri'] as String,
+      sizeInBytes: reply['sizeInBytes'] as int?,
+      isSeekable: reply['isSeekable'] as bool,
     );
   }
 }

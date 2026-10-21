@@ -8,10 +8,16 @@ abstract interface class MediaReadSession {
   static const defaultChunkSize = 512 * 1024;
 
   /// The id of this session.
-  String get id;
+  String get sessionId;
+
+  /// The content uri of the media this session is managing.
+  String get contentUri;
 
   /// The size of the item in bytes, or `null` when the platform can't tell.
-  int? get size;
+  int? get sizeInBytes;
+
+  /// Whether the obtainable stream is seekable.
+  bool get isSeekable;
 
   /// Whether the session is closed.
   bool get isClosed;

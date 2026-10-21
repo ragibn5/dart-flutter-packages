@@ -8,26 +8,28 @@ part of 'volume_identity.dart';
 
 VolumeIdentity _$VolumeIdentityFromJson(Map<String, dynamic> json) =>
     VolumeIdentity(
-      isPrimary: json['isPrimary'] as bool,
-      isRemovable: json['isRemovable'] as bool,
-      isEmulated: json['isEmulated'] as bool,
+      uuid: json['uuid'] as String?,
       type: $enumDecode(
         _$VolumeTypeEnumMap,
         json['type'],
         unknownValue: VolumeType.unknown,
       ),
-      capacityInBytes: (json['capacityInBytes'] as num).toInt(),
-      uuid: json['uuid'] as String?,
+      volumePath: json['volumePath'] as String,
+      capacityInBytes: (json['capacityInBytes'] as num?)?.toInt(),
+      isPrimary: json['isPrimary'] as bool,
+      isRemovable: json['isRemovable'] as bool,
+      isEmulated: json['isEmulated'] as bool,
     );
 
 Map<String, dynamic> _$VolumeIdentityToJson(VolumeIdentity instance) =>
     <String, dynamic>{
+      'uuid': instance.uuid,
+      'type': _$VolumeTypeEnumMap[instance.type]!,
+      'volumePath': instance.volumePath,
+      'capacityInBytes': instance.capacityInBytes,
       'isPrimary': instance.isPrimary,
       'isRemovable': instance.isRemovable,
       'isEmulated': instance.isEmulated,
-      'type': _$VolumeTypeEnumMap[instance.type]!,
-      'capacityInBytes': instance.capacityInBytes,
-      'uuid': instance.uuid,
     };
 
 const _$VolumeTypeEnumMap = {

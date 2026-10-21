@@ -4,40 +4,21 @@ import 'package:meta/meta.dart';
 
 part 'media_read_request.g.dart';
 
-/// Describes which `MediaStore` item to read, and how.
 @immutable
 @JsonSerializable()
 class MediaReadRequest extends Equatable {
-  /// The `content://` URI of an existing `MediaStore` item, for example
-  /// `content://media/external/images/media/42`.
-  final String uri;
-
-  /// Whether to read the original bytes, without location redaction.
+  /// The `content://` URI of an existing `MediaStore` item.
   ///
-  /// From API level 29 (Q), `MediaStore` may redact location metadata (for
-  /// example Exif GPS tags) from the bytes it returns. Setting this requests
-  /// the original contents through `MediaStore.setRequireOriginal`, which
-  /// needs the `ACCESS_MEDIA_LOCATION` permission. Has no effect below API
-  /// level 29.
-  ///
-  /// Set it when the bytes may be written back: overwriting an item with
-  /// redacted bytes permanently drops its location data.
-  final bool requireOriginal;
+  /// For example `content://media/external/images/media/42`.
+  final String contentUri;
 
-  const MediaReadRequest({required this.uri, this.requireOriginal = false});
+  const MediaReadRequest({required this.contentUri});
 
   @override
-  List<Object?> get props => [uri, requireOriginal];
+  List<Object?> get props => [contentUri];
 
   Map<String, dynamic> toJson() => _$MediaReadRequestToJson(this);
 
   factory MediaReadRequest.fromJson(Map<String, dynamic> json) =>
       _$MediaReadRequestFromJson(json);
-
-  MediaReadRequest copyWith({String? uri, bool? requireOriginal}) {
-    return MediaReadRequest(
-      uri: uri ?? this.uri,
-      requireOriginal: requireOriginal ?? this.requireOriginal,
-    );
-  }
 }

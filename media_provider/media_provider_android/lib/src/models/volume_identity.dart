@@ -9,6 +9,25 @@ part 'volume_identity.g.dart';
 @JsonSerializable()
 @immutable
 class VolumeIdentity extends Equatable {
+  /// The filesystem UUID of the volume, or null when the platform does not
+  /// report one.
+  ///
+  /// > Note: This may not be available when the volume is not mounted,
+  /// > or in case of incompatible volumes.
+  final String? uuid;
+
+  /// The type of the volume.
+  @JsonKey(unknownEnumValue: VolumeType.unknown)
+  final VolumeType type;
+
+  /// The filesystem path of the volume.
+  final String volumePath;
+
+  /// The total capacity of the volume, in bytes.
+  ///
+  /// Can be null if the capacity could not be read.
+  final int? capacityInBytes;
+
   /// Whether this is the primary shared/external storage volume.
   final bool isPrimary;
 
@@ -18,29 +37,14 @@ class VolumeIdentity extends Equatable {
   /// Whether this storage volume is emulated.
   final bool isEmulated;
 
-  /// The type of the volume.
-  @JsonKey(unknownEnumValue: VolumeType.unknown)
-  final VolumeType type;
-
-  /// The total capacity of the volume, in bytes.
-  ///
-  /// Can be zero if the capacity could not be read.
-  final int capacityInBytes;
-
-  /// The filesystem UUID of the volume, or null when the platform does not
-  /// report one.
-  ///
-  /// > Note: This may not be available when the volume is not mounted,
-  /// > or in case of incompatible volumes.
-  final String? uuid;
-
   const VolumeIdentity({
+    required this.uuid,
+    required this.type,
+    required this.volumePath,
+    required this.capacityInBytes,
     required this.isPrimary,
     required this.isRemovable,
     required this.isEmulated,
-    required this.type,
-    required this.capacityInBytes,
-    required this.uuid,
   });
 
   factory VolumeIdentity.fromJson(Map<String, dynamic> json) =>
@@ -50,11 +54,12 @@ class VolumeIdentity extends Equatable {
 
   @override
   List<Object?> get props => [
+    uuid,
+    type,
+    volumePath,
+    capacityInBytes,
     isPrimary,
     isRemovable,
     isEmulated,
-    type,
-    capacityInBytes,
-    uuid,
   ];
 }

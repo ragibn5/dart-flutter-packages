@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:media_provider_android/src/models/file_location.dart';
 import 'package:media_provider_android/src/models/media_type.dart';
 import 'package:media_provider_android/src/models/volume_identity.dart';
 import 'package:meta/meta.dart';
@@ -19,6 +20,10 @@ class MediaItem extends Equatable {
   /// The `MediaStore` collection this item belongs to.
   final MediaType type;
 
+  /// The `content://` URI of the item, for example
+  /// `content://media/external/images/media/42`.
+  final String uri;
+
   /// The `MediaStore` row ID (`_ID`), as a string, for example `'42'`.
   ///
   /// Sourced from `BaseColumns._ID`, held as a string rather than a
@@ -26,9 +31,11 @@ class MediaItem extends Equatable {
   /// for as long as it stays in the library.
   final String id;
 
-  /// The `content://` URI of the item, for example
-  /// `content://media/external/images/media/42`.
-  final String? uri;
+  /// The location of the data file or null if not applicable.
+  ///
+  /// > Note: Not all media types is backup by a file.
+  /// > This field may be null in that case.
+  final FileLocation? fileLocation;
 
   /// The display name of the file, including its extension, for example
   /// `'IMG_0001.jpg'`.
@@ -75,15 +82,6 @@ class MediaItem extends Equatable {
   /// Null when the volume identity cannot be resolved.
   final VolumeIdentity? volumeIdentity;
 
-  /// The path of the directory containing the file, relative to the root
-  /// of its storage volume, for example `'DCIM/Camera/'`.
-  ///
-  /// Possible values:
-  /// - When the file sits directly in the volume root, it is an empty string.
-  /// - When not within the volume root, it always ends with a path separator.
-  /// - `null` when the path cannot be resolved.
-  final String? relativePath;
-
   /// The package name of the app that owns the item, for example
   /// `'com.android.camera'`.
   ///
@@ -119,8 +117,9 @@ class MediaItem extends Equatable {
 
   const MediaItem({
     required this.type,
-    required this.id,
     required this.uri,
+    required this.id,
+    required this.fileLocation,
     required this.name,
     required this.mimeType,
     required this.sizeInBytes,
@@ -128,7 +127,6 @@ class MediaItem extends Equatable {
     required this.dateModifiedInMillis,
     required this.dateTakenInMillis,
     required this.volumeIdentity,
-    required this.relativePath,
     required this.ownerPackageName,
     required this.isPending,
     required this.isTrashed,
@@ -144,8 +142,9 @@ class MediaItem extends Equatable {
   @override
   List<Object?> get props => [
     type,
-    id,
     uri,
+    id,
+    fileLocation,
     name,
     mimeType,
     sizeInBytes,
@@ -153,7 +152,6 @@ class MediaItem extends Equatable {
     dateModifiedInMillis,
     dateTakenInMillis,
     volumeIdentity,
-    relativePath,
     ownerPackageName,
     isPending,
     isTrashed,

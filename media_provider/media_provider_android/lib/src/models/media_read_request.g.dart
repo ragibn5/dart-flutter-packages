@@ -7,13 +7,7 @@ part of 'media_read_request.dart';
 // **************************************************************************
 
 MediaReadRequest _$MediaReadRequestFromJson(Map<String, dynamic> json) =>
-    MediaReadRequest(
-      uri: json['uri'] as String,
-      requireOriginal: json['requireOriginal'] as bool? ?? false,
-    );
+    MediaReadRequest(contentUri: json['contentUri'] as String);
 
 Map<String, dynamic> _$MediaReadRequestToJson(MediaReadRequest instance) =>
-    <String, dynamic>{
-      'uri': instance.uri,
-      'requireOriginal': instance.requireOriginal,
-    };
+    <String, dynamic>{'contentUri': instance.contentUri};
