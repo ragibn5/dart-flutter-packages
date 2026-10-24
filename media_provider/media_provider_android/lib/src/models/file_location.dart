@@ -9,11 +9,13 @@ class FileLocation extends Equatable {
   final VolumeIdentity volumeIdentity;
   final String relativeParentPath;
   final String fileNameWithExtension;
+  final String absoluteFilePath;
 
   const FileLocation({
     required this.volumeIdentity,
     required this.relativeParentPath,
     required this.fileNameWithExtension,
+    required this.absoluteFilePath,
   });
 
   factory FileLocation.fromJson(Map<String, dynamic> json) =>
@@ -26,5 +28,6 @@ class FileLocation extends Equatable {
     volumeIdentity,
     relativeParentPath,
     fileNameWithExtension,
+    absoluteFilePath,
   ];
 }

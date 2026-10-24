@@ -11,13 +11,13 @@ sealed class MediaQueryException implements Exception {
   String toString() => '$_typeName: ${message ?? 'no message'}';
 
   String get _typeName => switch (this) {
-    InvalidRequestError() => '$InvalidRequestError',
+    InvalidQueryError() => '$InvalidQueryError',
   };
 }
 
-/// The request is malformed, or asks for something the target can't do.
-final class InvalidRequestError extends MediaQueryException {
-  const InvalidRequestError(super.message);
+/// The query is malformed, or asks for something the target can't do.
+final class InvalidQueryError extends MediaQueryException {
+  const InvalidQueryError(super.message);
 }
 
 class MediaQueryExceptionMapper {
@@ -28,7 +28,7 @@ class MediaQueryExceptionMapper {
   /// Maps a [PlatformException] to a [MediaQueryException].
   Exception map(PlatformException e) {
     return switch (e.code) {
-      _invalidRequestCode => InvalidRequestError(e.message),
+      _invalidRequestCode => InvalidQueryError(e.message),
       _ => e,
     };
   }

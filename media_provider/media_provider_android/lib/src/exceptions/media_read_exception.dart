@@ -11,9 +11,15 @@ sealed class MediaReadException implements Exception {
   String toString() => '$_typeName: ${message ?? 'no message'}';
 
   String get _typeName => switch (this) {
+    InvalidReadRequestError() => '$InvalidReadRequestError',
     SessionNotFoundException() => '$SessionNotFoundException',
     ReadException() => '$ReadException',
   };
+}
+
+/// The read request is malformed.
+final class InvalidReadRequestError extends MediaReadException {
+  const InvalidReadRequestError(super.message);
 }
 
 /// The session was not found, or is closed.
@@ -30,8 +36,10 @@ final class ReadException extends MediaReadException {
 }
 
 class MediaReadExceptionMapper {
+  // Must match MediaReadExceptionCodes on the platform side.
+  static const _invalidRequestCode = 'invalid_request';
   static const _sessionNotFoundCode = 'session_not_found';
-  static const _ioErrorCode = 'io_error';
+  static const _readErrorCode = 'read_error';
 
   const MediaReadExceptionMapper();
 
@@ -47,7 +55,8 @@ class MediaReadExceptionMapper {
         e.message,
         sessionId: details['sessionId'] as String? ?? '',
       ),
-      _ioErrorCode => ReadException(e.message),
+      _invalidRequestCode => InvalidReadRequestError(e.message),
+      _readErrorCode => ReadException(e.message),
       _ => e,
     };
   }

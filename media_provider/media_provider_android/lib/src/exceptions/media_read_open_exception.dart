@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-/// A failure to read or write a `MediaStore` item.
+/// A failure to open a `MediaStore` item for reading.
 sealed class MediaReadOpenException implements Exception {
   /// A description of the failure.
   final String? message;
@@ -11,16 +11,16 @@ sealed class MediaReadOpenException implements Exception {
   String toString() => '$_typeName: ${message ?? 'no message'}';
 
   String get _typeName => switch (this) {
-    InvalidRequestError() => '$InvalidRequestError',
+    InvalidOpenRequestError() => '$InvalidOpenRequestError',
     MediaNotFoundException() => '$MediaNotFoundException',
     PermissionDeniedException() => '$PermissionDeniedException',
     UnsupportedOperationException() => '$UnsupportedOperationException',
   };
 }
 
-/// The request is malformed, or asks for something the target can't do.
-final class InvalidRequestError extends MediaReadOpenException {
-  const InvalidRequestError(super.message);
+/// The open request is malformed, or asks for something the target can't do.
+final class InvalidOpenRequestError extends MediaReadOpenException {
+  const InvalidOpenRequestError(super.message);
 }
 
 /// The item doesn't exist, or isn't visible to the app.
@@ -52,10 +52,11 @@ final class UnsupportedOperationException extends MediaReadOpenException {
 }
 
 class MediaReadOpenErrorMapper {
+  // Must match OpenMediaReadExceptionCodes on the platform side.
   static const _invalidRequestCode = 'invalid_request';
   static const _notFoundCode = 'not_found';
   static const _permissionDeniedCode = 'permission_denied';
-  static const _unsupportedCode = 'unsupported';
+  static const _unsupportedCode = 'unsupported_operation';
 
   const MediaReadOpenErrorMapper();
 
@@ -73,7 +74,7 @@ class MediaReadOpenErrorMapper {
         uri: details['uri'] as String?,
         partialAccess: details['partialAccess'] as bool? ?? false,
       ),
-      _invalidRequestCode => InvalidRequestError(e.message),
+      _invalidRequestCode => InvalidOpenRequestError(e.message),
       _unsupportedCode => UnsupportedOperationException(e.message),
       _ => e,
     };

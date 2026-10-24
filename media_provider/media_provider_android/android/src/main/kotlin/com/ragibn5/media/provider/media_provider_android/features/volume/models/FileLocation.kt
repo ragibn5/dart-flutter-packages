@@ -2,6 +2,8 @@ package com.ragibn5.media.provider.media_provider_android.features.volume.models
 
 import android.annotation.SuppressLint
 import com.ragibn5.media.provider.media_provider_android.extensions.ensureNoTrailingSlash
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import java.io.File
 
@@ -23,10 +25,19 @@ internal data class FileLocation(
      * */
     val fileNameWithExtension: String,
 ) {
-    val absoluteFilePath: String
-        get() = listOf(
-            volumeIdentity.volumePath,
-            relativeParentPath,
-            fileNameWithExtension
-        ).joinToString(File.separator) { it.ensureNoTrailingSlash() }
+    /**
+     * The file's absolute path.
+     *
+     * This is a computed property, joining the volume's path, the parent path and the name.
+     */
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault
+    val absoluteFilePath: String = listOf(
+        volumeIdentity.volumePath,
+        relativeParentPath,
+        fileNameWithExtension
+    )
+        .map { it.ensureNoTrailingSlash() }
+        .filter { it.isNotEmpty() }
+        .joinToString(File.separator)
 }

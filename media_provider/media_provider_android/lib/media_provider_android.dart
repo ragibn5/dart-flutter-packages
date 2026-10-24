@@ -2,15 +2,19 @@
 library;
 
 import 'package:media_provider_android/media_provider_android_platform_interface.dart';
-import 'package:media_provider_android/src/io/media_read_session.dart';
+import 'package:media_provider_android/src/io/session/media_read_session.dart';
 import 'package:media_provider_android/src/models/media_item.dart';
 import 'package:media_provider_android/src/models/open_media_read_request.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 
-export 'src/io/media_read_session.dart';
+export 'src/exceptions/media_query_exception.dart'
+    hide MediaQueryExceptionMapper;
+export 'src/exceptions/media_read_exception.dart' hide MediaReadExceptionMapper;
+export 'src/exceptions/media_read_open_exception.dart'
+    hide MediaReadOpenErrorMapper;
+export 'src/io/session/media_read_session.dart';
 export 'src/models/media_item.dart';
-export 'src/models/media_read_request.dart';
 export 'src/models/media_type.dart';
 export 'src/models/open_media_read_request.dart';
 export 'src/models/query_spec.dart';
