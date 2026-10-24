@@ -6,7 +6,7 @@ import android.os.storage.StorageManager
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaCollectionUriResolver
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaItemUriBuilder
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaQueryBuilder
-import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadSessionFactory
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaSourceOpener
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreServiceImpl
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileLocationResolver
@@ -31,13 +31,8 @@ internal object MediaStoreServiceFactory {
                 collectionUriResolver
             ),
             mediaItemUriBuilder = MediaItemUriBuilder,
-            mediaReadSessionFactory = MediaReadSessionFactory(
-                contentResolver,
-                fileLocationResolver,
-                mediaColumnsReaderFactory,
-                sdkInt
-            ),
             mediaColumnsReaderFactory = mediaColumnsReaderFactory,
+            mediaSourceOpener = MediaSourceOpener(contentResolver),
         )
     }
 }

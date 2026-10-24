@@ -1,7 +1,7 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.services
 
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
-import com.ragibn5.media.provider.media_provider_android.features.media.constants.OpenMediaReadExceptionCodes
+import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaReadExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaReadRequest
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -39,5 +39,5 @@ internal class MediaReadRequestDecoder(
     }
 
     private fun invalidArgument(message: String, cause: Throwable? = null) =
-        MediaProviderException(OpenMediaReadExceptionCodes.INVALID_REQUEST, message, cause = cause)
+        MediaProviderException(MediaReadExceptionCodes.INVALID_REQUEST, message, cause = cause)
 }

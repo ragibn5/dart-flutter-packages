@@ -28,7 +28,7 @@ internal class QueryMediaRequestHandler(
         val argument = call.arguments<String>()
             ?: throw MediaProviderException(
                 code = MediaQueryExceptionCodes.INVALID_REQUEST,
-                message = "You must pass a valid JSON representation of $QuerySpec"
+                message = "You must pass a valid JSON representation of ${QuerySpec::class.java.simpleName}"
             )
         return querySpecDecoder.decode(argument).getOrThrow()
     }

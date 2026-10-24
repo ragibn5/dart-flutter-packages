@@ -16,4 +16,13 @@ internal class MediaReadSessionRegistry {
     fun removeSession(sessionId: String): MediaReadSession? {
         return _sessionMap.remove(sessionId)
     }
+
+    /**
+     * Removes every session.
+     *
+     * @return the removed sessions, for the caller to close.
+     */
+    fun removeAllSessions(): List<MediaReadSession> {
+        return _sessionMap.keys.mapNotNull { _sessionMap.remove(it) }
+    }
 }

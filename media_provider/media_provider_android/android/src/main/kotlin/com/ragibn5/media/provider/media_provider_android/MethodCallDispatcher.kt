@@ -3,8 +3,6 @@ package com.ragibn5.media.provider.media_provider_android
 import android.util.Log
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderCommonExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
-import com.ragibn5.media.provider.media_provider_android.utils.Laps
-import com.ragibn5.media.provider.media_provider_android.utils.logMark
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CancellationException
@@ -17,7 +15,6 @@ import kotlinx.coroutines.launch
 internal class MethodCallDispatcher(
     handlers: List<MethodCallRequestHandler>,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
-    private val commonErrorCodes: MediaProviderCommonExceptionCodes = MediaProviderCommonExceptionCodes,
 ) : MethodChannel.MethodCallHandler {
     private val handlersByMethod: Map<String, MethodCallRequestHandler> =
         handlers.associateBy { it.method }
@@ -31,12 +28,9 @@ internal class MethodCallDispatcher(
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val handler = handlersByMethod[call.method] ?: return result.notImplemented()
-        logMark("[${call.method}] native received")
-        val laps = Laps("[${call.method}] native")
         scope.launch {
-            laps.lap("coroutine dispatch")
             val reply = try {
-                handler.handle(call).also { laps.lap("handle") }
+                handler.handle(call)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: MediaProviderException) {
@@ -44,14 +38,12 @@ internal class MethodCallDispatcher(
             } catch (e: Exception) {
                 e.printStackTrace()
                 return@launch result.error(
-                    commonErrorCodes.ERROR_CODE_UNEXPECTED,
+                    MediaProviderCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
                     e.message,
                     null
                 )
             }
             result.success(reply)
-            laps.lap("result.success (encode + send)")
-            logMark("[${call.method}] native replied")
         }
     }
 
