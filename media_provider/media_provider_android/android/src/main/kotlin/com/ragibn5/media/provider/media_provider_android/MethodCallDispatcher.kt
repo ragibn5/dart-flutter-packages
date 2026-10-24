@@ -1,6 +1,5 @@
 package com.ragibn5.media.provider.media_provider_android
 
-import android.util.Log
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderCommonExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import io.flutter.plugin.common.MethodCall

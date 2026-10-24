@@ -55,6 +55,7 @@ internal class MediaReadSession(
         return if (totalRead == result.size) result else result.copyOf(totalRead)
     }
 
+    @Suppress("kotlin:S6514")
     @Synchronized
     override fun close() {
         stream.close()

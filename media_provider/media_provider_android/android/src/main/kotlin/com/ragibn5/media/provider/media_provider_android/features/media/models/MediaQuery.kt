@@ -1,7 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.models
 
 import android.net.Uri
-import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
 
 internal data class MediaQuery(
     val type: MediaType,

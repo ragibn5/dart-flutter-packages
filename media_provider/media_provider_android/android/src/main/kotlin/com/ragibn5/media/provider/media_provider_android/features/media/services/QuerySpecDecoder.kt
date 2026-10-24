@@ -13,10 +13,15 @@ internal class QuerySpecDecoder(
         val request = try {
             json.decodeFromString<QuerySpec>(encodedQuerySpec)
         } catch (e: SerializationException) {
-            throw invalidArgument("The input is not a valid JSON representation of ${QuerySpec::class.java.simpleName}", e)
+            throw invalidArgument(
+                "The input is not a valid JSON representation of ${QuerySpec::class.java.simpleName}",
+                e
+            )
         } catch (e: IllegalArgumentException) {
             throw invalidArgument(
-                e.message ?: "The input could not be converted to a ${QuerySpec::class.java.simpleName} object", e
+                e.message
+                    ?: "The input could not be converted to a ${QuerySpec::class.java.simpleName} object",
+                e
             )
         }
 

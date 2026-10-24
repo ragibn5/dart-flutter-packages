@@ -28,7 +28,6 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         val appContext = flutterPluginBinding.applicationContext
-
         attach(
             appContext,
             flutterPluginBinding.binaryMessenger,
@@ -45,10 +44,12 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
      */
     @VisibleForTesting
     internal fun attach(appContext: Context, binaryMessenger: BinaryMessenger) {
-        // One instance, so getVolumes and the media feature see the same volumes.
+        // Services
         volumeProviderService = VolumeProviderServiceFactory.create(appContext)
         mediaQueryService = MediaQueryServiceFactory.create(appContext, volumeProviderService)
         mediaReadService = MediaReadServiceFactory.create(appContext)
+
+        // Main request dispatcher
         requestDispatcher = MethodCallDispatcher(
             listOf(
                 QueryMediaRequestHandler(mediaQueryService),
@@ -57,6 +58,8 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
                 GetVolumesHandler(volumeProviderService),
             ),
         )
+
+        // Channels
         mainChannel = MethodChannel(binaryMessenger, MAIN_CHANNEL_NAME)
             .apply { setMethodCallHandler(requestDispatcher) }
         readChannel = MethodChannel(
@@ -68,10 +71,14 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        // Close the channels
         mainChannel.setMethodCallHandler(null)
         readChannel.setMethodCallHandler(null)
+
+        // Close the main dispatcher
         requestDispatcher.dispose()
 
+        // Close the services that needs closing
         mediaReadService.closeAllReadSessions()
     }
 
