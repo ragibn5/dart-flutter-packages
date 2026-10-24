@@ -11,15 +11,16 @@ import com.ragibn5.media.provider.media_provider_android.features.media.services
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreServiceImpl
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.FileLocationResolver
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumePathResolver
+import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumeProviderService
 
 internal object MediaStoreServiceFactory {
-    fun create(context: Context): MediaStoreService {
+    fun create(context: Context, volumeProviderService: VolumeProviderService): MediaStoreService {
         val sdkInt: Int = Build.VERSION.SDK_INT
         val storageManager = context.getSystemService(StorageManager::class.java)
         val contentResolver = context.contentResolver
         val collectionUriResolver = MediaCollectionUriResolver.DEFAULT
         val volumePathResolver = VolumePathResolver(context, storageManager, sdkInt)
-        val fileLocationResolver = FileLocationResolver(storageManager, volumePathResolver)
+        val fileLocationResolver = FileLocationResolver(volumeProviderService)
         val mediaColumnsReaderFactory = MediaColumnsReaderFactory(sdkInt = sdkInt)
         return MediaStoreServiceImpl(
             contentResolver = contentResolver,

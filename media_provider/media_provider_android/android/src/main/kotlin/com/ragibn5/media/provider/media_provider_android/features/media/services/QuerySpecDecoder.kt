@@ -8,7 +8,6 @@ import kotlinx.serialization.json.Json
 
 internal class QuerySpecDecoder(
     private val json: Json = Json { ignoreUnknownKeys = true },
-    private val errorCodes: MediaQueryExceptionCodes = MediaQueryExceptionCodes,
 ) {
     fun decode(encodedQuerySpec: String): Result<QuerySpec> = runCatching {
         val request = try {
@@ -32,5 +31,5 @@ internal class QuerySpecDecoder(
     }
 
     private fun invalidArgument(message: String, cause: Throwable? = null) =
-        MediaProviderException(errorCodes.INVALID_REQUEST, message, cause = cause)
+        MediaProviderException(MediaQueryExceptionCodes.INVALID_REQUEST, message, cause = cause)
 }

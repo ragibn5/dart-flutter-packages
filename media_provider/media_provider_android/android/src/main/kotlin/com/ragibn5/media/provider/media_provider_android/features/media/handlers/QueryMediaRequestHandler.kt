@@ -16,31 +16,20 @@ internal class QueryMediaRequestHandler(
     private val mediaStoreService: MediaStoreService,
     private val querySpecDecoder: QuerySpecDecoder = QuerySpecDecoder(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
-    private val errorCodes: MediaQueryExceptionCodes = MediaQueryExceptionCodes,
 ) : MethodCallRequestHandler {
     override val method = "queryMedia"
 
-    override suspend fun handle(call: MethodCall): Any {
+    override suspend fun handle(call: MethodCall): String = withContext(dispatcher) {
         val request = parseRequest(call)
-        return withContext(dispatcher) {
-            // Encoding a large library is CPU-bound.
-            // So the whole reply is built off the main thread.
-            // Querying from Default also avoids a hop back to main in between.
-            Json.encodeToString(mediaStoreService.queryMedia(request))
-        }
+        return@withContext Json.encodeToString(mediaStoreService.queryMedia(request))
     }
 
     private fun parseRequest(call: MethodCall): QuerySpec {
-        val argument = call.argument<String>(QUERY_ARGUMENT)
+        val argument = call.arguments<String>()
             ?: throw MediaProviderException(
-                code = errorCodes.INVALID_REQUEST,
-                message = "You must provide a valid JSON representation of $QuerySpec via the '$QUERY_ARGUMENT' argument"
+                code = MediaQueryExceptionCodes.INVALID_REQUEST,
+                message = "You must pass a valid JSON representation of $QuerySpec"
             )
-        return querySpecDecoder.decode(argument)
-            .getOrThrow()
-    }
-
-    private companion object {
-        private const val QUERY_ARGUMENT = "query"
+        return querySpecDecoder.decode(argument).getOrThrow()
     }
 }

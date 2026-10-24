@@ -11,17 +11,17 @@ sealed class MediaReadException implements Exception {
   String toString() => '$_typeName: ${message ?? 'no message'}';
 
   String get _typeName => switch (this) {
-    SessionClosedException() => '$SessionClosedException',
+    SessionNotFoundException() => '$SessionNotFoundException',
     ReadException() => '$ReadException',
   };
 }
 
-/// The session is closed, or the platform no longer knows it.
-final class SessionClosedException extends MediaReadException {
+/// The session was not found, or is closed.
+final class SessionNotFoundException extends MediaReadException {
   /// The id of the closed session.
   final String sessionId;
 
-  const SessionClosedException(super.message, {required this.sessionId});
+  const SessionNotFoundException(super.message, {required this.sessionId});
 }
 
 /// An I/O error while reading the item.
@@ -43,7 +43,7 @@ class MediaReadExceptionMapper {
     };
 
     return switch (e.code) {
-      _sessionNotFoundCode => SessionClosedException(
+      _sessionNotFoundCode => SessionNotFoundException(
         e.message,
         sessionId: details['sessionId'] as String? ?? '',
       ),

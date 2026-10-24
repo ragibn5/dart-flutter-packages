@@ -12,7 +12,6 @@ import kotlinx.serialization.json.Json
 internal class OpenMediaReadRequestHandler(
     private val mediaStoreService: MediaStoreService,
     private val openMediaReadSessionRequestDecoder: OpenMediaReadSessionRequestDecoder = OpenMediaReadSessionRequestDecoder(),
-    private val exceptionCodes: OpenMediaReadExceptionCodes = OpenMediaReadExceptionCodes,
 ) : MethodCallRequestHandler {
     override val method = "openMediaReadSession"
 
@@ -22,16 +21,11 @@ internal class OpenMediaReadRequestHandler(
     }
 
     private fun parseRequest(call: MethodCall): OpenMediaReadRequest {
-        val argument = call.argument<String>(REQUEST_ARGUMENT)
+        val argument = call.arguments<String>()
             ?: throw MediaProviderException(
-                code = exceptionCodes.INVALID_REQUEST,
-                message = "You must provide a valid JSON representation of $OpenMediaReadRequest via the '$REQUEST_ARGUMENT' argument"
+                code = OpenMediaReadExceptionCodes.INVALID_REQUEST,
+                message = "You must provide a valid JSON representation of $OpenMediaReadRequest"
             )
-        return openMediaReadSessionRequestDecoder.decode(argument)
-            .getOrThrow()
-    }
-
-    private companion object {
-        private const val REQUEST_ARGUMENT = "request"
+        return openMediaReadSessionRequestDecoder.decode(argument).getOrThrow()
     }
 }

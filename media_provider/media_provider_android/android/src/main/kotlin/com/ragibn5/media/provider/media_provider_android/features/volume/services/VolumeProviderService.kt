@@ -20,8 +20,8 @@ internal class VolumeProviderServiceImpl(
     override fun getVolumes(): List<VolumeInfo> {
         return storageManager.storageVolumes.mapNotNull { volume ->
             val path = volumePathResolver.resolve(volume) ?: return@mapNotNull null
-            val stats = path.let { fileStatsResolver.resolve(path) }
-            VolumeInfo(
+            val stats = fileStatsResolver.resolve(path)
+            return@mapNotNull VolumeInfo(
                 state = VolumeState.from(volume.state),
                 availableSpaceInBytes = stats?.availableSpaceInBytes,
                 identity = VolumeIdentity(

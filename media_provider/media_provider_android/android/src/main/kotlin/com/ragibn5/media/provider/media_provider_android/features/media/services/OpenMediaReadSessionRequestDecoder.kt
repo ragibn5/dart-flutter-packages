@@ -8,7 +8,6 @@ import kotlinx.serialization.json.Json
 
 internal class OpenMediaReadSessionRequestDecoder(
     private val json: Json = Json { ignoreUnknownKeys = true },
-    private val exceptionCodes: OpenMediaReadExceptionCodes = OpenMediaReadExceptionCodes,
 ) {
     fun decode(encodedRequest: String): Result<OpenMediaReadRequest> = runCatching {
         val request = try {
@@ -34,5 +33,5 @@ internal class OpenMediaReadSessionRequestDecoder(
     }
 
     private fun invalidArgument(message: String, cause: Throwable? = null) =
-        MediaProviderException(exceptionCodes.INVALID_REQUEST, message, cause = cause)
+        MediaProviderException(OpenMediaReadExceptionCodes.INVALID_REQUEST, message, cause = cause)
 }

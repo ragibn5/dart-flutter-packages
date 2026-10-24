@@ -12,6 +12,7 @@ export 'src/io/media_read_session.dart';
 export 'src/models/media_item.dart';
 export 'src/models/media_read_request.dart';
 export 'src/models/media_type.dart';
+export 'src/models/open_media_read_request.dart';
 export 'src/models/query_spec.dart';
 export 'src/models/volume_identity.dart';
 export 'src/models/volume_info.dart';

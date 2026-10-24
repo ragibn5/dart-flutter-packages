@@ -51,6 +51,29 @@ abstract interface class MediaReadSession {
     int chunkSize = defaultChunkSize,
   });
 
+  /// Experimental: like [openRead], but reads the platform's open descriptor
+  /// directly with `dart:io`, through `/proc/self/fd/<n>`, instead of sending
+  /// each chunk over the channel.
+  ///
+  /// Throws [UnsupportedError] if the platform gave no descriptor path.
+  Stream<Uint8List> openReadDirect({
+    int start = 0,
+    int? end,
+    int chunkSize = defaultChunkSize,
+  });
+
+  /// Experimental: like [openRead], but reads the platform's open descriptor
+  /// with `pread` over FFI, without reopening the file or using the channel.
+  ///
+  /// Each read blocks the listening isolate while it runs.
+  ///
+  /// Throws [UnsupportedError] if the platform gave no descriptor number.
+  Stream<Uint8List> openReadFfi({
+    int start = 0,
+    int? end,
+    int chunkSize = defaultChunkSize,
+  });
+
   /// Closes the session and releases the descriptor.
   ///
   /// Waits for an in-flight read to finish first. Closing a closed session

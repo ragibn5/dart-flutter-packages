@@ -29,7 +29,7 @@ internal data class MediaItem(
     /**
      * The location of the data file or null if not applicable.
      *
-     * > Note: Not all media types is backup by a file. This field may be null in that case.
+     * > Note: May be null if the media item is not backed by a physical file.
      * */
     val fileLocation: FileLocation?,
 

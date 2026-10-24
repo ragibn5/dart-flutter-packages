@@ -1,0 +1,34 @@
+D/MPTiming(32767): [getVolumes] native received at 1792825660165ms
+D/MPTiming(32767): [getVolumes] native coroutine dispatch: 220us
+D/MPTiming(32767): [getVolumes] native storageManager.storageVolumes: 3283us
+D/MPTiming(32767): [getVolumes] native volume path: 124us total, 2 calls, 62us avg
+D/MPTiming(32767): [getVolumes] native StatFs: 1004us total, 2 calls, 502us avg
+D/MPTiming(32767): [getVolumes] native state: 647us total, 2 calls, 323us avg
+D/MPTiming(32767): [getVolumes] native type (reflective getId): 951us total, 2 calls, 475us avg
+D/MPTiming(32767): [getVolumes] native service total (main): 7008us
+D/MPTiming(32767): [getVolumes] native JSON encode 2 volumes: 4153us
+D/MPTiming(32767): [getVolumes] native handle: 11524us
+D/MPTiming(32767): [getVolumes] native result.success (encode + send): 178us
+D/MPTiming(32767): [getVolumes] native replied at 1792825660177ms
+I/flutter (32767): [MPTiming] [queryMedia] dart sent at 1792825660185ms
+D/MPTiming(32767): [queryMedia] native received at 1792825660193ms
+D/MPTiming(32767): [queryMedia] native coroutine dispatch: 178us
+D/MPTiming(32767): [queryMedia] native handle: 202735us
+D/MPTiming(32767): [queryMedia] native result.success (encode + send): 1917us
+D/MPTiming(32767): [queryMedia] native replied at 1792825660398ms
+I/flutter (32767): [MPTiming] [queryMedia] dart invokeMethod round trip: 220167us
+I/flutter (32767): [MPTiming] [queryMedia] dart reply received (481316 chars) at 1792825660406ms
+I/flutter (32767): [MPTiming] [queryMedia] dart jsonDecode (background isolate): 53605us
+I/flutter (32767): [MPTiming] [queryMedia] dart MediaItem.fromJson x634 (background isolate): 9380us
+I/flutter (32767): [MPTiming] [queryMedia] dart decode on background isolate (await): 117107us
+I/flutter (32767): [MPTiming] [queryMedia] dart sent at 1792825660533ms
+D/MPTiming(32767): [queryMedia] native received at 1792825660534ms
+D/MPTiming(32767): [queryMedia] native coroutine dispatch: 125us
+D/MPTiming(32767): [queryMedia] native handle: 14184us
+D/MPTiming(32767): [queryMedia] native result.success (encode + send): 177us
+D/MPTiming(32767): [queryMedia] native replied at 1792825660549ms
+I/flutter (32767): [MPTiming] [queryMedia] dart invokeMethod round trip: 15812us
+I/flutter (32767): [MPTiming] [queryMedia] dart reply received (2 chars) at 1792825660549ms
+I/flutter (32767): [MPTiming] [queryMedia] dart jsonDecode (background isolate): 84us
+I/flutter (32767): [MPTiming] [queryMedia] dart MediaItem.fromJson x0 (background isolate): 18us
+I/flutter (32767): [MPTiming] [queryMedia] dart decode on background isolate (await): 30906us
