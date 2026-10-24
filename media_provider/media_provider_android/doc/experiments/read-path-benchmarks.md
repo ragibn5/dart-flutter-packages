@@ -198,7 +198,10 @@ number back (249 in runs 1–4, 247 in run 5).
     (`flutter-worker-0` and `-1` both seen), so the session registry is now a
     `ConcurrentHashMap`.
 
-## Current setup
+## Setup during the experiments (superseded)
+
+Replaced by the implemented design below; kept as the record of what V1–V5,
+D1/D2 and F1 ran on.
 
 - One `ParcelFileDescriptor` per session, from `openFileDescriptor(uri, "r")`
   on the IO dispatcher; it backs the channel reads (V4/V5) and
@@ -216,7 +219,7 @@ Every log behind these numbers is in [`logs/`](logs/), one file per run, as
 captured (`adb logcat -s MPTiming flutter`, or the app's console). See
 [`logs/README.md`](logs/README.md) for which file is which.
 
-## Tooling
+## Tooling (during the experiments)
 
 - `utils/Timing.kt` and `lib/src/utils/timing.dart`: `timed`, `Laps`,
   `logMark` (wall-clock marks comparable across sides). Filter with
@@ -232,7 +235,9 @@ captured (`adb logcat -s MPTiming flutter`, or the app's console). See
   `direct` (`openReadDirect`) or `channel` (`openRead`). Its `=== Run … done`
   time covers the read and close phases, not the open phase.
 
-## Proposed design (discussed, not implemented)
+## Proposed design (discussed before implementation)
+
+Implemented, with the differences listed under *Implemented design*.
 
 - **FFI `pread` is the main read path**, chosen per item at session open:
 
@@ -262,13 +267,116 @@ captured (`adb logcat -s MPTiming flutter`, or the app's console). See
   process exits; while it lives it leaks a descriptor (limit: a few thousand
   per process).
 
+## Implemented design (2026-10-24)
+
+Commits `837438c7` (Dart), `f24f4000` (native), `fdc41be4` and `6ca1ce2f`.
+
+- **Public API:** `MediaReadSession` is single-use: `openRead({chunkSize})`
+  (default 512 KB) or `readAsBytes()`, then it closes itself; `close()` for a
+  session never read.
+- **Sources** (`lib/src/io/source/`), chosen by `DefaultMediaByteSourceFactory`:
+
+  | Order | Source | When | Read with |
+  |---|---|---|---|
+  | 1 | `FileByteSource` | `filePath` given and openable by `dart:io` | async `RandomAccessFile`; no platform call |
+  | 2 | `DescriptorByteSource` | platform reply `kind: descriptor` | FFI `pread64` (files, sections) or `read` (pipes) on a worker isolate per source |
+  | 3 | `ChannelByteSource` | platform reply `kind: channel` | `readFromSession` over the background-queue channel |
+
+- **Native open** (`MediaSourceOpener`): `openAssetFileDescriptor`, `Os.fstat`
+  for seekability and size, then `detachFd()`; no session is kept for a
+  descriptor. Only an item with no descriptor gets an in-order stream session.
+  The MediaStore query at open was removed.
+- **Differences from the proposal:** native memory from `malloc`, returned as
+  `asTypedList(finalizer: free)` (no copy), not the `@Native` binding; one
+  worker isolate per descriptor source; `readAll` goes through the same worker.
+
+## Device results with the implemented design (2026-10-24)
+
+Same device as above. Logs 19–26 in [`logs/`](logs/).
+
+### Both routes, 204,488-byte JPEG, debug build (log 19)
+
+Read and close only (the open is excluded). Session ids `local-1`…`-5` (path)
+and `local-6`…`-10` (descriptor); no stream fallback, no fdsan abort, copy's
+MD5 matches the original.
+
+| Run | Path (`FileByteSource`) | URI only (`DescriptorByteSource`) |
+|---|---|---|
+| 1 (cold) | 31 ms | 25 ms |
+| 2–5 | 4, 4, 3, 3 ms | 7, 4, 4, 5 ms |
+
+### Both routes, 392,674,791-byte video, profile build, 512 KB (log 20)
+
+| | Path: open | Path: read | URI: open | URI: read |
+|---|---|---|---|---|
+| Runs 2–5 average | 22.6 ms | 606 ms (~620 MB/s) | 22.8 ms | 586 ms (~640 MB/s) |
+
+Run 1 of each also wrote a copy (899 / 774 ms). Both copies' MD5 matches the
+original. Opening costs the same either way, so it's the storage stack, not
+`dart:io` or the platform call.
+
+### Read methods in isolation, profile build (logs 21–22)
+
+Whole file read inside one isolate; each chunk copied into a new `Uint8List`
+and dropped; nothing delivered elsewhere. Video, average of 3 (log 22):
+
+| Method | 512 KB | 64 KB |
+|---|---|---|
+| async `dart:io` (`read`) | 637 ms | 1,662 ms |
+| sync `dart:io` (`readSync`) on a worker | 208 ms | 199 ms |
+| sync FFI `pread64` on a worker | 693 ms | 163 ms |
+| sync FFI `pread64` on the caller | 670 ms | 161 ms |
+
+- Async `dart:io` is limited by its per-call IO-thread round trip.
+- FFI copies twice (kernel → native buffer → Dart list); at 64 KB that stays in
+  cache, at 512 KB it doesn't (likely; not measured directly). `fromList` vs
+  `setRange` made no difference (logs 21 vs 22).
+- Photo (200 KB): every read is 0.1–2 ms; opening and closing cost 6–15 ms
+  whatever the method.
+
+### Sources delivering every chunk to the caller, video, profile build (log 24)
+
+| Source | 512 KB (per chunk) | 64 KB (per chunk) |
+|---|---|---|
+| plugin `FileByteSource` | 471–597 ms (630–800 µs) | 1,569–1,675 ms (262–280 µs) |
+| `readSync` worker, chunks sent back | 587–690 ms (783–921 µs) | 1,650–1,768 ms (275–295 µs) |
+| plugin `DescriptorByteSource` | 494–549 ms (660–733 µs) | 1,606 / 2,424 ms (268 / 405 µs) |
+
+Once each chunk crosses to the caller, all three converge: the hand-off
+(about 240 µs per chunk at 64 KB, against about 30 µs to read it) decides the
+speed, not the read method. Log 23 is the same run with the device idle and
+is invalid (every source ~3× slower).
+
+### Chunk sizes, video, profile build, interleaved order (log 26)
+
+| Chunk | `FileByteSource` | `DescriptorByteSource` |
+|---|---|---|
+| 512 KB | 569 ms | 528 ms |
+| 1 MB | 577 ms | 480 ms |
+| 2 MB | 740 ms | 855 ms |
+| 4 MB | 448 ms | 619 ms |
+
+No steady gain above 512 KB: the best cells are within run-to-run spread, and
+2 MB is consistently worst for both. Above 512 KB the per-chunk cost grows with
+the chunk's size, so the bytes themselves (likely fresh memory per chunk), not
+the number of hand-offs, dominate. **Default kept at 512 KB.** Log 25 is the
+same run with the device hot (CPU ~61 °C) and is invalid.
+
+### Benchmarking notes
+
+- Use a profile build; debug skews Dart-side timings.
+- Keep the screen on and the app in front (an idle device throttled every
+  source ~3×), and let the device cool between long runs; check that a known
+  baseline (512 KB ≈ 0.5 s for this video) reproduces before trusting a run.
+- Interleave the variants per round so drift affects them all alike.
+
 ## Next
 
-- Run F1's reads on a background isolate, so large reads don't block the UI
-  isolate.
-- Reuse what `queryMedia` returned instead of querying `MediaStore` again when
-  opening a session (~7–21 ms).
-- Time all three phases in one number per run, for both paths.
-- Measure a large video (50–100 MB) with both paths.
-- Fallback for sources that can't be reopened: a named pipe (`Os.mkfifo`)
-  written by Kotlin, read by Dart.
+- Done: FFI reads on a background isolate; MediaStore query removed from the
+  open; open and read timed separately; large video measured on both routes.
+- Share one worker isolate across descriptor sources, if many small items
+  (e.g. thumbnails by URI) show the per-source worker start (~1–2 ms) matters.
+- Reusable chunk buffers, to approach the raw read speed (~1.8–2.3 GB/s); needs
+  an API where the caller hands chunks back.
+- Small-read patterns (4–64 KB, e.g. header parsing) favour FFI or sync reads;
+  revisit if such a read API is added.

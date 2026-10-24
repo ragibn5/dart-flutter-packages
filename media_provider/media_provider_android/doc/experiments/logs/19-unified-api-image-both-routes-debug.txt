@@ -1,0 +1,29 @@
+# Unified read API on device, 204,488-byte JPEG, debug build, 2026-10-24.
+# Path hint = FileByteSource (dart:io by path); uri only = platform open +
+# detachFd + DescriptorByteSource (FFI pread64 on its worker isolate).
+# The stopwatch starts after openReadSession, so open time is excluded.
+# Reconstructed: these lines were relayed verbatim by the log monitor; the
+# run's log file was overwritten by a later run.
+I/flutter ( 3586): === Run 1/5 (path hint) - session local-1: 204488
+I/flutter ( 3586): === Run 1/5 (path hint) done: 204488 bytes in 31ms
+I/flutter ( 3586): === Run 2/5 (path hint) - session local-2: 204488
+I/flutter ( 3586): === Run 2/5 (path hint) done: 204488 bytes in 4ms
+I/flutter ( 3586): === Run 3/5 (path hint) - session local-3: 204488
+I/flutter ( 3586): === Run 3/5 (path hint) done: 204488 bytes in 4ms
+I/flutter ( 3586): === Run 4/5 (path hint) - session local-4: 204488
+I/flutter ( 3586): === Run 4/5 (path hint) done: 204488 bytes in 3ms
+I/flutter ( 3586): === Run 5/5 (path hint) - session local-5: 204488
+I/flutter ( 3586): === Run 5/5 (path hint) done: 204488 bytes in 3ms
+I/flutter ( 3586): === Run 1/5 (uri only) - session local-6: 204488
+I/flutter ( 3586): === Run 1/5 (uri only) done: 204488 bytes in 25ms
+I/flutter ( 3586): === Run 2/5 (uri only) - session local-7: 204488
+I/flutter ( 3586): === Run 2/5 (uri only) done: 204488 bytes in 7ms
+I/flutter ( 3586): === Run 3/5 (uri only) - session local-8: 204488
+I/flutter ( 3586): === Run 3/5 (uri only) done: 204488 bytes in 4ms
+I/flutter ( 3586): === Run 4/5 (uri only) - session local-9: 204488
+I/flutter ( 3586): === Run 4/5 (uri only) done: 204488 bytes in 4ms
+I/flutter ( 3586): === Run 5/5 (uri only) - session local-10: 204488
+I/flutter ( 3586): === Run 5/5 (uri only) done: 204488 bytes in 5ms
+# Integrity: the uri-only run 1 copy (channelled_img.jpeg) and the original
+# (IMG-20241230-WA0014.jpg) both have MD5 89c496ad990e84cbd7ea520f0d127d85.
+# logcat: no fdsan, FATAL or SIGABRT lines.

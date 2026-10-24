@@ -1,6 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.services
 
-import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaReadSession
+import com.ragibn5.media.provider.media_provider_android.features.media.io.session.MediaReadSession
 import java.util.concurrent.ConcurrentHashMap
 
 internal class MediaReadSessionRegistry {

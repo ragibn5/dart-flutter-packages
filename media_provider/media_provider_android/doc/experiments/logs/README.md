@@ -23,5 +23,22 @@ as captured. All read the same 204,488-byte JPEG, debug build, same device.
 Files 04 and 05 were exported from logcat; the rest were pasted into the
 working session and saved verbatim.
 
+## Implemented design (2026-10-24)
+
+Logs 19–26 measure the unified read API (`MediaReadSession` over byte
+sources) with the intellisync harness. Builds and items differ per file; each
+file's first line says which. Only `I/flutter` lines are kept.
+
+| File | Build | Item | What it shows |
+|---|---|---|---|
+| `19-unified-api-image-both-routes-debug.txt` | debug | 200 KB JPEG | Path vs descriptor route, 5 runs each; reconstructed from the log monitor |
+| `20-unified-api-video-both-routes-profile.txt` | profile | 375 MB video | Same at 512 KB, open timed; reconstructed from the log monitor |
+| `21-read-methods-isolated-fromlist-copy.txt` | profile | photo, video | async/sync `dart:io`, FFI on worker/caller, no delivery; FFI copy via `fromList` |
+| `22-read-methods-isolated-setrange-copy.txt` | profile | photo, video | Same with the FFI copy via `setRange` |
+| `23-delivered-sources-idle-invalid.txt` | profile | video | **Invalid** (device idle): sources delivering every chunk |
+| `24-delivered-sources-awake.txt` | profile | video | Sources delivering every chunk, screen kept awake |
+| `25-chunk-sizes-hot-invalid.txt` | profile | video | **Invalid** (device hot): 512 KB–4 MB, sequential order |
+| `26-chunk-sizes-interleaved.txt` | profile | video | 512 KB–4 MB, interleaved order |
+
 V1–V3 (~600, ~581, ~579 ms at 8 KB) have no log: their times were recorded as
 comments on the methods in `MediaStoreService.kt`.

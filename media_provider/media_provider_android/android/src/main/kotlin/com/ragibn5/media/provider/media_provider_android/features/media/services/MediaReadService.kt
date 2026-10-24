@@ -4,7 +4,7 @@ import android.util.Log
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaReadExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaReadRequest
-import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaReadSession
+import com.ragibn5.media.provider.media_provider_android.features.media.io.session.StreamMediaReadSession
 import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaReadReply
 import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaReadRequest
 import kotlinx.coroutines.CoroutineDispatcher
@@ -70,12 +70,12 @@ internal class MediaReadServiceImpl(
             )
 
             is OpenedMediaSource.Stream -> {
-                val session = MediaReadSession(UUID.randomUUID().toString(), source.stream)
+                val session = StreamMediaReadSession(UUID.randomUUID().toString(), source.stream)
                 sessionRegistry.addSession(session)
                 OpenMediaReadReply.Channel(
                     sessionId = session.sessionId,
-                    sizeInBytes = null,
-                    isSeekable = false,
+                    sizeInBytes = session.sizeInBytes,
+                    isSeekable = session.isSeekable,
                 )
             }
         }

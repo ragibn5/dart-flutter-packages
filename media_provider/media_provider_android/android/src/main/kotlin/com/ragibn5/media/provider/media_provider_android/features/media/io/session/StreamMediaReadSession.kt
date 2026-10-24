@@ -1,39 +1,29 @@
-package com.ragibn5.media.provider.media_provider_android.features.media.models
+package com.ragibn5.media.provider.media_provider_android.features.media.io.session
 
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaReadExceptionCodes
-import java.io.Closeable
-import java.io.IOException
 import java.io.InputStream
 
 /**
- * A read session for an item that can only be read as a stream, in order.
+ * A [MediaReadSession] for an item that can only be read as a stream, in order.
  *
  * Note: Used only when the item can't be opened as a descriptor, which the
  * Dart side reads by itself.
  */
-internal class MediaReadSession(
-    /** The id of the session. */
-    val sessionId: String,
+internal class StreamMediaReadSession(
+    override val sessionId: String,
     /** The item's stream; closed with the session. */
     private val stream: InputStream,
-) : Closeable {
+) : MediaReadSession {
     /** The number of bytes read so far. */
     private var position = 0L
 
-    /**
-     * Reads up to [length] bytes, continuing where the previous read ended.
-     *
-     * @param start the offset to read from; must be where the previous read
-     * ended.
-     * @param length the maximum number of bytes to read.
-     * @return the bytes read; fewer than [length] only at the end of the item.
-     * @throws MediaProviderException with [MediaReadExceptionCodes.INVALID_REQUEST]
-     * if [start] isn't where the previous read ended.
-     * @throws IOException if the stream fails.
-     */
+    override val sizeInBytes: Long? = null
+
+    override val isSeekable: Boolean = false
+
     @Synchronized
-    fun read(start: Long, length: Long): ByteArray {
+    override fun read(start: Long, length: Long): ByteArray {
         if (start != position) {
             throw MediaProviderException(
                 MediaReadExceptionCodes.INVALID_REQUEST,
