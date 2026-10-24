@@ -39,6 +39,7 @@ file's first line says which. Only `I/flutter` lines are kept.
 | `24-delivered-sources-awake.txt` | profile | video | Sources delivering every chunk, screen kept awake |
 | `25-chunk-sizes-hot-invalid.txt` | profile | video | **Invalid** (device hot): 512 KB–4 MB, sequential order |
 | `26-chunk-sizes-interleaved.txt` | profile | video | 512 KB–4 MB, interleaved order |
+| `27-thumbnails-open-thumbnail-read-session.txt` | profile | photo, video | Thumbnails at 256×256: only thumbnail bytes read (41 KB for the 375 MB video) |
 
 V1–V3 (~600, ~581, ~579 ms at 8 KB) have no log: their times were recorded as
 comments on the methods in `MediaStoreService.kt`.

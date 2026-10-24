@@ -7,6 +7,7 @@ import com.ragibn5.media.provider.media_provider_android.features.media.models.M
 import com.ragibn5.media.provider.media_provider_android.features.media.io.session.StreamMediaReadSession
 import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaReadReply
 import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaReadRequest
+import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenThumbnailReadRequest
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,6 +25,17 @@ internal interface MediaReadService {
      * @throws MediaProviderException with an open error code.
      */
     suspend fun openRead(request: OpenMediaReadRequest): OpenMediaReadReply
+
+    /**
+     * Opens the thumbnail of the item [request] points to for reading.
+     *
+     * @return a [OpenMediaReadReply.Descriptor] for the thumbnail, which is
+     * handed over and not kept here.
+     * @throws MediaProviderException with an open error code.
+     *
+     * Note: Only the thumbnail's bytes are opened, never the original item's.
+     */
+    suspend fun openThumbnail(request: OpenThumbnailReadRequest): OpenMediaReadReply
 
     /**
      * Reads from the session [MediaReadRequest.sessionId], on the calling
@@ -62,12 +74,7 @@ internal class MediaReadServiceImpl(
         }
 
         return when (source) {
-            is OpenedMediaSource.Descriptor -> OpenMediaReadReply.Descriptor(
-                fd = source.fd,
-                offset = source.offset,
-                sizeInBytes = source.sizeInBytes,
-                isSeekable = source.isSeekable,
-            )
+            is OpenedMediaSource.Descriptor -> source.toReply()
 
             is OpenedMediaSource.Stream -> {
                 val session = StreamMediaReadSession(UUID.randomUUID().toString(), source.stream)
@@ -79,6 +86,14 @@ internal class MediaReadServiceImpl(
                 )
             }
         }
+    }
+
+    override suspend fun openThumbnail(request: OpenThumbnailReadRequest): OpenMediaReadReply {
+        // Opening blocks, so keep it off the main thread.
+        val source = withContext(dispatcher) {
+            mediaSourceOpener.openThumbnail(request).getOrThrow()
+        }
+        return source.toReply()
     }
 
     override fun readFromSession(request: MediaReadRequest): ByteArray {
@@ -114,6 +129,18 @@ internal class MediaReadServiceImpl(
                 .onFailure { Log.w(TAG, "Failed to close the session stream", it) }
         }
     }
+
+    /**
+     * Describes this detached descriptor as an `openMediaReadSession` reply.
+     *
+     * @return the reply that hands the descriptor over to the Dart side.
+     */
+    private fun OpenedMediaSource.Descriptor.toReply() = OpenMediaReadReply.Descriptor(
+        fd = fd,
+        offset = offset,
+        sizeInBytes = sizeInBytes,
+        isSeekable = isSeekable,
+    )
 
     companion object {
         const val TAG = "MediaReadServiceImpl"

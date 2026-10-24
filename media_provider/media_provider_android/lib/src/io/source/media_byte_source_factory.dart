@@ -10,6 +10,7 @@ import 'package:media_provider_android/src/io/source/file_byte_source.dart';
 import 'package:media_provider_android/src/io/source/media_byte_source.dart';
 import 'package:media_provider_android/src/models/open_media_read_reply.dart';
 import 'package:media_provider_android/src/models/open_media_read_request.dart';
+import 'package:media_provider_android/src/models/open_thumbnail_read_request.dart';
 import 'package:media_provider_android/src/utils/json_decoding.dart';
 import 'package:media_provider_android/src/utils/platform_exception_mapper.dart';
 
@@ -25,6 +26,20 @@ abstract interface class MediaByteSourceFactory {
   /// Throws:
   /// - [MediaReadOpenException] if the item can't be opened.
   Future<MediaByteSource> open(OpenMediaReadRequest request);
+
+  /// Opens a source for the thumbnail of the item [request] points to.
+  ///
+  /// Parameters:
+  /// - [request]: the item, and the size to request its thumbnail at.
+  ///
+  /// Returns: an open source; the caller must close it.
+  ///
+  /// Throws:
+  /// - [MediaReadOpenException] if the thumbnail can't be opened.
+  ///
+  /// Note:
+  /// Only the thumbnail's bytes are read, never the original item's.
+  Future<MediaByteSource> openThumbnail(OpenThumbnailReadRequest request);
 }
 
 /// The [MediaByteSourceFactory] that picks the fastest way to read an item.
@@ -76,13 +91,26 @@ final class DefaultMediaByteSourceFactory implements MediaByteSourceFactory {
       }
     }
 
-    return _openPlatformSource(request);
+    return _openPlatformSource(
+      'openMediaReadSession',
+      jsonEncode(request.toJson()),
+    );
   }
 
-  /// Opens the item through the platform.
+  @override
+  Future<MediaByteSource> openThumbnail(OpenThumbnailReadRequest request) {
+    // A thumbnail has no file of its own: only the platform can open it.
+    return _openPlatformSource(
+      'openThumbnailReadSession',
+      jsonEncode(request.toJson()),
+    );
+  }
+
+  /// Opens an item through the platform.
   ///
   /// Parameters:
-  /// - [request]: the item to open.
+  /// - [method]: the platform method that opens it.
+  /// - [arguments]: the encoded request.
   ///
   /// Returns: the source the platform's reply describes.
   ///
@@ -90,13 +118,11 @@ final class DefaultMediaByteSourceFactory implements MediaByteSourceFactory {
   /// - [MediaReadOpenException] if the platform can't open the item.
   /// - [FormatException] if the reply is malformed.
   Future<MediaByteSource> _openPlatformSource(
-    OpenMediaReadRequest request,
+    String method,
+    String arguments,
   ) async {
     final result = await guardPlatformCall(
-      () => _channel.invokeMethod<String>(
-        'openMediaReadSession',
-        jsonEncode(request.toJson()),
-      ),
+      () => _channel.invokeMethod<String>(method, arguments),
       _exceptionMapper.map,
     );
     final reply = decodeJsonObject(result!, OpenMediaReadReply.fromJson);

@@ -8,6 +8,7 @@ import 'package:media_provider_android/src/io/session/media_read_session.dart';
 import 'package:media_provider_android/src/io/source/media_byte_source_factory.dart';
 import 'package:media_provider_android/src/models/media_item.dart';
 import 'package:media_provider_android/src/models/open_media_read_request.dart';
+import 'package:media_provider_android/src/models/open_thumbnail_read_request.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 import 'package:media_provider_android/src/utils/json_decoding.dart';
@@ -62,6 +63,14 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
   @override
   Future<MediaReadSession> openReadSession(OpenMediaReadRequest request) async {
     final source = await _sourceFactory.open(request);
+    return MediaReadSession(source: source);
+  }
+
+  @override
+  Future<MediaReadSession> openThumbnailReadSession(
+    OpenThumbnailReadRequest request,
+  ) async {
+    final source = await _sourceFactory.openThumbnail(request);
     return MediaReadSession(source: source);
   }
 }

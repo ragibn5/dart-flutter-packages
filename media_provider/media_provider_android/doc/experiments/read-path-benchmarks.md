@@ -362,6 +362,22 @@ the chunk's size, so the bytes themselves (likely fresh memory per chunk), not
 the number of hand-offs, dominate. **Default kept at 512 KB.** Log 25 is the
 same run with the device hot (CPU ~61 °C) and is invalid.
 
+### Thumbnails, profile build (log 27)
+
+`openThumbnailReadSession` opens with `openTypedAssetFileDescriptor(uri,
+"image/*", EXTRA_SIZE)`, the mechanism `ContentResolver.loadThumbnail`
+documents, then the usual detached-descriptor route.
+
+| Item | Original | Thumbnail read | Dimensions | Open (warm) | Read |
+|---|---|---|---|---|---|
+| Photo | 204,488 bytes, 1600×1203 | 124,929 bytes | 800×602 | 7–9 ms (27 cold) | 1–3 ms |
+| Video | 392,674,791 bytes | 41,352 bytes | 304×540 | 11–14 ms | 2–3 ms |
+
+Only thumbnail bytes are read; the reported size matched the bytes read on
+every run. The requested 256×256 isn't honoured: `MediaStore` returns its
+cached thumbnail (the same images its `/thumbnail` URI serves), so decode at
+tile size in Dart (`cacheWidth`).
+
 ### Benchmarking notes
 
 - Use a profile build; debug skews Dart-side timings.

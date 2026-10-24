@@ -5,6 +5,7 @@ import 'package:media_provider_android/media_provider_android_platform_interface
 import 'package:media_provider_android/src/io/session/media_read_session.dart';
 import 'package:media_provider_android/src/models/media_item.dart';
 import 'package:media_provider_android/src/models/open_media_read_request.dart';
+import 'package:media_provider_android/src/models/open_thumbnail_read_request.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 
@@ -17,7 +18,9 @@ export 'src/io/session/media_read_session.dart';
 export 'src/models/media_item.dart';
 export 'src/models/media_type.dart';
 export 'src/models/open_media_read_request.dart';
+export 'src/models/open_thumbnail_read_request.dart';
 export 'src/models/query_spec.dart';
+export 'src/models/thumbnail_size.dart';
 export 'src/models/volume_identity.dart';
 export 'src/models/volume_info.dart';
 export 'src/models/volume_spec.dart';
@@ -44,5 +47,18 @@ class MediaProviderAndroid {
   /// See [MediaReadSession] for more info.
   Future<MediaReadSession> openReadSession(OpenMediaReadRequest request) {
     return MediaProviderAndroidPlatform.instance.openReadSession(request);
+  }
+
+  /// Opens a session for reading the thumbnail of the item [request] points
+  /// to.
+  ///
+  /// Only the thumbnail's bytes are read, never the original item's. See
+  /// [MediaReadSession] for more info.
+  Future<MediaReadSession> openThumbnailReadSession(
+    OpenThumbnailReadRequest request,
+  ) {
+    return MediaProviderAndroidPlatform.instance.openThumbnailReadSession(
+      request,
+    );
   }
 }

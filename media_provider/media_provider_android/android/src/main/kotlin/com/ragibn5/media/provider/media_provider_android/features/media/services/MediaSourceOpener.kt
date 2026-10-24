@@ -2,6 +2,8 @@ package com.ragibn5.media.provider.media_provider_android.features.media.service
 
 import android.content.ContentResolver
 import android.content.res.AssetFileDescriptor
+import android.graphics.Point
+import android.os.Bundle
 import android.system.ErrnoException
 import android.system.Os
 import android.system.OsConstants
@@ -10,6 +12,7 @@ import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProvide
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.OpenMediaReadExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaReadRequest
+import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenThumbnailReadRequest
 import java.io.FileNotFoundException
 import java.io.InputStream
 
@@ -58,28 +61,58 @@ internal class MediaSourceOpener(
      * provider isn't responding.
      */
     fun open(request: OpenMediaReadRequest): Result<OpenedMediaSource> = runCatching {
-        if (!isPermissionAvailable()) {
-            throw MediaProviderException(
-                OpenMediaReadExceptionCodes.PERMISSION_DENIED,
-                "The required permissions for reading the media item is not granted"
-            )
-        }
+        checkPermission()
 
         val uri = request.contentUri.toUri()
-        val descriptor = guardOpen(request) {
+        val descriptor = guardOpen(request.contentUri) {
             contentResolver.openAssetFileDescriptor(uri, "r")
         }
         if (descriptor != null) {
             return@runCatching buildDescriptorSource(descriptor)
         }
 
-        val stream = guardOpen(request) { contentResolver.openInputStream(uri) }
+        val stream = guardOpen(request.contentUri) { contentResolver.openInputStream(uri) }
             ?: throw MediaProviderException(
                 MediaProviderCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
                 "The media provider is not responding, we probably need a device restart"
             )
         return@runCatching OpenedMediaSource.Stream(stream)
     }
+
+    /**
+     * Opens the thumbnail of the item [request] points to, the way
+     * `ContentResolver.loadThumbnail` does, without decoding it.
+     *
+     * @param request the item and the size to request its thumbnail at.
+     * @return the thumbnail as a detached descriptor; the caller owns it.
+     * @throws MediaProviderException with an [OpenMediaReadExceptionCodes]
+     * code; [OpenMediaReadExceptionCodes.UNSUPPORTED_OPERATION] if the provider
+     * returns no thumbnail.
+     *
+     * Note: Only the thumbnail's bytes are opened, never the original item's.
+     */
+    fun openThumbnail(request: OpenThumbnailReadRequest): Result<OpenedMediaSource.Descriptor> =
+        runCatching {
+            checkPermission()
+
+            val options = Bundle().apply {
+                putParcelable(
+                    ContentResolver.EXTRA_SIZE,
+                    Point(request.size.width, request.size.height)
+                )
+            }
+            val descriptor = guardOpen(request.contentUri) {
+                contentResolver.openTypedAssetFileDescriptor(
+                    request.contentUri.toUri(),
+                    "image/*",
+                    options
+                )
+            } ?: throw MediaProviderException(
+                OpenMediaReadExceptionCodes.UNSUPPORTED_OPERATION,
+                "The media provider returned no thumbnail for the requested item"
+            )
+            return@runCatching buildDescriptorSource(descriptor)
+        }
 
     /**
      * Builds an [OpenedMediaSource.Descriptor] from [descriptor], detaching its
@@ -124,19 +157,19 @@ internal class MediaSourceOpener(
     /**
      * Runs [open], mapping its failures to [OpenMediaReadExceptionCodes].
      *
-     * @param request the item being opened, for the error details.
+     * @param contentUri the item being opened, for the error details.
      * @param open the call that opens the item.
      * @return what [open] returns.
      * @throws MediaProviderException if [open] fails.
      */
-    private fun <T> guardOpen(request: OpenMediaReadRequest, open: () -> T): T {
+    private fun <T> guardOpen(contentUri: String, open: () -> T): T {
         try {
             return open()
         } catch (e: FileNotFoundException) {
             throw MediaProviderException(
                 OpenMediaReadExceptionCodes.MEDIA_NOT_FOUND,
                 "The requested media item does not seem to exist",
-                details = mapOf("uri" to request.contentUri),
+                details = mapOf("uri" to contentUri),
                 cause = e
             )
         } catch (e: SecurityException) {
@@ -150,6 +183,21 @@ internal class MediaSourceOpener(
                 OpenMediaReadExceptionCodes.INVALID_REQUEST,
                 e.message ?: "The content uri is not a valid media item uri",
                 cause = e
+            )
+        }
+    }
+
+    /**
+     * Checks the app may read media.
+     *
+     * @throws MediaProviderException with
+     * [OpenMediaReadExceptionCodes.PERMISSION_DENIED] if it may not.
+     */
+    private fun checkPermission() {
+        if (!isPermissionAvailable()) {
+            throw MediaProviderException(
+                OpenMediaReadExceptionCodes.PERMISSION_DENIED,
+                "The required permissions for reading the media item is not granted"
             )
         }
     }
