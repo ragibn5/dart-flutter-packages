@@ -5,7 +5,7 @@ import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProvide
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaReadExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaReadRequest
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadRequestDecoder
-import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadService
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
@@ -16,14 +16,14 @@ import io.flutter.plugin.common.MethodChannel
  * reply is sent right there, with no coroutine dispatch and no thread hops.
  */
 internal class BackgroundReadCallHandler(
-    private val mediaStoreService: MediaStoreService,
+    private val mediaReadService: MediaReadService,
     private val mediaReadRequestDecoder: MediaReadRequestDecoder = MediaReadRequestDecoder(),
 ) : MethodChannel.MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         if (call.method != METHOD) return result.notImplemented()
 
         val reply = try {
-            mediaStoreService.readFromSession(parseRequest(call))
+            mediaReadService.readFromSession(parseRequest(call))
         } catch (e: MediaProviderException) {
             return result.error(e.code, e.message, e.details)
         } catch (e: Exception) {

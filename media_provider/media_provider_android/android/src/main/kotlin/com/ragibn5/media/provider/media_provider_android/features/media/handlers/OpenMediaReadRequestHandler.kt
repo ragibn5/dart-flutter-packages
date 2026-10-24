@@ -5,13 +5,13 @@ import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProvide
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.OpenMediaReadExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaReadReply
 import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaReadRequest
-import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadService
 import com.ragibn5.media.provider.media_provider_android.features.media.services.OpenMediaReadSessionRequestDecoder
 import io.flutter.plugin.common.MethodCall
 import kotlinx.serialization.json.Json
 
 internal class OpenMediaReadRequestHandler(
-    private val mediaStoreService: MediaStoreService,
+    private val mediaReadService: MediaReadService,
     private val openMediaReadSessionRequestDecoder: OpenMediaReadSessionRequestDecoder = OpenMediaReadSessionRequestDecoder(),
 ) : MethodCallRequestHandler {
     override val method = "openMediaReadSession"
@@ -19,7 +19,7 @@ internal class OpenMediaReadRequestHandler(
     override suspend fun handle(call: MethodCall): Any {
         val request = parseRequest(call)
         // Encoded as the sealed type, so the reply carries its `kind`.
-        return Json.encodeToString<OpenMediaReadReply>(mediaStoreService.openRead(request))
+        return Json.encodeToString<OpenMediaReadReply>(mediaReadService.openRead(request))
     }
 
     private fun parseRequest(call: MethodCall): OpenMediaReadRequest {

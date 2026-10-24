@@ -2,12 +2,14 @@ package com.ragibn5.media.provider.media_provider_android
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaStoreServiceFactory
+import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaQueryServiceFactory
+import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaReadServiceFactory
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.BackgroundReadCallHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.CloseReadSessionRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.OpenMediaReadRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.QueryMediaRequestHandler
-import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaStoreService
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaQueryService
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadService
 import com.ragibn5.media.provider.media_provider_android.features.volume.di.VolumeProviderServiceFactory
 import com.ragibn5.media.provider.media_provider_android.features.volume.handlers.GetVolumesHandler
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumeProviderService
@@ -20,7 +22,8 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
     private lateinit var mainChannel: MethodChannel
     private lateinit var readChannel: MethodChannel
     private lateinit var requestDispatcher: MethodCallDispatcher
-    private lateinit var mediaStoreService: MediaStoreService
+    private lateinit var mediaQueryService: MediaQueryService
+    private lateinit var mediaReadService: MediaReadService
     private lateinit var volumeProviderService: VolumeProviderService
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -33,22 +36,24 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
     }
 
     /**
-     * Serves [mediaStoreService] over [binaryMessenger].
+     * Serves [mediaQueryService], [mediaReadService] and [volumeProviderService]
+     * over [binaryMessenger].
      *
      * Separate from [onAttachedToEngine] so the wiring can be exercised without
-     * a device: building the real service reads `MediaStore`, which only exists
-     * on Android.
+     * a device: building the real services reads `MediaStore`, which only
+     * exists on Android.
      */
     @VisibleForTesting
     internal fun attach(appContext: Context, binaryMessenger: BinaryMessenger) {
         // One instance, so getVolumes and the media feature see the same volumes.
         volumeProviderService = VolumeProviderServiceFactory.create(appContext)
-        mediaStoreService = MediaStoreServiceFactory.create(appContext, volumeProviderService)
+        mediaQueryService = MediaQueryServiceFactory.create(appContext, volumeProviderService)
+        mediaReadService = MediaReadServiceFactory.create(appContext)
         requestDispatcher = MethodCallDispatcher(
             listOf(
-                QueryMediaRequestHandler(mediaStoreService),
-                OpenMediaReadRequestHandler(mediaStoreService),
-                CloseReadSessionRequestHandler(mediaStoreService),
+                QueryMediaRequestHandler(mediaQueryService),
+                OpenMediaReadRequestHandler(mediaReadService),
+                CloseReadSessionRequestHandler(mediaReadService),
                 GetVolumesHandler(volumeProviderService),
             ),
         )
@@ -59,14 +64,15 @@ public class MediaProviderAndroidPlugin : FlutterPlugin {
             READ_CHANNEL_NAME,
             StandardMethodCodec.INSTANCE,
             binaryMessenger.makeBackgroundTaskQueue(),
-        ).apply { setMethodCallHandler(BackgroundReadCallHandler(mediaStoreService)) }
+        ).apply { setMethodCallHandler(BackgroundReadCallHandler(mediaReadService)) }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         mainChannel.setMethodCallHandler(null)
         readChannel.setMethodCallHandler(null)
         requestDispatcher.dispose()
-        mediaStoreService.closeAllReadSessions()
+
+        mediaReadService.closeAllReadSessions()
     }
 
     private companion object {
