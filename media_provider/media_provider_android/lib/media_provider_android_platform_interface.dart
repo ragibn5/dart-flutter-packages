@@ -56,4 +56,11 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
       'openThumbnailReadSession() has not been implemented.',
     );
   }
+
+  /// Shows the system share sheet for the items [request] points to.
+  ///
+  /// See [ShareMediaRequest] for more info.
+  Future<void> shareMedia(ShareMediaRequest request) {
+    throw UnimplementedError('shareMedia() has not been implemented.');
+  }
 }

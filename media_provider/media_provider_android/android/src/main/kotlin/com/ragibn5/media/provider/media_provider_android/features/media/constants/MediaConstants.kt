@@ -16,3 +16,9 @@ internal object MediaReadExceptionCodes {
     const val SESSION_NOT_FOUND = "session_not_found"
     const val READ_ERROR = "read_error"
 }
+
+internal object MediaActionExceptionCodes {
+    const val INVALID_REQUEST = "invalid_request"
+    const val PERMISSION_DENIED = "permission_denied"
+    const val NO_ACTIVITY = "no_activity"
+}
