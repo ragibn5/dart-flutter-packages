@@ -81,13 +81,15 @@ final class DefaultMediaByteSourceFactory implements MediaByteSourceFactory {
         // Not readable by path: falls back to the platform.
 
         // Log reason.
-        debugPrintStack(
-          label:
-              'Exception while opening ${e.path} - falling back to platform.'
-              '\nMessage: ${e.message}'
-              '\nOsError: ${e.osError}',
-          stackTrace: st,
-        );
+        if (kDebugMode) {
+          debugPrintStack(
+            label:
+                'Exception while opening ${e.path} - falling back to platform.'
+                '\nMessage: ${e.message}'
+                '\nOsError: ${e.osError}',
+            stackTrace: st,
+          );
+        }
       }
     }
 
