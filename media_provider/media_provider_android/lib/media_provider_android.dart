@@ -6,6 +6,7 @@ import 'package:media_provider_android/src/exceptions/media_action_exception.dar
 import 'package:media_provider_android/src/io/session/media_read_session.dart';
 import 'package:media_provider_android/src/models/media_item.dart';
 import 'package:media_provider_android/src/models/open_media_read_request.dart';
+import 'package:media_provider_android/src/models/open_media_with_request.dart';
 import 'package:media_provider_android/src/models/open_thumbnail_read_request.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/share_media_request.dart';
@@ -22,6 +23,7 @@ export 'src/io/session/media_read_session.dart';
 export 'src/models/media_item.dart';
 export 'src/models/media_type.dart';
 export 'src/models/open_media_read_request.dart';
+export 'src/models/open_media_with_request.dart';
 export 'src/models/open_thumbnail_read_request.dart';
 export 'src/models/query_spec.dart';
 export 'src/models/share_media_request.dart';
@@ -73,5 +75,13 @@ class MediaProviderAndroid {
   /// [ShareMediaRequest] for more info.
   Future<void> shareMedia(ShareMediaRequest request) {
     return MediaProviderAndroidPlatform.instance.shareMedia(request);
+  }
+
+  /// Shows the apps that can open the item [request] points to.
+  ///
+  /// Throws: a [MediaActionException] if the chooser can't be shown. See
+  /// [OpenMediaWithRequest] for more info.
+  Future<void> openMediaWith(OpenMediaWithRequest request) {
+    return MediaProviderAndroidPlatform.instance.openMediaWith(request);
   }
 }

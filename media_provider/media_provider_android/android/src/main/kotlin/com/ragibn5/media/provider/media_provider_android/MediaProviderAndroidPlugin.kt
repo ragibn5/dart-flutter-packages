@@ -9,6 +9,7 @@ import com.ragibn5.media.provider.media_provider_android.features.media.di.Media
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.BackgroundReadCallHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.CloseReadSessionRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.OpenMediaReadRequestHandler
+import com.ragibn5.media.provider.media_provider_android.features.media.handlers.OpenMediaWithRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.OpenThumbnailReadRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.QueryMediaRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.ShareMediaRequestHandler
@@ -69,6 +70,7 @@ public class MediaProviderAndroidPlugin : FlutterPlugin, ActivityAware {
                 OpenThumbnailReadRequestHandler(mediaReadService),
                 CloseReadSessionRequestHandler(mediaReadService),
                 ShareMediaRequestHandler(mediaActionService),
+                OpenMediaWithRequestHandler(mediaActionService),
                 GetVolumesHandler(volumeProviderService),
             ),
         )

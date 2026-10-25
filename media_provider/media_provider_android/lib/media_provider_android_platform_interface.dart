@@ -63,4 +63,11 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
   Future<void> shareMedia(ShareMediaRequest request) {
     throw UnimplementedError('shareMedia() has not been implemented.');
   }
+
+  /// Shows the apps that can open the item [request] points to.
+  ///
+  /// See [OpenMediaWithRequest] for more info.
+  Future<void> openMediaWith(OpenMediaWithRequest request) {
+    throw UnimplementedError('openMediaWith() has not been implemented.');
+  }
 }

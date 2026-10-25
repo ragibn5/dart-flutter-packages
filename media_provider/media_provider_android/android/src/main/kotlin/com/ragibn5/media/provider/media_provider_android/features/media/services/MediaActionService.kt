@@ -8,6 +8,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaActionExceptionCodes
+import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaWithRequest
 import com.ragibn5.media.provider.media_provider_android.features.media.models.ShareMediaRequest
 
 /**
@@ -21,6 +22,14 @@ internal interface MediaActionService {
      * @throws MediaProviderException with a [MediaActionExceptionCodes] code.
      */
     fun share(request: ShareMediaRequest)
+
+    /**
+     * Shows the apps that can open the item [request] points to.
+     *
+     * @param request the item to open, and the chooser's title.
+     * @throws MediaProviderException with a [MediaActionExceptionCodes] code.
+     */
+    fun openWith(request: OpenMediaWithRequest)
 }
 
 internal class MediaActionServiceImpl(
@@ -40,6 +49,14 @@ internal class MediaActionServiceImpl(
         // readable by the app it's shared with.
         intent.clipData = buildClipData(uris)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startChooser(intent, request.chooserTitle)
+    }
+
+    override fun openWith(request: OpenMediaWithRequest) {
+        val uri = request.contentUri.toUri()
+        val intent = Intent(Intent.ACTION_VIEW)
+            .setDataAndType(uri, resolveMimeType(uri) ?: ANY_MIME_TYPE)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         startChooser(intent, request.chooserTitle)
     }
 
