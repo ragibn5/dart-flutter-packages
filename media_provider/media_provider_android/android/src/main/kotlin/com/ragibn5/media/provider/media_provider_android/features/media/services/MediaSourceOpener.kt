@@ -86,8 +86,9 @@ internal class MediaSourceOpener(
      * @param request the item and the size to request its thumbnail at.
      * @return the thumbnail as a detached descriptor; the caller owns it.
      * @throws MediaProviderException with an [OpenMediaReadExceptionCodes]
-     * code; [OpenMediaReadExceptionCodes.UNSUPPORTED_OPERATION] if the provider
-     * returns no thumbnail.
+     * code; [OpenMediaReadExceptionCodes.MEDIA_NOT_FOUND] if the item has no
+     * thumbnail, or [MediaProviderCommonExceptionCodes.ERROR_CODE_UNEXPECTED]
+     * if the provider isn't responding.
      *
      * Note: Only the thumbnail's bytes are opened, never the original item's.
      */
@@ -108,8 +109,8 @@ internal class MediaSourceOpener(
                     options
                 )
             } ?: throw MediaProviderException(
-                OpenMediaReadExceptionCodes.UNSUPPORTED_OPERATION,
-                "The media provider returned no thumbnail for the requested item"
+                MediaProviderCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
+                "The media provider is not responding, we probably need a device restart"
             )
             return@runCatching buildDescriptorSource(descriptor)
         }

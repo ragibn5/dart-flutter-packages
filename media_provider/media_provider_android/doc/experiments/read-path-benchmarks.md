@@ -378,6 +378,15 @@ every run. The requested 256×256 isn't honoured: `MediaStore` returns its
 cached thumbnail (the same images its `/thumbnail` URI serves), so decode at
 tile size in Dart (`cacheWidth`).
 
+### Thumbnail files by path (log 28)
+
+MediaStore keeps its thumbnails as real files, `Pictures/.thumbnails/<id>.jpg`
+and `Movies/.thumbnails/<id>.jpg` (owned by MediaProvider, in `.nomedia`
+folders); they are byte-identical to what `openThumbnailReadSession` returns.
+The folder layout is undocumented, and the app's `dart:io` open of them fails
+with `Permission denied` (errno 13), so a `thumbnailPath` on `MediaItem` isn't
+usable. `openThumbnailReadSession` opened the same thumbnails in 7–13 ms warm.
+
 ### Benchmarking notes
 
 - Use a profile build; debug skews Dart-side timings.
