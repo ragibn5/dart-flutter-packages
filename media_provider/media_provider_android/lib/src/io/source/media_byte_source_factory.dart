@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 import 'package:media_provider_android/src/exceptions/media_read_open_exception.dart';
 import 'package:media_provider_android/src/io/source/channel_byte_source.dart';
 import 'package:media_provider_android/src/io/source/descriptor_byte_source.dart';
@@ -82,15 +83,15 @@ final class DefaultMediaByteSourceFactory implements MediaByteSourceFactory {
         // Not readable by path: falls back to the platform.
 
         // Log reason.
-        if (kDebugMode) {
-          debugPrintStack(
-            label:
-                'Exception while opening ${e.path} - falling back to platform.'
-                '\nMessage: ${e.message}'
-                '\nOsError: ${e.osError}',
-            stackTrace: st,
-          );
-        }
+        log(
+          'Exception while opening ${e.path} - falling back to platform.'
+          '\nMessage: ${e.message}'
+          '\nOsError: ${e.osError}',
+          name: 'MediaByteSourceFactory',
+          level: Level.WARNING.value,
+          error: e,
+          stackTrace: st,
+        );
       }
     }
 
