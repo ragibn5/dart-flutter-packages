@@ -26,7 +26,6 @@ class MediaQueryExceptionMapper implements PlatformExceptionMapper {
 
   const MediaQueryExceptionMapper();
 
-  /// Maps a [PlatformException] to a [MediaQueryException].
   @override
   Exception map(PlatformException e) {
     return switch (e.code) {

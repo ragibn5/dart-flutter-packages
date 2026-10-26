@@ -44,7 +44,6 @@ class MediaReadExceptionMapper implements PlatformExceptionMapper {
 
   const MediaReadExceptionMapper();
 
-  /// Maps a [PlatformException] to a [MediaReadException].
   @override
   Exception map(PlatformException e) {
     final details = switch (e.details) {

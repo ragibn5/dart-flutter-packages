@@ -42,7 +42,6 @@ class MediaActionExceptionMapper implements PlatformExceptionMapper {
 
   const MediaActionExceptionMapper();
 
-  /// Maps a [PlatformException] to a [MediaActionException].
   @override
   Exception map(PlatformException e) {
     return switch (e.code) {
