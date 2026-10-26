@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:media_provider_android/src/exceptions/media_read_exception.dart';
 import 'package:media_provider_android/src/io/source/media_byte_source.dart';
 import 'package:media_provider_android/src/models/media_read_request.dart';
-import 'package:media_provider_android/src/utils/platform_exception_mapper.dart';
+import 'package:media_provider_android/src/utils/platform_call_guarder.dart';
 import 'package:meta/meta.dart';
 
 /// A [MediaByteSource] for a platform-side read session, read over the
@@ -118,11 +118,11 @@ final class ChannelByteSource extends MediaByteSource {
       length: length,
     );
     final bytes = await guardPlatformCall(
+      _exceptionMapper,
       () => _readChannel.invokeMethod<Uint8List>(
         'readFromSession',
         jsonEncode(request.toJson()),
       ),
-      _exceptionMapper.map,
     );
     _position += bytes!.length;
     return bytes;

@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:media_provider_android/src/exceptions/platform_exception_mapper.dart';
 
 /// A failure to query `MediaStore` collection.
 sealed class MediaQueryException implements Exception {
@@ -20,12 +21,13 @@ final class InvalidQueryError extends MediaQueryException {
   const InvalidQueryError(super.message);
 }
 
-class MediaQueryExceptionMapper {
+class MediaQueryExceptionMapper implements PlatformExceptionMapper {
   static const _invalidRequestCode = 'invalid_request';
 
   const MediaQueryExceptionMapper();
 
   /// Maps a [PlatformException] to a [MediaQueryException].
+  @override
   Exception map(PlatformException e) {
     return switch (e.code) {
       _invalidRequestCode => InvalidQueryError(e.message),

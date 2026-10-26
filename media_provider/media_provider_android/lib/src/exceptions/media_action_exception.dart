@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:media_provider_android/src/exceptions/platform_exception_mapper.dart';
 
 /// A failure to hand `MediaStore` items to another app.
 sealed class MediaActionException implements Exception {
@@ -33,7 +34,7 @@ final class NoActivityException extends MediaActionException {
   const NoActivityException(super.message);
 }
 
-class MediaActionExceptionMapper {
+class MediaActionExceptionMapper implements PlatformExceptionMapper {
   // Must match MediaActionExceptionCodes on the platform side.
   static const _invalidRequestCode = 'invalid_request';
   static const _permissionDeniedCode = 'permission_denied';
@@ -42,6 +43,7 @@ class MediaActionExceptionMapper {
   const MediaActionExceptionMapper();
 
   /// Maps a [PlatformException] to a [MediaActionException].
+  @override
   Exception map(PlatformException e) {
     return switch (e.code) {
       _invalidRequestCode => InvalidActionRequestError(e.message),

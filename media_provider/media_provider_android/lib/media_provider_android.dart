@@ -18,7 +18,7 @@ export 'src/exceptions/media_query_exception.dart'
     hide MediaQueryExceptionMapper;
 export 'src/exceptions/media_read_exception.dart' hide MediaReadExceptionMapper;
 export 'src/exceptions/media_read_open_exception.dart'
-    hide MediaReadOpenErrorMapper;
+    hide MediaReadOpenExceptionMapper;
 export 'src/io/session/media_read_session.dart';
 export 'src/models/media_item.dart';
 export 'src/models/media_type.dart';

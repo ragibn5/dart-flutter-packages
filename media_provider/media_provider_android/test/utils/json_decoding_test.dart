@@ -7,7 +7,7 @@ import 'package:media_provider_android/src/models/volume_identity.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 import 'package:media_provider_android/src/models/volume_state.dart';
 import 'package:media_provider_android/src/models/volume_type.dart';
-import 'package:media_provider_android/src/utils/json_decoding.dart';
+import 'package:media_provider_android/src/utils/json_decoder.dart';
 
 void main() {
   const primary = VolumeInfo(

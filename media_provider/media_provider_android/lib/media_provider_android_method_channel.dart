@@ -14,8 +14,8 @@ import 'package:media_provider_android/src/models/open_thumbnail_read_request.da
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/share_media_request.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
-import 'package:media_provider_android/src/utils/json_decoding.dart';
-import 'package:media_provider_android/src/utils/platform_exception_mapper.dart';
+import 'package:media_provider_android/src/utils/json_decoder.dart';
+import 'package:media_provider_android/src/utils/platform_call_guarder.dart';
 
 // ignore: lines_longer_than_80_chars
 /// An implementation of [MediaProviderAndroidPlatform] that uses method channels.
@@ -58,11 +58,11 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
   @override
   Future<List<MediaItem>> getMedia(QuerySpec query) async {
     final result = await guardPlatformCall(
+      _queryMediaExceptionMapper,
       () => methodChannel.invokeMethod<String>(
         'queryMedia',
         jsonEncode(query.toJson()),
       ),
-      _queryMediaExceptionMapper.map,
     );
 
     return decodeJsonListInBackground(result!, MediaItem.fromJson);
@@ -85,22 +85,22 @@ class MethodChannelMediaProviderAndroid extends MediaProviderAndroidPlatform {
   @override
   Future<void> shareMedia(ShareMediaRequest request) {
     return guardPlatformCall(
+      _mediaActionExceptionMapper,
       () => methodChannel.invokeMethod<void>(
         'shareMedia',
         jsonEncode(request.toJson()),
       ),
-      _mediaActionExceptionMapper.map,
     );
   }
 
   @override
   Future<void> openMediaWith(OpenMediaWithRequest request) {
     return guardPlatformCall(
+      _mediaActionExceptionMapper,
       () => methodChannel.invokeMethod<void>(
         'openMediaWith',
         jsonEncode(request.toJson()),
       ),
-      _mediaActionExceptionMapper.map,
     );
   }
 }

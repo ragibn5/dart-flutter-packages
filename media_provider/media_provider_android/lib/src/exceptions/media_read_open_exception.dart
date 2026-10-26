@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:media_provider_android/src/exceptions/platform_exception_mapper.dart';
 
 /// A failure to open a `MediaStore` item for reading.
 sealed class MediaReadOpenException implements Exception {
@@ -51,16 +52,17 @@ final class UnsupportedOperationException extends MediaReadOpenException {
   const UnsupportedOperationException(super.message);
 }
 
-class MediaReadOpenErrorMapper {
+class MediaReadOpenExceptionMapper implements PlatformExceptionMapper {
   // Must match OpenMediaReadExceptionCodes on the platform side.
   static const _invalidRequestCode = 'invalid_request';
   static const _notFoundCode = 'not_found';
   static const _permissionDeniedCode = 'permission_denied';
   static const _unsupportedCode = 'unsupported_operation';
 
-  const MediaReadOpenErrorMapper();
+  const MediaReadOpenExceptionMapper();
 
   /// Maps a [PlatformException] to a [MediaReadOpenException].
+  @override
   Exception map(PlatformException e) {
     final details = switch (e.details) {
       final Map<Object?, Object?> map => map,

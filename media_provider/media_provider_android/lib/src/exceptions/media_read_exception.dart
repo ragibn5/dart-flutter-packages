@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:media_provider_android/src/exceptions/platform_exception_mapper.dart';
 
 /// A failure to read a `MediaStore` item.
 sealed class MediaReadException implements Exception {
@@ -35,7 +36,7 @@ final class ReadException extends MediaReadException {
   const ReadException(super.message);
 }
 
-class MediaReadExceptionMapper {
+class MediaReadExceptionMapper implements PlatformExceptionMapper {
   // Must match MediaReadExceptionCodes on the platform side.
   static const _invalidRequestCode = 'invalid_request';
   static const _sessionNotFoundCode = 'session_not_found';
@@ -44,6 +45,7 @@ class MediaReadExceptionMapper {
   const MediaReadExceptionMapper();
 
   /// Maps a [PlatformException] to a [MediaReadException].
+  @override
   Exception map(PlatformException e) {
     final details = switch (e.details) {
       final Map<Object?, Object?> map => map,

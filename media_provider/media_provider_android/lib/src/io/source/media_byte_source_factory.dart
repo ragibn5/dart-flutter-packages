@@ -11,8 +11,8 @@ import 'package:media_provider_android/src/io/source/media_byte_source.dart';
 import 'package:media_provider_android/src/models/open_media_read_reply.dart';
 import 'package:media_provider_android/src/models/open_media_read_request.dart';
 import 'package:media_provider_android/src/models/open_thumbnail_read_request.dart';
-import 'package:media_provider_android/src/utils/json_decoding.dart';
-import 'package:media_provider_android/src/utils/platform_exception_mapper.dart';
+import 'package:media_provider_android/src/utils/json_decoder.dart';
+import 'package:media_provider_android/src/utils/platform_call_guarder.dart';
 
 /// Opens a [MediaByteSource] for a media item.
 abstract interface class MediaByteSourceFactory {
@@ -61,12 +61,13 @@ final class DefaultMediaByteSourceFactory implements MediaByteSourceFactory {
   final MethodChannel _readChannel;
 
   /// Maps [PlatformException]s to [MediaReadOpenException]s.
-  final MediaReadOpenErrorMapper _exceptionMapper;
+  final MediaReadOpenExceptionMapper _exceptionMapper;
 
   const DefaultMediaByteSourceFactory({
     required MethodChannel channel,
     required MethodChannel readChannel,
-    MediaReadOpenErrorMapper exceptionMapper = const MediaReadOpenErrorMapper(),
+    MediaReadOpenExceptionMapper exceptionMapper =
+        const MediaReadOpenExceptionMapper(),
   }) : _channel = channel,
        _readChannel = readChannel,
        _exceptionMapper = exceptionMapper;
@@ -124,8 +125,8 @@ final class DefaultMediaByteSourceFactory implements MediaByteSourceFactory {
     String arguments,
   ) async {
     final result = await guardPlatformCall(
+      _exceptionMapper,
       () => _channel.invokeMethod<String>(method, arguments),
-      _exceptionMapper.map,
     );
     final reply = decodeJsonObject(result!, OpenMediaReadReply.fromJson);
 
