@@ -3,9 +3,10 @@ package com.ragibn5.media.provider.media_provider_android
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaActionServiceFactory
 import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaQueryServiceFactory
 import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaReadServiceFactory
+import com.ragibn5.media.provider.media_provider_android.features.media.di.OpenMediaWithServiceFactory
+import com.ragibn5.media.provider.media_provider_android.features.media.di.ShareMediaServiceFactory
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.BackgroundReadCallHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.CloseReadSessionRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.OpenMediaReadRequestHandler
@@ -13,9 +14,10 @@ import com.ragibn5.media.provider.media_provider_android.features.media.handlers
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.OpenThumbnailReadRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.QueryMediaRequestHandler
 import com.ragibn5.media.provider.media_provider_android.features.media.handlers.ShareMediaRequestHandler
-import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaActionService
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaQueryService
 import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadService
+import com.ragibn5.media.provider.media_provider_android.features.media.services.OpenMediaWithService
+import com.ragibn5.media.provider.media_provider_android.features.media.services.ShareMediaService
 import com.ragibn5.media.provider.media_provider_android.features.volume.di.VolumeProviderServiceFactory
 import com.ragibn5.media.provider.media_provider_android.features.volume.handlers.GetVolumesHandler
 import com.ragibn5.media.provider.media_provider_android.features.volume.services.VolumeProviderService
@@ -33,7 +35,8 @@ public class MediaProviderAndroidPlugin : FlutterPlugin, ActivityAware {
     private lateinit var mediaQueryService: MediaQueryService
     private lateinit var mediaReadService: MediaReadService
     private lateinit var volumeProviderService: VolumeProviderService
-    private lateinit var mediaActionService: MediaActionService
+    private lateinit var shareMediaService: ShareMediaService
+    private lateinit var openMediaWithService: OpenMediaWithService
 
     /** The activity to start choosers from, while one is attached. */
     private var activity: Activity? = null
@@ -47,8 +50,8 @@ public class MediaProviderAndroidPlugin : FlutterPlugin, ActivityAware {
     }
 
     /**
-     * Serves [mediaQueryService], [mediaReadService], [mediaActionService] and
-     * [volumeProviderService] over [binaryMessenger].
+     * Serves [mediaQueryService], [mediaReadService], [shareMediaService],
+     * [openMediaWithService] and [volumeProviderService] over [binaryMessenger].
      *
      * Separate from [onAttachedToEngine] so the wiring can be exercised without
      * a device: building the real services reads `MediaStore`, which only
@@ -60,7 +63,8 @@ public class MediaProviderAndroidPlugin : FlutterPlugin, ActivityAware {
         volumeProviderService = VolumeProviderServiceFactory.create(appContext)
         mediaQueryService = MediaQueryServiceFactory.create(appContext, volumeProviderService)
         mediaReadService = MediaReadServiceFactory.create(appContext)
-        mediaActionService = MediaActionServiceFactory.create(appContext) { activity }
+        shareMediaService = ShareMediaServiceFactory.create(appContext) { activity }
+        openMediaWithService = OpenMediaWithServiceFactory.create(appContext) { activity }
 
         // Main request dispatcher
         requestDispatcher = MethodCallDispatcher(
@@ -69,8 +73,8 @@ public class MediaProviderAndroidPlugin : FlutterPlugin, ActivityAware {
                 OpenMediaReadRequestHandler(mediaReadService),
                 OpenThumbnailReadRequestHandler(mediaReadService),
                 CloseReadSessionRequestHandler(mediaReadService),
-                ShareMediaRequestHandler(mediaActionService),
-                OpenMediaWithRequestHandler(mediaActionService),
+                ShareMediaRequestHandler(shareMediaService),
+                OpenMediaWithRequestHandler(openMediaWithService),
                 GetVolumesHandler(volumeProviderService),
             ),
         )

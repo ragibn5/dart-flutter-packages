@@ -4,18 +4,18 @@ import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandle
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaActionExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.OpenMediaWithRequest
-import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaActionService
 import com.ragibn5.media.provider.media_provider_android.features.media.services.OpenMediaWithRequestDecoder
+import com.ragibn5.media.provider.media_provider_android.features.media.services.OpenMediaWithService
 import io.flutter.plugin.common.MethodCall
 
 internal class OpenMediaWithRequestHandler(
-    private val mediaActionService: MediaActionService,
+    private val openMediaWithService: OpenMediaWithService,
     private val openMediaWithRequestDecoder: OpenMediaWithRequestDecoder = OpenMediaWithRequestDecoder(),
 ) : MethodCallRequestHandler {
     override val method = "openMediaWith"
 
     override suspend fun handle(call: MethodCall): Any? {
-        mediaActionService.openWith(parseRequest(call))
+        openMediaWithService.openWith(parseRequest(call))
         return null
     }
 

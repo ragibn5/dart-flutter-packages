@@ -4,18 +4,18 @@ import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandle
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaActionExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.features.media.models.ShareMediaRequest
-import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaActionService
 import com.ragibn5.media.provider.media_provider_android.features.media.services.ShareMediaRequestDecoder
+import com.ragibn5.media.provider.media_provider_android.features.media.services.ShareMediaService
 import io.flutter.plugin.common.MethodCall
 
 internal class ShareMediaRequestHandler(
-    private val mediaActionService: MediaActionService,
+    private val shareMediaService: ShareMediaService,
     private val shareMediaRequestDecoder: ShareMediaRequestDecoder = ShareMediaRequestDecoder(),
 ) : MethodCallRequestHandler {
     override val method = "shareMedia"
 
     override suspend fun handle(call: MethodCall): Any? {
-        mediaActionService.share(parseRequest(call))
+        shareMediaService.share(parseRequest(call))
         return null
     }
 
