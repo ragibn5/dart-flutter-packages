@@ -1,0 +1,36 @@
+D/MPTiming( 9840): [getVolumes] native volume path: 210us total, 2 calls, 105us avg
+D/MPTiming( 9840): [getVolumes] native StatFs: 4563us total, 2 calls, 2281us avg
+D/MPTiming( 9840): [getVolumes] native state: 938us total, 2 calls, 469us avg
+D/MPTiming( 9840): [getVolumes] native type (reflective getId): 2495us total, 2 calls, 1247us avg
+D/MPTiming( 9840): [getVolumes] native service total (DefaultDispatcher-worker-4): 10636us
+D/MPTiming( 9840): [getVolumes] native JSON encode 2 volumes: 15639us
+D/MPTiming( 9840): [getVolumes] native handle: 29778us
+D/MPTiming( 9840): [getVolumes] native result.success (encode + send): 244us
+D/MPTiming( 9840): [getVolumes] native replied at 1792827921690ms
+I/flutter ( 9840): [MPTiming] [queryMedia] dart sent at 1792827921700ms
+D/MPTiming( 9840): [queryMedia] native received at 1792827921705ms
+D/MPTiming( 9840): [queryMedia] native coroutine dispatch: 181us
+D/MPTiming( 9840): [getVolumes] native storageManager.storageVolumes: 46us
+D/MPTiming( 9840): [getVolumes] native volume path: 31us total, 2 calls, 15us avg
+D/MPTiming( 9840): [getVolumes] native StatFs: 795us total, 2 calls, 397us avg
+D/MPTiming( 9840): [getVolumes] native state: 19us total, 2 calls, 9us avg
+D/MPTiming( 9840): [getVolumes] native type (reflective getId): 533us total, 2 calls, 266us avg
+D/MPTiming( 9840): [queryMedia] native handle: 231700us
+D/MPTiming( 9840): [queryMedia] native result.success (encode + send): 2177us
+D/MPTiming( 9840): [queryMedia] native replied at 1792827921939ms
+I/flutter ( 9840): [MPTiming] [queryMedia] dart invokeMethod round trip: 247641us
+I/flutter ( 9840): [MPTiming] [queryMedia] dart reply received (481316 chars) at 1792827921949ms
+I/flutter ( 9840): [MPTiming] [queryMedia] dart jsonDecode (background isolate): 64711us
+I/flutter ( 9840): [MPTiming] [queryMedia] dart MediaItem.fromJson x634 (background isolate): 10265us
+I/flutter ( 9840): [MPTiming] [queryMedia] dart decode on background isolate (await): 121642us
+I/flutter ( 9840): [MPTiming] [queryMedia] dart sent at 1792827922081ms
+D/MPTiming( 9840): [queryMedia] native received at 1792827922082ms
+D/MPTiming( 9840): [queryMedia] native coroutine dispatch: 162us
+D/MPTiming( 9840): [queryMedia] native handle: 17956us
+D/MPTiming( 9840): [queryMedia] native result.success (encode + send): 164us
+D/MPTiming( 9840): [queryMedia] native replied at 1792827922100ms
+I/flutter ( 9840): [MPTiming] [queryMedia] dart invokeMethod round trip: 19724us
+I/flutter ( 9840): [MPTiming] [queryMedia] dart reply received (2 chars) at 1792827922101ms
+I/flutter ( 9840): [MPTiming] [queryMedia] dart jsonDecode (background isolate): 51us
+I/flutter ( 9840): [MPTiming] [queryMedia] dart MediaItem.fromJson x0 (background isolate): 20us
+I/flutter ( 9840): [MPTiming] [queryMedia] dart decode on background isolate (await): 32772us

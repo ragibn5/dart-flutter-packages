@@ -1,0 +1,90 @@
+D/MPTiming(23895): [openMediaReadSession] native received at 1792779438658ms
+D/MPTiming(23895): [openMediaReadSession] native coroutine dispatch: 259us
+D/MPTiming(23895): [openMediaReadSession] native handle: 88796us
+D/MPTiming(23895): [openMediaReadSession] native result.success (encode + send): 514us
+D/MPTiming(23895): [openMediaReadSession] native replied at 1792779438748ms
+I/flutter (23895): === Run 1/5 (direct) - session 89a11ffc-d28e-455e-9f9a-f19e8a42fbde: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart open + seek: 11099us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart read 204488B at 0: 12102us
+I/flutter (23895): Read: 204488 - total: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart consumer (yield until resumed): 2771us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart read 0B at 204488: 611us
+I/flutter (23895): [MPTiming] [openReadDirect] dart total: 29420us for 204488B
+D/MPTiming(23895): [closeReadSession] native received at 1792779438794ms
+D/MPTiming(23895): [closeReadSession] native coroutine dispatch: 228us
+D/MPTiming(23895): [closeReadSession] native handle: 2234us
+D/MPTiming(23895): [closeReadSession] native result.success (encode + send): 323us
+D/MPTiming(23895): [closeReadSession] native replied at 1792779438797ms
+I/flutter (23895): === Run 1/5 (direct) done: 204488 bytes in 50ms
+D/MPTiming(23895): [openMediaReadSession] native received at 1792779439328ms
+D/MPTiming(23895): [openMediaReadSession] native coroutine dispatch: 215us
+D/MPTiming(23895): [openMediaReadSession] native handle: 54900us
+D/MPTiming(23895): [openMediaReadSession] native result.success (encode + send): 297us
+D/MPTiming(23895): [openMediaReadSession] native replied at 1792779439384ms
+I/flutter (23895): === Run 2/5 (direct) - session ca0f2681-a265-4f95-9a6d-33f685717a03: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart open + seek: 10556us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart read 204488B at 0: 390us
+I/flutter (23895): Read: 204488 - total: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart consumer (yield until resumed): 227us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart read 0B at 204488: 321us
+I/flutter (23895): [MPTiming] [openReadDirect] dart total: 12476us for 204488B
+D/MPTiming(23895): [closeReadSession] native received at 1792779439398ms
+D/MPTiming(23895): [closeReadSession] native coroutine dispatch: 133us
+D/MPTiming(23895): [closeReadSession] native handle: 1050us
+D/MPTiming(23895): [closeReadSession] native result.success (encode + send): 121us
+D/MPTiming(23895): [closeReadSession] native replied at 1792779439400ms
+I/flutter (23895): === Run 2/5 (direct) done: 204488 bytes in 14ms
+D/MPTiming(23895): [openMediaReadSession] native received at 1792779439902ms
+D/MPTiming(23895): [openMediaReadSession] native coroutine dispatch: 243us
+D/MPTiming(23895): [openMediaReadSession] native handle: 49259us
+D/MPTiming(23895): [openMediaReadSession] native result.success (encode + send): 452us
+D/MPTiming(23895): [openMediaReadSession] native replied at 1792779439952ms
+I/flutter (23895): === Run 3/5 (direct) - session 18b10f3d-3caf-41ac-a78a-209ab243951d: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart open + seek: 12335us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart read 204488B at 0: 2038us
+I/flutter (23895): Read: 204488 - total: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart consumer (yield until resumed): 301us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart read 0B at 204488: 967us
+I/flutter (23895): [MPTiming] [openReadDirect] dart total: 17550us for 204488B
+D/MPTiming(23895): [closeReadSession] native received at 1792779439972ms
+D/MPTiming(23895): [closeReadSession] native coroutine dispatch: 269us
+D/MPTiming(23895): [closeReadSession] native handle: 2708us
+D/MPTiming(23895): [closeReadSession] native result.success (encode + send): 322us
+D/MPTiming(23895): [closeReadSession] native replied at 1792779439976ms
+I/flutter (23895): === Run 3/5 (direct) done: 204488 bytes in 23ms
+D/MPTiming(23895): [openMediaReadSession] native received at 1792779440479ms
+D/MPTiming(23895): [openMediaReadSession] native coroutine dispatch: 251us
+D/MPTiming(23895): [openMediaReadSession] native handle: 44724us
+D/MPTiming(23895): [openMediaReadSession] native result.success (encode + send): 237us
+D/MPTiming(23895): [openMediaReadSession] native replied at 1792779440525ms
+I/flutter (23895): === Run 4/5 (direct) - session 0afb1e75-cf56-4543-a1ee-e180827edfd1: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart open + seek: 14253us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart read 204488B at 0: 1046us
+I/flutter (23895): Read: 204488 - total: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart consumer (yield until resumed): 271us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/249] dart read 0B at 204488: 479us
+I/flutter (23895): [MPTiming] [openReadDirect] dart total: 18587us for 204488B
+D/MPTiming(23895): [closeReadSession] native received at 1792779440545ms
+D/MPTiming(23895): [closeReadSession] native coroutine dispatch: 186us
+D/MPTiming(23895): [closeReadSession] native handle: 1812us
+D/MPTiming(23895): [closeReadSession] native result.success (encode + send): 167us
+D/MPTiming(23895): [closeReadSession] native replied at 1792779440548ms
+I/flutter (23895): === Run 4/5 (direct) done: 204488 bytes in 22ms
+D/MPTiming(23895): [openMediaReadSession] native received at 1792779441051ms
+D/MPTiming(23895): [openMediaReadSession] native coroutine dispatch: 240us
+D/MPTiming(23895): [openMediaReadSession] native handle: 37052us
+D/MPTiming(23895): [openMediaReadSession] native result.success (encode + send): 300us
+D/MPTiming(23895): [openMediaReadSession] native replied at 1792779441089ms
+I/flutter (23895): === Run 5/5 (direct) - session 99e0df11-6018-41c5-a4d3-7dc38d4bcb1b: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/247] dart open + seek: 6998us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/247] dart read 204488B at 0: 1943us
+I/flutter (23895): Read: 204488 - total: 204488
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/247] dart consumer (yield until resumed): 308us
+I/flutter (23895): [MPTiming] [openReadDirect /proc/self/fd/247] dart read 0B at 204488: 594us
+I/flutter (23895): [MPTiming] [openReadDirect] dart total: 12127us for 204488B
+D/MPTiming(23895): [closeReadSession] native received at 1792779441104ms
+D/MPTiming(23895): [closeReadSession] native coroutine dispatch: 269us
+D/MPTiming(23895): [closeReadSession] native handle: 2992us
+D/MPTiming(23895): [closeReadSession] native result.success (encode + send): 313us
+D/MPTiming(23895): [closeReadSession] native replied at 1792779441107ms
+I/flutter (23895): === Run 5/5 (direct) done: 204488 bytes in 17ms

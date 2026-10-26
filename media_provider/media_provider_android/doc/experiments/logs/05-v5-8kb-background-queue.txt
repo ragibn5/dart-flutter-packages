@@ -1,0 +1,368 @@
+I/flutter (11873): [MPTiming] [bg readFromSession start=0] dart wait for previous call: 1493us
+I/flutter (11873): [MPTiming] [bg readFromSession start=0] dart jsonEncode: 480us
+I/flutter (11873): [MPTiming] [bg readFromSession start=0] dart sent at 1792776548822ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776548823ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 453us
+D/MPTiming(11873): [V5 start=0] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=0] read loop: 205us
+D/MPTiming(11873): [V5 start=0] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 365us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 118us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776548824ms
+D/MPTiming(11873): [queryMedia] native received at 1792776548826ms
+D/MPTiming(11873): [queryMedia] native coroutine dispatch: 124us
+I/flutter (11873): [MPTiming] [bg readFromSession start=0] dart invokeMethod round trip: 5929us
+I/flutter (11873): [MPTiming] [bg readFromSession start=0] dart reply received at 1792776548828ms
+I/flutter (11873): [MPTiming] [openRead position=0] dart consumer (yield until resumed): 878us
+I/flutter (11873): [MPTiming] [bg readFromSession start=8192] dart wait for previous call: 56us
+I/flutter (11873): [MPTiming] [bg readFromSession start=8192] dart jsonEncode: 62us
+I/flutter (11873): [MPTiming] [bg readFromSession start=8192] dart sent at 1792776548830ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776548830ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 186us
+D/MPTiming(11873): [V5 start=8192] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=8192] read loop: 265us
+D/MPTiming(11873): [V5 start=8192] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 608us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 217us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776548831ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=8192] dart invokeMethod round trip: 3906us
+I/flutter (11873): [MPTiming] [bg readFromSession start=8192] dart reply received at 1792776548834ms
+I/flutter (11873): [MPTiming] [openRead position=8192] dart consumer (yield until resumed): 171us
+I/flutter (11873): [MPTiming] [bg readFromSession start=16384] dart wait for previous call: 58us
+I/flutter (11873): [MPTiming] [bg readFromSession start=16384] dart jsonEncode: 69us
+I/flutter (11873): [MPTiming] [bg readFromSession start=16384] dart sent at 1792776548835ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776548835ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 184us
+D/MPTiming(11873): [V5 start=16384] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=16384] read loop: 80us
+D/MPTiming(11873): [V5 start=16384] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 413us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 357us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776548836ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=16384] dart invokeMethod round trip: 1589us
+I/flutter (11873): [MPTiming] [bg readFromSession start=16384] dart reply received at 1792776548837ms
+I/flutter (11873): [MPTiming] [openRead position=16384] dart consumer (yield until resumed): 175us
+I/flutter (11873): [MPTiming] [bg readFromSession start=24576] dart wait for previous call: 50us
+I/flutter (11873): [MPTiming] [bg readFromSession start=24576] dart jsonEncode: 70us
+I/flutter (11873): [MPTiming] [bg readFromSession start=24576] dart sent at 1792776548837ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776548838ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 170us
+D/MPTiming(11873): [V5 start=24576] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=24576] read loop: 56us
+D/MPTiming(11873): [V5 start=24576] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 258us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 169us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776548839ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=24576] dart invokeMethod round trip: 1195us
+I/flutter (11873): [MPTiming] [bg readFromSession start=24576] dart reply received at 1792776548839ms
+I/flutter (11873): [MPTiming] [openRead position=24576] dart consumer (yield until resumed): 198us
+I/flutter (11873): [MPTiming] [bg readFromSession start=32768] dart wait for previous call: 60us
+I/flutter (11873): [MPTiming] [bg readFromSession start=32768] dart jsonEncode: 94us
+I/flutter (11873): [MPTiming] [bg readFromSession start=32768] dart sent at 1792776548840ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776548840ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 191us
+D/MPTiming(11873): [V5 start=32768] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=32768] read loop: 186us
+D/MPTiming(11873): [V5 start=32768] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 553us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 169us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776548842ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=32768] dart invokeMethod round trip: 6086us
+I/flutter (11873): [MPTiming] [bg readFromSession start=32768] dart reply received at 1792776548847ms
+I/flutter (11873): [MPTiming] [openRead position=32768] dart consumer (yield until resumed): 348us
+I/flutter (11873): [MPTiming] [bg readFromSession start=40960] dart wait for previous call: 87us
+I/flutter (11873): [MPTiming] [bg readFromSession start=40960] dart jsonEncode: 84us
+I/flutter (11873): [MPTiming] [bg readFromSession start=40960] dart sent at 1792776548848ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776548849ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 238us
+D/MPTiming(11873): [V5 start=40960] allocate 8192B: 4us
+D/MPTiming(11873): [V5 start=40960] read loop: 188us
+D/MPTiming(11873): [V5 start=40960] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 605us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 321us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776548850ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=40960] dart invokeMethod round trip: 5505us
+I/flutter (11873): [MPTiming] [bg readFromSession start=40960] dart reply received at 1792776548854ms
+I/flutter (11873): [MPTiming] [openRead position=40960] dart consumer (yield until resumed): 340us
+I/flutter (11873): [MPTiming] [bg readFromSession start=49152] dart wait for previous call: 101us
+I/flutter (11873): [MPTiming] [bg readFromSession start=49152] dart jsonEncode: 82us
+I/flutter (11873): [MPTiming] [bg readFromSession start=49152] dart sent at 1792776548855ms
+D/MPTiming(11873): [queryMedia] native handle: 36689us
+D/MPTiming(11873): [queryMedia] native result.success (encode + send): 463us
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776548864ms
+D/MPTiming(11873): [queryMedia] native replied at 1792776548864ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 316us
+D/MPTiming(11873): [V5 start=49152] allocate 8192B: 3us
+D/MPTiming(11873): [V5 start=49152] read loop: 83us
+D/MPTiming(11873): [V5 start=49152] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 219us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 243us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776548865ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=49152] dart invokeMethod round trip: 22472us
+I/flutter (11873): [MPTiming] [bg readFromSession start=49152] dart reply received at 1792776548877ms
+I/flutter (11873): [MPTiming] [openRead position=49152] dart consumer (yield until resumed): 144us
+I/flutter (11873): [MPTiming] [bg readFromSession start=57344] dart wait for previous call: 63us
+I/flutter (11873): [MPTiming] [bg readFromSession start=57344] dart jsonEncode: 145us
+I/flutter (11873): [MPTiming] [bg readFromSession start=57344] dart sent at 1792776548878ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776548881ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 716us
+D/MPTiming(11873): [V5 start=57344] allocate 8192B: 5us
+D/MPTiming(11873): [V5 start=57344] read loop: 110us
+D/MPTiming(11873): [V5 start=57344] trim to 8192B: 1us
+D/MPTiming(11873): [bg readFromSession] native read: 751us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 420us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776548883ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=57344] dart invokeMethod round trip: 253045us
+I/flutter (11873): [MPTiming] [bg readFromSession start=57344] dart reply received at 1792776549131ms
+I/flutter (11873): [MPTiming] [openRead position=57344] dart consumer (yield until resumed): 117us
+I/flutter (11873): [MPTiming] [bg readFromSession start=65536] dart wait for previous call: 51us
+I/flutter (11873): [MPTiming] [bg readFromSession start=65536] dart jsonEncode: 82us
+I/flutter (11873): [MPTiming] [bg readFromSession start=65536] dart sent at 1792776549132ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549132ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 299us
+D/MPTiming(11873): [V5 start=65536] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=65536] read loop: 61us
+D/MPTiming(11873): [V5 start=65536] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 332us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 215us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549134ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=65536] dart invokeMethod round trip: 2403us
+I/flutter (11873): [MPTiming] [bg readFromSession start=65536] dart reply received at 1792776549135ms
+I/flutter (11873): [MPTiming] [openRead position=65536] dart consumer (yield until resumed): 111us
+I/flutter (11873): [MPTiming] [bg readFromSession start=73728] dart wait for previous call: 46us
+I/flutter (11873): [MPTiming] [bg readFromSession start=73728] dart jsonEncode: 60us
+I/flutter (11873): [MPTiming] [bg readFromSession start=73728] dart sent at 1792776549135ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549136ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 271us
+D/MPTiming(11873): [V5 start=73728] allocate 8192B: 1us
+D/MPTiming(11873): [V5 start=73728] read loop: 69us
+D/MPTiming(11873): [V5 start=73728] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 205us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 177us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549137ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=73728] dart invokeMethod round trip: 1646us
+I/flutter (11873): [MPTiming] [bg readFromSession start=73728] dart reply received at 1792776549137ms
+I/flutter (11873): [MPTiming] [openRead position=73728] dart consumer (yield until resumed): 98us
+I/flutter (11873): [MPTiming] [bg readFromSession start=81920] dart wait for previous call: 40us
+I/flutter (11873): [MPTiming] [bg readFromSession start=81920] dart jsonEncode: 56us
+I/flutter (11873): [MPTiming] [bg readFromSession start=81920] dart sent at 1792776549137ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549139ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 182us
+D/MPTiming(11873): [V5 start=81920] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=81920] read loop: 83us
+D/MPTiming(11873): [V5 start=81920] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 195us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 140us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549139ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=81920] dart invokeMethod round trip: 2333us
+I/flutter (11873): [MPTiming] [bg readFromSession start=81920] dart reply received at 1792776549140ms
+I/flutter (11873): [MPTiming] [openRead position=81920] dart consumer (yield until resumed): 102us
+I/flutter (11873): [MPTiming] [bg readFromSession start=90112] dart wait for previous call: 43us
+I/flutter (11873): [MPTiming] [bg readFromSession start=90112] dart jsonEncode: 63us
+I/flutter (11873): [MPTiming] [bg readFromSession start=90112] dart sent at 1792776549140ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549141ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 180us
+D/MPTiming(11873): [V5 start=90112] allocate 8192B: 3us
+D/MPTiming(11873): [V5 start=90112] read loop: 67us
+D/MPTiming(11873): [V5 start=90112] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 177us
+I/flutter (11873): [MPTiming] [bg readFromSession start=90112] dart invokeMethod round trip: 1313us
+I/flutter (11873): [MPTiming] [bg readFromSession start=90112] dart reply received at 1792776549142ms
+I/flutter (11873): [MPTiming] [openRead position=90112] dart consumer (yield until resumed): 100us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 750us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549142ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=98304] dart wait for previous call: 44us
+I/flutter (11873): [MPTiming] [bg readFromSession start=98304] dart jsonEncode: 49us
+I/flutter (11873): [MPTiming] [bg readFromSession start=98304] dart sent at 1792776549142ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549143ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 169us
+D/MPTiming(11873): [V5 start=98304] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=98304] read loop: 57us
+D/MPTiming(11873): [V5 start=98304] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 282us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 189us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549143ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=98304] dart invokeMethod round trip: 1148us
+I/flutter (11873): [MPTiming] [bg readFromSession start=98304] dart reply received at 1792776549144ms
+I/flutter (11873): [MPTiming] [openRead position=98304] dart consumer (yield until resumed): 128us
+I/flutter (11873): [MPTiming] [bg readFromSession start=106496] dart wait for previous call: 47us
+I/flutter (11873): [MPTiming] [bg readFromSession start=106496] dart jsonEncode: 46us
+I/flutter (11873): [MPTiming] [bg readFromSession start=106496] dart sent at 1792776549144ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549144ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 170us
+D/MPTiming(11873): [V5 start=106496] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=106496] read loop: 57us
+D/MPTiming(11873): [V5 start=106496] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 289us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 205us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549145ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=106496] dart invokeMethod round trip: 1176us
+I/flutter (11873): [MPTiming] [bg readFromSession start=106496] dart reply received at 1792776549145ms
+I/flutter (11873): [MPTiming] [openRead position=106496] dart consumer (yield until resumed): 105us
+I/flutter (11873): [MPTiming] [bg readFromSession start=114688] dart wait for previous call: 40us
+I/flutter (11873): [MPTiming] [bg readFromSession start=114688] dart jsonEncode: 59us
+I/flutter (11873): [MPTiming] [bg readFromSession start=114688] dart sent at 1792776549146ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549146ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 162us
+D/MPTiming(11873): [V5 start=114688] allocate 8192B: 1us
+D/MPTiming(11873): [V5 start=114688] read loop: 53us
+D/MPTiming(11873): [V5 start=114688] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 278us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 153us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549147ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=114688] dart invokeMethod round trip: 1215us
+I/flutter (11873): [MPTiming] [bg readFromSession start=114688] dart reply received at 1792776549147ms
+I/flutter (11873): [MPTiming] [openRead position=114688] dart consumer (yield until resumed): 100us
+I/flutter (11873): [MPTiming] [bg readFromSession start=122880] dart wait for previous call: 38us
+I/flutter (11873): [MPTiming] [bg readFromSession start=122880] dart jsonEncode: 49us
+I/flutter (11873): [MPTiming] [bg readFromSession start=122880] dart sent at 1792776549148ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549148ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 171us
+D/MPTiming(11873): [V5 start=122880] allocate 8192B: 14us
+D/MPTiming(11873): [V5 start=122880] read loop: 97us
+D/MPTiming(11873): [V5 start=122880] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 353us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 192us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549149ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=122880] dart invokeMethod round trip: 1203us
+I/flutter (11873): [MPTiming] [bg readFromSession start=122880] dart reply received at 1792776549149ms
+I/flutter (11873): [MPTiming] [openRead position=122880] dart consumer (yield until resumed): 99us
+I/flutter (11873): [MPTiming] [bg readFromSession start=131072] dart wait for previous call: 39us
+I/flutter (11873): [MPTiming] [bg readFromSession start=131072] dart jsonEncode: 46us
+I/flutter (11873): [MPTiming] [bg readFromSession start=131072] dart sent at 1792776549149ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549150ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 185us
+D/MPTiming(11873): [V5 start=131072] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=131072] read loop: 55us
+D/MPTiming(11873): [V5 start=131072] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 288us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 201us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549151ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=131072] dart invokeMethod round trip: 1124us
+I/flutter (11873): [MPTiming] [bg readFromSession start=131072] dart reply received at 1792776549151ms
+I/flutter (11873): [MPTiming] [openRead position=131072] dart consumer (yield until resumed): 104us
+I/flutter (11873): [MPTiming] [bg readFromSession start=139264] dart wait for previous call: 38us
+I/flutter (11873): [MPTiming] [bg readFromSession start=139264] dart jsonEncode: 50us
+I/flutter (11873): [MPTiming] [bg readFromSession start=139264] dart sent at 1792776549151ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549152ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 185us
+D/MPTiming(11873): [V5 start=139264] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=139264] read loop: 81us
+D/MPTiming(11873): [V5 start=139264] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 320us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 215us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549153ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=139264] dart invokeMethod round trip: 1263us
+I/flutter (11873): [MPTiming] [bg readFromSession start=139264] dart reply received at 1792776549153ms
+I/flutter (11873): [MPTiming] [openRead position=139264] dart consumer (yield until resumed): 115us
+I/flutter (11873): [MPTiming] [bg readFromSession start=147456] dart wait for previous call: 40us
+I/flutter (11873): [MPTiming] [bg readFromSession start=147456] dart jsonEncode: 54us
+I/flutter (11873): [MPTiming] [bg readFromSession start=147456] dart sent at 1792776549153ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549154ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 180us
+D/MPTiming(11873): [V5 start=147456] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=147456] read loop: 118us
+D/MPTiming(11873): [V5 start=147456] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 424us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 208us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549155ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=147456] dart invokeMethod round trip: 1395us
+I/flutter (11873): [MPTiming] [bg readFromSession start=147456] dart reply received at 1792776549155ms
+I/flutter (11873): [MPTiming] [openRead position=147456] dart consumer (yield until resumed): 103us
+I/flutter (11873): [MPTiming] [bg readFromSession start=155648] dart wait for previous call: 52us
+I/flutter (11873): [MPTiming] [bg readFromSession start=155648] dart jsonEncode: 47us
+I/flutter (11873): [MPTiming] [bg readFromSession start=155648] dart sent at 1792776549155ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549156ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 231us
+D/MPTiming(11873): [V5 start=155648] allocate 8192B: 6us
+D/MPTiming(11873): [V5 start=155648] read loop: 70us
+D/MPTiming(11873): [V5 start=155648] trim to 8192B: 1us
+D/MPTiming(11873): [bg readFromSession] native read: 452us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 218us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549157ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=155648] dart invokeMethod round trip: 1494us
+I/flutter (11873): [MPTiming] [bg readFromSession start=155648] dart reply received at 1792776549157ms
+I/flutter (11873): [MPTiming] [openRead position=155648] dart consumer (yield until resumed): 118us
+I/flutter (11873): [MPTiming] [bg readFromSession start=163840] dart wait for previous call: 96us
+I/flutter (11873): [MPTiming] [bg readFromSession start=163840] dart jsonEncode: 47us
+I/flutter (11873): [MPTiming] [bg readFromSession start=163840] dart sent at 1792776549158ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549158ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 193us
+D/MPTiming(11873): [V5 start=163840] allocate 8192B: 10us
+D/MPTiming(11873): [V5 start=163840] read loop: 59us
+D/MPTiming(11873): [V5 start=163840] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 352us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 208us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549159ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=163840] dart invokeMethod round trip: 1310us
+I/flutter (11873): [MPTiming] [bg readFromSession start=163840] dart reply received at 1792776549159ms
+I/flutter (11873): [MPTiming] [openRead position=163840] dart consumer (yield until resumed): 149us
+I/flutter (11873): [MPTiming] [bg readFromSession start=172032] dart wait for previous call: 42us
+I/flutter (11873): [MPTiming] [bg readFromSession start=172032] dart jsonEncode: 44us
+I/flutter (11873): [MPTiming] [bg readFromSession start=172032] dart sent at 1792776549160ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549160ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 268us
+D/MPTiming(11873): [V5 start=172032] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=172032] read loop: 72us
+D/MPTiming(11873): [V5 start=172032] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 392us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 272us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549161ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=172032] dart invokeMethod round trip: 1508us
+I/flutter (11873): [MPTiming] [bg readFromSession start=172032] dart reply received at 1792776549162ms
+I/flutter (11873): [MPTiming] [openRead position=172032] dart consumer (yield until resumed): 166us
+I/flutter (11873): [MPTiming] [bg readFromSession start=180224] dart wait for previous call: 43us
+I/flutter (11873): [MPTiming] [bg readFromSession start=180224] dart jsonEncode: 52us
+I/flutter (11873): [MPTiming] [bg readFromSession start=180224] dart sent at 1792776549162ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549163ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 219us
+D/MPTiming(11873): [V5 start=180224] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=180224] read loop: 104us
+D/MPTiming(11873): [V5 start=180224] trim to 8192B: 1us
+D/MPTiming(11873): [bg readFromSession] native read: 422us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 287us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549164ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=180224] dart invokeMethod round trip: 1631us
+I/flutter (11873): [MPTiming] [bg readFromSession start=180224] dart reply received at 1792776549164ms
+I/flutter (11873): [MPTiming] [openRead position=180224] dart consumer (yield until resumed): 118us
+I/flutter (11873): [MPTiming] [bg readFromSession start=188416] dart wait for previous call: 40us
+I/flutter (11873): [MPTiming] [bg readFromSession start=188416] dart jsonEncode: 78us
+I/flutter (11873): [MPTiming] [bg readFromSession start=188416] dart sent at 1792776549165ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549165ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 234us
+D/MPTiming(11873): [V5 start=188416] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=188416] read loop: 119us
+D/MPTiming(11873): [V5 start=188416] trim to 8192B: 0us
+D/MPTiming(11873): [bg readFromSession] native read: 401us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 190us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549166ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=188416] dart invokeMethod round trip: 1372us
+I/flutter (11873): [MPTiming] [bg readFromSession start=188416] dart reply received at 1792776549166ms
+I/flutter (11873): [MPTiming] [openRead position=188416] dart consumer (yield until resumed): 123us
+I/flutter (11873): [MPTiming] [bg readFromSession start=196608] dart wait for previous call: 41us
+I/flutter (11873): [MPTiming] [bg readFromSession start=196608] dart jsonEncode: 109us
+I/flutter (11873): [MPTiming] [bg readFromSession start=196608] dart sent at 1792776549167ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549167ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 196us
+D/MPTiming(11873): [V5 start=196608] allocate 8192B: 2us
+D/MPTiming(11873): [V5 start=196608] read loop: 72us
+D/MPTiming(11873): [V5 start=196608] trim to 7880B: 79us
+D/MPTiming(11873): [bg readFromSession] native read: 540us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 224us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549168ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=196608] dart invokeMethod round trip: 1538us
+I/flutter (11873): [MPTiming] [bg readFromSession start=196608] dart reply received at 1792776549169ms
+I/flutter (11873): [MPTiming] [openRead position=196608] dart consumer (yield until resumed): 116us
+I/flutter (11873): [MPTiming] [bg readFromSession start=204488] dart wait for previous call: 41us
+I/flutter (11873): [MPTiming] [bg readFromSession start=204488] dart jsonEncode: 45us
+I/flutter (11873): [MPTiming] [bg readFromSession start=204488] dart sent at 1792776549169ms
+D/MPTiming(11873): [bg readFromSession] native received on flutter-worker-0 at 1792776549170ms
+D/MPTiming(11873): [bg readFromSession] native decode request: 229us
+D/MPTiming(11873): [V5 start=204488] allocate 8192B: 17us
+D/MPTiming(11873): [V5 start=204488] read loop: 73us
+D/MPTiming(11873): [V5 start=204488] trim to 0B: 3us
+D/MPTiming(11873): [bg readFromSession] native read: 411us
+D/MPTiming(11873): [bg readFromSession] native result.success (encode + send): 165us
+D/MPTiming(11873): [bg readFromSession] native replied at 1792776549171ms
+I/flutter (11873): [MPTiming] [bg readFromSession start=204488] dart invokeMethod round trip: 1313us
+I/flutter (11873): [MPTiming] [bg readFromSession start=204488] dart reply received at 1792776549171ms

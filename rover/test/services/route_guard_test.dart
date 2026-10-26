@@ -16,9 +16,14 @@ void main() {
   group('RouteGuard', () {
     test('can be mocked and returns GuardResult', () async {
       final guard = _MockRouteGuard();
-      when(
-        () => guard.onNavigationRequest(any(), any(), any()),
-      ).thenAnswer((_) async => BlockNavigation());
+      when(() => guard.onNavigationRequest(any(), any(), any())).thenAnswer((
+        invocation,
+      ) async {
+        return BlockNavigation(
+          current: invocation.positionalArguments[1] as RouteContext,
+          blocked: invocation.positionalArguments[2] as RouteContext,
+        );
+      });
 
       const info = RouteInfo('test', '/test');
       final result = await guard.onNavigationRequest(
@@ -31,9 +36,14 @@ void main() {
 
     test('can return Continue', () async {
       final guard = _MockRouteGuard();
-      when(
-        () => guard.onNavigationRequest(any(), any(), any()),
-      ).thenAnswer((_) async => ContinueNavigation());
+      when(() => guard.onNavigationRequest(any(), any(), any())).thenAnswer((
+        invocation,
+      ) async {
+        return ContinueNavigation(
+          current: invocation.positionalArguments[1] as RouteContext,
+          next: invocation.positionalArguments[2] as RouteContext,
+        );
+      });
 
       const info = RouteInfo('test', '/test');
       final result = await guard.onNavigationRequest(
@@ -47,8 +57,11 @@ void main() {
     test('can return Redirect', () async {
       final guard = _MockRouteGuard();
       when(() => guard.onNavigationRequest(any(), any(), any())).thenAnswer(
-        (_) async => RedirectNavigation(
-          const RouteContext(info: RouteInfo('redirect', '/redirect')),
+        (invocation) async => RedirectNavigation(
+          current: invocation.positionalArguments[1] as RouteContext,
+          redirectRoute: const RouteContext(
+            info: RouteInfo('redirect', '/redirect'),
+          ),
         ),
       );
 

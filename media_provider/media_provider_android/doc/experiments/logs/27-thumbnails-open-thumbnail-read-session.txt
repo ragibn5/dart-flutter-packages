@@ -1,0 +1,13 @@
+# Thumbnails via openThumbnailReadSession (openTypedAssetFileDescriptor + EXTRA_SIZE 256x256), profile build, 2026-10-25.
+# Saved copies: photo 800x602 JPEG, video 304x540 JPEG (file(1)); requested size not honoured, MediaStore returns its cached thumbnail.
+I/flutter ( 5365): [IMPORTANT:flutter/shell/platform/android/android_context_vk_impeller.cc(62)] Using the Impeller rendering backend (Vulkan).
+I/flutter ( 5365): 2026-10-25 01:03:30.456434       INFO     Routing: / -> /
+I/flutter ( 5365): 2026-10-25 01:03:30.460300       INFO     Routing: /home -> /home
+I/flutter ( 5365): === Thumbnail (photo): content://media/external/images/media/1000000127, item 204488 bytes, requested 256x256
+I/flutter ( 5365): === Thumbnail (photo) run 1 - session local-1: open 26.6ms, read 3.4ms, reported 124929 bytes, read 124929 bytes, jpeg true
+I/flutter ( 5365): === Thumbnail (photo) run 2 - session local-2: open 9.0ms, read 2.7ms, reported 124929 bytes, read 124929 bytes, jpeg true
+I/flutter ( 5365): === Thumbnail (photo) run 3 - session local-3: open 7.3ms, read 1.1ms, reported 124929 bytes, read 124929 bytes, jpeg true
+I/flutter ( 5365): === Thumbnail (video): content://media/external/video/media/1000011695, item 392674791 bytes, requested 256x256
+I/flutter ( 5365): === Thumbnail (video) run 1 - session local-4: open 11.1ms, read 2.6ms, reported 41352 bytes, read 41352 bytes, jpeg true
+I/flutter ( 5365): === Thumbnail (video) run 2 - session local-5: open 13.5ms, read 2.1ms, reported 41352 bytes, read 41352 bytes, jpeg true
+I/flutter ( 5365): === Thumbnail (video) run 3 - session local-6: open 12.6ms, read 1.9ms, reported 41352 bytes, read 41352 bytes, jpeg true

@@ -1,0 +1,29 @@
+# Chunk sizes 512 KB-4 MB, interleaved order, video, profile build, screen kept awake, 2026-10-24.
+I/flutter (18787): [IMPORTANT:flutter/shell/platform/android/android_context_vk_impeller.cc(62)] Using the Impeller rendering backend (Vulkan).
+I/flutter (18787): 2026-10-24 23:35:34.539219       INFO     Routing: / -> /
+I/flutter (18787): 2026-10-24 23:35:34.548083       INFO     Routing: /home -> /home
+I/flutter (18787): === Delivered (video): /storage/emulated/0/DCIM/Camera/VID_20260916_092913055.mp4, 392674791 bytes
+I/flutter (18787): === video pluginFileSource 512KB run 1: open 15.2ms, read 628.1ms (596 MB/s, 839us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 512KB run 1: open 23.3ms, read 495.9ms (755 MB/s, 662us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 1024KB run 1: open 9.6ms, read 610.9ms (613 MB/s, 1629us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 1024KB run 1: open 25.9ms, read 472.7ms (792 MB/s, 1260us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 2048KB run 1: open 15.7ms, read 702.5ms (533 MB/s, 3737us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 2048KB run 1: open 23.6ms, read 885.9ms (423 MB/s, 4712us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 4096KB run 1: open 24.3ms, read 455.3ms (823 MB/s, 4843us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 4096KB run 1: open 23.6ms, read 614.9ms (609 MB/s, 6542us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 512KB run 2: open 20.6ms, read 419.0ms (894 MB/s, 559us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 512KB run 2: open 20.9ms, read 515.0ms (727 MB/s, 688us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 1024KB run 2: open 21.8ms, read 615.8ms (608 MB/s, 1642us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 1024KB run 2: open 23.5ms, read 493.1ms (759 MB/s, 1315us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 2048KB run 2: open 12.9ms, read 762.1ms (491 MB/s, 4054us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 2048KB run 2: open 22.7ms, read 884.4ms (423 MB/s, 4704us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 4096KB run 2: open 10.1ms, read 436.6ms (858 MB/s, 4644us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 4096KB run 2: open 21.0ms, read 631.3ms (593 MB/s, 6716us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 512KB run 3: open 20.0ms, read 658.9ms (568 MB/s, 880us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 512KB run 3: open 21.5ms, read 571.8ms (655 MB/s, 763us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 1024KB run 3: open 19.0ms, read 504.5ms (742 MB/s, 1345us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 1024KB run 3: open 26.3ms, read 473.1ms (792 MB/s, 1262us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 2048KB run 3: open 25.8ms, read 754.4ms (496 MB/s, 4013us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 2048KB run 3: open 23.7ms, read 795.6ms (471 MB/s, 4232us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginFileSource 4096KB run 3: open 24.1ms, read 452.4ms (828 MB/s, 4813us/chunk), 392674791 bytes
+I/flutter (18787): === video pluginDescriptorSource 4096KB run 3: open 12.5ms, read 612.0ms (612 MB/s, 6511us/chunk), 392674791 bytes

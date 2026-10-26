@@ -1,0 +1,73 @@
+import 'package:media_provider_android/media_provider_android.dart';
+import 'package:media_provider_android/media_provider_android_method_channel.dart';
+import 'package:media_provider_android/src/models/open_media_read_request.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+abstract class MediaProviderAndroidPlatform extends PlatformInterface {
+  static final Object _token = Object();
+  static MediaProviderAndroidPlatform _instance =
+      MethodChannelMediaProviderAndroid();
+
+  /// Constructs a MediaProviderAndroidPlatform.
+  MediaProviderAndroidPlatform() : super(token: _token);
+
+  /// The default instance of [MediaProviderAndroidPlatform] to use.
+  ///
+  /// Defaults to [MethodChannelMediaProviderAndroid].
+  static MediaProviderAndroidPlatform get instance => _instance;
+
+  /// Platform-specific implementations should set this with their own
+  /// platform-specific class that extends [MediaProviderAndroidPlatform] when
+  /// they register themselves.
+  static set instance(MediaProviderAndroidPlatform instance) {
+    PlatformInterface.verifyToken(instance, _token);
+    _instance = instance;
+  }
+
+  /// Get all storage volumes.
+  ///
+  /// See the [VolumeInfo] for more info.
+  Future<List<VolumeInfo>> getVolumes() {
+    throw UnimplementedError('getVolumes() has not been implemented.');
+  }
+
+  /// Queries `MediaStore` as per the given query.
+  ///
+  /// See the [QuerySpec] for more info.
+  Future<List<MediaItem>> getMedia(QuerySpec query) {
+    throw UnimplementedError('getMedia() has not been implemented.');
+  }
+
+  /// Opens a session for reading the item [request] points to.
+  ///
+  /// See [MediaReadSession] for more info.
+  Future<MediaReadSession> openReadSession(OpenMediaReadRequest request) {
+    throw UnimplementedError('openReadSession() has not been implemented.');
+  }
+
+  /// Opens a session for reading the thumbnail of the item [request] points
+  /// to.
+  ///
+  /// See [MediaReadSession] for more info.
+  Future<MediaReadSession> openThumbnailReadSession(
+    OpenThumbnailReadRequest request,
+  ) {
+    throw UnimplementedError(
+      'openThumbnailReadSession() has not been implemented.',
+    );
+  }
+
+  /// Shows the system share sheet for the items [request] points to.
+  ///
+  /// See [ShareMediaRequest] for more info.
+  Future<void> shareMedia(ShareMediaRequest request) {
+    throw UnimplementedError('shareMedia() has not been implemented.');
+  }
+
+  /// Shows the apps that can open the item [request] points to.
+  ///
+  /// See [OpenMediaWithRequest] for more info.
+  Future<void> openMediaWith(OpenMediaWithRequest request) {
+    throw UnimplementedError('openMediaWith() has not been implemented.');
+  }
+}

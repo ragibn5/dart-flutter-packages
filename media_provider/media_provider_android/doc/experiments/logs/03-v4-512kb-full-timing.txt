@@ -1,0 +1,55 @@
+D/MPTiming( 7445): [getVolumes] native received at 1792775543531ms
+D/MPTiming( 7445): [getVolumes] native coroutine dispatch: 216us
+D/MPTiming( 7445): [getVolumes] native handle: 7767us
+D/MPTiming( 7445): [getVolumes] native result.success (encode + send): 236us
+D/MPTiming( 7445): [getVolumes] native replied at 1792775543540ms
+D/MPTiming( 7445): [queryMedia] native received at 1792775543554ms
+D/MPTiming( 7445): [queryMedia] native coroutine dispatch: 178us
+D/MPTiming( 7445): [queryMedia] native handle: 442007us
+D/MPTiming( 7445): [queryMedia] native result.success (encode + send): 1501us
+D/MPTiming( 7445): [queryMedia] native replied at 1792775543998ms
+D/MPTiming( 7445): [openMediaReadSession] native received at 1792775544043ms
+D/MPTiming( 7445): [openMediaReadSession] native coroutine dispatch: 132us
+D/MPTiming( 7445): [openMediaReadSession] native handle: 35151us
+D/MPTiming( 7445): [openMediaReadSession] native result.success (encode + send): 222us
+D/MPTiming( 7445): [openMediaReadSession] native replied at 1792775544078ms
+I/flutter ( 7445): [MPTiming] [readFromSession start=0] dart wait for previous call: 1487us
+I/flutter ( 7445): [MPTiming] [readFromSession start=0] dart jsonEncode: 464us
+I/flutter ( 7445): [MPTiming] [readFromSession start=0] dart sent at 1792775544106ms
+D/MPTiming( 7445): [readFromSession] native received at 1792775544113ms
+D/MPTiming( 7445): [readFromSession] native coroutine dispatch: 123us
+D/MPTiming( 7445): [readFromSession] native decode request: 426us
+D/MPTiming( 7445): [V4 start=0] hop main -> IO: 344us
+D/MPTiming( 7445): [V4 start=0] allocate 524288B: 15us
+D/MPTiming( 7445): [queryMedia] native received at 1792775544115ms
+D/MPTiming( 7445): [queryMedia] native coroutine dispatch: 102us
+D/MPTiming( 7445): [V4 start=0] read loop: 396us
+D/MPTiming( 7445): [V4 start=0] trim to 204488B: 82us
+D/MPTiming( 7445): [V4 start=0] IO work: 609us
+D/MPTiming( 7445): [V4 start=0] hop IO -> main: 709us
+D/MPTiming( 7445): [readFromSession] native handle: 2360us
+D/MPTiming( 7445): [readFromSession] native result.success (encode + send): 407us
+D/MPTiming( 7445): [readFromSession] native replied at 1792775544116ms
+I/flutter ( 7445): [MPTiming] [readFromSession start=0] dart invokeMethod round trip: 14223us
+I/flutter ( 7445): [MPTiming] [readFromSession start=0] dart reply received at 1792775544121ms
+I/flutter ( 7445): [MPTiming] [openRead position=0] dart consumer (yield until resumed): 1087us
+I/flutter ( 7445): [MPTiming] [readFromSession start=204488] dart wait for previous call: 56us
+I/flutter ( 7445): [MPTiming] [readFromSession start=204488] dart jsonEncode: 82us
+I/flutter ( 7445): [MPTiming] [readFromSession start=204488] dart sent at 1792775544122ms
+D/MPTiming( 7445): [readFromSession] native received at 1792775544123ms
+D/MPTiming( 7445): [readFromSession] native coroutine dispatch: 140us
+D/MPTiming( 7445): [readFromSession] native decode request: 173us
+D/MPTiming( 7445): [V4 start=204488] hop main -> IO: 218us
+D/MPTiming( 7445): [V4 start=204488] allocate 524288B: 13us
+D/MPTiming( 7445): [V4 start=204488] read loop: 55us
+D/MPTiming( 7445): [V4 start=204488] trim to 0B: 2us
+D/MPTiming( 7445): [V4 start=204488] IO work: 170us
+D/MPTiming( 7445): [V4 start=204488] hop IO -> main: 170us
+D/MPTiming( 7445): [readFromSession] native handle: 900us
+D/MPTiming( 7445): [readFromSession] native result.success (encode + send): 96us
+D/MPTiming( 7445): [readFromSession] native replied at 1792775544124ms
+I/flutter ( 7445): [MPTiming] [readFromSession start=204488] dart invokeMethod round trip: 1964us
+I/flutter ( 7445): [MPTiming] [readFromSession start=204488] dart reply received at 1792775544125ms
+D/MPTiming( 7445): [queryMedia] native handle: 29985us
+D/MPTiming( 7445): [queryMedia] native result.success (encode + send): 278us
+D/MPTiming( 7445): [queryMedia] native replied at 1792775544145ms

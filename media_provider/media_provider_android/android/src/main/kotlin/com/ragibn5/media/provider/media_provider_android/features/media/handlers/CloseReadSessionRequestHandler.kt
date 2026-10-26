@@ -1,0 +1,23 @@
+package com.ragibn5.media.provider.media_provider_android.features.media.handlers
+
+import com.ragibn5.media.provider.media_provider_android.MethodCallRequestHandler
+import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
+import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaReadExceptionCodes
+import com.ragibn5.media.provider.media_provider_android.features.media.services.MediaReadService
+import io.flutter.plugin.common.MethodCall
+
+internal class CloseReadSessionRequestHandler(
+    private val mediaReadService: MediaReadService,
+) : MethodCallRequestHandler {
+    override val method = "closeReadSession"
+
+    override suspend fun handle(call: MethodCall): Any? {
+        val sessionId = call.argument<String>("sessionId")
+            ?: throw MediaProviderException(
+                code = MediaReadExceptionCodes.INVALID_REQUEST,
+                message = "You must pass the `sessionId` of the session to close"
+            )
+        mediaReadService.closeReadSession(sessionId)
+        return null
+    }
+}
