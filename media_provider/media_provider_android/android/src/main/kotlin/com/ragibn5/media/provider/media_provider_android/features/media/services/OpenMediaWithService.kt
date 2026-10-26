@@ -10,7 +10,7 @@ import com.ragibn5.media.provider.media_provider_android.features.media.services
 /**
  * Opens `MediaStore` items in other apps, picked from the system chooser.
  */
-internal interface OpenMediaWithService {
+internal fun interface OpenMediaWithService {
     /**
      * Shows the apps that can open the item [request] points to.
      *

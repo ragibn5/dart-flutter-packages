@@ -12,7 +12,7 @@ import com.ragibn5.media.provider.media_provider_android.features.media.services
 /**
  * Shares `MediaStore` items with other apps, through the system share sheet.
  */
-internal interface ShareMediaService {
+internal fun interface ShareMediaService {
     /**
      * Shows the system share sheet for the items [request] points to.
      *
@@ -28,17 +28,17 @@ internal class ShareMediaServiceImpl(
 ) : ShareMediaService {
     override fun share(request: ShareMediaRequest) {
         val uris = request.contentUris.map { it.toUri() }
+
         val intent = if (uris.size == 1) {
             Intent(Intent.ACTION_SEND)
                 .putExtra(Intent.EXTRA_STREAM, uris.single())
         } else {
             Intent(Intent.ACTION_SEND_MULTIPLE)
                 .putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
-        }.apply {
-            type = resolveSharedMimeType(uris)
-            clipData = buildClipData(uris)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
+        intent.type = resolveSharedMimeType(uris)
+        intent.clipData = buildClipData(uris)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
         chooserLauncher.launch(intent, request.chooserTitle)
     }
@@ -59,6 +59,7 @@ internal class ShareMediaServiceImpl(
         if (topLevelType == null || topLevelType == "*") {
             return ANY_MIME_TYPE
         }
+
         return "$topLevelType/*"
     }
 

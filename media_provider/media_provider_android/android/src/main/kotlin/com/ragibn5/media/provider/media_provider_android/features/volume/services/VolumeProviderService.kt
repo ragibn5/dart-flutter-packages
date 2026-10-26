@@ -7,7 +7,7 @@ import com.ragibn5.media.provider.media_provider_android.features.volume.models.
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeState
 
 
-internal interface VolumeProviderService {
+internal fun interface VolumeProviderService {
     fun getVolumes(): List<VolumeInfo>
 }
 

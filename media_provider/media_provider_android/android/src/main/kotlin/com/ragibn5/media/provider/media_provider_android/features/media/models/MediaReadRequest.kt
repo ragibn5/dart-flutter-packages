@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class MediaReadRequest(
     /**
-     * The id of the [MediaReadSession] to read from.
+     * The id of the [com.ragibn5.media.provider.media_provider_android.features.media.io.session.MediaReadSession] to read from.
      *
      * Note: Must be a valid session id obtained from `openMediaReadSession`.
      * */
@@ -15,7 +15,7 @@ internal data class MediaReadRequest(
     /**
      * The offset in bytes to start reading from.
      *
-     * Note: Must be >=0 and <= [MediaReadSession.sizeInBytes].
+     * Note: Must be >=0 and <= [com.ragibn5.media.provider.media_provider_android.features.media.io.session.MediaReadSession.sizeInBytes].
      * */
     val start: Long = 0L,
     /**

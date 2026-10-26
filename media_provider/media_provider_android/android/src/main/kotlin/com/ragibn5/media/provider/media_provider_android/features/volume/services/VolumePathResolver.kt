@@ -27,6 +27,7 @@ internal class VolumePathResolver(
 
         // 2. Direct optimization fallback for the primary internal storage volume on legacy APIs
         if (storageVolume.isPrimary) {
+            @Suppress("kotlin:S5324")
             return Environment.getExternalStorageDirectory().absolutePath.ensureNoTrailingSlash()
         }
 
@@ -42,6 +43,7 @@ internal class VolumePathResolver(
      */
     private fun getVolumePathViaStorageManager(targetUuid: String): String? {
         // Gather all active paths safely provisioned by the framework sandbox
+        @Suppress("kotlin:S5324")
         val activeDirs = appContext.getExternalFilesDirs(null)
             .filterNotNull()
 
