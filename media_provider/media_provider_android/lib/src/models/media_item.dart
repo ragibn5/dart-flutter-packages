@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:media_provider_android/src/models/file_location.dart';
 import 'package:media_provider_android/src/models/media_type.dart';
-import 'package:media_provider_android/src/models/volume_identity.dart';
 import 'package:meta/meta.dart';
 
 part 'media_item.g.dart';
@@ -27,8 +26,8 @@ class MediaItem extends Equatable {
   /// The `MediaStore` row ID (`_ID`), as a string, for example `'42'`.
   ///
   /// Sourced from `BaseColumns._ID`, held as a string rather than a
-  /// number. Combined with [type] and [volumeIdentity] it identifies the file
-  /// for as long as it stays in the library.
+  /// number. Combined with [type] and the volume in [fileLocation],
+  /// it identifies the file for as long as it stays in the library.
   final String id;
 
   /// The location of the data file or null if not applicable.
@@ -77,11 +76,6 @@ class MediaItem extends Equatable {
   /// time.
   final int? dateTakenInMillis;
 
-  /// The identity of the storage volume the file sits on.
-  ///
-  /// Null when the volume identity cannot be resolved.
-  final VolumeIdentity? volumeIdentity;
-
   /// The package name of the app that owns the item, for example
   /// `'com.android.camera'`.
   ///
@@ -126,7 +120,6 @@ class MediaItem extends Equatable {
     required this.dateAddedInMillis,
     required this.dateModifiedInMillis,
     required this.dateTakenInMillis,
-    required this.volumeIdentity,
     required this.ownerPackageName,
     required this.isPending,
     required this.isTrashed,
@@ -151,7 +144,6 @@ class MediaItem extends Equatable {
     dateAddedInMillis,
     dateModifiedInMillis,
     dateTakenInMillis,
-    volumeIdentity,
     ownerPackageName,
     isPending,
     isTrashed,

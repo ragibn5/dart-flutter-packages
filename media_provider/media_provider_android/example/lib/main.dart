@@ -86,9 +86,9 @@ class _MyAppState extends State<MyApp> {
           }),
           title: Text(item.name ?? item.id),
           subtitle: Text(item.mimeType ?? 'Unknown type'),
-          trailing: item.volumeIdentity == null
+          trailing: item.fileLocation == null
               ? null
-              : Text(item.volumeIdentity!.type.name),
+              : Text(item.fileLocation!.volumeIdentity.type.name),
         );
       },
     );

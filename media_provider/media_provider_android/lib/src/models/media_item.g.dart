@@ -19,9 +19,6 @@ MediaItem _$MediaItemFromJson(Map<String, dynamic> json) => MediaItem(
   dateAddedInMillis: (json['dateAddedInMillis'] as num?)?.toInt(),
   dateModifiedInMillis: (json['dateModifiedInMillis'] as num?)?.toInt(),
   dateTakenInMillis: (json['dateTakenInMillis'] as num?)?.toInt(),
-  volumeIdentity: json['volumeIdentity'] == null
-      ? null
-      : VolumeIdentity.fromJson(json['volumeIdentity'] as Map<String, dynamic>),
   ownerPackageName: json['ownerPackageName'] as String?,
   isPending: json['isPending'] as bool?,
   isTrashed: json['isTrashed'] as bool?,
@@ -40,7 +37,6 @@ Map<String, dynamic> _$MediaItemToJson(MediaItem instance) => <String, dynamic>{
   'dateAddedInMillis': instance.dateAddedInMillis,
   'dateModifiedInMillis': instance.dateModifiedInMillis,
   'dateTakenInMillis': instance.dateTakenInMillis,
-  'volumeIdentity': instance.volumeIdentity?.toJson(),
   'ownerPackageName': instance.ownerPackageName,
   'isPending': instance.isPending,
   'isTrashed': instance.isTrashed,
