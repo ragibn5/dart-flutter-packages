@@ -21,6 +21,7 @@ internal fun interface MediaReadPermissionChecker {
 
 internal class MediaReadPermissionCheckerImpl(
     private val context: Context,
+    private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) : MediaReadPermissionChecker {
     override fun isGranted(): Boolean {
         return buildPermissions().any { permission ->
@@ -34,14 +35,14 @@ internal class MediaReadPermissionCheckerImpl(
      */
     private fun buildPermissions(): List<String> {
         return when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> listOf(
+            sdkInt >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> listOf(
                 Manifest.permission.READ_MEDIA_IMAGES,
                 Manifest.permission.READ_MEDIA_VIDEO,
                 // Access to only the items the user picked.
                 Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
             )
 
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> listOf(
+            sdkInt >= Build.VERSION_CODES.TIRAMISU -> listOf(
                 Manifest.permission.READ_MEDIA_IMAGES,
                 Manifest.permission.READ_MEDIA_VIDEO,
             )
