@@ -13,7 +13,7 @@ VolumeInfo _$VolumeInfoFromJson(Map<String, dynamic> json) => VolumeInfo(
     json['state'],
     unknownValue: VolumeState.unknown,
   ),
-  availableSpaceInBytes: (json['availableSpaceInBytes'] as num).toInt(),
+  availableSpaceInBytes: (json['availableSpaceInBytes'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$VolumeInfoToJson(VolumeInfo instance) =>

@@ -20,7 +20,7 @@ class VolumeInfo extends Equatable {
   /// The space still available on the volume, in bytes.
   ///
   /// Can be null if the availability could not be read.
-  final int availableSpaceInBytes;
+  final int? availableSpaceInBytes;
 
   const VolumeInfo({
     required this.identity,
