@@ -50,6 +50,7 @@ internal sealed interface OpenedMediaSource {
  */
 internal class MediaSourceOpener(
     private val contentResolver: ContentResolver,
+    private val permissionChecker: MediaReadPermissionChecker,
 ) {
     /**
      * Opens the item [request] points to.
@@ -195,16 +196,11 @@ internal class MediaSourceOpener(
      * [OpenMediaReadExceptionCodes.PERMISSION_DENIED] if it may not.
      */
     private fun checkPermission() {
-        if (!isPermissionAvailable()) {
+        if (!permissionChecker.isGranted()) {
             throw MediaProviderException(
                 OpenMediaReadExceptionCodes.PERMISSION_DENIED,
                 "The required permissions for reading the media item is not granted"
             )
         }
-    }
-
-    private fun isPermissionAvailable(): Boolean {
-        // TODO: Implement actual logic here
-        return true
     }
 }
