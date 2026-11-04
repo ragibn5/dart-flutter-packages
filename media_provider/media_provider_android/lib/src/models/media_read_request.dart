@@ -21,7 +21,8 @@ class MediaReadRequest extends Equatable {
   /// The count of bytes to read.
   /// Notes:
   /// - This must be >= 0.
-  /// - The actual length of returned bytes may be less depending on availability.
+  /// - The actual length of returned bytes may be less, depending on
+  ///   availability.
   final int length;
 
   const MediaReadRequest({

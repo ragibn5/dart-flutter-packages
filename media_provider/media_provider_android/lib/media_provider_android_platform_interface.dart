@@ -1,6 +1,5 @@
 import 'package:media_provider_android/media_provider_android.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
-import 'package:media_provider_android/src/models/open_media_read_request.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 abstract class MediaProviderAndroidPlatform extends PlatformInterface {
