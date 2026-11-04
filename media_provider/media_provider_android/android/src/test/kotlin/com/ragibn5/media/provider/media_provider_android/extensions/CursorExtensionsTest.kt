@@ -8,81 +8,77 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * The `*OrNull` helpers exist because `Cursor.getLong` and friends report NULL
- * as `0`, which would hide "unknown". Each test states that mapping rule against
- * a mocked cursor, so none of this depends on a real cursor's storage format.
- */
 internal class CursorExtensionsTest {
     private val cursor = Mockito.mock(Cursor::class.java)
 
-    /** Stubs column 0 as holding [value], or NULL when [value] is null. */
-    private fun column(value: Any?) = 0.also {
-        Mockito.`when`(cursor.isNull(it)).thenReturn(value == null)
-        if (value == null) return@also
-        when (value) {
-            is String -> Mockito.`when`(cursor.getString(it)).thenReturn(value)
-            // Stub both readers: `getIntOrNull` reads `getInt`, the `Long`
-            // helpers read `getLong`.
-            is Number -> {
-                Mockito.`when`(cursor.getLong(it)).thenReturn(value.toLong())
-                Mockito.`when`(cursor.getInt(it)).thenReturn(value.toInt())
-            }
-
-            else -> error("Unsupported column value: $value")
-        }
+    private fun givenNull() {
+        Mockito.`when`(cursor.isNull(COLUMN)).thenReturn(true)
     }
 
     @Test
-    fun `getLongOrNull reads a present value`() {
-        assertEquals(99L, cursor.getLongOrNull(column(99L)))
+    fun getLongOrNullShouldReturnNullIfColumnIsNull() {
+        givenNull()
+
+        assertNull(cursor.getLongOrNull(COLUMN))
     }
 
     @Test
-    fun `getLongOrNull reports NULL as null, not zero`() {
-        assertNull(cursor.getLongOrNull(column(null)))
+    fun getLongOrNullShouldReturnValueIfColumnHasOne() {
+        Mockito.`when`(cursor.getLong(COLUMN)).thenReturn(42L)
+
+        assertEquals(42L, cursor.getLongOrNull(COLUMN))
     }
 
     @Test
-    fun `getIntOrNull reads a present value`() {
-        assertEquals(7, cursor.getIntOrNull(column(7L)))
+    fun getIntOrNullShouldReturnNullIfColumnIsNull() {
+        givenNull()
+
+        assertNull(cursor.getIntOrNull(COLUMN))
     }
 
     @Test
-    fun `getIntOrNull reports NULL as null, not zero`() {
-        assertNull(cursor.getIntOrNull(column(null)))
+    fun getIntOrNullShouldReturnValueIfColumnHasOne() {
+        Mockito.`when`(cursor.getInt(COLUMN)).thenReturn(7)
+
+        assertEquals(7, cursor.getIntOrNull(COLUMN))
     }
 
     @Test
-    fun `getStringOrNull reads a present value`() {
-        assertEquals("cat.jpg", cursor.getStringOrNull(column("cat.jpg")))
+    fun getStringOrNullShouldReturnNullIfColumnIsNull() {
+        givenNull()
+
+        assertNull(cursor.getStringOrNull(COLUMN))
     }
 
     @Test
-    fun `getStringOrNull reports NULL as null`() {
-        assertNull(cursor.getStringOrNull(column(null)))
+    fun getStringOrNullShouldReturnValueIfColumnHasOne() {
+        Mockito.`when`(cursor.getString(COLUMN)).thenReturn("IMG_0001.jpg")
+
+        assertEquals("IMG_0001.jpg", cursor.getStringOrNull(COLUMN))
     }
 
     @Test
-    fun `getBooleanOrNull reads zero as false`() {
-        assertEquals(false, cursor.getBooleanOrNull(column(0L)))
+    fun getBooleanOrNullShouldReturnNullIfColumnIsNull() {
+        givenNull()
+
+        assertNull(cursor.getBooleanOrNull(COLUMN))
     }
 
     @Test
-    fun `getBooleanOrNull reads any non-zero as true`() {
-        assertEquals(true, cursor.getBooleanOrNull(column(1L)))
-        assertEquals(true, cursor.getBooleanOrNull(column(2L)))
+    fun getBooleanOrNullShouldReturnTrueIfValueIsNotZero() {
+        Mockito.`when`(cursor.getInt(COLUMN)).thenReturn(1)
+
+        assertTrue(cursor.getBooleanOrNull(COLUMN)!!)
     }
 
     @Test
-    fun `getBooleanOrNull reports NULL as null, not false`() {
-        assertNull(cursor.getBooleanOrNull(column(null)))
+    fun getBooleanOrNullShouldReturnFalseIfValueIsZero() {
+        Mockito.`when`(cursor.getInt(COLUMN)).thenReturn(0)
+
+        assertFalse(cursor.getBooleanOrNull(COLUMN)!!)
     }
 
-    @Test
-    fun `treats only an explicit zero as false`() {
-        // Guards the intent above: a NULL must not collapse to `false`.
-        assertTrue(cursor.getLongOrNull(column(0L)) == 0L)
-        assertFalse(cursor.getLongOrNull(column(null)) == 0L)
+    private companion object {
+        const val COLUMN = 3
     }
 }

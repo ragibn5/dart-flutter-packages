@@ -1,318 +1,126 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.services
 
-import android.net.Uri
+import android.database.Cursor
 import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore.MediaColumns
-import com.ragibn5.media.provider.media_provider_android.fakes.FakeCursor
-import com.ragibn5.media.provider.media_provider_android.fakes.FakeItemUriBuilder
-import com.ragibn5.media.provider.media_provider_android.fakes.fakeFileLocationResolver
-import com.ragibn5.media.provider.media_provider_android.fakes.fakeUri
-import com.ragibn5.media.provider.media_provider_android.fakes.volumeIdentity
-import com.ragibn5.media.provider.media_provider_android.features.media.di.MediaColumnsReaderFactory
-import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaColumn
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
-/**
- * [MediaColumnsReader] converts one cursor row into a [MediaItem].
- *
- * The cursor is a [FakeCursor], the file's location comes from a
- * [fakeFileLocationResolver] and the SDK level is injected, so these tests assert
- * on the reader's own mapping rules only.
- *
- * `volumeIdentity` and `relativePath` are both derived from the `DATA` path, so the
- * tests over them pin the resolver rather than the SDK level.
- */
 @Suppress("DEPRECATION")
 internal class MediaColumnsReaderTest {
-    private val collectionUri: Uri = fakeUri("content://media/external/images/media")
+    /** Every column a reader can read, at the index the fake cursor puts it. */
+    private val columns = MediaColumnsReader.projectionFor(Build.VERSION_CODES.R)
 
-    /** A builder that never touches real `ContentUris`. */
-    private val uriBuilder = FakeItemUriBuilder()
+    /** A cursor on one row holding [values]; a column left out reads as NULL. */
+    private fun cursorOver(values: Map<String, Any>): Cursor = Mockito.mock(Cursor::class.java).also { cursor ->
+        columns.forEachIndexed { index, name ->
+            Mockito.`when`(cursor.getColumnIndexOrThrow(name)).thenReturn(index)
+            val value = values[name]
+            Mockito.`when`(cursor.isNull(index)).thenReturn(value == null)
+            when (value) {
+                is String -> Mockito.`when`(cursor.getString(index)).thenReturn(value)
+                is Number -> {
+                    Mockito.`when`(cursor.getLong(index)).thenReturn(value.toLong())
+                    Mockito.`when`(cursor.getInt(index)).thenReturn(value.toInt())
+                }
+            }
+        }
+    }
 
-    /** What [fakeFileLocationResolver] reports for the primary volume. */
-    private val primaryVolume = volumeIdentity()
+    private val row = mapOf(
+        BaseColumns._ID to 42,
+        MediaColumns.DISPLAY_NAME to "IMG_0001.jpg",
+        MediaColumns.MIME_TYPE to "image/jpeg",
+        MediaColumns.SIZE to 2048,
+        MediaColumns.DATE_ADDED to 1_700_000_000,
+        MediaColumns.DATE_MODIFIED to 1_700_000_001,
+        MediaColumns.DATA to "/storage/emulated/0/DCIM/IMG_0001.jpg",
+        MediaColumns.IS_PENDING to 0,
+        MediaColumns.DATE_TAKEN to 1_700_000_002_000,
+        MediaColumns.OWNER_PACKAGE_NAME to "com.android.camera",
+        MediaColumns.IS_TRASHED to 0,
+        MediaColumns.IS_FAVORITE to 1,
+        MediaColumns.IS_DOWNLOAD to 0,
+    )
 
-    private fun readerOver(
-        values: Map<String, Any?>,
-        sdkInt: Int = Build.VERSION_CODES.R,
-        volumePath: String? = "/storage/emulated/0",
-    ) =
-        MediaColumnsReader(
-            cursor = FakeCursor.over(values).cursor,
-            fileLocationResolver = fakeFileLocationResolver(volumePath = volumePath),
-            uriBuilder = uriBuilder.builder,
-            sdkInt = sdkInt,
+    @Test
+    fun readShouldReadEveryColumnIfApiIs30OrAbove() {
+        val column = MediaColumnsReader(cursorOver(row), Build.VERSION_CODES.R).read()
+
+        assertEquals(
+            MediaColumn(
+                id = "42",
+                name = "IMG_0001.jpg",
+                mimeType = "image/jpeg",
+                sizeInBytes = 2048,
+                dateAddedInMillis = 1_700_000_000_000,
+                dateModifiedInMillis = 1_700_000_001_000,
+                dateTakenInMillis = 1_700_000_002_000,
+                ownerPackageName = "com.android.camera",
+                data = "/storage/emulated/0/DCIM/IMG_0001.jpg",
+                isPending = false,
+                isTrashed = false,
+                isFavorite = true,
+                isDownloaded = false,
+            ),
+            column,
         )
-
-    /** Reads one row as a photo, the type the tests below assert on. */
-    private fun MediaColumnsReader.readPhoto() =
-        read(MediaType.PHOTO, collectionUri)
-
-    /** A `DATA` path under the volume [fakeFileLocationResolver] reports. */
-    private fun data(vararg segments: String) =
-        mapOf(MediaColumns.DATA to "/storage/emulated/0/${segments.joinToString("/")}")
+    }
 
     @Test
-    fun `maps every column onto the item`() {
-        val item = readerOver(
-            mapOf(
-                BaseColumns._ID to 42L,
-                MediaColumns.DISPLAY_NAME to "cat.png",
-                MediaColumns.MIME_TYPE to "image/png",
-                MediaColumns.SIZE to 2048L,
-                MediaColumns.DATE_ADDED to 1_700_000_000L,
-                MediaColumns.DATE_MODIFIED to 1_700_000_500L,
-                MediaColumns.DATE_TAKEN to 1_700_000_750_000L,
-                MediaColumns.OWNER_PACKAGE_NAME to "com.android.camera",
-                MediaColumns.IS_PENDING to 0,
-                MediaColumns.IS_TRASHED to 1,
-                MediaColumns.IS_FAVORITE to 1,
-                MediaColumns.IS_DOWNLOAD to 1,
+    fun readShouldLeaveApi30ColumnsNullIfApiIs29() {
+        val column = MediaColumnsReader(cursorOver(row), Build.VERSION_CODES.Q).read()
+
+        assertEquals(listOf(null, null, null), listOf(column.isTrashed, column.isFavorite, column.isDownloaded))
+        assertEquals(false, column.isPending)
+    }
+
+    @Test
+    fun readShouldLeaveApi29ColumnsNullIfApiIsBelow29() {
+        val column = MediaColumnsReader(cursorOver(row), Build.VERSION_CODES.P).read()
+
+        assertEquals(listOf(null, null, null), listOf(column.isPending, column.dateTakenInMillis, column.ownerPackageName))
+    }
+
+    @Test
+    fun readShouldLeaveDatesNullIfColumnsAreNull() {
+        val column = MediaColumnsReader(cursorOver(mapOf(BaseColumns._ID to 42)), Build.VERSION_CODES.R).read()
+
+        assertEquals(listOf(null, null), listOf(column.dateAddedInMillis, column.dateModifiedInMillis))
+    }
+
+    @Test
+    fun projectionForShouldListBaseColumnsIfApiIsBelow29() {
+        assertEquals(
+            listOf(
+                BaseColumns._ID,
+                MediaColumns.DISPLAY_NAME,
+                MediaColumns.MIME_TYPE,
+                MediaColumns.SIZE,
+                MediaColumns.DATE_ADDED,
+                MediaColumns.DATE_MODIFIED,
+                MediaColumns.DATA,
             ),
-        ).readPhoto()
-
-        assertEquals(MediaType.PHOTO, item.type)
-        assertEquals("42", item.id)
-        assertEquals("cat.png", item.name)
-        assertEquals("image/png", item.mimeType)
-        assertEquals(2048L, item.sizeInBytes)
-        assertEquals(1_700_000_000_000L, item.dateAddedInMillis)
-        assertEquals(1_700_000_500_000L, item.dateModifiedInMillis)
-        assertEquals(1_700_000_750_000L, item.dateTakenInMillis)
-        assertEquals("com.android.camera", item.ownerPackageName)
-        assertEquals(false, item.isPending)
-        assertEquals(true, item.isTrashed)
-        assertEquals(true, item.isFavorite)
-        assertEquals(true, item.isDownloaded)
+            MediaColumnsReader.projectionFor(Build.VERSION_CODES.P),
+        )
     }
 
     @Test
-    fun `takes the type and collection uri it was called with`() {
-        val item = readerOver(mapOf(BaseColumns._ID to 1L))
-            .read(MediaType.VIDEO, collectionUri)
-
-        assertEquals(MediaType.VIDEO, item.type)
+    fun projectionForShouldAddApi29ColumnsIfApiIs29() {
+        assertEquals(
+            listOf(MediaColumns.IS_PENDING, MediaColumns.DATE_TAKEN, MediaColumns.OWNER_PACKAGE_NAME),
+            MediaColumnsReader.projectionFor(Build.VERSION_CODES.Q).drop(7),
+        )
     }
 
     @Test
-    fun `converts second-based dates to milliseconds`() {
-        val item = readerOver(
-            mapOf(
-                BaseColumns._ID to 1L,
-                MediaColumns.DATE_ADDED to 1_700_000_000L,
-                MediaColumns.DATE_MODIFIED to 1_700_000_500L,
-                // DATE_TAKEN is already milliseconds and must pass through untouched.
-                MediaColumns.DATE_TAKEN to 1_700_000_750_000L,
-            ),
-        ).readPhoto()
-
-        assertEquals(1_700_000_000_000L, item.dateAddedInMillis)
-        assertEquals(1_700_000_500_000L, item.dateModifiedInMillis)
-        assertEquals(1_700_000_750_000L, item.dateTakenInMillis)
-    }
-
-    @Test
-    fun `keeps NULL columns null instead of zero`() {
-        val item = readerOver(mapOf(BaseColumns._ID to 1L)).readPhoto()
-
-        assertNull(item.name)
-        assertNull(item.mimeType)
-        assertNull(item.sizeInBytes)
-        assertNull(item.dateAddedInMillis)
-        assertNull(item.dateModifiedInMillis)
-        assertNull(item.dateTakenInMillis)
-        assertNull(item.ownerPackageName)
-        assertNull(item.isDownloaded)
-    }
-
-    @Test
-    fun `builds the item uri from the collection uri and the row id`() {
-        val item = readerOver(mapOf(BaseColumns._ID to 42L)).readPhoto()
-
-        assertEquals("$collectionUri/42", item.uri)
-        assertEquals(listOf("$collectionUri/42"), uriBuilder.requestedUris)
-    }
-
-    @Test
-    fun `reads the base columns on every supported API level`() {
-        val item = readerOver(
-            values = mapOf(BaseColumns._ID to 1L),
-            sdkInt = Build.VERSION_CODES.P,
-        ).readPhoto()
-
-        assertEquals("1", item.id)
-    }
-
-    @Test
-    fun `resolves the volume and relative path from DATA`() {
-        val item = readerOver(data("DCIM", "Camera", "cat.png"), Build.VERSION_CODES.P)
-            .readPhoto()
-
-        assertEquals(primaryVolume, item.volumeIdentity)
-        assertEquals("DCIM/Camera/", item.relativePath)
-    }
-
-    @Test
-    fun `resolves the volume and relative path from DATA on API 29 and above too`() {
-        // The columns no longer take part: both fields come from the path.
-        val item = readerOver(data("DCIM", "Camera", "cat.png")).readPhoto()
-
-        assertEquals(primaryVolume, item.volumeIdentity)
-        assertEquals("DCIM/Camera/", item.relativePath)
-    }
-
-    @Test
-    fun `keeps the volume and relative path null when DATA is missing`() {
-        val item = readerOver(
-            values = mapOf(BaseColumns._ID to 1L),
-            sdkInt = Build.VERSION_CODES.P,
-        ).readPhoto()
-
-        assertNull(item.volumeIdentity)
-        assertNull(item.relativePath)
-    }
-
-    @Test
-    fun `keeps the volume and relative path null for a file off every volume`() {
-        val item = readerOver(
-            values = mapOf(
-                BaseColumns._ID to 1L,
-                MediaColumns.DATA to "/data/media/0/DCIM/cat.png",
-            ),
-            sdkInt = Build.VERSION_CODES.P,
-            // No volume reports a root, so the path cannot be placed.
-            volumePath = null,
-        ).readPhoto()
-
-        assertNull(item.volumeIdentity)
-        assertNull(item.relativePath)
-    }
-
-    @Test
-    fun `does not read the API 29 columns below API 29`() {
-        // One below the cutoff, and the cutoff itself, which must have them.
-        listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.P + 1).forEach { sdkInt ->
-            val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
-
-            MediaColumnsReader(
-                cursor = cursor.cursor,
-                fileLocationResolver = fakeFileLocationResolver(),
-                uriBuilder = uriBuilder.builder,
-                sdkInt = sdkInt,
-            ).readPhoto()
-
-            val expectsApi29 = sdkInt >= Build.VERSION_CODES.Q
-            assertEquals(
-                expectsApi29,
-                MediaColumns.IS_PENDING in cursor.lookedUpColumns,
-                "IS_PENDING on API $sdkInt",
-            )
-            assertEquals(
-                expectsApi29,
-                MediaColumns.DATE_TAKEN in cursor.lookedUpColumns,
-                "DATE_TAKEN on API $sdkInt",
-            )
-            assertEquals(
-                expectsApi29,
-                MediaColumns.OWNER_PACKAGE_NAME in cursor.lookedUpColumns,
-                "OWNER_PACKAGE_NAME on API $sdkInt",
-            )
-        }
-    }
-
-    @Test
-    fun `does not read the API 30 columns below API 30`() {
-        val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
-
-        MediaColumnsReader(
-            cursor = cursor.cursor,
-            fileLocationResolver = fakeFileLocationResolver(),
-            uriBuilder = uriBuilder.builder,
-            sdkInt = Build.VERSION_CODES.Q,
-        ).readPhoto()
-
-        assertTrue(MediaColumns.IS_TRASHED !in cursor.lookedUpColumns)
-        assertTrue(MediaColumns.IS_FAVORITE !in cursor.lookedUpColumns)
-        assertTrue(MediaColumns.IS_DOWNLOAD !in cursor.lookedUpColumns)
-    }
-
-    /**
-     * [MediaColumnsReaderFactory] holds the dependencies a
-     * [MediaStoreServiceImpl]
-     * cannot pass on per query, so these tests assert it forwards each of them to
-     * the reader it creates rather than falling back to a device default.
-     */
-    @Test
-    fun `factory builds a reader with its own uri builder`() {
-        val item =
-            MediaColumnsReaderFactory(
-                fileLocationResolver = fakeFileLocationResolver(),
-                uriBuilder = uriBuilder.builder,
-                sdkInt = Build.VERSION_CODES.R,
-            ).create(FakeCursor.over(mapOf(BaseColumns._ID to 42L)).cursor)
-                .readPhoto()
-
-        assertEquals("$collectionUri/42", item.uri)
-        assertEquals(listOf("$collectionUri/42"), uriBuilder.requestedUris)
-    }
-
-    @Test
-    fun `factory builds a reader at its own API level`() {
-        val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
-
-        MediaColumnsReaderFactory(
-            fileLocationResolver = fakeFileLocationResolver(),
-            uriBuilder = uriBuilder.builder,
-            // Below API 29, so the API 29 columns must go unread.
-            sdkInt = Build.VERSION_CODES.P,
-        ).create(cursor.cursor).readPhoto()
-
-        assertTrue(MediaColumns.IS_PENDING !in cursor.lookedUpColumns)
-    }
-
-    @Test
-    fun `factory builds a reader with its own file location resolver`() {
-        val item =
-            MediaColumnsReaderFactory(
-                fileLocationResolver = fakeFileLocationResolver(volumePath = null),
-                uriBuilder = uriBuilder.builder,
-                sdkInt = Build.VERSION_CODES.P,
-            ).create(FakeCursor.over(data("DCIM", "cat.png")).cursor)
-                .readPhoto()
-
-        assertNull(item.relativePath)
-    }
-
-    /**
-     * The reader resolves its columns with `getColumnIndexOrThrow`, so a
-     * projection missing any of them throws mid-query. Equality — not a subset
-     * check — pins that the projection and the reader cannot drift apart, in
-     * either direction: a column projected but never read is waste, and one read
-     * but not projected is a crash.
-     */
-    @Test
-    fun `the projection is exactly what the reader looks up`() {
-        // Each branch, since each level reads a different set.
-        listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.R).forEach { sdkInt ->
-            val cursor = FakeCursor.over(mapOf(BaseColumns._ID to 1L))
-
-            MediaColumnsReader(
-                cursor = cursor.cursor,
-                fileLocationResolver = fakeFileLocationResolver(),
-                sdkInt = sdkInt,
-            )
-
-            assertEquals(
-                MediaColumnsReader.projectionFor(
-                    sdkInt
-                ),
-                cursor.lookedUpColumns,
-                "projection vs looked-up columns on API $sdkInt",
-            )
-        }
+    fun projectionForShouldAddApi30ColumnsIfApiIs30() {
+        assertEquals(
+            listOf(MediaColumns.IS_TRASHED, MediaColumns.IS_FAVORITE, MediaColumns.IS_DOWNLOAD),
+            MediaColumnsReader.projectionFor(Build.VERSION_CODES.R).drop(10),
+        )
     }
 }

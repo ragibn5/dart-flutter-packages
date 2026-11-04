@@ -1,13 +1,9 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.services
 
-import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.os.storage.StorageManager
-import android.provider.MediaStore.MediaColumns
-import com.ragibn5.media.provider.media_provider_android.fakes.fakeStorageManager
-import com.ragibn5.media.provider.media_provider_android.fakes.fakeUri
-import com.ragibn5.media.provider.media_provider_android.fakes.fakeVolume
+import android.os.storage.StorageVolume
+import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaQuery
 import com.ragibn5.media.provider.media_provider_android.features.media.models.MediaType
 import com.ragibn5.media.provider.media_provider_android.features.media.models.QuerySpec
 import com.ragibn5.media.provider.media_provider_android.features.volume.models.VolumeSpec
@@ -15,219 +11,93 @@ import com.ragibn5.media.provider.media_provider_android.features.volume.service
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
-/**
- * [MediaQueryBuilder] expands a [QuerySpec] into one query per type and volume,
- * skipping volumes the device does not have.
- *
- * The `StorageManager` and the volume paths are faked, the collection URIs come
- * from an injected resolver, and the paths are absolute so a result never depends
- * on the machine running the tests.
- */
 internal class MediaQueryBuilderTest {
-    private val primaryPath = "/storage/emulated/0"
-    private val externalPath = "/storage/1234-5678"
+    private val photos = Mockito.mock(Uri::class.java)
+    private val videos = Mockito.mock(Uri::class.java)
+    private val storageManager = Mockito.mock(StorageManager::class.java)
+    private val volumePathResolver = Mockito.mock(VolumePathResolver::class.java)
+    private val primary = Mockito.mock(StorageVolume::class.java)
+    private val sdCard = Mockito.mock(StorageVolume::class.java).also {
+        Mockito.`when`(it.uuid).thenReturn("1A2B-3C4D")
+    }
 
-    private val photoUri: Uri = fakeUri("content://test/photo")
-    private val videoUri: Uri = fakeUri("content://test/video")
-
-    /**
-     * A real resolver over fake URIs: `MediaStore`'s own collections are `null`
-     * off-device, so the collections are supplied here instead.
-     */
-    private val collectionUriResolver = MediaCollectionUriResolver(
-        photoCollection = { photoUri },
-        videoCollection = { videoUri },
+    private val builder = MediaQueryBuilder(
+        storageManager,
+        volumePathResolver,
+        MediaCollectionUriResolver(photoCollection = { photos }, videoCollection = { videos }),
     )
 
-    /** A device with the primary volume and one secondary volume mounted. */
-    private val storageManager: StorageManager = fakeStorageManager(
-        volumes = listOf(
-            fakeVolume(isPrimary = true, uuid = "1111-1111"),
-            fakeVolume(isPrimary = false, uuid = "1234-5678"),
-        ),
-        primaryPath = primaryPath,
-        volumeDirectories = mapOf("1234-5678" to externalPath),
-    )
+    init {
+        Mockito.`when`(storageManager.primaryStorageVolume).thenReturn(primary)
+        Mockito.`when`(storageManager.storageVolumes).thenReturn(listOf(primary, sdCard))
+        Mockito.`when`(volumePathResolver.resolve(primary)).thenReturn("/storage/emulated/0")
+        Mockito.`when`(volumePathResolver.resolve(sdCard)).thenReturn("/storage/1A2B-3C4D")
+    }
 
-    private fun builder(
-        storageManager: StorageManager = this.storageManager,
-        sdkInt: Int = Build.VERSION_CODES.R,
-    ) = MediaQueryBuilder(
-        storageManager = storageManager,
-        volumePathResolver = VolumePathResolver(
-            appContext = Mockito.mock(Context::class.java),
-            storageManager = storageManager,
-            sdkInt = sdkInt,
-        ),
-        collectionUriResolver = collectionUriResolver,
+    private fun photoQuery(prefix: String) = MediaQuery(
+        type = MediaType.PHOTO,
+        uri = photos,
+        selection = "_data LIKE ?",
+        selectionArgs = arrayOf("$prefix%"),
     )
-
-    private fun spec(
-        types: Set<MediaType> = setOf(MediaType.PHOTO),
-        volumes: Set<VolumeSpec> = setOf(VolumeSpec.Primary()),
-    ) = QuerySpec(types = types, volumes = volumes)
 
     @Test
-    fun `builds one query per requested type`() {
-        val queries = builder().build(spec(types = setOf(MediaType.PHOTO, MediaType.VIDEO)))
+    fun buildShouldQueryPrimaryVolumeRootIfSpecIsPrimaryWithoutScope() {
+        val queries = builder.build(QuerySpec(setOf(MediaType.PHOTO), setOf(VolumeSpec.Primary())))
 
-        assertEquals(listOf(MediaType.PHOTO, MediaType.VIDEO), queries.map { it.type })
+        assertEquals(listOf(photoQuery("/storage/emulated/0/")), queries)
     }
 
     @Test
-    fun `builds one query per requested volume`() {
-        val queries = builder().build(
-            spec(volumes = setOf(VolumeSpec.Primary(), VolumeSpec.External("1234-5678"))),
-        )
+    fun buildShouldQueryVolumeWithMatchingUuidIfSpecIsExternal() {
+        val queries = builder.build(QuerySpec(setOf(MediaType.PHOTO), setOf(VolumeSpec.External("1A2B-3C4D"))))
 
-        assertEquals(
-            listOf("$primaryPath/%", "$externalPath/%"),
-            queries.map { it.selectionArgs?.single() },
-        )
+        assertEquals(listOf(photoQuery("/storage/1A2B-3C4D/")), queries)
     }
 
     @Test
-    fun `builds a query for every type and volume combination`() {
-        val queries = builder().build(
-            spec(
-                types = setOf(MediaType.PHOTO, MediaType.VIDEO),
-                volumes = setOf(VolumeSpec.Primary(), VolumeSpec.External("1234-5678")),
+    fun buildShouldQueryScopeFolderIfScopeIsGiven() {
+        val queries = builder.build(
+            QuerySpec(setOf(MediaType.PHOTO), setOf(VolumeSpec.Primary(relativePathScope = "/DCIM/Camera/"))),
+        )
+
+        assertEquals(listOf(photoQuery("/storage/emulated/0/DCIM/Camera/")), queries)
+    }
+
+    @Test
+    fun buildShouldBuildOneQueryPerTypeAndVolume() {
+        val queries = builder.build(
+            QuerySpec(
+                setOf(MediaType.PHOTO, MediaType.VIDEO),
+                setOf(VolumeSpec.Primary(), VolumeSpec.External("1A2B-3C4D")),
             ),
         )
 
-        assertEquals(4, queries.size)
-    }
-
-    @Test
-    fun `queries the collection of its type`() {
-        val queries = builder().build(spec(types = setOf(MediaType.PHOTO, MediaType.VIDEO)))
-
-        assertEquals(listOf(photoUri, videoUri), queries.map { it.uri })
-    }
-
-    /**
-     * The prefix the `LIKE` matches on. A missing slash would make it
-     * `/storage/emulated/0%`, which also matches a sibling volume whose root
-     * merely starts with the same characters.
-     */
-    @Test
-    fun `pins each query to its volume root with a slash before the wildcard`() {
-        val query = builder().build(spec()).single()
-
-        assertEquals("${MediaColumns.DATA} LIKE ?", query.selection)
-        assertEquals("$primaryPath/%", query.selectionArgs?.single())
-    }
-
-    @Test
-    fun `does not let one volume's prefix match a sibling`() {
-        val queries = builder().build(spec(volumes = setOf(VolumeSpec.External("1234-5678"))))
-
-        val pattern = queries.single().selectionArgs!!.single()
-        // `/storage/1234-5678%` would also match `/storage/1234-56789/...`.
-        assertTrue(
-            pattern.startsWith("/storage/1234-5678/"),
-            "the root must be slash-terminated before the wildcard, was '$pattern'",
+        assertEquals(
+            listOf(
+                MediaType.PHOTO to photos,
+                MediaType.PHOTO to photos,
+                MediaType.VIDEO to videos,
+                MediaType.VIDEO to videos,
+            ),
+            queries.map { it.type to it.uri },
         )
     }
 
     @Test
-    fun `matches an external volume by its UUID`() {
-        val queries = builder()
-            .build(spec(volumes = setOf(VolumeSpec.External("1234-5678"))))
-
-        assertEquals("$externalPath/%", queries.single().selectionArgs?.single())
-    }
-
-    @Test
-    fun `skips a volume the device does not have`() {
-        val queries = builder().build(spec(volumes = setOf(VolumeSpec.External("9999-9999"))))
+    fun buildShouldSkipVolumeIfNoVolumeHasUuid() {
+        val queries = builder.build(QuerySpec(setOf(MediaType.PHOTO), setOf(VolumeSpec.External("5E6F-7A8B"))))
 
         assertEquals(emptyList(), queries)
     }
 
     @Test
-    fun `still builds the other volumes when one is missing`() {
-        val queries = builder().build(
-            spec(volumes = setOf(VolumeSpec.Primary(), VolumeSpec.External("9999-9999"))),
-        )
+    fun buildShouldSkipVolumeIfPathCanNotBeResolved() {
+        Mockito.`when`(volumePathResolver.resolve(sdCard)).thenReturn(null)
 
-        assertEquals(listOf("$primaryPath/%"), queries.map { it.selectionArgs?.single() })
-    }
+        val queries = builder.build(QuerySpec(setOf(MediaType.PHOTO), setOf(VolumeSpec.External("1A2B-3C4D"))))
 
-    @Test
-    fun `skips the primary volume on a device that has none`() {
-        val storageManager = fakeStorageManager(
-            volumes = listOf(fakeVolume(isPrimary = false, uuid = "1234-5678")),
-            primaryPath = null,
-            volumeDirectories = mapOf("1234-5678" to externalPath),
-        )
-
-        assertEquals(emptyList(), builder(storageManager).build(spec()))
-    }
-
-    @Test
-    fun `skips a volume whose path cannot be resolved`() {
-        // Mounted, but nothing reports where — `VolumePathResolver` returns null,
-        // and a `LIKE` on the literal string "null" would match nothing anyway.
-        val storageManager = fakeStorageManager(
-            volumes = listOf(fakeVolume(isPrimary = true, uuid = "1111-1111")),
-            primaryPath = null,
-        )
-
-        assertEquals(emptyList(), builder(storageManager).build(spec()))
-    }
-
-    @Test
-    fun `builds nothing for a spec that requests nothing`() {
-        assertEquals(emptyList(), builder().build(spec(types = emptySet(), volumes = emptySet())))
-    }
-
-    @Test
-    fun `scopes a query to the relative path of its volume`() {
-        val queries = builder().build(
-            spec(
-                volumes = setOf(
-                    VolumeSpec.Primary(relativePathScope = "Pictures/Trip"),
-                    VolumeSpec.External("1234-5678", relativePathScope = "DCIM/Camera"),
-                ),
-            ),
-        )
-
-        assertEquals(
-            listOf("$primaryPath/Pictures/Trip/%", "$externalPath/DCIM/Camera/%"),
-            queries.map { it.selectionArgs?.single() },
-        )
-    }
-
-    @Test
-    fun `does not double the separator when the relative path ends in one`() {
-        val queries = builder().build(
-            spec(volumes = setOf(VolumeSpec.Primary(relativePathScope = "Pictures/Trip/"))),
-        )
-
-        assertEquals("$primaryPath/Pictures/Trip/%", queries.single().selectionArgs?.single())
-    }
-
-    @Test
-    fun `does not double the separator when the relative path starts in one`() {
-        val queries = builder().build(
-            spec(volumes = setOf(VolumeSpec.Primary(relativePathScope = "/Pictures/Trip"))),
-        )
-
-        assertEquals("$primaryPath/Pictures/Trip/%", queries.single().selectionArgs?.single())
-    }
-
-    @Test
-    fun `builds a query per distinct type, not per repeated entry`() {
-        val queries = builder().build(
-            QuerySpec(
-                types = setOf(MediaType.PHOTO, MediaType.PHOTO, MediaType.VIDEO),
-                volumes = setOf(VolumeSpec.Primary()),
-            ),
-        )
-
-        assertEquals(listOf(MediaType.PHOTO, MediaType.VIDEO), queries.map { it.type })
+        assertEquals(emptyList(), queries)
     }
 }

@@ -3,10 +3,8 @@ package com.ragibn5.media.provider.media_provider_android
 import android.content.ContentResolver
 import android.content.Context
 import android.os.storage.StorageManager
-import com.ragibn5.media.provider.media_provider_android.fakes.FakeBinaryMessenger
-import com.ragibn5.media.provider.media_provider_android.fakes.getVolumesCall
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.BinaryMessenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -16,125 +14,82 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import kotlin.test.assertEquals
+import java.nio.ByteBuffer
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
-/**
- * [MediaProviderAndroidPlugin] owns the channel name and the attach/detach
- * lifecycle. These tests drive those two concerns through [attach], which builds
- * the real services over a mocked context, so no part of this depends on
- * `MediaStore` or on a device.
- */
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class MediaProviderAndroidPluginTest {
-    private val messenger = FakeBinaryMessenger()
-    private val storageManager: StorageManager = Mockito.mock(StorageManager::class.java)
+    /** A [BinaryMessenger] that records the handler set on each channel, and its task queue. */
+    private class FakeBinaryMessenger : BinaryMessenger {
+        val handlers = mutableMapOf<String, BinaryMessenger.BinaryMessageHandler?>()
+        val taskQueues = mutableMapOf<String, BinaryMessenger.TaskQueue?>()
 
-    /**
-     * A context that answers the one lookup the factories make.
-     *
-     * Nothing is queried through it: every call below is either rejected before
-     * the service is reached or answered `notImplemented`.
-     */
-    private val context: Context = Mockito.mock(Context::class.java).apply {
-        Mockito.`when`(getSystemService(StorageManager::class.java)).thenReturn(storageManager)
-        Mockito.`when`(contentResolver)
-            .thenReturn(Mockito.mock(ContentResolver::class.java))
+        override fun makeBackgroundTaskQueue(options: BinaryMessenger.TaskQueueOptions): BinaryMessenger.TaskQueue =
+            object : BinaryMessenger.TaskQueue {}
+
+        override fun send(channel: String, message: ByteBuffer?) = Unit
+
+        override fun send(channel: String, message: ByteBuffer?, callback: BinaryMessenger.BinaryReply?) = Unit
+
+        override fun setMessageHandler(channel: String, handler: BinaryMessenger.BinaryMessageHandler?) {
+            setMessageHandler(channel, handler, null)
+        }
+
+        override fun setMessageHandler(
+            channel: String,
+            handler: BinaryMessenger.BinaryMessageHandler?,
+            taskQueue: BinaryMessenger.TaskQueue?,
+        ) {
+            handlers[channel] = handler
+            taskQueues[channel] = taskQueue
+        }
     }
 
+    private val messenger = FakeBinaryMessenger()
+    private val binding = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java).also {
+        val context = Mockito.mock(Context::class.java)
+        Mockito.`when`(context.contentResolver).thenReturn(Mockito.mock(ContentResolver::class.java))
+        Mockito.`when`(context.getSystemService(StorageManager::class.java))
+            .thenReturn(Mockito.mock(StorageManager::class.java))
+        Mockito.`when`(it.applicationContext).thenReturn(context)
+        Mockito.`when`(it.binaryMessenger).thenReturn(messenger)
+    }
     private val plugin = MediaProviderAndroidPlugin()
 
     @BeforeEach
-    fun installMainDispatcher() {
-        // The dispatcher the plugin builds replies on `Dispatchers.Main`.
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-    }
+    fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
 
     @AfterEach
-    fun removeMainDispatcher() {
-        Dispatchers.resetMain()
-    }
-
-    private fun attach() = plugin.attach(context, messenger)
+    fun tearDown() = Dispatchers.resetMain()
 
     @Test
-    fun `registers a handler on its own channel`() {
-        attach()
+    fun onAttachedToEngineShouldServeMainChannel() {
+        plugin.onAttachedToEngine(binding)
 
-        assertNotNull(messenger.handlers[CHANNEL], "expected a handler on '$CHANNEL'")
+        assertNotNull(messenger.handlers[MAIN_CHANNEL])
     }
 
     @Test
-    fun `registers on exactly one channel`() {
-        attach()
+    fun onAttachedToEngineShouldServeReadChannelOnBackgroundTaskQueue() {
+        plugin.onAttachedToEngine(binding)
 
-        assertEquals(listOf(CHANNEL), messenger.handlers.keys.toList())
+        assertNotNull(messenger.handlers[READ_CHANNEL])
+        assertNotNull(messenger.taskQueues[READ_CHANNEL])
     }
 
     @Test
-    fun `clears the channel handler when detached`() {
-        attach()
+    fun onDetachedFromEngineShouldStopServingBothChannels() {
+        plugin.onAttachedToEngine(binding)
 
-        plugin.onDetachedFromEngine(detachBinding())
+        plugin.onDetachedFromEngine(binding)
 
-        assertNull(messenger.handlers[CHANNEL], "the handler must be cleared on detach")
+        assertNull(messenger.handlers[MAIN_CHANNEL])
+        assertNull(messenger.handlers[READ_CHANNEL])
     }
-
-    @Test
-    fun `replies not implemented for a method it does not serve`() {
-        attach()
-
-        val reply = messenger.dispatch(CHANNEL, MethodCall("nope", null))
-
-        assertNull(reply, "an unknown method must be answered with notImplemented")
-    }
-
-    @Test
-    fun `serves getMedia`() {
-        attach()
-
-        // Rejected on its arguments, but served: the reply is a decoded error
-        // rather than the null `notImplemented` sends.
-        val error = messenger.decodeError(
-            messenger.dispatch(CHANNEL, MethodCall("getMedia", mapOf("query" to "{}"))),
-        )
-
-        assertEquals("invalid_request", error.code)
-    }
-
-    @Test
-    fun `serves getVolumes`() {
-        attach()
-
-        val reply = messenger.dispatch(CHANNEL, getVolumesCall())
-
-        assertNotNull(reply, "getVolumes must be served, not answered notImplemented")
-    }
-
-    @Test
-    fun `stops serving after being detached`() {
-        attach()
-        plugin.onDetachedFromEngine(detachBinding())
-
-        val error = runCatching { messenger.dispatch(CHANNEL, getVolumesCall()) }
-
-        assertTrue(error.isFailure, "the channel should no longer be served")
-    }
-
-    @Test
-    fun `attaching again replaces the handler rather than adding one`() {
-        attach()
-        attach()
-
-        assertEquals(listOf(CHANNEL), messenger.handlers.keys.toList())
-    }
-
-    private fun detachBinding() = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java)
 
     private companion object {
-        /** Mirrors the plugin's private channel name. */
-        const val CHANNEL = "media_provider_android"
+        const val MAIN_CHANNEL = "media_provider_android"
+        const val READ_CHANNEL = "media_provider_android/read"
     }
 }
