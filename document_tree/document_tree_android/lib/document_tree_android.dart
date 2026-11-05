@@ -3,19 +3,21 @@
 library;
 
 import 'package:document_tree_android/document_tree_android_platform_interface.dart';
-import 'package:document_tree_android/src/exceptions/document_query_exception.dart';
+import 'package:document_tree_android/src/exceptions/document_exceptions.dart';
 import 'package:document_tree_android/src/exceptions/tree_pick_exception.dart';
 import 'package:document_tree_android/src/exceptions/tree_request_exception.dart';
+import 'package:document_tree_android/src/models/copy_document_request.dart';
 import 'package:document_tree_android/src/models/document_info.dart';
 import 'package:document_tree_android/src/models/document_tree.dart';
 import 'package:document_tree_android/src/models/list_documents_request.dart';
 import 'package:document_tree_android/src/models/pick_tree_request.dart';
 
-export 'src/exceptions/document_query_exception.dart'
-    hide DocumentQueryExceptionMapper;
+export 'src/exceptions/document_exceptions.dart'
+    hide DocumentQueryExceptionMapper, DocumentWriteExceptionMapper;
 export 'src/exceptions/tree_pick_exception.dart' hide TreePickExceptionMapper;
 export 'src/exceptions/tree_request_exception.dart'
     hide TreeRequestExceptionMapper;
+export 'src/models/copy_document_request.dart';
 export 'src/models/document_info.dart';
 export 'src/models/document_tree.dart';
 export 'src/models/list_documents_request.dart';
@@ -61,5 +63,18 @@ class DocumentTreeAndroid {
   /// listed. See [ListDocumentsRequest] for more info.
   Future<List<DocumentInfo>> listDocuments(ListDocumentsRequest request) {
     return DocumentTreeAndroidPlatform.instance.listDocuments(request);
+  }
+
+  /// Copies the file [request] points to into its tree.
+  ///
+  /// A file the copy created is deleted again if the copy fails. A file it
+  /// overwrote can't be restored: it's left with what was copied so far.
+  ///
+  /// Returns: the copy.
+  ///
+  /// Throws: a [DocumentWriteException] if the file can't be copied. See
+  /// [CopyDocumentRequest] for more info.
+  Future<DocumentInfo> copyDocument(CopyDocumentRequest request) {
+    return DocumentTreeAndroidPlatform.instance.copyDocument(request);
   }
 }

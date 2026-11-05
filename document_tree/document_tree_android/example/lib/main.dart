@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:document_tree_android/document_tree_android.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +35,7 @@ class _TreePageState extends State<TreePage> {
   String? _treeUri;
   DocumentTree? _tree;
   List<DocumentInfo>? _documents;
+  DocumentInfo? _copied;
   String? _error;
 
   Future<void> _run(Future<void> Function() action) async {
@@ -98,6 +101,26 @@ class _TreePageState extends State<TreePage> {
     );
   });
 
+  /// Copies a fresh cache file into the tree, at `copy-test/sample.txt`.
+  Future<void> _copy({required bool overwrite}) => _run(() async {
+    final treeUri = _treeUri;
+    if (treeUri == null) {
+      return;
+    }
+
+    final source = File('${Directory.systemTemp.path}/sample.txt');
+    await source.writeAsString('Copied at ${DateTime.now()}\n');
+    final copied = await _documentTree.copyDocument(
+      CopyDocumentRequest(
+        sourceUri: source.uri.toString(),
+        treeUri: treeUri,
+        path: 'copy-test/sample.txt',
+        overwrite: overwrite,
+      ),
+    );
+    setState(() => _copied = copied);
+  });
+
   String _formatMillis(int? millis) {
     return millis == null
         ? 'unknown'
@@ -118,6 +141,14 @@ class _TreePageState extends State<TreePage> {
             OutlinedButton(onPressed: _refresh, child: const Text('Refresh')),
             OutlinedButton(onPressed: _release, child: const Text('Release')),
             OutlinedButton(onPressed: _list, child: const Text('List')),
+            OutlinedButton(
+              onPressed: () => _copy(overwrite: false),
+              child: const Text('Copy'),
+            ),
+            OutlinedButton(
+              onPressed: () => _copy(overwrite: true),
+              child: const Text('Copy (overwrite)'),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -131,6 +162,13 @@ class _TreePageState extends State<TreePage> {
           Text('Last modified: ${_formatMillis(tree.lastModifiedInMillis)}'),
           Text(
             'Location: ${tree.location == null ? 'not on device storage' : '${tree.location!.volumeId} / "${tree.location!.relativePath}"'}',
+          ),
+        ],
+        if (_copied case final copied?) ...[
+          const SizedBox(height: 16),
+          Text(
+            'Copied: ${copied.path} · ${copied.sizeInBytes} B · '
+            '${copied.mimeType} · ${_formatMillis(copied.lastModifiedInMillis)}',
           ),
         ],
         if (_documents case final documents?) ...[

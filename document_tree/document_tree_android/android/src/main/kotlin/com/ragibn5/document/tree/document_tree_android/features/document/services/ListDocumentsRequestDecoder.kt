@@ -31,11 +31,8 @@ internal class ListDocumentsRequestDecoder(
             throw invalidArgument("Not a document tree uri: ${request.treeUri}")
         }
 
-        // `/DCIM/Camera/` and `DCIM/Camera` are the same folder.
-        val path = request.path.trim('/')
-        if (path.isNotEmpty() && path.split('/').any { it.isEmpty() || it == "." || it == ".." }) {
-            throw invalidArgument("Invalid path - its segments must be non-empty, and not `.` or `..`: ${request.path}")
-        }
+        val path = DocumentPaths.normalize(request.path)
+            ?: throw invalidArgument("Invalid path - its segments must be non-empty, and not `.` or `..`: ${request.path}")
 
         return@runCatching request.copy(path = path)
     }

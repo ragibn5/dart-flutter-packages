@@ -2,8 +2,11 @@ package com.ragibn5.document.tree.document_tree_android
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import com.ragibn5.document.tree.document_tree_android.features.document.di.DocumentCopyServiceFactory
 import com.ragibn5.document.tree.document_tree_android.features.document.di.DocumentListServiceFactory
+import com.ragibn5.document.tree.document_tree_android.features.document.handlers.CopyDocumentRequestHandler
 import com.ragibn5.document.tree.document_tree_android.features.document.handlers.ListDocumentsRequestHandler
+import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCopyService
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentListService
 import com.ragibn5.document.tree.document_tree_android.features.tree.di.DocumentTreeServiceFactory
 import com.ragibn5.document.tree.document_tree_android.features.tree.handlers.GetTreeRequestHandler
@@ -22,6 +25,7 @@ public class DocumentTreeAndroidPlugin : FlutterPlugin, ActivityAware {
     private lateinit var requestDispatcher: MethodCallDispatcher
     private lateinit var documentTreeService: DocumentTreeService
     private lateinit var documentListService: DocumentListService
+    private lateinit var documentCopyService: DocumentCopyService
 
     /**
      * Shows the folder picker from the activity the plugin is attached to.
@@ -36,7 +40,8 @@ public class DocumentTreeAndroidPlugin : FlutterPlugin, ActivityAware {
     }
 
     /**
-     * Serves [documentTreeService] and [documentListService] over [binaryMessenger].
+     * Serves [documentTreeService], [documentListService] and [documentCopyService] over
+     * [binaryMessenger].
      *
      * Separate from [onAttachedToEngine] so the wiring can be exercised without
      * a device.
@@ -46,6 +51,7 @@ public class DocumentTreeAndroidPlugin : FlutterPlugin, ActivityAware {
         // Services
         documentTreeService = DocumentTreeServiceFactory.create(appContext, treePickerLauncher)
         documentListService = DocumentListServiceFactory.create(appContext)
+        documentCopyService = DocumentCopyServiceFactory.create(appContext)
 
         // Main request dispatcher
         requestDispatcher = MethodCallDispatcher(
@@ -54,6 +60,7 @@ public class DocumentTreeAndroidPlugin : FlutterPlugin, ActivityAware {
                 GetTreeRequestHandler(documentTreeService),
                 ReleaseTreeRequestHandler(documentTreeService),
                 ListDocumentsRequestHandler(documentListService),
+                CopyDocumentRequestHandler(documentCopyService),
             ),
         )
 

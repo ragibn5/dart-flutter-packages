@@ -1,9 +1,11 @@
 package com.ragibn5.document.tree.document_tree_android.features.document.models
 
+import android.net.Uri
+import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
 
 /**
- * A document in a folder, as its provider reports it.
+ * A document in a tree, as its provider reports it.
  */
 internal data class DocumentRow(
     val documentId: String,
@@ -21,4 +23,20 @@ internal data class DocumentRow(
      */
     val acceptsWriting: Boolean
         get() = flags and (if (isDirectory) Document.FLAG_DIR_SUPPORTS_CREATE else Document.FLAG_SUPPORTS_WRITE) != 0
+
+    /**
+     * Describes the document, found at [path] in [treeUri], whose grant allows writing if
+     * [grantAllowsWriting].
+     */
+    fun toInfo(treeUri: Uri, path: String, grantAllowsWriting: Boolean) = DocumentInfo(
+        uri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId).toString(),
+        path = path,
+        displayName = displayName,
+        isDirectory = isDirectory,
+        canWrite = grantAllowsWriting && acceptsWriting,
+        mimeType = mimeType,
+        // A folder's size means different things to different providers.
+        sizeInBytes = if (isDirectory) null else sizeInBytes,
+        lastModifiedInMillis = lastModifiedInMillis,
+    )
 }

@@ -1,5 +1,6 @@
 package com.ragibn5.media.provider.media_provider_android.features.media.handlers
 
+import android.util.Log
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderCommonExceptionCodes
 import com.ragibn5.media.provider.media_provider_android.exceptions.MediaProviderException
 import com.ragibn5.media.provider.media_provider_android.features.media.constants.MediaReadExceptionCodes
@@ -27,7 +28,7 @@ internal class BackgroundReadCallHandler(
         } catch (e: MediaProviderException) {
             return result.error(e.code, e.message, e.details)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Unexpected error in ${call.method}", e)
             return result.error(
                 MediaProviderCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
                 e.message,
@@ -48,5 +49,7 @@ internal class BackgroundReadCallHandler(
 
     companion object {
         const val METHOD = "readFromSession"
+
+        private const val TAG = "BackgroundReadCallHandler"
     }
 }

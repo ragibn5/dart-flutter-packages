@@ -48,4 +48,11 @@ abstract class DocumentTreeAndroidPlatform extends PlatformInterface {
   Future<List<DocumentInfo>> listDocuments(ListDocumentsRequest request) {
     throw UnimplementedError('listDocuments() has not been implemented.');
   }
+
+  /// Copies the file [request] points to into its tree.
+  ///
+  /// See [CopyDocumentRequest] for more info.
+  Future<DocumentInfo> copyDocument(CopyDocumentRequest request) {
+    throw UnimplementedError('copyDocument() has not been implemented.');
+  }
 }
