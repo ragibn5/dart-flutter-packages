@@ -1,5 +1,6 @@
 package com.ragibn5.document.tree.document_tree_android
 
+import android.util.Log
 import com.ragibn5.document.tree.document_tree_android.exceptions.DocumentTreeCommonExceptionCodes
 import com.ragibn5.document.tree.document_tree_android.exceptions.DocumentTreeException
 import io.flutter.plugin.common.MethodCall
@@ -35,7 +36,7 @@ internal class MethodCallDispatcher(
             } catch (e: DocumentTreeException) {
                 return@launch result.error(e.code, e.message, e.details)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "Unexpected error in ${call.method}", e)
                 return@launch result.error(
                     DocumentTreeCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
                     e.message,
@@ -53,5 +54,9 @@ internal class MethodCallDispatcher(
      */
     fun dispose() {
         scope.cancel()
+    }
+
+    private companion object {
+        private const val TAG = "MethodCallDispatcher"
     }
 }

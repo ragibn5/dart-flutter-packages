@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
+import android.util.Log
 import com.ragibn5.document.tree.document_tree_android.features.tree.models.DocumentTree
 
 /**
@@ -50,11 +51,13 @@ internal class DocumentTreeResolver(
                         .let { if (cursor.isNull(it)) null else cursor.getLong(it) },
                 )
             }
-        } catch (_: IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
             // The provider no longer knows the document.
+            Log.w(TAG, "Failed to query the root of $treeUri", e)
             null
-        } catch (_: SecurityException) {
+        } catch (e: SecurityException) {
             // The grant no longer covers it.
+            Log.w(TAG, "Failed to query the root of $treeUri", e)
             null
         }
     }
@@ -62,6 +65,8 @@ internal class DocumentTreeResolver(
     private class Root(val displayName: String, val flags: Int, val lastModifiedInMillis: Long?)
 
     private companion object {
+        private const val TAG = "DocumentTreeResolver"
+
         private val PROJECTION = arrayOf(
             Document.COLUMN_DISPLAY_NAME,
             Document.COLUMN_FLAGS,

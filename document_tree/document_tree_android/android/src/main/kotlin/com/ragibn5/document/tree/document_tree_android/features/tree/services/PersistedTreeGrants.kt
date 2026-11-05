@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.content.UriPermission
 import android.net.Uri
+import android.util.Log
 
 /**
  * The persisted grants the app holds on document trees.
@@ -35,8 +36,13 @@ internal class PersistedTreeGrants(private val contentResolver: ContentResolver)
 
         try {
             contentResolver.releasePersistableUriPermission(treeUri, modeFlags)
-        } catch (_: SecurityException) {
+        } catch (e: SecurityException) {
             // Released meanwhile; there's nothing left to release.
+            Log.w(TAG, "Failed to release $treeUri", e)
         }
+    }
+
+    private companion object {
+        private const val TAG = "PersistedTreeGrants"
     }
 }
