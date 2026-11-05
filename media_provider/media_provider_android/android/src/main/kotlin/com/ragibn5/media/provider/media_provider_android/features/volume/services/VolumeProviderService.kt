@@ -16,6 +16,7 @@ internal class VolumeProviderServiceImpl(
     private val volumePathResolver: VolumePathResolver,
     private val volumeTypeResolver: VolumeTypeResolver = VolumeTypeResolver(),
     private val fileStatsResolver: FileStatsResolver = FileStatsResolver(),
+    private val documentsRootUriResolver: DocumentsRootUriResolver = DocumentsRootUriResolver(),
 ) : VolumeProviderService {
     override fun getVolumes(): List<VolumeInfo> {
         return storageManager.storageVolumes.mapNotNull { volume ->
@@ -24,6 +25,7 @@ internal class VolumeProviderServiceImpl(
             return@mapNotNull VolumeInfo(
                 state = VolumeState.from(volume.state),
                 availableSpaceInBytes = stats?.availableSpaceInBytes,
+                documentsRootUri = documentsRootUriResolver.resolve(volume),
                 identity = VolumeIdentity(
                     uuid = volume.uuid,
                     type = volumeTypeResolver.resolve(volume),

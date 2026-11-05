@@ -22,10 +22,18 @@ class VolumeInfo extends Equatable {
   /// Can be null if the availability could not be read.
   final int? availableSpaceInBytes;
 
+  /// The volume's root in the system's documents provider, such as
+  /// `content://com.android.externalstorage.documents/root/B63B-1E04`.
+  ///
+  /// Start the folder picker here to let the user pick a folder on this
+  /// volume. Can be null if the volume has no root there.
+  final String? documentsRootUri;
+
   const VolumeInfo({
     required this.identity,
     required this.state,
     required this.availableSpaceInBytes,
+    required this.documentsRootUri,
   });
 
   factory VolumeInfo.fromJson(Map<String, dynamic> json) =>
@@ -34,5 +42,10 @@ class VolumeInfo extends Equatable {
   Map<String, dynamic> toJson() => _$VolumeInfoToJson(this);
 
   @override
-  List<Object?> get props => [identity, state, availableSpaceInBytes];
+  List<Object?> get props => [
+    identity,
+    state,
+    availableSpaceInBytes,
+    documentsRootUri,
+  ];
 }

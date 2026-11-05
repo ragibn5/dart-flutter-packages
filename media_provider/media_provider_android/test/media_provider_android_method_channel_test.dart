@@ -93,6 +93,7 @@ void main() {
             'identity': primaryVolumeIdentityJson,
             'state': 'MOUNTED',
             'availableSpaceInBytes': 64000000000,
+            'documentsRootUri': primaryRootUri,
           },
         ]),
       );
@@ -105,6 +106,7 @@ void main() {
           identity: primaryVolumeIdentity,
           state: VolumeState.mounted,
           availableSpaceInBytes: 64000000000,
+          documentsRootUri: primaryRootUri,
         ),
       ]);
     });

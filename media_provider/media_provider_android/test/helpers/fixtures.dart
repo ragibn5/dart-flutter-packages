@@ -26,6 +26,10 @@ const primaryVolumeIdentityJson = <String, dynamic>{
   'isEmulated': true,
 };
 
+/// The primary volume's root in the system's documents provider.
+const primaryRootUri =
+    'content://com.android.externalstorage.documents/root/primary';
+
 /// A photo backed by a file on the primary volume.
 const photoItem = MediaItem(
   type: MediaType.photo,

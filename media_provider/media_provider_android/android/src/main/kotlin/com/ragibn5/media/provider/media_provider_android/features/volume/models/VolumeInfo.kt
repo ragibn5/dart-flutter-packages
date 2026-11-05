@@ -24,4 +24,12 @@ internal data class VolumeInfo(
      * Can be null if the availability could not be read.
      */
     val availableSpaceInBytes: Long?,
+
+    /**
+     * The volume's root in the system's documents provider, to start the
+     * folder picker at.
+     *
+     * Can be null if the volume has no root there.
+     */
+    val documentsRootUri: String?,
 )

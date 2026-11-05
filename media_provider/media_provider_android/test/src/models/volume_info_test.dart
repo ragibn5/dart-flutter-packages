@@ -8,6 +8,7 @@ const _volumeInfoJson = <String, dynamic>{
   'identity': primaryVolumeIdentityJson,
   'state': 'MOUNTED',
   'availableSpaceInBytes': 64000000000,
+  'documentsRootUri': primaryRootUri,
 };
 
 void main() {
@@ -18,6 +19,7 @@ void main() {
         identity: primaryVolumeIdentity,
         state: VolumeState.mounted,
         availableSpaceInBytes: 64000000000,
+        documentsRootUri: primaryRootUri,
       ),
     );
   });
@@ -43,6 +45,7 @@ void main() {
       identity: primaryVolumeIdentity,
       state: VolumeState.mounted,
       availableSpaceInBytes: 64000000000,
+      documentsRootUri: primaryRootUri,
     );
 
     expect(info.toJson(), _volumeInfoJson);

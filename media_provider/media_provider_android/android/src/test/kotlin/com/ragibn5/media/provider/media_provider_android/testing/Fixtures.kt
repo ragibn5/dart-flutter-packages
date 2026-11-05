@@ -32,4 +32,5 @@ internal fun mountedVolume(identity: VolumeIdentity) = VolumeInfo(
     identity = identity,
     state = VolumeState.MOUNTED,
     availableSpaceInBytes = 1_000,
+    documentsRootUri = null,
 )

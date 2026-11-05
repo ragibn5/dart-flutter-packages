@@ -18,12 +18,14 @@ internal class VolumeProviderServiceTest {
     private val volumePathResolver = Mockito.mock(VolumePathResolver::class.java)
     private val volumeTypeResolver = Mockito.mock(VolumeTypeResolver::class.java)
     private val fileStatsResolver = Mockito.mock(FileStatsResolver::class.java)
+    private val documentsRootUriResolver = Mockito.mock(DocumentsRootUriResolver::class.java)
 
     private val service = VolumeProviderServiceImpl(
         storageManager,
         volumePathResolver,
         volumeTypeResolver,
         fileStatsResolver,
+        documentsRootUriResolver,
     )
 
     private val sdCard = Mockito.mock(StorageVolume::class.java).also {
@@ -31,6 +33,7 @@ internal class VolumeProviderServiceTest {
         Mockito.`when`(it.state).thenReturn(Environment.MEDIA_MOUNTED)
         Mockito.`when`(it.isRemovable).thenReturn(true)
         Mockito.`when`(volumeTypeResolver.resolve(it)).thenReturn(VolumeType.SD_CARD)
+        Mockito.`when`(documentsRootUriResolver.resolve(it)).thenReturn(SD_CARD_ROOT_URI)
     }
 
     private fun givenVolumes(vararg volumes: StorageVolume) {
@@ -58,6 +61,7 @@ internal class VolumeProviderServiceTest {
                     ),
                     state = VolumeState.MOUNTED,
                     availableSpaceInBytes = 500L,
+                    documentsRootUri = SD_CARD_ROOT_URI,
                 ),
             ),
             service.getVolumes(),
@@ -88,5 +92,9 @@ internal class VolumeProviderServiceTest {
         Mockito.`when`(volumePathResolver.resolve(sdCard)).thenReturn("/storage/1A2B-3C4D/")
 
         assertEquals("/storage/1A2B-3C4D", service.getVolumes().single().identity.volumePath)
+    }
+
+    private companion object {
+        const val SD_CARD_ROOT_URI = "content://com.android.externalstorage.documents/root/1A2B-3C4D"
     }
 }
