@@ -33,12 +33,21 @@ dependencies:
 
 ## Permissions
 
-The plugin declares the media read permissions, but doesn't request them: ask for them before querying or reading.
+The plugin neither declares nor requests permissions: the host app declares them in its own `AndroidManifest.xml`, and asks for them before querying or reading.
 
-| Android version     | Permissions                                                                            |
-|---------------------|----------------------------------------------------------------------------------------|
-| 13 (API 33) and up  | `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`; on 14 and up, also selected-only access works |
-| 12L (API 32) and below | `READ_EXTERNAL_STORAGE`                                                             |
+| Android version        | Permissions                                                                                      |
+|------------------------|--------------------------------------------------------------------------------------------------|
+| 13 (API 33) and up     | `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`; on 14 and up, also `READ_MEDIA_VISUAL_USER_SELECTED` to tell selected-only access apart |
+| 12L (API 32) and below | `READ_EXTERNAL_STORAGE`, with `android:maxSdkVersion="32"`                                       |
+| 10 (API 29) and up     | `ACCESS_MEDIA_LOCATION`, if photos' locations must be read: without it, Android removes them     |
+
+```xml
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+<uses-permission
+    android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
+```
 
 Without them, a query returns only the items the app owns, and reading an item fails with `PermissionDeniedException`.
 
