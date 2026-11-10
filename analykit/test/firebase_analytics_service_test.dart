@@ -9,7 +9,6 @@ class _MockFirebaseAnalytics extends Mock implements FirebaseAnalytics {}
 
 void main() {
   const userId = 'userId123';
-  const connectionEnabled = true;
   const eventName = 'flavor_config';
   const eventValue = {'name': 'dev', 'brightness': 'light', 'locale': 'en-US'};
 
@@ -29,6 +28,13 @@ void main() {
       () => mockFirebaseAnalytics.setAnalyticsCollectionEnabled(any()),
     ).thenAnswer((_) async {});
     when(
+      () => mockFirebaseAnalytics.setConsent(
+        analyticsStorageConsentGranted: any(
+          named: 'analyticsStorageConsentGranted',
+        ),
+      ),
+    ).thenAnswer((_) async {});
+    when(
       () => mockFirebaseAnalytics.setUserProperty(
         name: any(named: 'name'),
         value: any(named: 'value'),
@@ -42,21 +48,32 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
-  test(
-    '`setSessionData` should set user Id and analytics collection enabled status',
-    () async {
-      await sut.setSessionData(userId, collectionEnabled: connectionEnabled);
+  test('setUserIdShouldSetTheUserIdIfGivenOne', () async {
+    await sut.setUserId(userId);
 
-      verify(() => mockFirebaseAnalytics.setUserId(id: userId)).called(1);
-      verify(
-        () => mockFirebaseAnalytics.setAnalyticsCollectionEnabled(
-          connectionEnabled,
-        ),
-      ).called(1);
-    },
-  );
+    verify(() => mockFirebaseAnalytics.setUserId(id: userId)).called(1);
+  });
 
-  test('`logEvent` should log correct event with correct value', () async {
+  test('setUserIdShouldClearTheUserIdIfGivenNull', () async {
+    await sut.setUserId(null);
+
+    verify(() => mockFirebaseAnalytics.setUserId()).called(1);
+  });
+
+  test('setCollectionEnabledShouldSetCollectionAndConsentIfCalled', () async {
+    await sut.setCollectionEnabled(enabled: false);
+
+    verify(
+      () => mockFirebaseAnalytics.setAnalyticsCollectionEnabled(false),
+    ).called(1);
+    verify(
+      () => mockFirebaseAnalytics.setConsent(
+        analyticsStorageConsentGranted: false,
+      ),
+    ).called(1);
+  });
+
+  test('logEventShouldLogTheEventWithItsParametersIfCalled', () async {
     await sut.logEvent(eventName, eventValue);
 
     verify(

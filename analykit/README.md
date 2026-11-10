@@ -16,7 +16,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  analykit: ^1.0.0
+  analykit: ^2.0.0
 ```
 
 #### Or, From Git repo
@@ -27,7 +27,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: analykit
-      ref: analykit-1.0.0
+      ref: analykit-2.0.0
 ```
 
 ## Example

@@ -9,9 +9,15 @@ abstract class AnalyticsService {
   @mustCallSuper
   Future<void> initialize() async {}
 
-  /// Associates analytics data with the given [userId]
-  /// and optionally  enables or disables analytics collection.
-  Future<void> setSessionData(String userId, {required bool collectionEnabled});
+  /// Associates analytics data with the given [userId]; `null` clears it,
+  /// such as on sign-out.
+  Future<void> setUserId(String? userId);
+
+  /// Turns analytics collection on or off.
+  ///
+  /// Note:
+  /// The provider remembers it across launches.
+  Future<void> setCollectionEnabled({required bool enabled});
 
   /// Logs an analytics event with the given [name] and optional parameters.
   Future<void> logEvent(String name, [Map<String, Object>? params]);

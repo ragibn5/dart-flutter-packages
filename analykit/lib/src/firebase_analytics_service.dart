@@ -7,12 +7,19 @@ class FirebaseAnalyticsService extends AnalyticsService {
   FirebaseAnalyticsService(this._firebaseAnalytics);
 
   @override
-  Future<void> setSessionData(
-    String userId, {
-    required bool collectionEnabled,
-  }) async {
-    await _firebaseAnalytics.setUserId(id: userId);
-    await _firebaseAnalytics.setAnalyticsCollectionEnabled(collectionEnabled);
+  Future<void> setUserId(String? userId) {
+    return _firebaseAnalytics.setUserId(id: userId);
+  }
+
+  /// Note:
+  /// Also sets the analytics storage consent, which Google needs to process
+  /// data from users in the EEA; the ad consents are left to the app.
+  @override
+  Future<void> setCollectionEnabled({required bool enabled}) async {
+    await _firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
+    await _firebaseAnalytics.setConsent(
+      analyticsStorageConsentGranted: enabled,
+    );
   }
 
   @override

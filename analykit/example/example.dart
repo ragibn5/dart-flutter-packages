@@ -9,6 +9,8 @@ void main() {
     FirebaseAnalytics.instance,
   );
 
-  analytics.setSessionData('user-123', collectionEnabled: true);
+  // Collect only once the user agrees.
+  analytics.setCollectionEnabled(enabled: true);
+  analytics.setUserId('user-123');
   analytics.logEvent('login', {'method': 'email'});
 }
