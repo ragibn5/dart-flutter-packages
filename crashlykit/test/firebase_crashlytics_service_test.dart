@@ -11,7 +11,6 @@ class _MockFirebaseCrashlytics extends Mock implements FirebaseCrashlytics {}
 
 void main() {
   const userId = 'userId123';
-  const connectionEnabled = true;
   const reason = 'Testing reason';
   const printDetails = true;
   const fatal = false;
@@ -49,6 +48,9 @@ void main() {
     when(
       () => mockFirebaseCrashlytics.setCrashlyticsCollectionEnabled(any()),
     ).thenAnswer((_) async {});
+    when(
+      () => mockFirebaseCrashlytics.deleteUnsentReports(),
+    ).thenAnswer((_) async {});
     when(() => mockFirebaseCrashlytics.log(any())).thenAnswer((_) async {});
     when(
       () => mockFirebaseCrashlytics.recordError(
@@ -67,54 +69,70 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
-  test('`initialize` should set delegates to record errors', () async {
-    await sut.initialize();
-
-    FlutterError.onError!(flutterError);
-    PlatformDispatcher.instance.onError!(exp, st);
-
-    verify(
-      () => mockFirebaseCrashlytics.recordFlutterFatalError(flutterError),
-    ).called(1);
-    verify(
-      () => mockFirebaseCrashlytics.recordError(exp, st, fatal: true),
-    ).called(1);
-  });
-
   test(
-    '`setSessionData` should set user Id and analytics collection enabled status',
+    'initializeShouldRecordErrorsIfFlutterOrThePlatformReportsOne',
     () async {
-      await sut.setSessionData(userId, collectionEnabled: connectionEnabled);
+      await sut.initialize();
 
-      verify(() => mockFirebaseCrashlytics.setUserIdentifier(userId)).called(1);
+      FlutterError.onError!(flutterError);
+      PlatformDispatcher.instance.onError!(exp, st);
+
       verify(
-        () => mockFirebaseCrashlytics.setCrashlyticsCollectionEnabled(
-          connectionEnabled,
-        ),
+        () => mockFirebaseCrashlytics.recordFlutterFatalError(flutterError),
+      ).called(1);
+      verify(
+        () => mockFirebaseCrashlytics.recordError(exp, st, fatal: true),
       ).called(1);
     },
   );
 
-  test(
-    '`recordError` should call FirebaseCrashlytics.recordError with appropriate data',
-    () async {
-      await sut.recordError(
+  test('setUserIdShouldSetTheUserIdIfGivenOne', () async {
+    await sut.setUserId(userId);
+
+    verify(() => mockFirebaseCrashlytics.setUserIdentifier(userId)).called(1);
+  });
+
+  test('setUserIdShouldClearTheUserIdIfGivenNull', () async {
+    await sut.setUserId(null);
+
+    verify(() => mockFirebaseCrashlytics.setUserIdentifier('')).called(1);
+  });
+
+  test('setCollectionEnabledShouldKeepUnsentReportsIfEnabling', () async {
+    await sut.setCollectionEnabled(enabled: true);
+
+    verify(
+      () => mockFirebaseCrashlytics.setCrashlyticsCollectionEnabled(true),
+    ).called(1);
+    verifyNever(() => mockFirebaseCrashlytics.deleteUnsentReports());
+  });
+
+  test('setCollectionEnabledShouldDeleteUnsentReportsIfDisabling', () async {
+    await sut.setCollectionEnabled(enabled: false);
+
+    verify(
+      () => mockFirebaseCrashlytics.setCrashlyticsCollectionEnabled(false),
+    ).called(1);
+    verify(() => mockFirebaseCrashlytics.deleteUnsentReports()).called(1);
+  });
+
+  test('recordErrorShouldRecordTheErrorWithItsDetailsIfCalled', () async {
+    await sut.recordError(
+      exp,
+      st,
+      reason: reason,
+      printDetails: printDetails,
+      fatal: fatal,
+    );
+
+    verify(
+      () => mockFirebaseCrashlytics.recordError(
         exp,
         st,
         reason: reason,
         printDetails: printDetails,
         fatal: fatal,
-      );
-
-      verify(
-        () => mockFirebaseCrashlytics.recordError(
-          exp,
-          st,
-          reason: reason,
-          printDetails: printDetails,
-          fatal: fatal,
-        ),
-      ).called(1);
-    },
-  );
+      ),
+    ).called(1);
+  });
 }

@@ -18,13 +18,22 @@ class FirebaseCrashlyticsService extends CrashlyticsService {
     };
   }
 
+  /// Note:
+  /// Crashlytics takes only a string, so `null` clears it with an empty one.
   @override
-  Future<void> setSessionData(
-    String userId, {
-    required bool collectionEnabled,
-  }) async {
-    await _crashlytics.setUserIdentifier(userId);
-    await _crashlytics.setCrashlyticsCollectionEnabled(collectionEnabled);
+  Future<void> setUserId(String? userId) {
+    return _crashlytics.setUserIdentifier(userId ?? '');
+  }
+
+  /// Note:
+  /// Turning it off also deletes the reports kept on the device while it was
+  /// off, so they're never sent later.
+  @override
+  Future<void> setCollectionEnabled({required bool enabled}) async {
+    await _crashlytics.setCrashlyticsCollectionEnabled(enabled);
+    if (!enabled) {
+      await _crashlytics.deleteUnsentReports();
+    }
   }
 
   @override

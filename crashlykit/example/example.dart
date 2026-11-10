@@ -9,7 +9,9 @@ void main() {
     FirebaseCrashlytics.instance,
   );
 
-  crashlytics.setSessionData('user-123', collectionEnabled: true);
+  // Report only once the user agrees.
+  crashlytics.setCollectionEnabled(enabled: true);
+  crashlytics.setUserId('user-123');
 
   try {
     throw Exception('Something went wrong');

@@ -16,7 +16,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  crashlykit: ^1.0.0
+  crashlykit: ^2.0.0
 ```
 
 #### Or, From Git repo
@@ -27,7 +27,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: crashlykit
-      ref: crashlykit-1.0.0
+      ref: crashlykit-2.0.0
 ```
 
 ## Example
