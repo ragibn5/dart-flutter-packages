@@ -83,39 +83,24 @@ class AuthRequestTransformerImpl implements AuthRequestTransformer<String> {
 }
 ```
 
-### RequestRetrier
-
-Sends the retried request. Use a `Dio` without the auth interceptor: a request
-sent through the interceptor's own `Dio` waits behind its queue, which is
-waiting for the retry.
-
-```dart
-class RequestRetrierImpl implements RequestRetrier {
-  final Dio _dio;
-
-  RequestRetrierImpl(this._dio);
-
-  @override
-  Future<Response<dynamic>> retryRequest(RequestOptions request) =>
-      _dio.fetch<dynamic>(request);
-}
-```
-
 ### Compose
 
-```dart
-class AppAuthInterceptor extends BaseAuthInterceptor<String> {
-  AppAuthInterceptor(Dio retryDio)
-      : super(
-          AuthDataProviderImpl(),
-          AuthRefreshPolicyImpl(),
-          AuthRequestTransformerImpl(),
-          RequestRetrierImpl(retryDio),
-        );
-}
+`retryDio` sends a request again after an auth error, with the auth data
+already applied. Use a `Dio` without the interceptor: a request sent through
+the interceptor's own `Dio` waits behind its queue, which is waiting for the
+retry.
 
+```dart
 final options = BaseOptions(baseUrl: 'https://example.com');
-final dio = Dio(options)..interceptors.add(AppAuthInterceptor(Dio(options)));
+final dio = Dio(options)
+  ..interceptors.add(
+    AuthInterceptor<String>(
+      AuthDataProviderImpl(),
+      AuthRefreshPolicyImpl(),
+      AuthRequestTransformerImpl(),
+      retryDio: Dio(options),
+    ),
+  );
 ```
 
 ### When recovery fails

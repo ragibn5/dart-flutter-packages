@@ -13,17 +13,6 @@ class _MockAuthRefreshPolicy extends Mock
 class _MockAuthRequestTransformer extends Mock
     implements AuthRequestTransformer<String> {}
 
-class _MockRequestRetrier extends Mock implements RequestRetrier {}
-
-class _TestAuthInterceptor extends BaseAuthInterceptor<String> {
-  _TestAuthInterceptor(
-    super.authDataProvider,
-    super.refreshPolicy,
-    super.requestTransformer,
-    super.requestRetrier,
-  );
-}
-
 /// Answers every request with [respond], and records what it was sent.
 class _FakeAdapter implements HttpClientAdapter {
   final ResponseBody Function(RequestOptions) respond;
@@ -54,7 +43,7 @@ void main() {
   late _MockAuthDataProvider provider;
   late _MockAuthRefreshPolicy policy;
   late _MockAuthRequestTransformer transformer;
-  late _MockRequestRetrier retrier;
+  late _FakeAdapter retryAdapter;
 
   setUpAll(() {
     registerFallbackValue(RequestOptions());
@@ -65,7 +54,7 @@ void main() {
     provider = _MockAuthDataProvider();
     policy = _MockAuthRefreshPolicy();
     transformer = _MockAuthRequestTransformer();
-    retrier = _MockRequestRetrier();
+    retryAdapter = _FakeAdapter((_) => ResponseBody.fromString('retried', 200));
 
     when(() => provider.getAuthData()).thenAnswer((_) async => 'old');
     when(
@@ -83,13 +72,6 @@ void main() {
         );
       },
     );
-    when(() => retrier.retryRequest(any())).thenAnswer(
-      (i) async => Response<dynamic>(
-        requestOptions: i.positionalArguments[0] as RequestOptions,
-        statusCode: 200,
-        data: 'retried',
-      ),
-    );
   });
 
   Dio buildDio(
@@ -104,7 +86,12 @@ void main() {
     )
       ..httpClientAdapter = adapter
       ..interceptors.add(
-        _TestAuthInterceptor(provider, policy, transformer, retrier),
+        AuthInterceptor(
+          provider,
+          policy,
+          transformer,
+          retryDio: Dio()..httpClientAdapter = retryAdapter,
+        ),
       );
   }
 
@@ -159,7 +146,7 @@ void main() {
     final response = await buildDio(respondWith(200)).get<dynamic>('/a');
 
     expect(response.data, 'sent');
-    verifyNever(() => retrier.retryRequest(any()));
+    expect(retryAdapter.requests, isEmpty);
   });
 
   test('errorShouldPassThroughIfItIsNotAnAuthError', () async {
@@ -167,7 +154,7 @@ void main() {
 
     expect(error.type, DioExceptionType.badResponse);
     expect(error.response?.statusCode, 500);
-    verifyNever(() => retrier.retryRequest(any()));
+    expect(retryAdapter.requests, isEmpty);
   });
 
   test('errorShouldPassThroughIfThereIsNoResponse', () async {
@@ -181,7 +168,7 @@ void main() {
     final error = await requestError(buildDio(adapter));
 
     expect(error.type, DioExceptionType.connectionError);
-    verifyNever(() => retrier.retryRequest(any()));
+    expect(retryAdapter.requests, isEmpty);
   });
 
   test('authErrorShouldRefreshAndRetryIfTheAuthDataIsStale', () async {
@@ -192,8 +179,7 @@ void main() {
     final response = await buildDio(respondWith(401)).get<dynamic>('/a');
 
     expect(response.data, 'retried');
-    final retried = verify(() => retrier.retryRequest(captureAny())).captured;
-    expect(_authOf(retried.single as RequestOptions), 'Bearer new');
+    expect(_authOf(retryAdapter.requests.single), 'Bearer new');
   });
 
   test('authErrorShouldRetryWithoutRefreshingIfTheAuthDataIsCurrent', () async {
@@ -203,8 +189,7 @@ void main() {
 
     expect(response.data, 'retried');
     verifyNever(() => provider.requestAuthDataRefresh(any()));
-    final retried = verify(() => retrier.retryRequest(captureAny())).captured;
-    expect(_authOf(retried.single as RequestOptions), 'Bearer old');
+    expect(_authOf(retryAdapter.requests.single), 'Bearer old');
   });
 
   test(
@@ -222,7 +207,7 @@ void main() {
         (error.error! as AuthRecoveryException).reason,
         AuthRecoveryFailure.authDataUnavailable,
       );
-      verifyNever(() => retrier.retryRequest(any()));
+      expect(retryAdapter.requests, isEmpty);
     },
   );
 
@@ -238,22 +223,24 @@ void main() {
       (error.error! as AuthRecoveryException).reason,
       AuthRecoveryFailure.refreshFailed,
     );
-    verifyNever(() => retrier.retryRequest(any()));
+    expect(retryAdapter.requests, isEmpty);
   });
 
   test('authErrorShouldBeCancelledAsRetryFailedIfTheRetryFails', () async {
     when(
       () => provider.requestAuthDataRefresh('old'),
     ).thenAnswer((_) async => 'new');
-    final cause = DioException(requestOptions: RequestOptions());
-    when(() => retrier.retryRequest(any())).thenThrow(cause);
+    retryAdapter = _FakeAdapter((_) => ResponseBody.fromString('', 500));
 
     final error = await requestError(buildDio(respondWith(401)));
 
     expect(error.type, DioExceptionType.cancel);
     final exception = error.error! as AuthRecoveryException;
     expect(exception.reason, AuthRecoveryFailure.retryFailed);
-    expect(exception.cause, cause);
+    expect(
+      (exception.cause! as DioException).response?.statusCode,
+      500,
+    );
   });
 
   test(
@@ -289,8 +276,7 @@ void main() {
       await Future.wait([dio.get<dynamic>('/a'), dio.get<dynamic>('/b')]);
 
       verify(() => provider.requestAuthDataRefresh('old')).called(1);
-      final retried = verify(() => retrier.retryRequest(captureAny())).captured;
-      expect(retried.map((e) => _authOf(e as RequestOptions)), [
+      expect(retryAdapter.requests.map(_authOf), [
         'Bearer new',
         'Bearer new',
       ]);

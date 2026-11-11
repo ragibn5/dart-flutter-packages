@@ -12,8 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** built on `dio` directly, in place of `net_client`. The
   interceptor is a dio `QueuedInterceptor`, and the collaborators take dio's
   `RequestOptions` and `Response`.
-- **Breaking:** `RequestRetrier` only sends the request: the interceptor
-  applies the auth data to it first. It has no type parameter.
+- **Breaking:** `BaseAuthInterceptor` is now the concrete `AuthInterceptor`:
+  create it directly, with no subclass.
+- **Breaking:** `RequestRetrier` is removed. The interceptor applies the auth
+  data to the retried request and sends it through the `retryDio` it's given.
 
 ### Added
 

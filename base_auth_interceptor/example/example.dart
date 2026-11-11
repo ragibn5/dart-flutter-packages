@@ -38,30 +38,16 @@ class _AuthRequestTransformer implements AuthRequestTransformer<String> {
       );
 }
 
-/// Retries through a [Dio] without the auth interceptor.
-class _RequestRetrier implements RequestRetrier {
-  final Dio _dio;
-
-  _RequestRetrier(this._dio);
-
-  @override
-  Future<Response<dynamic>> retryRequest(RequestOptions request) =>
-      _dio.fetch<dynamic>(request);
-}
-
-class AppAuthInterceptor extends BaseAuthInterceptor<String> {
-  AppAuthInterceptor(Dio retryDio)
-      : super(
-          _AuthDataProvider(),
-          _AuthRefreshPolicy(),
-          _AuthRequestTransformer(),
-          _RequestRetrier(retryDio),
-        );
-}
-
 void main() {
   final options = BaseOptions(baseUrl: 'https://example.com');
   Dio(options)
-    ..interceptors.add(AppAuthInterceptor(Dio(options)))
+    ..interceptors.add(
+      AuthInterceptor<String>(
+        _AuthDataProvider(),
+        _AuthRefreshPolicy(),
+        _AuthRequestTransformer(),
+        retryDio: Dio(options),
+      ),
+    )
     ..get<dynamic>('/profile');
 }

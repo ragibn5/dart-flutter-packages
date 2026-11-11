@@ -2,7 +2,6 @@ import 'package:base_auth_interceptor/src/auth_data_provider.dart';
 import 'package:base_auth_interceptor/src/auth_recovery_exception.dart';
 import 'package:base_auth_interceptor/src/auth_refresh_policy.dart';
 import 'package:base_auth_interceptor/src/auth_request_transformer.dart';
-import 'package:base_auth_interceptor/src/request_retrier.dart';
 import 'package:dio/dio.dart';
 
 /// Authorizes requests, and recovers from auth errors by refreshing the auth
@@ -11,18 +10,22 @@ import 'package:dio/dio.dart';
 /// Note:
 /// Requests and responses pass through one at a time, so concurrent auth
 /// errors lead to a single refresh.
-abstract class BaseAuthInterceptor<AuthData> extends QueuedInterceptor {
+class AuthInterceptor<AuthData> extends QueuedInterceptor {
   final AuthDataProvider<AuthData> _authDataProvider;
   final AuthRefreshPolicy<AuthData> _refreshPolicy;
   final AuthRequestTransformer<AuthData> _requestTransformer;
-  final RequestRetrier _requestRetrier;
+  final Dio _retryDio;
 
-  BaseAuthInterceptor(
+  /// [retryDio] sends a request again after an auth error, with the auth
+  /// data already applied. It must not have this interceptor: a request sent
+  /// through the interceptor's own [Dio] waits behind its queue, which is
+  /// waiting for the retry.
+  AuthInterceptor(
     this._authDataProvider,
     this._refreshPolicy,
-    this._requestTransformer,
-    this._requestRetrier,
-  );
+    this._requestTransformer, {
+    required Dio retryDio,
+  }) : _retryDio = retryDio;
 
   @override
   Future<void> onRequest(
@@ -98,7 +101,7 @@ abstract class BaseAuthInterceptor<AuthData> extends QueuedInterceptor {
     final retryRequest = await _requestTransformer.transformRequestWithAuthData(
         request, authData);
     try {
-      return await _requestRetrier.retryRequest(retryRequest);
+      return await _retryDio.fetch<dynamic>(retryRequest);
     } catch (e) {
       throw _cancellation(request, AuthRecoveryFailure.retryFailed, cause: e);
     }
