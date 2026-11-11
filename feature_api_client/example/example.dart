@@ -1,45 +1,60 @@
+import 'package:dio/dio.dart';
 import 'package:feature_api_client/feature_api_client.dart';
-import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 
-class MyRequest {
+class GetUserRequest {
   final String id;
 
-  MyRequest(this.id);
+  GetUserRequest(this.id);
 }
 
-class MyResponse {
-  final String data;
+class User {
+  final String name;
 
-  MyResponse(this.data);
+  User(this.name);
 }
 
-class MyError {
+class ServerMessage {
   final String message;
 
-  MyError(this.message);
+  ServerMessage(this.message);
 }
 
-class MyClient extends FeatureApiClient<MyRequest, MyResponse, MyError> {
-  MyClient(super.client);
+class UserClient extends FeatureApiClient<GetUserRequest, User, ServerMessage> {
+  UserClient(super.dio);
 
   @override
-  RequestSpec createRequest(MyRequest body) => RequestSpec(
-        pathOrUrl: 'https://api.example.com/${body.id}',
-        method: HttpMethod.GET,
-      );
+  Future<Response<Object?>> send(Dio dio, GetUserRequest body) =>
+      dio.get<Object?>('/users/${body.id}');
 
   @override
-  ApiResponse<MyError, MyResponse> decodeResponse(
-    NetClientResponse response,
-  ) =>
-      SuccessResponse(
-        data: MyResponse(response.data.toString()),
-        statusCode: response.statusCode,
-        headers: response.headers,
+  ApiResponse<ServerMessage, User> decodeResponse(Response<Object?> response) {
+    final json = response.data! as Map<String, dynamic>;
+    final statusCode = response.statusCode!;
+    if (statusCode >= 400) {
+      return FailureResponse(
+        error: ServerMessage(json['message'] as String),
+        statusCode: statusCode,
+        headers: response.headers.map,
       );
+    }
+    return SuccessResponse(
+      data: User(json['name'] as String),
+      statusCode: statusCode,
+      headers: response.headers.map,
+    );
+  }
 }
 
-void main() {
-  print('FeatureApiClient ready');
+Future<void> main() async {
+  final client = UserClient(Dio(BaseOptions(baseUrl: 'https://example.com')));
+
+  final result = await client.request(GetUserRequest('42'));
+  result.fold(
+    onLeft: (error) => print('No answer: $error'),
+    onRight: (response) => response.fold(
+      onFailure: (message) => print('Server error: ${message.message}'),
+      onSuccess: (user) => print('User: ${user.name}'),
+    ),
+  );
 }
