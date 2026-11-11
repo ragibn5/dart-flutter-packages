@@ -1,4 +1,4 @@
-import 'package:net_client/net_client.dart';
+import 'package:dio/dio.dart';
 
 /// Applies auth data to an outgoing request.
 abstract interface class AuthRequestTransformer<AuthData> {
@@ -12,11 +12,11 @@ abstract interface class AuthRequestTransformer<AuthData> {
   /// - [request]: The input request.
   /// - [authData]: The currently available auth data.
   ///
-  /// Returns: A new transformed [RequestSpec] instance,
-  /// possibly adapted with the given auth data, which is
-  /// sent to the network (or to next interceptor).
-  Future<RequestSpec> transformRequestWithAuthData(
-    RequestSpec request,
+  /// Returns: The request, possibly adapted with the given auth data, which
+  /// is sent to the network (or to the next interceptor). It's also used to
+  /// retry a request after an auth error.
+  Future<RequestOptions> transformRequestWithAuthData(
+    RequestOptions request,
     AuthData authData,
   );
 }
