@@ -1,5 +1,3 @@
-// ignore_for_file: lines_longer_than_80_chars
-
 import 'package:analykit/analykit.dart';
 import 'package:app_template/features/app/infrastructure/ports/set_analytics_session_data_use_case_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,22 +15,20 @@ void main() {
 
     sut = SetAnalyticsSessionDataUseCaseImpl(mockAnalyticsService);
 
+    when(() => mockAnalyticsService.setUserId(any())).thenAnswer((_) async {});
     when(
-      () => mockAnalyticsService.setSessionData(
-        any(),
-        collectionEnabled: any(named: 'collectionEnabled'),
+      () => mockAnalyticsService.setCollectionEnabled(
+        enabled: any(named: 'enabled'),
       ),
     ).thenAnswer((_) async {});
   });
 
-  test('Should delegate to AnalyticsService with correct arguments', () async {
+  test('Should set the user ID and the collection choice', () async {
     await sut('test-user', collectionEnabled: true);
 
+    verify(() => mockAnalyticsService.setUserId('test-user')).called(1);
     verify(
-      () => mockAnalyticsService.setSessionData(
-        'test-user',
-        collectionEnabled: true,
-      ),
+      () => mockAnalyticsService.setCollectionEnabled(enabled: true),
     ).called(1);
   });
 }

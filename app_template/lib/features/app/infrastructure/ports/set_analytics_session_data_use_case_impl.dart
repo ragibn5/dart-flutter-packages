@@ -8,10 +8,8 @@ class SetAnalyticsSessionDataUseCaseImpl
   SetAnalyticsSessionDataUseCaseImpl(this._analyticsService);
 
   @override
-  Future<void> call(String userId, {required bool collectionEnabled}) {
-    return _analyticsService.setSessionData(
-      userId,
-      collectionEnabled: collectionEnabled,
-    );
+  Future<void> call(String userId, {required bool collectionEnabled}) async {
+    await _analyticsService.setUserId(userId);
+    await _analyticsService.setCollectionEnabled(enabled: collectionEnabled);
   }
 }

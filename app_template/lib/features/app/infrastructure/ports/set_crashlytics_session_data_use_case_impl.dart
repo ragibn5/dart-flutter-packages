@@ -8,10 +8,8 @@ class SetCrashlyticsSessionDataUseCaseImpl
   SetCrashlyticsSessionDataUseCaseImpl(this._crashlyticsService);
 
   @override
-  Future<void> call(String userId, {required bool collectionEnabled}) {
-    return _crashlyticsService.setSessionData(
-      userId,
-      collectionEnabled: collectionEnabled,
-    );
+  Future<void> call(String userId, {required bool collectionEnabled}) async {
+    await _crashlyticsService.setUserId(userId);
+    await _crashlyticsService.setCollectionEnabled(enabled: collectionEnabled);
   }
 }

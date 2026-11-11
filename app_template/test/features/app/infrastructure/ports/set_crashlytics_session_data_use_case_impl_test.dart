@@ -1,5 +1,3 @@
-// ignore_for_file: lines_longer_than_80_chars
-
 import 'package:app_template/features/app/infrastructure/ports/set_crashlytics_session_data_use_case_impl.dart';
 import 'package:crashlykit/crashlykit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,24 +16,21 @@ void main() {
     sut = SetCrashlyticsSessionDataUseCaseImpl(mockCrashlyticsService);
 
     when(
-      () => mockCrashlyticsService.setSessionData(
-        any(),
-        collectionEnabled: any(named: 'collectionEnabled'),
+      () => mockCrashlyticsService.setUserId(any()),
+    ).thenAnswer((_) async {});
+    when(
+      () => mockCrashlyticsService.setCollectionEnabled(
+        enabled: any(named: 'enabled'),
       ),
     ).thenAnswer((_) async {});
   });
 
-  test(
-    'Should delegate to CrashlyticsService with correct arguments',
-    () async {
-      await sut('test-user', collectionEnabled: true);
+  test('Should set the user ID and the collection choice', () async {
+    await sut('test-user', collectionEnabled: true);
 
-      verify(
-        () => mockCrashlyticsService.setSessionData(
-          'test-user',
-          collectionEnabled: true,
-        ),
-      ).called(1);
-    },
-  );
+    verify(() => mockCrashlyticsService.setUserId('test-user')).called(1);
+    verify(
+      () => mockCrashlyticsService.setCollectionEnabled(enabled: true),
+    ).called(1);
+  });
 }
