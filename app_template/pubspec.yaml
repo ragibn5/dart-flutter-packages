@@ -59,8 +59,11 @@ dependencies:
   json_serializable_converters_collection: ^1.0.0
   preference_store: ^1.0.0
   sqlite_db: ^1.0.0
-  base_auth_interceptor: ^1.0.0
-  feature_api_client: ^1.0.0
+  base_auth_interceptor:
+    path: ../base_auth_interceptor
+  feature_api_client:
+    path: ../feature_api_client
+  dio: ^5.8.0+1
   rover: ^2.0.0
   snacker: ^1.0.0
 

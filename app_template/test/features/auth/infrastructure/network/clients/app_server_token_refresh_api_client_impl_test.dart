@@ -1,15 +1,12 @@
-// ignore_for_file: lines_longer_than_80_chars
-
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
 import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 import 'package:shared_models/shared_models.dart';
 
-class _MockNetClient extends Mock implements NetClient {}
+import '../../../../../helpers/fake_http_client_adapter.dart';
 
 void main() {
   const path = AppServerTokenRefreshApiClientImpl.path;
@@ -25,29 +22,28 @@ void main() {
   );
   const sampleServerMessage = ServerMessage(code: 'error', message: 'Error');
 
+  late FakeHttpClientAdapter adapter;
   late AppServerTokenRefreshApiClientImpl sut;
 
   setUp(() {
-    sut = AppServerTokenRefreshApiClientImpl(_MockNetClient());
+    adapter = FakeHttpClientAdapter((_) => ResponseBody.fromString('', 200));
+    sut = AppServerTokenRefreshApiClientImpl(fakeDio(adapter));
   });
 
-  test('createRequest returns request model with proper values', () {
-    final result = sut.createRequest(tokenRefreshRequest);
+  test('sendShouldGetTheRefreshPathWithTheRefreshTokenIfCalled', () async {
+    await sut.send(fakeDio(adapter), tokenRefreshRequest);
 
-    expect(result.pathOrUrl, path);
-    expect(result.method, HttpMethod.GET);
-    expect(result.body, isA<JsonBody>());
-    final body = result.body! as JsonBody;
-    expect(body.data, tokenRefreshRequest.toJson());
+    final request = adapter.requests.single;
+    expect(request.path, path);
+    expect(request.method, 'GET');
+    expect(request.data, tokenRefreshRequest.toJson());
   });
 
-  test('decodeResponse returns AuthDataDTO from non-error response', () {
-    final response = NetClientResponse(
-      isError: false,
+  test('decodeResponseShouldReturnTheAuthDataIfTheResponseSucceeded', () {
+    final response = Response<Object?>(
+      requestOptions: RequestOptions(),
       statusCode: 200,
       data: sampleAuthData.toJson(),
-      headers: {},
-      requestSpec: RequestSpec(pathOrUrl: '', method: HttpMethod.GET),
     );
 
     final result = sut.decodeResponse(response);
@@ -56,13 +52,11 @@ void main() {
     expect((result as SuccessResponse).data, sampleAuthData);
   });
 
-  test('decodeResponse returns Failure from error response', () {
-    final response = NetClientResponse(
-      isError: true,
+  test('decodeResponseShouldReturnAFailureIfTheResponseFailed', () {
+    final response = Response<Object?>(
+      requestOptions: RequestOptions(),
       statusCode: 400,
       data: sampleServerMessage.toJson(),
-      headers: {},
-      requestSpec: RequestSpec(pathOrUrl: '', method: HttpMethod.GET),
     );
 
     final result = sut.decodeResponse(response);

@@ -1,8 +1,8 @@
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/data/models/auth_data_dto.dart';
 import 'package:app_template/features/auth/data/models/token_refresh_request.dart';
+import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
-import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -14,30 +14,28 @@ class AppServerTokenRefreshApiClientImpl
   AppServerTokenRefreshApiClientImpl(super.client);
 
   @override
-  RequestSpec createRequest(TokenRefreshRequest body) {
-    return RequestSpec(
-      pathOrUrl: path,
-      method: HttpMethod.GET,
-      body: JsonBody(body.toJson()),
-    );
+  Future<Response<Object?>> send(Dio dio, TokenRefreshRequest body) {
+    return dio.get<Object?>(path, data: body.toJson());
   }
 
   @override
   ApiResponse<ServerMessage, AuthDataDTO> decodeResponse(
-    NetClientResponse response,
+    Response<Object?> response,
   ) {
-    if (response.isError) {
+    final statusCode = response.statusCode!;
+    final json = response.data! as Map<String, dynamic>;
+    if (statusCode >= 400) {
       return FailureResponse(
-        error: ServerMessage.fromJson(response.data! as Map<String, dynamic>),
-        statusCode: response.statusCode,
-        headers: response.headers,
+        error: ServerMessage.fromJson(json),
+        statusCode: statusCode,
+        headers: response.headers.map,
       );
     }
 
     return SuccessResponse(
-      data: AuthDataDTO.fromJson(response.data! as Map<String, dynamic>),
-      statusCode: response.statusCode,
-      headers: response.headers,
+      data: AuthDataDTO.fromJson(json),
+      statusCode: statusCode,
+      headers: response.headers.map,
     );
   }
 }

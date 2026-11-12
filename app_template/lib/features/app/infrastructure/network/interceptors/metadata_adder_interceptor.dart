@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:app_template/features/app/application/use_cases/get_effective_locale_use_case.dart';
 import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
-import 'package:net_client/net_client.dart';
+import 'package:dio/dio.dart';
 
 class MetadataHeaderKeys {
   static const APP_SCOPE = 'app-scope';
@@ -18,23 +18,33 @@ class MetadataHeaderKeys {
   static const APP_VERSION_CODE = 'app-version-code';
 }
 
-class MetadataAdderInterceptor extends NetClientInterceptor {
+class MetadataAdderInterceptor extends Interceptor {
   final BuildMetadata _buildMetadata;
   final GetEffectiveLocaleUseCase _getEffectiveLocale;
 
   MetadataAdderInterceptor(this._buildMetadata, this._getEffectiveLocale);
 
   @override
-  Future<RequestInterceptorResult> onRequest(RequestSpec request) async {
-    final locale = await _getEffectiveLocale();
-    return ContinueWithRequest(
-      request.copyWith(
-        headers: request.headers
-          ..addAll(_buildLocaleHeaders(locale))
-          ..addAll(_buildUserAgentHeaders(_buildMetadata))
-          ..addAll(_buildAppMetadataHeaders(_buildMetadata)),
-      ),
-    );
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    final LocaleComponents locale;
+    try {
+      locale = await _getEffectiveLocale();
+    } catch (e, stackTrace) {
+      // Rejected, so the request isn't left hanging.
+      handler.reject(
+        DioException(requestOptions: options, error: e, stackTrace: stackTrace),
+      );
+      return;
+    }
+
+    options.headers
+      ..addAll(_buildLocaleHeaders(locale))
+      ..addAll(_buildUserAgentHeaders(_buildMetadata))
+      ..addAll(_buildAppMetadataHeaders(_buildMetadata));
+    handler.next(options);
   }
 
   Map<String, String> _buildLocaleHeaders(LocaleComponents locale) {

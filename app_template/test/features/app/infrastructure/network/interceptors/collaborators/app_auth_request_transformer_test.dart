@@ -1,11 +1,9 @@
-// ignore_for_file: lines_longer_than_80_chars
-
 import 'dart:io';
 
 import 'package:app_template/features/app/domain/models/auth_info.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_request_transformer.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:net_client/net_client.dart';
 
 void main() {
   const accessToken = 'access-token';
@@ -18,8 +16,8 @@ void main() {
 
   const transformer = AppAuthRequestTransformer();
 
-  test('Adds bearer token to authorization header', () async {
-    final request = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
+  test('transformRequestWithAuthDataShouldAddTheBearerTokenIfCalled', () async {
+    final request = RequestOptions();
 
     final result = await transformer.transformRequestWithAuthData(
       request,
@@ -32,10 +30,8 @@ void main() {
     );
   });
 
-  test('Preserves existing headers', () async {
-    final request = RequestSpec(
-      pathOrUrl: '/test',
-      method: HttpMethod.GET,
+  test('transformRequestWithAuthDataShouldKeepOtherHeadersIfPresent', () async {
+    final request = RequestOptions(
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
@@ -51,21 +47,22 @@ void main() {
     );
   });
 
-  test('Overrides existing authorization header', () async {
-    final request = RequestSpec(
-      pathOrUrl: '/test',
-      method: HttpMethod.GET,
-      headers: {HttpHeaders.authorizationHeader: 'Bearer old-token'},
-    );
+  test(
+    'transformRequestWithAuthDataShouldReplaceTheAuthHeaderIfPresent',
+    () async {
+      final request = RequestOptions(
+        headers: {HttpHeaders.authorizationHeader: 'Bearer old-token'},
+      );
 
-    final result = await transformer.transformRequestWithAuthData(
-      request,
-      authInfo,
-    );
+      final result = await transformer.transformRequestWithAuthData(
+        request,
+        authInfo,
+      );
 
-    expect(
-      result.headers[HttpHeaders.authorizationHeader],
-      'Bearer $accessToken',
-    );
-  });
+      expect(
+        result.headers[HttpHeaders.authorizationHeader],
+        'Bearer $accessToken',
+      );
+    },
+  );
 }

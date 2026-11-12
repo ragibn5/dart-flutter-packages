@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:app_template/features/app/domain/models/auth_info.dart';
 import 'package:base_auth_interceptor/base_auth_interceptor.dart';
+import 'package:dio/dio.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:net_client/net_client.dart';
 
 /// Decides whether a server response indicates an auth error and whether the
 /// auth data used for the request should be refreshed.
@@ -11,12 +11,12 @@ class AppAuthRefreshPolicy implements AuthRefreshPolicy<AuthInfo> {
   const AppAuthRefreshPolicy();
 
   @override
-  bool didServerReportAuthError(RawResponse responses) {
-    if (responses.statusCode != HttpStatus.unauthorized) {
+  bool didServerReportAuthError(Response<dynamic> response) {
+    if (response.statusCode != HttpStatus.unauthorized) {
       return false;
     }
 
-    final data = responses.rawResponseBody;
+    final data = response.data;
     if (data is! Map<String, dynamic>) {
       return false;
     }
@@ -29,7 +29,7 @@ class AppAuthRefreshPolicy implements AuthRefreshPolicy<AuthInfo> {
   }
 
   @override
-  bool shouldRefreshAuthData(RequestSpec request, AuthInfo authInfo) {
+  bool shouldRefreshAuthData(RequestOptions request, AuthInfo authInfo) {
     final requestToken = _getRequestToken(request);
     return requestToken == null || requestToken == authInfo.accessToken;
   }
@@ -41,7 +41,7 @@ class AppAuthRefreshPolicy implements AuthRefreshPolicy<AuthInfo> {
   /// but there can be prefixes before the actual token (eg. 'Bearer'),
   /// hence, we return the first valid token we find. Will return null
   /// if no valid tokens were found.
-  String? _getRequestToken(RequestSpec request) {
+  String? _getRequestToken(RequestOptions request) {
     final requestToken = request.headers[HttpHeaders.authorizationHeader];
 
     if (requestToken == null) {

@@ -7,9 +7,11 @@ import 'package:app_template/features/app/application/use_cases/get_effective_lo
 import 'package:app_template/features/app/domain/models/locale_components.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_client/net_client.dart';
+
+import '../../../../../helpers/fake_http_client_adapter.dart';
 
 class _MockGetEffectiveLocaleUseCase extends Mock
     implements GetEffectiveLocaleUseCase {}
@@ -58,51 +60,62 @@ void main() {
     ).thenAnswer((_) async => effectiveLocale);
   });
 
-  test(
-    'attaches locale, user-agent, app metadata headers, and then proceeds',
-    () async {
-      final request = RequestSpec(
-        pathOrUrl: '/ping',
-        baseUrl: 'https://abc.com',
-        method: HttpMethod.GET,
+  test('requestShouldBeSentWithTheMetadataHeadersIfTheLocaleIsRead', () async {
+    final adapter = FakeHttpClientAdapter(
+      (_) => ResponseBody.fromString('', 200),
+    );
+
+    await fakeDio(adapter, interceptors: [interceptor]).get<dynamic>(
+      '/ping',
+      options: Options(
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-      );
+      ),
+    );
 
-      final result = await interceptor.onRequest(request);
+    final headers = adapter.requests.single.headers;
 
-      expect(result, isA<ContinueWithRequest>());
-      final modifiedRequest = (result as ContinueWithRequest).request;
-      final headers = modifiedRequest.headers;
+    // Locale
+    expect(
+      headers[HttpHeaders.acceptLanguageHeader],
+      Locale.fromSubtags(
+        languageCode: effectiveLocale.languageCode,
+        scriptCode: effectiveLocale.scriptCode,
+        countryCode: effectiveLocale.countryCode,
+      ).toLanguageTag(),
+    );
 
-      // Locale
+    // User agent
+    expect(
+      headers[HttpHeaders.userAgentHeader],
+      '${buildMetadata.packageName}/${buildMetadata.versionName}'
+      ' (${buildMetadata.platform}; ${buildMetadata.runtime}; ${buildMetadata.flavor})',
+    );
+
+    // App metadata
+    final expectedHeaders = expectedMetadataHeaders(buildMetadata);
+    for (final entry in expectedHeaders.entries) {
       expect(
-        headers[HttpHeaders.acceptLanguageHeader],
-        Locale.fromSubtags(
-          languageCode: effectiveLocale.languageCode,
-          scriptCode: effectiveLocale.scriptCode,
-          countryCode: effectiveLocale.countryCode,
-        ).toLanguageTag(),
+        headers,
+        containsPair(entry.key, entry.value),
+        reason: 'Missing or incorrect metadata header: ${entry.key}',
       );
+    }
 
-      // User agent
-      expect(
-        headers[HttpHeaders.userAgentHeader],
-        '${buildMetadata.packageName}/${buildMetadata.versionName}'
-        ' (${buildMetadata.platform}; ${buildMetadata.runtime}; ${buildMetadata.flavor})',
-      );
+    // Original headers should still be there
+    expect(headers[HttpHeaders.contentTypeHeader], 'application/json');
+  });
 
-      // App metadata
-      final expectedHeaders = expectedMetadataHeaders(buildMetadata);
-      for (final entry in expectedHeaders.entries) {
-        expect(
-          headers,
-          containsPair(entry.key, entry.value),
-          reason: 'Missing or incorrect metadata header: ${entry.key}',
-        );
-      }
+  test('requestShouldFailWithTheCauseIfTheLocaleCannotBeRead', () async {
+    final cause = Exception('unreadable');
+    when(() => getEffectiveLocaleUseCase()).thenThrow(cause);
+    final adapter = FakeHttpClientAdapter(
+      (_) => ResponseBody.fromString('', 200),
+    );
 
-      // Original headers should still be there
-      expect(headers[HttpHeaders.contentTypeHeader], 'application/json');
-    },
-  );
+    await expectLater(
+      fakeDio(adapter, interceptors: [interceptor]).get<dynamic>('/ping'),
+      throwsA(isA<DioException>().having((e) => e.error, 'error', cause)),
+    );
+    expect(adapter.requests, isEmpty);
+  });
 }

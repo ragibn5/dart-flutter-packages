@@ -24,6 +24,7 @@ import 'package:app_template/features/app/data/repositories/settings_repository_
 import 'package:app_template/features/app/data/sources/settings_data_source.dart';
 import 'package:app_template/features/app/data/sources/settings_data_source_impl.dart';
 import 'package:app_template/features/app/domain/models/app_settings.dart';
+import 'package:app_template/features/app/domain/models/auth_info.dart';
 import 'package:app_template/features/app/domain/repositories/settings_repository.dart';
 import 'package:app_template/features/app/domain/services/app_locale_resolver.dart';
 import 'package:app_template/features/app/domain/services/local_components_mapper.dart';
@@ -33,11 +34,9 @@ import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
 import 'package:app_template/features/app/infrastructure/models/app_directories.dart';
 import 'package:app_template/features/app/infrastructure/models/build_metadata.dart';
 import 'package:app_template/features/app/infrastructure/models/flavor_config.dart';
-import 'package:app_template/features/app/infrastructure/network/interceptors/auth_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_data_provider.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_refresh_policy.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_auth_request_transformer.dart';
-import 'package:app_template/features/app/infrastructure/network/interceptors/collaborators/app_request_retrier.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/metadata_adder_interceptor.dart';
 import 'package:app_template/features/app/infrastructure/ports/get_auth_info_use_case_impl.dart';
@@ -59,15 +58,16 @@ import 'package:app_template/features/auth/application/use_cases/watch_auth_data
 import 'package:app_template/features/auth/data/clients/app_server_token_refresh_api_client.dart';
 import 'package:app_template/features/auth/infrastructure/network/clients/app_server_token_refresh_api_client_impl.dart';
 import 'package:app_template/features/user_data/infrastructure/database/constants/user_data_table_constants.dart';
+import 'package:base_auth_interceptor/base_auth_interceptor.dart';
 import 'package:crashlykit/crashlykit.dart';
 import 'package:data_domain_converters/data_domain_converters.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:loghub/loghub.dart' hide Logger;
-import 'package:net_client/net_client.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -328,59 +328,54 @@ abstract class AppModule {
     return GetEffectiveThemeModeUseCase(settingsRepository);
   }
 
-  @Singleton(dispose: disposeNetClient)
+  @Singleton(dispose: disposeDio)
   @Named(APP_SERVER_PUBLIC_API_CLIENT)
-  NetClient getAppServerPublicApiClient(
+  Dio getAppServerPublicApiClient(
     FlavorConfig flavorConfig,
     BuildMetadata buildMetadata,
     GetEffectiveLocaleUseCase getEffectiveLocale,
     AppLogger logger,
   ) {
-    final client = NetClientFactory().create(
-      ClientConfig(
-        baseUrl: flavorConfig.baseUrl,
-        connectionTimeout: const Duration(seconds: 10),
-      ),
-    );
-
-    client.interceptors.addAll([
-      MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
-      LoggerInterceptor(logger),
-    ]);
-
-    return client;
+    return Dio(_appServerOptions(flavorConfig))
+      ..interceptors.addAll([
+        MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
+        LoggerInterceptor(logger),
+      ]);
   }
 
-  @Singleton(dispose: disposeNetClient)
+  @Singleton(dispose: disposeDio)
   @Named(APP_SERVER_PRIVATE_API_CLIENT)
-  NetClient getAppServerPrivateApiClient(
+  Dio getAppServerPrivateApiClient(
     FlavorConfig flavorConfig,
     BuildMetadata buildMetadata,
     AppLogger logger,
     GetAuthInfoUseCase getAuthInfo,
     GetRefreshedAuthInfoUseCase getRefreshedAuthInfo,
     GetEffectiveLocaleUseCase getEffectiveLocale,
-    AppServerTokenRefreshApiClient tokenRefreshApiClient,
   ) {
-    final client = NetClientFactory().create(
-      ClientConfig(
-        baseUrl: flavorConfig.baseUrl,
-        connectionTimeout: const Duration(seconds: 10),
-      ),
+    final options = _appServerOptions(flavorConfig);
+    final metadataAdder = MetadataAdderInterceptor(
+      buildMetadata,
+      getEffectiveLocale,
     );
+    final loggerInterceptor = LoggerInterceptor(logger);
 
-    client.interceptors.addAll([
-      MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
-      AuthInterceptor(
-        AppAuthDataProvider(getAuthInfo, getRefreshedAuthInfo),
-        const AppAuthRefreshPolicy(),
-        const AppAuthRequestTransformer(),
-        AppRequestRetrier(client),
-      ),
-      LoggerInterceptor(logger),
-    ]);
+    // Sends a request again after an auth error, with the auth applied: it
+    // must not have the auth interceptor, which would wait for itself.
+    final retryDio = Dio(options)
+      ..interceptors.addAll([metadataAdder, loggerInterceptor]);
 
-    return client;
+    return Dio(options)
+      ..interceptors.addAll([
+        metadataAdder,
+        AuthInterceptor<AuthInfo>(
+          AppAuthDataProvider(getAuthInfo, getRefreshedAuthInfo),
+          const AppAuthRefreshPolicy(),
+          const AppAuthRequestTransformer(),
+          retryDio: retryDio,
+        ),
+        loggerInterceptor,
+      ]);
   }
 
   AppServerTokenRefreshApiClient getAppServerTokenRefresherApiClient(
@@ -389,19 +384,20 @@ abstract class AppModule {
     AppLogger logger,
     GetEffectiveLocaleUseCase getEffectiveLocale,
   ) {
-    final client = NetClientFactory().create(
-      ClientConfig(
-        baseUrl: flavorConfig.baseUrl,
-        connectionTimeout: const Duration(seconds: 10),
-      ),
+    return AppServerTokenRefreshApiClientImpl(
+      Dio(_appServerOptions(flavorConfig))
+        ..interceptors.addAll([
+          MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
+          LoggerInterceptor(logger),
+        ]),
     );
+  }
 
-    client.interceptors.addAll([
-      MetadataAdderInterceptor(buildMetadata, getEffectiveLocale),
-      LoggerInterceptor(logger),
-    ]);
-
-    return AppServerTokenRefreshApiClientImpl(client);
+  BaseOptions _appServerOptions(FlavorConfig flavorConfig) {
+    return BaseOptions(
+      baseUrl: flavorConfig.baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+    );
   }
 
   Alerty getAlerty(GlobalKey<NavigatorState> navigatorKey) {
@@ -509,6 +505,6 @@ FutureOr<dynamic> disposeAppDatabase(SQLiteDb database) async {
   await database.dispose();
 }
 
-FutureOr<dynamic> disposeNetClient(NetClient client) async {
-  await client.close();
+FutureOr<dynamic> disposeDio(Dio dio) {
+  dio.close();
 }

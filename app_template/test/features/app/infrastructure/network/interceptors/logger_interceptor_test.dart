@@ -1,124 +1,101 @@
-// ignore_for_file: lines_longer_than_80_chars
-
-import 'dart:io';
-
 import 'package:app_logger/app_logger.dart';
 import 'package:app_template/features/app/infrastructure/network/interceptors/logger_interceptor.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_client/net_client.dart';
+
+import '../../../../../helpers/fake_http_client_adapter.dart';
 
 class _MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
-  final requestSpec = RequestSpec(
-    pathOrUrl: '/ping',
-    baseUrl: 'https://abc.com',
-    method: HttpMethod.GET,
-    body: const JsonBody({'1': 1, 's': 'a-string'}),
-    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    queryParameters: {'1': 1},
-  );
-  final rawResponse = RawResponse(
-    statusCode: HttpStatus.ok,
-    rawResponseBody: {'i': 100, 's': 'another-string'},
-    responseHeaders: {
-      HttpHeaders.contentTypeHeader: ['application/json'],
-    },
-    request: requestSpec,
-  );
-  final exception = TransportException(
-    type: TransportExceptionType.CONNECTION_ERROR,
-    request: requestSpec,
-  );
-
-  late _MockAppLogger mockAppLogger;
-  late LoggerInterceptor loggerInterceptor;
+  late _MockAppLogger mockLogger;
 
   setUp(() {
-    mockAppLogger = _MockAppLogger();
-
-    loggerInterceptor = LoggerInterceptor(mockAppLogger);
-
-    when(
-      () => mockAppLogger.logDebug(
-        tag: any(named: 'tag'),
-        message: any(named: 'message'),
-        extras: any(named: 'extras'),
-      ),
-    ).thenAnswer((_) => {});
-    when(
-      () => mockAppLogger.logInfo(
-        tag: any(named: 'tag'),
-        message: any(named: 'message'),
-        extras: any(named: 'extras'),
-      ),
-    ).thenAnswer((_) => {});
-    when(
-      () => mockAppLogger.logWarning(
-        tag: any(named: 'tag'),
-        message: any(named: 'message'),
-        extras: any(named: 'extras'),
-      ),
-    ).thenAnswer((_) => {});
-    when(
-      () => mockAppLogger.logError(
-        tag: any(named: 'tag'),
-        message: any(named: 'message'),
-        extras: any(named: 'extras'),
-      ),
-    ).thenAnswer((_) => {});
+    mockLogger = _MockAppLogger();
   });
 
-  test(
-    'Should log on request and propagate the request to next interceptor',
-    () async {
-      final result = await loggerInterceptor.onRequest(requestSpec);
-
-      expect(result, isA<ContinueWithRequest>());
-
-      verify(
-        () => mockAppLogger.logInfo(
-          tag: LoggerInterceptor.TAG,
-          message: any(named: 'message'),
-          extras: any(named: 'extras'),
-        ),
-      );
-    },
+  Dio build(ResponseBody Function(RequestOptions) respond) => fakeDio(
+    FakeHttpClientAdapter(respond),
+    interceptors: [LoggerInterceptor(mockLogger)],
   );
 
-  test(
-    'Should log on response and propagate the response to next interceptor',
-    () async {
-      final result = await loggerInterceptor.onResponse(rawResponse);
+  List<Map<String, dynamic>> loggedInfoExtras() => verify(
+    () => mockLogger.logInfo(
+      tag: LoggerInterceptor.TAG,
+      message: any(named: 'message'),
+      extras: captureAny(named: 'extras'),
+    ),
+  ).captured.cast<Map<String, dynamic>>();
 
-      expect(result, isA<ContinueWithResponse>());
+  test('requestAndResponseShouldBeLoggedIfTheRequestSucceeds', () async {
+    final response = await build(
+      (_) => ResponseBody.fromString('pong', 200),
+    ).post<dynamic>('/ping', data: 'ping');
 
-      verify(
-        () => mockAppLogger.logInfo(
-          tag: LoggerInterceptor.TAG,
-          message: any(named: 'message'),
-          extras: any(named: 'extras'),
+    expect(response.data, 'pong');
+    final [request, answer] = loggedInfoExtras();
+    expect(request['method'], 'POST');
+    expect(request['uri'], 'https://abc.com/ping');
+    expect(request['data'], 'ping');
+    expect(answer['statusCode'], 200);
+    expect(answer['data'], 'pong');
+  });
+
+  test('errorShouldBeLoggedAndPassedOnIfTheRequestFails', () async {
+    final cause = Exception('offline');
+    final dio = build(
+      (o) => throw DioException.connectionError(
+        requestOptions: o,
+        reason: 'offline',
+        error: cause,
+      ),
+    );
+
+    await expectLater(
+      dio.get<dynamic>('/ping'),
+      throwsA(
+        isA<DioException>().having(
+          (e) => e.type,
+          'type',
+          DioExceptionType.connectionError,
         ),
-      );
-    },
-  );
+      ),
+    );
 
-  test(
-    'Should log on error and propagate the error to next interceptor',
-    () async {
-      final result = await loggerInterceptor.onError(exception);
+    final extras =
+        verify(
+              () => mockLogger.logError(
+                tag: LoggerInterceptor.TAG,
+                message: any(named: 'message'),
+                error: cause,
+                stackTrace: any(named: 'stackTrace'),
+                extras: captureAny(named: 'extras'),
+              ),
+            ).captured.single
+            as Map<String, dynamic>;
+    expect(extras['type'], 'connectionError');
+    expect(extras.containsKey('response'), isFalse);
+  });
 
-      expect(result, isA<ContinueWithError>());
+  test('errorShouldBeLoggedWithTheResponseIfTheServerAnswersAnError', () async {
+    final dio = build((_) => ResponseBody.fromString('missing', 404));
 
-      verify(
-        () => mockAppLogger.logError(
-          tag: LoggerInterceptor.TAG,
-          message: any(named: 'message'),
-          stackTrace: any(named: 'stackTrace'),
-          extras: any(named: 'extras'),
-        ),
-      );
-    },
-  );
+    await expectLater(dio.get<dynamic>('/ping'), throwsA(isA<DioException>()));
+
+    final extras =
+        verify(
+              () => mockLogger.logError(
+                tag: LoggerInterceptor.TAG,
+                message: any(named: 'message'),
+                error: any(named: 'error'),
+                stackTrace: any(named: 'stackTrace'),
+                extras: captureAny(named: 'extras'),
+              ),
+            ).captured.single
+            as Map<String, dynamic>;
+    final response = extras['response'] as Map<String, dynamic>;
+    expect(response['statusCode'], 404);
+    expect(response['data'], 'missing');
+  });
 }
