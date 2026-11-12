@@ -268,7 +268,7 @@ Here is a list of each component referenced in the data flow. Use them throughou
 | `ApiError`                           | [`package:net_models/net_models.dart`][net_models] — subtypes: `TransportError`, `CancellationError`, `UnexpectedError`  |
 | `ApiResponse<Err, Res>`              | [`package:net_models/net_models.dart`][net_models] — subtypes: `SuccessResponse<Res>`, `FailureResponse<Err>`            |
 | `FeatureApiClient<Req, Res, Err>`    | [`package:feature_api_client/feature_api_client.dart`][feature_api_client] — base class for per-endpoint API clients     |
-| `NetClient` / `NetClientInterceptor` | [`package:net_client/net_client.dart`][net_client] — HTTP client and interceptor interfaces, raw request/response models |
+| `Dio` / `Interceptor`                | [`package:dio/dio.dart`][dio] — HTTP client and interceptors; `AuthInterceptor` from [`base_auth_interceptor`][base_auth_interceptor] |
 
 ### Adding a new feature
 
@@ -420,7 +420,9 @@ Analyzer configuration is based on `very_good_analysis` and `bloc_lint`. See [`a
 
 [file_store]: https://github.com/Ragibn5/dart-flutter-packages/tree/main/file_store
 
-[net_client]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/net_client/lib/net_client.dart
+[dio]: https://pub.dev/packages/dio
+
+[base_auth_interceptor]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/base_auth_interceptor/lib/base_auth_interceptor.dart
 
 [preference_store]: https://github.com/Ragibn5/dart-flutter-packages/tree/main/preference_store
 
