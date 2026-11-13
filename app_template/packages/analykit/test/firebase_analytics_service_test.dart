@@ -48,6 +48,10 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
+  test('initializeShouldCompleteIfCalled', () async {
+    await expectLater(sut.initialize(), completes);
+  });
+
   test('setUserIdShouldSetTheUserIdIfGivenOne', () async {
     await sut.setUserId(userId);
 
