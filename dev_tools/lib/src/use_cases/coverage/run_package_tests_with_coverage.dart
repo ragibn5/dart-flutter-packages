@@ -47,11 +47,12 @@ class RunPackageTestsWithCoverage {
   }) async {
     if (isFlutterPackage) {
       await _run(_flutterExecutable, ['pub', 'get'], packagePath);
+      // With the test assets: without them, Material widgets that need a
+      // shader (such as the ink sparkle of a button) fail to render.
       await _run(
         _flutterExecutable,
         [
           'test',
-          '--no-test-assets',
           '--coverage',
           '--coverage-path',
           lcovFile,

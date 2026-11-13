@@ -33,8 +33,8 @@ void main() {
 
     final calls = File(logFile).readAsLinesSync();
     expect(calls[0], 'pub get');
-    expect(calls[1], contains('test'));
-    expect(calls[1], contains('--coverage'));
+    // Test assets are kept: Material widgets need their shaders.
+    expect(calls[1], 'test --coverage --coverage-path coverage/lcov.info');
   });
 
   test(
