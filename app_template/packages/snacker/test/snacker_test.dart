@@ -212,4 +212,27 @@ void main() {
       expect(snackBar.backgroundColor, Colors.purple);
     });
   });
+
+  testWidgets(
+    'showTextSnackShouldThrowStateErrorIfThereIsNoScaffoldMessenger',
+    (tester) async {
+      final snacker = _TestSnacker();
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Builder(
+            builder: (context) {
+              snacker.provideContext(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(
+        () => snacker.showTextSnack(SnackData.info(message: 'Message')),
+        throwsA(isA<StateError>()),
+      );
+    },
+  );
 }
