@@ -122,6 +122,112 @@ exclude:
       throwsA(isA<PackageTestException>()),
     );
   });
+
+  /// A package named `pkg` with two libraries and a part file.
+  void writePackage() {
+    File('${tempDir.path}/pubspec.yaml').writeAsStringSync('name: pkg\n');
+    File('${tempDir.path}/lib/a.dart')
+      ..createSync(recursive: true)
+      ..writeAsStringSync("part 'src/a.g.dart';\n");
+    File('${tempDir.path}/lib/src/b.dart')
+      ..createSync(recursive: true)
+      ..writeAsStringSync('class B {}\n');
+    File('${tempDir.path}/lib/src/a.g.dart').writeAsStringSync(
+      "part of '../a.dart';\n",
+    );
+  }
+
+  /// A test executable that copies the imports test into [copyFile] while
+  /// it runs, and exits with [exitCode].
+  String copyingScript({required int exitCode, required String copyFile}) {
+    final script = File('${tempDir.path}/copying_$exitCode.sh')
+      ..writeAsStringSync('''
+#!/bin/sh
+cp ${RunPackageTestsWithCoverage.importsTestPath} "$copyFile" 2>/dev/null
+exit $exitCode
+''');
+    Process.runSync('chmod', ['+x', script.path]);
+    return script.path;
+  }
+
+  test('callShouldImportEveryLibraryButPartsIfThePackageHasALib', () async {
+    writePackage();
+    final copyFile = '${tempDir.path}/copied_imports_test.dart';
+    final script = copyingScript(exitCode: 0, copyFile: copyFile);
+
+    await RunPackageTestsWithCoverage(
+      flutterExecutable: script,
+      dartExecutable: script,
+      lcovExecutable: script,
+    )(packagePath: tempDir.path, isFlutterPackage: false);
+
+    final imports = File(copyFile).readAsStringSync();
+    expect(imports, contains("import 'package:test/test.dart';"));
+    expect(imports, contains("import 'package:pkg/a.dart' as _i0;"));
+    expect(imports, contains("import 'package:pkg/src/b.dart' as _i1;"));
+    expect(imports, isNot(contains('a.g.dart')));
+    expect(
+      File(
+        '${tempDir.path}/${RunPackageTestsWithCoverage.importsTestPath}',
+      ).existsSync(),
+      isFalse,
+    );
+  });
+
+  test('callShouldImportFlutterTestIfItIsAFlutterPackage', () async {
+    writePackage();
+    final copyFile = '${tempDir.path}/copied_imports_test.dart';
+    final script = copyingScript(exitCode: 0, copyFile: copyFile);
+
+    await RunPackageTestsWithCoverage(
+      flutterExecutable: script,
+      dartExecutable: script,
+      lcovExecutable: script,
+    )(packagePath: tempDir.path, isFlutterPackage: true);
+
+    expect(
+      File(copyFile).readAsStringSync(),
+      contains("import 'package:flutter_test/flutter_test.dart';"),
+    );
+  });
+
+  test('callShouldRemoveTheImportsTestIfTheTestsFail', () async {
+    writePackage();
+    final script = copyingScript(
+      exitCode: 1,
+      copyFile: '${tempDir.path}/copied_imports_test.dart',
+    );
+
+    await expectLater(
+      RunPackageTestsWithCoverage(
+        flutterExecutable: script,
+        dartExecutable: script,
+        lcovExecutable: script,
+      )(packagePath: tempDir.path, isFlutterPackage: false),
+      throwsA(isA<PackageTestException>()),
+    );
+    expect(
+      File(
+        '${tempDir.path}/${RunPackageTestsWithCoverage.importsTestPath}',
+      ).existsSync(),
+      isFalse,
+    );
+  });
+
+  test('callShouldWriteNoImportsTestIfThePubspecHasNoName', () async {
+    writePackage();
+    File('${tempDir.path}/pubspec.yaml').writeAsStringSync('version: 1.0.0\n');
+    final copyFile = '${tempDir.path}/copied_imports_test.dart';
+    final script = copyingScript(exitCode: 0, copyFile: copyFile);
+
+    await RunPackageTestsWithCoverage(
+      flutterExecutable: script,
+      dartExecutable: script,
+      lcovExecutable: script,
+    )(packagePath: tempDir.path, isFlutterPackage: false);
+
+    expect(File(copyFile).existsSync(), isFalse);
+  });
 }
 
 String _script(Directory dir,
