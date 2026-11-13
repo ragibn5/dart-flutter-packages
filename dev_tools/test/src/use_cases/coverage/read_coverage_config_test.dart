@@ -72,4 +72,53 @@ exclude:
     expect(result.exclude, isEmpty);
     expect(result.threshold, isNull);
   });
+
+  /// A repository at [tempDir], with [packagePath] inside it.
+  String createRepoWithPackage(String packagePath) {
+    Directory('${tempDir.path}/.git').createSync();
+    return (Directory('${tempDir.path}/$packagePath')
+          ..createSync(recursive: true))
+        .path;
+  }
+
+  test('callShouldPutTheRepoExclusionsBeforeThePackagesIfTheRepoHasAConfig',
+      () async {
+    final packagePath = createRepoWithPackage('pkg');
+    File('${tempDir.path}/dev_tools_coverage_config.yaml').writeAsStringSync('''
+exclude:
+  - '*/models/*'
+''');
+    File('$packagePath/dev_tools_coverage_config.yaml').writeAsStringSync('''
+threshold: 90
+exclude:
+  - lib/generated/**
+''');
+
+    final result = await sut(packagePath);
+
+    expect(result.exclude, ['*/models/*', 'lib/generated/**']);
+    expect(result.threshold, 90.0);
+  });
+
+  test('callShouldIgnoreTheRepoThresholdIfTheRepoConfigSetsOne', () async {
+    final packagePath = createRepoWithPackage('pkg');
+    File('${tempDir.path}/dev_tools_coverage_config.yaml')
+        .writeAsStringSync('threshold: 50');
+
+    final result = await sut(packagePath);
+
+    expect(result.threshold, isNull);
+  });
+
+  test('callShouldFindTheRepoRootIfThePackageIsNestedDeeper', () async {
+    final packagePath = createRepoWithPackage('app/packages/pkg');
+    File('${tempDir.path}/dev_tools_coverage_config.yaml').writeAsStringSync('''
+exclude:
+  - '*.g.dart'
+''');
+
+    final result = await sut(packagePath);
+
+    expect(result.exclude, ['*.g.dart']);
+  });
 }
