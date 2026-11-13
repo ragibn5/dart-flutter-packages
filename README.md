@@ -16,7 +16,6 @@ Foundational utilities and infrastructure packages with minimal dependencies. Th
 - [`extended_datetime`](extended_datetime)
 - [`color_utils`](color_utils)
 - [`loghub`](loghub)
-- [`mutex`](mutex)
 - [`data_domain_converters`](data_domain_converters)
 - [`net_models`](net_models)
 - [`generator_core`](generator_core)
