@@ -7,7 +7,6 @@ import 'package:app_template/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:rover/rover.dart';
 
 /// The root widget of the app.
 ///
@@ -17,7 +16,7 @@ class AppRoot extends StatefulWidget {
   final AppConfig appConfig;
 
   /// The router to use.
-  final Rover appRouter;
+  final RouterConfig<Object> routerConfig;
 
   /// Global scaffold messenger key.
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
@@ -25,7 +24,7 @@ class AppRoot extends StatefulWidget {
   const AppRoot({
     super.key,
     required this.appConfig,
-    required this.appRouter,
+    required this.routerConfig,
     required this.scaffoldMessengerKey,
   });
 
@@ -61,7 +60,7 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
           darkTheme: widget.appConfig.darkThemeData,
           themeMode: _extractThemeMode(state, widget.appConfig),
           onGenerateTitle: (context) => S.of(context).appTitle,
-          routerConfig: _routerConfig,
+          routerConfig: widget.routerConfig,
           builder: (_, child) => _StateAwareRootPage(
             appConfig: widget.appConfig,
             state: state,
@@ -83,8 +82,6 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     super.didChangeLocales(locales);
     context.read<AppRootBloc>().add(SystemLocaleChanged());
   }
-
-  RouterConfig<Object> get _routerConfig => widget.appRouter.routerConfig;
 
   Locale _extractLocale(AppRootState state, AppConfig platformConfig) {
     if (state is! AppInitializationSuccess) {

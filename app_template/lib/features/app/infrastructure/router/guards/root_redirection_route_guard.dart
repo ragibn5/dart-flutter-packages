@@ -1,30 +1,19 @@
 import 'package:app_template/features/app/application/use_cases/is_authed_use_case.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
+import 'package:app_template/features/app/infrastructure/router/guards/route_redirect.dart';
 import 'package:flutter/material.dart';
-import 'package:rover/rover.dart';
+import 'package:go_router/go_router.dart';
 
-class RootRedirectRouteGuard implements RouteGuard {
+/// Sends the root to the login page, or the home page.
+class RootRedirectRouteGuard implements RouteRedirect {
   final IsAuthedUseCase _isAuthed;
 
   RootRedirectRouteGuard(this._isAuthed);
 
   @override
-  Future<GuardResult> onNavigationRequest(
-    BuildContext context,
-    RouteContext current,
-    RouteContext next,
-  ) async {
+  Future<String?> call(BuildContext context, GoRouterState state) async {
     final isAuthed = await _isAuthed();
-    if (!isAuthed) {
-      return RedirectNavigation(
-        current: current,
-        redirectRoute: RouteContext(info: AppRoute.LOGIN.routeInfo),
-      );
-    } else {
-      return RedirectNavigation(
-        current: current,
-        redirectRoute: RouteContext(info: AppRoute.HOME.routeInfo),
-      );
-    }
+    final route = isAuthed ? AppRoute.HOME : AppRoute.LOGIN;
+    return state.namedLocation(route.routeName);
   }
 }

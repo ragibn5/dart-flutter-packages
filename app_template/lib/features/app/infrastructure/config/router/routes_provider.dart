@@ -1,39 +1,43 @@
-import 'package:app_template/features/app/application/use_cases/is_authed_use_case.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
-import 'package:app_template/features/app/infrastructure/router/guards/root_redirection_route_guard.dart';
+import 'package:app_template/features/app/infrastructure/router/guards/route_redirect.dart';
 import 'package:app_template/features/app/presentation/widgets/root_redirection/root_redirection_page.dart';
 import 'package:app_template/features/auth/application/use_cases/set_auth_data_use_case.dart';
 import 'package:app_template/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:app_template/features/auth/presentation/widgets/login/login_page.dart';
 import 'package:app_template/features/home/presentation/widgets/home_screen/home_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rover/rover.dart';
+import 'package:go_router/go_router.dart';
 
 class RoutesProvider {
-  final IsAuthedUseCase _isAuthedUseCase;
+  // Guards
+  final RouteRedirect _rootRedirect;
+
+  // Use cases
   final SetAuthDataUseCase _setAuthDataUseCase;
 
-  RoutesProvider(this._isAuthedUseCase, this._setAuthDataUseCase);
+  RoutesProvider(this._rootRedirect, this._setAuthDataUseCase);
 
-  List<RouteDef> getAppRoutes() => [
-    RouteDef(
-      info: AppRoute.ROOT.routeInfo,
-      builder: (_, __, ___) => const RootRedirectionPage(),
-      guards: [RootRedirectRouteGuard(_isAuthedUseCase)],
+  List<RouteBase> getAppRoutes() => [
+    GoRoute(
+      name: AppRoute.ROOT.routeName,
+      path: AppRoute.ROOT.path,
+      builder: (_, _) => const RootRedirectionPage(),
+      redirect: _rootRedirect.call,
     ),
-    RouteDef(
-      info: AppRoute.LOGIN.routeInfo,
-      builder: (_, router, ___) => BlocProvider(
+    GoRoute(
+      name: AppRoute.LOGIN.routeName,
+      path: AppRoute.LOGIN.path,
+      builder: (context, _) => BlocProvider(
         create: (_) => LoginBloc(_setAuthDataUseCase),
         child: LoginPage(
-          onLoginComplete: () =>
-              router.pushWithName(AppRoute.HOME.routeInfo.name),
+          onLoginComplete: () => context.goNamed(AppRoute.HOME.routeName),
         ),
       ),
     ),
-    RouteDef(
-      info: AppRoute.HOME.routeInfo,
-      builder: (_, __, ___) => const HomePage(),
+    GoRoute(
+      name: AppRoute.HOME.routeName,
+      path: AppRoute.HOME.path,
+      builder: (_, _) => const HomePage(),
     ),
   ];
 }

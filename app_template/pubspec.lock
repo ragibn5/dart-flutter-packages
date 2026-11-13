@@ -79,14 +79,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
-  auto_route:
-    dependency: transitive
-    description:
-      name: auto_route
-      sha256: "6d3ccc11b520b6eff0ab5a2c3d1c43c46d1486249cc746c4bb14486d876e8b43"
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.3.0"
   base_auth_interceptor:
     dependency: "direct main"
     description:
@@ -598,7 +590,7 @@ packages:
     source: hosted
     version: "2.2.0"
   go_router:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: go_router
       sha256: d7a3576cb312649eaa51f2356450aed686085fb58fcdebda5b359aa951eef7ea
@@ -1085,14 +1077,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
-  rover:
-    dependency: "direct main"
-    description:
-      name: rover
-      sha256: aeeed4a810d1660cdaecb94e03257c42c6d96652b02ae3c84854ea65de8e9133
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   shared_models:
     dependency: "direct main"
     description:

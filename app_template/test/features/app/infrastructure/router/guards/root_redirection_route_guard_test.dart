@@ -1,54 +1,47 @@
 import 'package:app_template/features/app/application/use_cases/is_authed_use_case.dart';
 import 'package:app_template/features/app/infrastructure/enums/app_route.dart';
 import 'package:app_template/features/app/infrastructure/router/guards/root_redirection_route_guard.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:rover/rover.dart';
-
-class _MockIsAuthedUseCase extends Mock implements IsAuthedUseCase {}
 
 class _FakeBuildContext extends Fake implements BuildContext {}
 
+class _MockGoRouterState extends Mock implements GoRouterState {}
+
+class _MockIsAuthedUseCase extends Mock implements IsAuthedUseCase {}
+
 void main() {
+  final context = _FakeBuildContext();
+
+  late _MockGoRouterState mockState;
   late _MockIsAuthedUseCase mockIsAuthed;
 
   late RootRedirectRouteGuard sut;
 
   setUp(() {
+    mockState = _MockGoRouterState();
     mockIsAuthed = _MockIsAuthedUseCase();
+
     sut = RootRedirectRouteGuard(mockIsAuthed);
+
+    for (final route in [AppRoute.HOME, AppRoute.LOGIN]) {
+      when(
+        () => mockState.namedLocation(route.routeName),
+      ).thenReturn(route.path);
+    }
   });
 
-  test('If not authenticated should redirect to login', () async {
-    when(() => mockIsAuthed()).thenAnswer((_) async => false);
-
-    final result = await sut.onNavigationRequest(
-      _FakeBuildContext(),
-      RouteContext(info: AppRoute.HOME.routeInfo),
-      RouteContext(info: AppRoute.LOGIN.routeInfo),
-    );
-
-    expect(result, isA<RedirectNavigation>());
-    expect(
-      (result as RedirectNavigation).redirectRoute.info.name,
-      AppRoute.LOGIN.routeInfo.name,
-    );
-  });
-
-  test('If authenticated should redirect to home', () async {
+  test('callShouldReturnTheHomePageIfLoggedIn', () async {
     when(() => mockIsAuthed()).thenAnswer((_) async => true);
 
-    final result = await sut.onNavigationRequest(
-      _FakeBuildContext(),
-      RouteContext(info: AppRoute.LOGIN.routeInfo),
-      RouteContext(info: AppRoute.HOME.routeInfo),
-    );
+    expect(await sut(context, mockState), AppRoute.HOME.path);
+  });
 
-    expect(result, isA<RedirectNavigation>());
-    expect(
-      (result as RedirectNavigation).redirectRoute.info.name,
-      AppRoute.HOME.routeInfo.name,
-    );
+  test('callShouldReturnTheLoginPageIfNotLoggedIn', () async {
+    when(() => mockIsAuthed()).thenAnswer((_) async => false);
+
+    expect(await sut(context, mockState), AppRoute.LOGIN.path);
   });
 }

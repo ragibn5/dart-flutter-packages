@@ -105,11 +105,11 @@ import 'package:data_domain_converters/data_domain_converters.dart' as _i1003;
 import 'package:dio/dio.dart' as _i361;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
+import 'package:go_router/go_router.dart' as _i583;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:loghub/loghub.dart' as _i642;
 import 'package:package_info_plus/package_info_plus.dart' as _i655;
 import 'package:preference_store/preference_store.dart' as _i300;
-import 'package:rover/rover.dart' as _i130;
 import 'package:snacker/snacker.dart' as _i1020;
 import 'package:sqlite_db/sqlite_db.dart' as _i860;
 
@@ -374,11 +374,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i21.SetAuthDataUseCase>(),
       ),
     );
-    gh.singleton<_i130.Rover>(
+    gh.singleton<_i583.GoRouter>(
       () => appModule.getAppRouter(
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
         gh<_i519.AppLogger>(),
-        gh<_i97.IsAuthedUseCase>(),
         gh<_i232.RoutesProvider>(),
       ),
     );

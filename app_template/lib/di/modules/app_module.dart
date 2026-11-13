@@ -47,6 +47,7 @@ import 'package:app_template/features/app/infrastructure/ports/is_authed_use_cas
 import 'package:app_template/features/app/infrastructure/ports/set_analytics_session_data_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/set_crashlytics_session_data_use_case_impl.dart';
 import 'package:app_template/features/app/infrastructure/ports/watch_auth_state_use_case_impl.dart';
+import 'package:app_template/features/app/infrastructure/router/guards/root_redirection_route_guard.dart';
 import 'package:app_template/features/app/infrastructure/router/guards/router_logger.dart';
 import 'package:app_template/features/app/infrastructure/services/app_config_factory.dart';
 import 'package:app_template/features/app/infrastructure/services/fallback_locale_selector.dart';
@@ -65,6 +66,7 @@ import 'package:dio/dio.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:loghub/loghub.dart' hide Logger;
@@ -72,7 +74,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:preference_store/preference_store.dart';
-import 'package:rover/rover.dart';
 import 'package:snacker/snacker.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_db/sqlite_db.dart';
@@ -476,21 +477,23 @@ abstract class AppModule {
     IsAuthedUseCase isAuthedUseCase,
     SetAuthDataUseCase setAuthDataUseCase,
   ) {
-    return RoutesProvider(isAuthedUseCase, setAuthDataUseCase);
+    return RoutesProvider(
+      RootRedirectRouteGuard(isAuthedUseCase),
+      setAuthDataUseCase,
+    );
   }
 
   @singleton
-  Rover getAppRouter(
+  GoRouter getAppRouter(
     GlobalKey<NavigatorState> navigatorKey,
     AppLogger logger,
-    IsAuthedUseCase isAuthedUseCase,
     RoutesProvider routesProvider,
   ) {
-    return RoverFactory().create(
+    return GoRouter(
       navigatorKey: navigatorKey,
-      initialRoute: AppRoute.ROOT.routeInfo,
+      initialLocation: AppRoute.ROOT.path,
       routes: routesProvider.getAppRoutes(),
-      guards: [RouterLogger(logger)],
+      onEnter: RouterLogger(logger).onEnter,
     );
   }
 }

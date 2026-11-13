@@ -1,11 +1,13 @@
-import 'package:rover/rover.dart';
-
 enum AppRoute {
-  ROOT(RouteInfo('root', '/')),
-  LOGIN(RouteInfo('login', '/login')),
-  HOME(RouteInfo('home', '/home'));
+  ROOT('root', '/'),
+  LOGIN('login', '/login'),
+  HOME('home', '/home');
 
-  final RouteInfo routeInfo;
+  /// The route's name, to navigate to it by.
+  final String routeName;
 
-  const AppRoute(this.routeInfo);
+  /// The route's path, such as `/home`.
+  final String path;
+
+  const AppRoute(this.routeName, this.path);
 }
