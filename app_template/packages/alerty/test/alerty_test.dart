@@ -444,4 +444,40 @@ void main() {
       expect(find.text('Original Title'), findsNothing);
     });
   });
+
+  testWidgets('actionShouldThrowStateErrorIfTheNavigatorCannotPopTheAlert', (
+    tester,
+  ) async {
+    final alerty = _TestAlerty();
+    final data = AlertData.error(title: 'Title', message: 'Message');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            alerty.provideContext(context);
+            return ElevatedButton(
+              onPressed: () => alerty.showTextAlert(data, [
+                CloseAction<Never>(title: 'Dismiss'),
+              ]),
+              child: const Text('Show'),
+            );
+          },
+        ),
+      ),
+    );
+    await tester.tap(find.text('Show'));
+    await tester.pumpAndSettle();
+
+    // Close the alert some other way, then run the action while the alert is
+    // still animating out: the navigator has nothing left to pop.
+    final dismiss = tester
+        .widget<TextButton>(find.widgetWithText(TextButton, 'Dismiss'))
+        .onPressed!;
+    Navigator.of(tester.element(find.byType(AlertDialog))).pop();
+    await tester.pump();
+
+    expect(dismiss, throwsA(isA<StateError>()));
+    await tester.pumpAndSettle();
+  });
 }
