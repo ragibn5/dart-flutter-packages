@@ -40,7 +40,6 @@ Built on top of the core layer. These packages provide higher-level tooling, UI 
 - [`sqlite_db`](sqlite_db)
 - [`base_auth_interceptor`](base_auth_interceptor)
 - [`feature_api_client`](feature_api_client)
-- [`rover`](rover)
 - [`infinity_radio_group`](infinity_radio_group)
 - [`infinity_selection_group`](infinity_selection_group)
 - [`infinity_menu`](infinity_menu)
