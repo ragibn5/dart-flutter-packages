@@ -15,7 +15,8 @@ import 'package:path/path.dart' as p;
 /// genuinely broken package. A package with no `version` is NOT malformed:
 /// it's a perfectly valid [ValidLocalPackageInfo] (e.g. an app, or another
 /// internal, unreleased package) that just isn't a release candidate — see
-/// [PackageIdentity.version]. Returns every resolvable package unfiltered —
+/// [PackageIdentity.version]. A package's `example` app is not reported: it's
+/// part of its package. Returns every resolvable package unfiltered —
 /// narrowing down to whatever a caller actually needs (touched, publishable,
 /// etc.) is the caller's job.
 class FindPackages {
@@ -32,6 +33,9 @@ class FindPackages {
     'node_modules',
     'Pods',
   };
+
+  /// The directory a package keeps its example app in.
+  static const _exampleDirName = 'example';
 
   final ReadPackageIdentity _readPackageIdentity;
 
@@ -67,15 +71,25 @@ class FindPackages {
   }
 
   Iterable<Directory> _findPackageDirs(Directory dir) sync* {
-    if (File(p.join(dir.path, 'pubspec.yaml')).existsSync()) {
+    final isPackage = File(p.join(dir.path, 'pubspec.yaml')).existsSync();
+    if (isPackage) {
       yield dir;
     }
 
     for (final entry in dir.listSync(followLinks: false)) {
-      if (entry is Directory &&
-          !_ignoredDirNames.contains(p.basename(entry.path))) {
-        yield* _findPackageDirs(entry);
+      if (entry is! Directory) {
+        continue;
       }
+
+      final name = p.basename(entry.path);
+      // A package's example app is part of the package, not a package of its
+      // own: a change to it touches the package.
+      if (_ignoredDirNames.contains(name) ||
+          (isPackage && name == _exampleDirName)) {
+        continue;
+      }
+
+      yield* _findPackageDirs(entry);
     }
   }
 

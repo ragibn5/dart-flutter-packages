@@ -37,6 +37,21 @@ void main() {
     );
   });
 
+  test("should not report a package's example app as a package", () async {
+    writePubspec('pkg_a', 'name: pkg_a\nversion: 1.0.0\n');
+    writePubspec('pkg_a/example', 'name: pkg_a_example\n');
+    writePubspec('example', 'name: example\n');
+
+    final packages = await sut(repoRoot: tempDir.path);
+
+    expect(
+      packages.whereType<ValidLocalPackageInfo>().map(
+            (p) => p.packageIdentity.name,
+          ),
+      unorderedEquals(['pkg_a', 'example']),
+    );
+  });
+
   test(
     'should include a package with no version as valid, not malformed',
     () async {
