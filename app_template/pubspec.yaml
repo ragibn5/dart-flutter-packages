@@ -53,10 +53,7 @@ dependencies:
   # In-house published packages
   extended_string: ^1.0.0
   dart_functionals: ^1.0.1
-  alerty: ^1.0.0
   net_models: ^1.0.0
-  data_domain_converters: ^1.0.0
-  json_serializable_converters_collection: ^1.0.0
   preference_store: ^1.0.0
   sqlite_db: ^1.0.0
   base_auth_interceptor:
@@ -65,15 +62,20 @@ dependencies:
     path: ../feature_api_client
   dio: ^5.8.0+1
   go_router: ^17.3.0
-  snacker: ^1.0.0
-
-  # In-house packages, not yet published
-  analykit:
-    path: ../analykit
-  crashlykit:
-    path: ../crashlykit
 
   # App-private packages
+  alerty:
+    path: packages/alerty
+  snacker:
+    path: packages/snacker
+  analykit:
+    path: packages/analykit
+  crashlykit:
+    path: packages/crashlykit
+  data_domain_converters:
+    path: packages/data_domain_converters
+  json_serializable_converters_collection:
+    path: packages/json_serializable_converters_collection
   enum_parser:
     path: packages/enum_parser
   shared_models:

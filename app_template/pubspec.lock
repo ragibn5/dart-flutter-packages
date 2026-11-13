@@ -20,18 +20,17 @@ packages:
   alerty:
     dependency: "direct main"
     description:
-      name: alerty
-      sha256: "23dcbc93524e506b8f4dd3660f81a68722760bba057fa6deed620464713d5ff1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
+      path: "packages/alerty"
+      relative: true
+    source: path
+    version: "0.0.0"
   analykit:
     dependency: "direct main"
     description:
-      path: "../analykit"
+      path: "packages/analykit"
       relative: true
     source: path
-    version: "2.0.0"
+    version: "0.0.0"
   analyzer:
     dependency: transitive
     description:
@@ -264,10 +263,10 @@ packages:
   crashlykit:
     dependency: "direct main"
     description:
-      path: "../crashlykit"
+      path: "packages/crashlykit"
       relative: true
     source: path
-    version: "2.0.0"
+    version: "0.0.0"
   crypto:
     dependency: transitive
     description:
@@ -311,11 +310,10 @@ packages:
   data_domain_converters:
     dependency: "direct main"
     description:
-      name: data_domain_converters
-      sha256: ed3a255e0c7b4a31f7394a66b9c1d511c0ae4f0380efc59e115e580d30cabe1e
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
+      path: "packages/data_domain_converters"
+      relative: true
+    source: path
+    version: "0.0.0"
   dev_tools:
     dependency: "direct dev"
     description:
@@ -752,11 +750,10 @@ packages:
   json_serializable_converters_collection:
     dependency: "direct main"
     description:
-      name: json_serializable_converters_collection
-      sha256: "5892670ff5324d9a0859dd0b83cc89a788ea7de85ae4e6de2f8ae6c0aff78632"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
+      path: "packages/json_serializable_converters_collection"
+      relative: true
+    source: path
+    version: "0.0.0"
   jwt_decoder:
     dependency: "direct main"
     description:
@@ -1180,11 +1177,10 @@ packages:
   snacker:
     dependency: "direct main"
     description:
-      name: snacker
-      sha256: "8ed2770c827ce5c3847cc5818f2053255664ed3bae036aa1330b0209d0149651"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
+      path: "packages/snacker"
+      relative: true
+    source: path
+    version: "0.0.0"
   source_gen:
     dependency: transitive
     description:
