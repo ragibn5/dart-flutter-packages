@@ -3,7 +3,7 @@ description: "A media provider plugin for android"
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analykit
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/media_provider/media_provider_android
 
 # Library version
 version: 1.0.0
