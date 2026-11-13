@@ -1,0 +1,4 @@
+# Coverage is at 74% for now: the native file descriptor IO
+# (descriptor_byte_source, native_descriptor_io) has no tests yet. Raise this
+# as tests come in.
+threshold: 74
