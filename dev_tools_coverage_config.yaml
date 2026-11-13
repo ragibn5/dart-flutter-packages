@@ -1,0 +1,12 @@
+# Coverage exclusions for every package in the repository, on top of each
+# package's own dev_tools_coverage_config.yaml. Patterns are lcov globs; a
+# `*` also matches across folders, so they fit both relative and absolute
+# paths.
+exclude:
+  # Generated code, such as json_serializable's
+  - '*.g.dart'
+  - '*.freezed.dart'
+  - '*.gen.dart'
+
+  # Models: data holders, with their equality and JSON parsing
+  - '*/models/*'
