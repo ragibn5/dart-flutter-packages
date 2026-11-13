@@ -40,8 +40,8 @@ void main() {
   );
 
   test(
-    'should throw CoverageCalculationException when the file has no LF '
-    'records',
+    'should throw CoverageCalculationException when the file is not lcov '
+    'data',
     () async {
       File(
         '${tempDir.path}/coverage/lcov.info',
@@ -53,6 +53,18 @@ void main() {
       );
     },
   );
+
+  test('callShouldReturn100IfThereAreNoMeasurableLines', () async {
+    File('${tempDir.path}/coverage/lcov.info').writeAsStringSync(
+      'TN:\n'
+      'SF:lib/interfaces.dart\n'
+      'LF:0\n'
+      'LH:0\n'
+      'end_of_record\n',
+    );
+
+    expect(await sut('coverage/lcov.info', tempDir.path), 100);
+  });
 }
 
 void _writeLcovFile(String path) {
