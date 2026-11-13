@@ -16,7 +16,6 @@ Foundational utilities and infrastructure packages with minimal dependencies. Th
 - [`extended_datetime`](extended_datetime)
 - [`color_utils`](color_utils)
 - [`loghub`](loghub)
-- [`data_domain_converters`](data_domain_converters)
 - [`net_models`](net_models)
 - [`generator_core`](generator_core)
 - [`analysis_server_plugin_core`](analysis_server_plugin_core)
@@ -34,7 +33,6 @@ Built on top of the core layer. These packages provide higher-level tooling, UI 
 - [`json_parser_linter`](json_coder/json_parser_linter)
 - [`json_parser_generator`](json_coder/json_parser_generator)
 - [`file_store`](file_store)
-- [`json_serializable_converters_collection`](json_serializable_converters_collection)
 - [`preference_store`](preference_store)
 - [`sqlite_db`](sqlite_db)
 - [`base_auth_interceptor`](base_auth_interceptor)
@@ -42,8 +40,6 @@ Built on top of the core layer. These packages provide higher-level tooling, UI 
 - [`infinity_radio_group`](infinity_radio_group)
 - [`infinity_selection_group`](infinity_selection_group)
 - [`infinity_menu`](infinity_menu)
-- [`alerty`](alerty)
-- [`snacker`](snacker)
 - [`clean_arch_linter`](clean_arch_linter)
 
 ---
@@ -53,8 +49,6 @@ Built on top of the core layer. These packages provide higher-level tooling, UI 
 Top-level integration or reference implementation packages that may depend on multiple core and intermediate packages.
 
 - [`app_template`](app_template)
-- [`analykit`](analykit)
-- [`crashlykit`](crashlykit)
 
 ---
 

@@ -414,7 +414,7 @@ Analyzer configuration is based on `very_good_analysis` and `bloc_lint`. See [`a
 
 [dart_functionals]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/dart_functionals/lib/dart_functionals.dart
 
-[data_domain_converters]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/data_domain_converters/lib/data_domain_converters.dart
+[data_domain_converters]: packages/data_domain_converters/lib/data_domain_converters.dart
 
 [feature_api_client]: https://github.com/Ragibn5/dart-flutter-packages/blob/main/feature_api_client/lib/feature_api_client.dart
 
