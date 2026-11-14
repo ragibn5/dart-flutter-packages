@@ -91,6 +91,9 @@ class FromJsonStaticMethodVisitor {
 
   void _checkParamType(MethodDeclaration fromJsonMethod) {
     final params = fromJsonMethod.parameters?.parameters;
+    // Unreachable: visit returns early for getters, the only methods without
+    // parameters. Kept for certainty.
+    // coverage:ignore-start
     if (params == null) {
       rule.reportAtToken(
         fromJsonMethod.name,
@@ -104,6 +107,7 @@ class FromJsonStaticMethodVisitor {
       // needed. So, will return.
       return;
     }
+    // coverage:ignore-end
 
     if (params.length != 1) {
       rule.reportAtNode(
