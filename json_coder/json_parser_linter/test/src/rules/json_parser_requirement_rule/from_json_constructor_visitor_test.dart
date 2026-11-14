@@ -236,4 +236,32 @@ void main() {
       verifyNoReports(mockRule);
     },
   );
+
+  test(
+    'visitShouldReportTheDeclarationIfAnOptionalParameterIsAFieldFormal',
+    () async {
+      final resolved = await dartResolver.resolveSource('''
+      class MyModel {
+        final Map<String, dynamic> map;
+
+        factory MyModel.fromJson([this.map = const {}]) => MyModel();
+        Map<String, dynamic> toJson() => {};
+      }
+      ''');
+
+      final constructorDeclaration = getFactoryConstructorDeclaration(
+        resolved.unit,
+        'fromJson',
+      );
+
+      sut.visit(constructorDeclaration);
+
+      verify(
+        () => mockRule.reportAtNode(
+          any(),
+          arguments: [visitorConfig.wrongParamDeclarationTypeContextMessage],
+        ),
+      ).called(1);
+    },
+  );
 }

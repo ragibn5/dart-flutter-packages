@@ -113,17 +113,17 @@ class FromJsonConstructorVisitor {
   }
 
   bool _isValidParam(FormalParameter param) {
+    // An optional parameter, such as `[this.json]`, comes wrapped.
+    final actual = param is DefaultFormalParameter ? param.parameter : param;
     return param.isPositional &&
-        param is! FieldFormalParameter &&
-        param is! SuperFormalParameter;
+        actual is! FieldFormalParameter &&
+        actual is! SuperFormalParameter;
   }
 
   TypeAnnotation? _parameterType(FormalParameter param) {
     final actual = param is DefaultFormalParameter ? param.parameter : param;
     return switch (actual) {
       final SimpleFormalParameter p => p.type,
-      final FieldFormalParameter p => p.type,
-      final SuperFormalParameter p => p.type,
       _ => null,
     };
   }
