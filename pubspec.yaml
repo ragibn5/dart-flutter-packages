@@ -40,6 +40,9 @@ workspace:
 
 dev_dependencies:
   melos: ^8.10.1
+  # For tool/coverage.dart
+  path: ^1.9.0
+  yaml: ^3.1.2
 
 melos:
   scripts:
@@ -56,3 +59,16 @@ melos:
         concurrency: 1
       packageFilters:
         dirExists: test
+
+    coverage:
+      description: >-
+        Check each package's test coverage: tool/coverage.dart, with the root's
+        and each package's coverage.yaml.
+      exec:
+        command: dart run "$MELOS_ROOT_PATH/tool/coverage.dart"
+        concurrency: 1
+
+    release:check:
+      description: Dry-run publishing every package whose version isn't on pub.dev.
+      run: dart run melos publish --yes
+
