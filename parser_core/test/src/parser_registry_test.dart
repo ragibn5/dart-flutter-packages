@@ -39,6 +39,9 @@ class _UserParser implements Parser<_User, Map<String, dynamic>> {
 }
 
 // Test registry
+/// A registry made through the public constructor.
+class _PublicParserRegistry extends ParserRegistry<Map<String, dynamic>> {}
+
 class _TestParserRegistry extends ParserRegistry<Map<String, dynamic>> {
   _TestParserRegistry() : super.test({});
 }
@@ -81,5 +84,13 @@ void main() {
 
   test('getRuntimeParser returns null if type not registered', () {
     expect(sut.getRuntimeParser(String), isNull);
+  });
+
+  test('publicConstructorShouldStartEmptyAndAcceptParsersIfCalled', () {
+    final registry = _PublicParserRegistry();
+
+    expect(registry.parserMap, isEmpty);
+    registry.addParser(const _UserParser());
+    expect(registry.getParser<_User>(), isA<_UserParser>());
   });
 }
