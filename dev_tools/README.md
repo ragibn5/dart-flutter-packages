@@ -4,24 +4,13 @@ Shared developer tooling for Dart and Flutter projects.
 
 ## Installation
 
-#### From pub.dev
-
-Add this to your `pubspec.yaml`
-
-```yaml
-dev_dependencies:
-  dev_tools: ^1.0.0
-```
-
-#### Or, From Git repo
+dev_tools is this repository's own tooling and isn't published. Use it from
+a package in this repository by path:
 
 ```yaml
 dev_dependencies:
   dev_tools:
-    git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: dev_tools
-      ref: dev_tools-1.0.0
+    path: ../dev_tools
 ```
 
 ## Usage
