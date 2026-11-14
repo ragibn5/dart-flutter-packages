@@ -130,7 +130,7 @@ fvm dart run melos run release:check
 | Script          | What it does                                                                |
 |-----------------|-----------------------------------------------------------------------------|
 | `analyze`       | Runs `dart analyze` in every package.                                       |
-| `test`          | Runs `flutter test` in every package that has a `test` folder.              |
+| `test`          | Runs `dart test` or `flutter test` in every package that has a `test` folder. |
 | `coverage`      | Checks each package's line coverage (see [Coverage](#coverage)).            |
 | `release:check` | Dry-runs publishing every package whose version isn't on pub.dev yet.       |
 

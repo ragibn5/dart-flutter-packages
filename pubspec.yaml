@@ -54,11 +54,25 @@ melos:
 
     test:
       description: Run every package's tests, Dart or Flutter alike.
+      run: dart run melos run test:dart --no-select && dart run melos run test:flutter --no-select
+
+    test:dart:
+      description: Run the pure-Dart packages' tests.
+      exec:
+        command: dart test
+        concurrency: 1
+      packageFilters:
+        dirExists: test
+        flutter: false
+
+    test:flutter:
+      description: Run the Flutter packages' tests.
       exec:
         command: flutter test
         concurrency: 1
       packageFilters:
         dirExists: test
+        flutter: true
 
     coverage:
       description: >-
