@@ -39,4 +39,10 @@ void main() {
 
     verify(() => mockController.close()).called(1);
   });
+
+  test('broadcastShouldAllowSeveralListenersIfCreated', () {
+    final controller = CachedStreamController<int>.broadcast();
+
+    expect(controller.stream.isBroadcast, isTrue);
+  });
 }
