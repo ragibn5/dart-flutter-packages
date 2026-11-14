@@ -98,4 +98,8 @@ void main() {
       ),
     ).called(1);
   });
+
+  test('diagnosticCodeShouldBeTheRulesLintCode', () {
+    expect(sut.diagnosticCode, JsonParserRequirementRule.JPR_LINT_CODE);
+  });
 }
