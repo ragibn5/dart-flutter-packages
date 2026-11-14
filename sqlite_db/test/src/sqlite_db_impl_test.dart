@@ -90,6 +90,89 @@ void main() {
     });
   });
 
+  group('Opening scripts', () {
+    /// Opens the database, and returns the options it was opened with.
+    Future<OpenDatabaseOptions> open() async {
+      when(() => mockDatabase.execute(any())).thenAnswer((_) async {});
+      await SQLiteDbImpl.test(
+        connectionData,
+        mockDbInitializationScripts,
+        mockDatabaseFactory,
+      ).initialize();
+      return verify(
+            () => mockDatabaseFactory.openDatabase(
+              any(),
+              options: captureAny(named: 'options'),
+            ),
+          ).captured.single
+          as OpenDatabaseOptions;
+    }
+
+    const scriptsForVersions = [
+      SingleVersionedDbScript(scriptText: 'FOR_V1', targetVersion: 1),
+      SingleVersionedDbScript(scriptText: 'FOR_V2', targetVersion: 2),
+    ];
+
+    test('onConfigureShouldRunTheConfigurationScriptsOfTheVersion', () async {
+      when(
+        () => mockDbInitializationScripts.configurationScripts,
+      ).thenReturn(scriptsForVersions);
+
+      await (await open()).onConfigure!(mockDatabase);
+
+      verify(() => mockDatabase.execute('FOR_V1')).called(1);
+      verifyNever(() => mockDatabase.execute('FOR_V2'));
+    });
+
+    test('onCreateShouldRunTheCreationScriptsOfTheVersion', () async {
+      when(
+        () => mockDbInitializationScripts.creationScripts,
+      ).thenReturn(scriptsForVersions);
+
+      await (await open()).onCreate!(mockDatabase, 1);
+
+      verify(() => mockDatabase.execute('FOR_V1')).called(1);
+      verifyNever(() => mockDatabase.execute('FOR_V2'));
+    });
+
+    test('onUpgradeShouldRunTheScriptsOfThatUpgradeOnly', () async {
+      when(() => mockDbInitializationScripts.upgradeScripts).thenReturn(const [
+        DbMigrationScript(
+          scriptText: 'V1_TO_V2',
+          previousVersion: 1,
+          presentVersion: 2,
+        ),
+        DbMigrationScript(
+          scriptText: 'V2_TO_V3',
+          previousVersion: 2,
+          presentVersion: 3,
+        ),
+      ]);
+
+      await (await open()).onUpgrade!(mockDatabase, 1, 2);
+
+      verify(() => mockDatabase.execute('V1_TO_V2')).called(1);
+      verifyNever(() => mockDatabase.execute('V2_TO_V3'));
+    });
+
+    test('onDowngradeShouldRunNoScript', () async {
+      await (await open()).onDowngrade!(mockDatabase, 2, 1);
+
+      verifyNever(() => mockDatabase.execute(any()));
+    });
+
+    test('onOpenShouldRunTheOpenScriptsOfTheVersion', () async {
+      when(
+        () => mockDbInitializationScripts.openScripts,
+      ).thenReturn(scriptsForVersions);
+
+      await (await open()).onOpen!(mockDatabase);
+
+      verify(() => mockDatabase.execute('FOR_V1')).called(1);
+      verifyNever(() => mockDatabase.execute('FOR_V2'));
+    });
+  });
+
   group('Guard against uninitialized usage', () {
     late SQLiteDbImpl sut;
 
@@ -107,8 +190,8 @@ void main() {
         'async',
         'insert',
         () => sut.insert('t', [
-              {'c': 'v'}
-            ])
+          {'c': 'v'},
+        ]),
       ),
       ('async', 'delete', () => sut.delete('t', 'id', ['1'])),
       ('async', 'deleteAll', () => sut.deleteAll('t')),
@@ -216,8 +299,9 @@ void main() {
           conflictAlgorithm: any(named: 'conflictAlgorithm'),
         ),
       ).thenReturn(null);
-      when(() => mockBatch.commit(noResult: false))
-          .thenAnswer((_) async => [1, 1]);
+      when(
+        () => mockBatch.commit(noResult: false),
+      ).thenAnswer((_) async => [1, 1]);
 
       final result = await sut.insert('t', [
         {'name': 'a'},
@@ -226,19 +310,53 @@ void main() {
 
       expect(result, 2);
       verify(
-        () => mockBatch.insert(
-          't',
-          {'name': 'a'},
-          conflictAlgorithm: any(named: 'conflictAlgorithm'),
-        ),
+        () => mockBatch.insert('t', {
+          'name': 'a',
+        }, conflictAlgorithm: any(named: 'conflictAlgorithm')),
       ).called(1);
       verify(
+        () => mockBatch.insert('t', {
+          'name': 'b',
+        }, conflictAlgorithm: any(named: 'conflictAlgorithm')),
+      ).called(1);
+    });
+
+    void stubInsertBatchResults(List<Object?> results) {
+      final mockBatch = _MockBatch();
+      when(() => mockDatabase.batch()).thenReturn(mockBatch);
+      when(
         () => mockBatch.insert(
-          't',
-          {'name': 'b'},
+          any(),
+          any(),
           conflictAlgorithm: any(named: 'conflictAlgorithm'),
         ),
-      ).called(1);
+      ).thenReturn(null);
+      when(
+        () => mockBatch.commit(noResult: false),
+      ).thenAnswer((_) async => results);
+    }
+
+    test('insertShouldThrowStateErrorIfTheBatchReturnsAnotherCount', () async {
+      stubInsertBatchResults([1]);
+
+      await expectLater(
+        sut.insert('t', [
+          {'name': 'a'},
+          {'name': 'b'},
+        ]),
+        throwsStateError,
+      );
+    });
+
+    test('insertShouldThrowStateErrorIfAResultIsNotACount', () async {
+      stubInsertBatchResults(['not-a-count']);
+
+      await expectLater(
+        sut.insert('t', [
+          {'name': 'a'},
+        ]),
+        throwsStateError,
+      );
     });
   });
 
@@ -271,8 +389,9 @@ void main() {
           whereArgs: any(named: 'whereArgs'),
         ),
       ).thenReturn(null);
-      when(() => mockBatch.commit(noResult: false))
-          .thenAnswer((_) async => [2]);
+      when(
+        () => mockBatch.commit(noResult: false),
+      ).thenAnswer((_) async => [2]);
 
       final result = await sut.delete('t', 'id', ['1', '2']);
 
@@ -284,6 +403,33 @@ void main() {
           whereArgs: ['1', '2'],
         ),
       ).called(1);
+    });
+
+    void stubDeleteBatchResults(List<Object?> results) {
+      final mockBatch = _MockBatch();
+      when(() => mockDatabase.batch()).thenReturn(mockBatch);
+      when(
+        () => mockBatch.delete(
+          any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'),
+        ),
+      ).thenReturn(null);
+      when(
+        () => mockBatch.commit(noResult: false),
+      ).thenAnswer((_) async => results);
+    }
+
+    test('deleteShouldThrowStateErrorIfTheBatchReturnsAnotherCount', () async {
+      stubDeleteBatchResults([1, 1]);
+
+      await expectLater(sut.delete('t', 'id', ['1']), throwsStateError);
+    });
+
+    test('deleteShouldThrowStateErrorIfAResultIsNotACount', () async {
+      stubDeleteBatchResults(['not-a-count']);
+
+      await expectLater(sut.delete('t', 'id', ['1']), throwsStateError);
     });
   });
 
@@ -321,9 +467,11 @@ void main() {
           limit: any(named: 'limit'),
           offset: any(named: 'offset'),
         ),
-      ).thenAnswer((_) async => [
-            {'id': 1}
-          ]);
+      ).thenAnswer(
+        (_) async => [
+          {'id': 1},
+        ],
+      );
       final sut = SQLiteDbImpl.test(
         connectionData,
         mockDbInitializationScripts,
@@ -345,7 +493,7 @@ void main() {
       );
 
       expect(result, [
-        {'id': 1}
+        {'id': 1},
       ]);
       verify(
         () => mockDatabase.query(
@@ -367,9 +515,11 @@ void main() {
   group('rawQuery', () {
     test('Delegates to db.rawQuery', () async {
       when(() => mockDatabase.isOpen).thenReturn(true);
-      when(() => mockDatabase.rawQuery(any(), any())).thenAnswer((_) async => [
-            {'id': 1}
-          ]);
+      when(() => mockDatabase.rawQuery(any(), any())).thenAnswer(
+        (_) async => [
+          {'id': 1},
+        ],
+      );
       final sut = SQLiteDbImpl.test(
         connectionData,
         mockDbInitializationScripts,
@@ -380,10 +530,11 @@ void main() {
       final result = await sut.rawQuery('SELECT * FROM t WHERE id = ?', [1]);
 
       expect(result, [
-        {'id': 1}
+        {'id': 1},
       ]);
-      verify(() => mockDatabase.rawQuery('SELECT * FROM t WHERE id = ?', [1]))
-          .called(1);
+      verify(
+        () => mockDatabase.rawQuery('SELECT * FROM t WHERE id = ?', [1]),
+      ).called(1);
     });
   });
 
