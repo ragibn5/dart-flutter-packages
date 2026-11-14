@@ -33,7 +33,7 @@ jobs:
       - name: Install pinned Flutter SDK version via FVM
         run: fvm install
 
-      # Resolves the whole workspace, dev_tools included.
+      # Resolves the whole workspace, Melos included.
       - name: Install workspace dependencies
         run: fvm flutter pub get
 
@@ -48,21 +48,39 @@ jobs:
           echo "$HOME/fvm/versions/$FLUTTER_VERSION/bin" >> "$GITHUB_PATH"
 
       # Needed to convert a pure-Dart package's raw `dart test --coverage`
-      # output into lcov — see RunPackageTestsWithCoverage.
+      # output into lcov — see tool/coverage.dart.
       - name: Activate the coverage package
         run: dart pub global activate coverage
 
-      # lcov (used by CalculateCoverage to read each package's coverage
-      # percentage) isn't preinstalled on ubuntu-latest.
+      # lcov (used by tool/coverage.dart to leave excluded files out) isn't
+      # preinstalled on ubuntu-latest.
       - name: Install lcov
         run: sudo apt-get update && sudo apt-get install -y lcov
 
-      - name: Check coverage across touched packages
-        working-directory: dev_tools
+      # Melos runs tool/coverage.dart in every workspace package the pull
+      # request changed.
+      - name: Check coverage of the changed workspace packages
+        run: >
+          dart run melos exec
+          --diff=${{ github.event.pull_request.base.sha }}
+          --concurrency=1
+          -- dart run '$MELOS_ROOT_PATH/tool/coverage.dart'
+
+      # app_template and its own packages keep their own resolution, outside
+      # the workspace, so Melos doesn't see them: each changed one is checked
+      # here.
+      - name: Check coverage of the changed app_template packages
         run: |
-          mapfile -t ARGS < <(fvm dart run bin/dev_tools.dart packages get-touched --from ${{ github.event.pull_request.base.sha }} | sed 's/^/--package=/')
-          if [ ${#ARGS[@]} -eq 0 ]; then
-            echo "No packages touched; nothing to check."
-            exit 0
-          fi
-          fvm dart run bin/dev_tools.dart coverage verify --fail-fast "${ARGS[@]}"
+          BASE=${{ github.event.pull_request.base.sha }}
+          for dir in app_template app_template/packages/*; do
+            [ -f "$dir/pubspec.yaml" ] || continue
+            if [ "$dir" = app_template ]; then
+              changed=$(git diff --name-only "$BASE" HEAD -- app_template ':!app_template/packages')
+            else
+              changed=$(git diff --name-only "$BASE" HEAD -- "$dir")
+            fi
+            [ -n "$changed" ] || continue
+            echo "::group::$dir"
+            (cd "$dir" && flutter pub get && dart run "$GITHUB_WORKSPACE/tool/coverage.dart")
+            echo "::endgroup::"
+          done

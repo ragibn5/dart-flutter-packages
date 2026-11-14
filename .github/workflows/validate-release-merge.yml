@@ -34,13 +34,17 @@ jobs:
           key: fvm-versions-${{ hashFiles('.fvmrc') }}
           restore-keys: fvm-versions-
 
-      # Resolves the whole workspace, dev_tools included, with the root's
-      # pinned Flutter SDK.
+      # Resolves the whole workspace, Melos included, with the root's pinned
+      # Flutter SDK.
       - name: Install workspace dependencies
         run: fvm flutter pub get
 
-      - name: Validate release candidates are complete
-        working-directory: dev_tools
-        run: >
-          fvm dart run bin/dev_tools.dart release validate-release-mr
-          --to ${{ github.event.pull_request.base.sha }}
+      # Melos scripts run in a shell that calls dart directly.
+      - name: Add FVM's downloaded Flutter SDK to PATH
+        run: |
+          FLUTTER_VERSION=$(jq -r .flutter .fvmrc)
+          echo "$HOME/fvm/versions/$FLUTTER_VERSION/bin" >> "$GITHUB_PATH"
+
+      # Dry-runs publishing every package whose version isn't on pub.dev yet.
+      - name: Check the packages to release
+        run: dart run melos run release:check
