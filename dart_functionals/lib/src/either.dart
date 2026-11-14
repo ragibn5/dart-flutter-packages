@@ -4,9 +4,13 @@ sealed class Either<L, R> {
     return switch (self) {
       Left<L>() => onLeft(self.l),
       Right<R>() => onRight(self.r),
+      // Unreachable: the class is sealed, but the analyzer can't tell
+      // with generics, so the switch needs this arm.
+      // coverage:ignore-start
       _ => throw StateError(
           'Invalid state: should have been either ${Left<L>}, or ${Right<R>}',
         ),
+      // coverage:ignore-end
     };
   }
 
@@ -21,9 +25,13 @@ sealed class Either<L, R> {
       Right<R>() => throw StateError(
           'Expected Left, but was Right(${self.r})',
         ),
+      // Unreachable: the class is sealed, but the analyzer can't tell
+      // with generics, so the switch needs this arm.
+      // coverage:ignore-start
       _ => throw StateError(
           'Invalid state: should have been either ${Left<L>}, or ${Right<R>}',
         ),
+      // coverage:ignore-end
     };
   }
 
@@ -34,9 +42,13 @@ sealed class Either<L, R> {
       Left<L>() => throw StateError(
           'Expected Right, but was Left(${self.l})',
         ),
+      // Unreachable: the class is sealed, but the analyzer can't tell
+      // with generics, so the switch needs this arm.
+      // coverage:ignore-start
       _ => throw StateError(
           'Invalid state: should have been either ${Left<L>}, or ${Right<R>}',
         ),
+      // coverage:ignore-end
     };
   }
 }
