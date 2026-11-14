@@ -42,10 +42,14 @@ final class FileByteSource extends MediaByteSource {
     final file = await File(path).open();
     try {
       return FileByteSource._(id, file, await file.length());
+      // An opened file whose length can't be read can't be set up in a test:
+      // this only makes sure the file isn't left open.
+      // coverage:ignore-start
     } catch (_) {
       await file.close();
       rethrow;
     }
+    // coverage:ignore-end
   }
 
   @override
