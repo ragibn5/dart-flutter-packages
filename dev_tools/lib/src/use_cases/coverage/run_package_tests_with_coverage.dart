@@ -6,9 +6,7 @@ import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:path/path.dart' as p;
 
 /// Runs a single package's tests with coverage enabled, using whichever
-/// Dart/Flutter is on `PATH` — not each package's own fvm-pinned version,
-/// since running tests (unlike publishing) doesn't need to match pub.dev's
-/// exact resolved SDK.
+/// Dart/Flutter is on `PATH`, such as the workspace's pinned SDK in CI.
 class RunPackageTestsWithCoverage {
   /// The test written for the run, which imports every library in `lib/`.
   static const importsTestPath = 'test/dev_tools_coverage_imports_test.dart';

@@ -82,22 +82,28 @@ Or, using SSH:
 git clone git@github.com:Ragibn5/dart-flutter-packages.git
 ```
 
-#### 2. Open desired package in IDE
+#### 2. Open the repository in your IDE
 
-Open the package you want to work on (for example `feature_api_client`) with your IDE.
+The packages form one [pub workspace](https://dart.dev/tools/pub/workspaces):
+open the repository root, and every package resolves together.
 
-#### 3. Install dependencies for desired package:
+#### 3. Install the pinned Flutter SDK and the dependencies
+
+The root `.fvmrc` pins the one Flutter SDK every package uses. With
+[`FVM`](https://fvm.app), from the repository root:
 
 ```bash
-# From package's root directory
-flutter pub get
+fvm install
+fvm flutter pub get
 ```
 
-Or, if using [`FVM`](https://fvm.app):
+#### 4. Run a script across the packages
+
+[Melos](https://melos.invertase.dev) runs the workspace's scripts, such as:
 
 ```bash
-# From package's root directory
-fvm flutter pub get
+fvm dart run melos run analyze
+fvm dart run melos run test
 ```
 
 ### Contributing
