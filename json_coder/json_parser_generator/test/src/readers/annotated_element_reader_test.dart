@@ -43,7 +43,9 @@ void main() {
     mockLibraryReader = _MockLibraryReader();
     mockAnnotation = _MockTypeChecker();
 
-    sut = AnnotatedElementReader.test(mockLibraryReaderBuilder);
+    sut = AnnotatedElementReader(
+      libraryReaderBuilder: mockLibraryReaderBuilder,
+    );
 
     when(() => mockBuildStep.resolver).thenReturn(mockResolver);
   });

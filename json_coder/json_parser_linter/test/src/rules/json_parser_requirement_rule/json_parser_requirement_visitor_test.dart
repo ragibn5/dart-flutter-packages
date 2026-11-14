@@ -73,14 +73,14 @@ void main() {
     mockFromJsonConstructorVisitor = _MockFromJsonConstructorVisitor();
     mockFromJsonStaticMethodVisitor = _MockFromJsonStaticMethodVisitor();
 
-    sut = JsonParserRequirementRuleVisitor.test(
+    sut = JsonParserRequirementRuleVisitor(
       mockRule,
-      visitorConfig,
       mockSessionContext,
-      AnnotationTypeResolverFactory.create(),
-      mockToJsonMethodVisitor,
-      mockFromJsonConstructorVisitor,
-      mockFromJsonStaticMethodVisitor,
+      visitorConfig: visitorConfig,
+      annotationTypeResolver: AnnotationTypeResolverFactory.create(),
+      toJsonMethodVisitor: mockToJsonMethodVisitor,
+      fromJsonConstructorVisitor: mockFromJsonConstructorVisitor,
+      fromJsonStaticMethodVisitor: mockFromJsonStaticMethodVisitor,
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);

@@ -18,7 +18,7 @@ void main() {
     mockStream = _MockStream();
     mockController = _MockStreamController();
 
-    sut = CachedStreamController.test(mockController);
+    sut = CachedStreamController.single(controller: mockController);
 
     when(() => mockController.add(any())).thenAnswer((_) {});
     when(() => mockController.close()).thenAnswer((_) async {});

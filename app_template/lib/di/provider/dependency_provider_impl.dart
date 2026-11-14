@@ -14,29 +14,21 @@ class DependencyProviderImpl implements DependencyProvider {
   static DependencyProvider? _instance;
 
   static DependencyProvider getInstance() =>
-      _instance ??= DependencyProviderImpl._(
-        GetIt.asNewInstance(),
-        configureDependencies,
-        false,
-      );
+      _instance ??= DependencyProviderImpl();
 
   final GetIt _registrar;
   final ConfigureDependencies _configuratorFunc;
 
   bool _isInitialized = false;
 
-  @visibleForTesting
-  DependencyProviderImpl.test(
-    GetIt registrar,
-    ConfigureDependencies configuratorFunc, {
-    bool isInitialized = false,
-  }) : this._(registrar, configuratorFunc, isInitialized);
-
-  DependencyProviderImpl._(
-    this._registrar,
-    this._configuratorFunc,
-    this._isInitialized,
-  );
+  DependencyProviderImpl({
+    @visibleForTesting GetIt? registrar,
+    @visibleForTesting
+    ConfigureDependencies configuratorFunc = configureDependencies,
+    @visibleForTesting bool isInitialized = false,
+  }) : _registrar = registrar ?? GetIt.asNewInstance(),
+       _configuratorFunc = configuratorFunc,
+       _isInitialized = isInitialized;
 
   @override
   T get<T extends Object>({String? name}) =>

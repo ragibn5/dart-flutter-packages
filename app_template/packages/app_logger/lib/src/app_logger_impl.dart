@@ -5,13 +5,11 @@ import 'package:meta/meta.dart';
 class AppLoggerImpl implements AppLogger {
   final CompositeLogger _compositeLogger;
 
-  AppLoggerImpl(List<LogFilter> filters, Map<String, Logger> loggers)
-      : this._(CompositeLogger(loggers, filters));
-
-  @visibleForTesting
-  AppLoggerImpl.test(CompositeLogger compositeLogger) : this._(compositeLogger);
-
-  AppLoggerImpl._(this._compositeLogger);
+  AppLoggerImpl(
+    List<LogFilter> filters,
+    Map<String, Logger> loggers, {
+    @visibleForTesting CompositeLogger? compositeLogger,
+  }) : _compositeLogger = compositeLogger ?? CompositeLogger(loggers, filters);
 
   @override
   void logDebug({

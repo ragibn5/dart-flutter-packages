@@ -4,13 +4,8 @@ import 'package:parser_core/src/parser.dart';
 abstract class ParserRegistry<E> {
   final Map<Type, Parser<Object?, E>> _parserMap;
 
-  ParserRegistry() : this._({});
-
-  @visibleForTesting
-  const ParserRegistry.test(Map<Type, Parser<Object?, E>> parserMap)
-      : this._(parserMap);
-
-  const ParserRegistry._(this._parserMap);
+  ParserRegistry({@visibleForTesting Map<Type, Parser<Object?, E>>? parserMap})
+      : _parserMap = parserMap ?? {};
 
   @visibleForTesting
   Map<Type, Parser<Object?, E>> get parserMap => _parserMap;

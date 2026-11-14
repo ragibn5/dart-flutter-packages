@@ -19,22 +19,10 @@ class SQLiteDbImpl implements SQLiteDb {
   Database? _database;
 
   SQLiteDbImpl(
-    DbConnectionData connectionData,
-    DbInitializerScripts initializerScripts,
-  ) : this._(connectionData, initializerScripts, null);
-
-  @visibleForTesting
-  SQLiteDbImpl.test(
-    DbConnectionData connectionData,
-    DbInitializerScripts initializerScripts,
-    DatabaseFactory databaseFactory,
-  ) : this._(connectionData, initializerScripts, databaseFactory);
-
-  SQLiteDbImpl._(
     this.connectionData,
-    this.initializerScripts,
-    this._databaseFactory,
-  );
+    this.initializerScripts, {
+    @visibleForTesting DatabaseFactory? databaseFactory,
+  }) : _databaseFactory = databaseFactory;
 
   DatabaseFactory get _resolvedFactory => _databaseFactory ?? databaseFactory;
 

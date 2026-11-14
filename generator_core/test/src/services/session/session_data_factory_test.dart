@@ -51,9 +51,9 @@ void main() {
 
     fakeCurrentDirectory = Directory('/fake/root');
 
-    sut = SessionDataFactoryImpl.test(
-      fakeCurrentDirectory,
+    sut = SessionDataFactoryImpl(
       mockContextConfigLoader,
+      currentDirectory: fakeCurrentDirectory,
     );
 
     when(

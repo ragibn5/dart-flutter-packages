@@ -10,20 +10,13 @@ class DefaultLogPolicyController implements LogPolicyController {
   final Set<String> _blockedLoggerIds;
 
   /// Creates a new instance of type [DefaultLogPolicyController].
-  DefaultLogPolicyController() : this._({}, {}, {});
-
-  @visibleForTesting
-  DefaultLogPolicyController.test(Set<String> blockedTags,
-      Set<LogLevel> blockedLevels, Set<String> blockedLoggerIds)
-      : _blockedTags = blockedTags,
-        _blockedLevels = blockedLevels,
-        _blockedLoggerIds = blockedLoggerIds;
-
-  DefaultLogPolicyController._(Set<String> blockedTags,
-      Set<LogLevel> blockedLevels, Set<String> blockedLoggerIds)
-      : _blockedTags = blockedTags,
-        _blockedLevels = blockedLevels,
-        _blockedLoggerIds = blockedLoggerIds;
+  DefaultLogPolicyController({
+    @visibleForTesting Set<String>? blockedTags,
+    @visibleForTesting Set<LogLevel>? blockedLevels,
+    @visibleForTesting Set<String>? blockedLoggerIds,
+  })  : _blockedTags = blockedTags ?? {},
+        _blockedLevels = blockedLevels ?? {},
+        _blockedLoggerIds = blockedLoggerIds ?? {};
 
   @override
   LogPolicy get currentPolicy => LogPolicy(

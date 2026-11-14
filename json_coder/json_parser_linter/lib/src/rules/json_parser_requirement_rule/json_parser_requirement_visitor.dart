@@ -1,7 +1,8 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:analysis_server_plugin_core/analysis_server_plugin_core.dart';
-import 'package:json_parser_annotations/json_parser_annotations.dart' show GenerateJsonParser;
+import 'package:json_parser_annotations/json_parser_annotations.dart'
+    show GenerateJsonParser;
 import 'package:json_parser_linter/src/models/json_parser_linter_config.dart';
 import 'package:json_parser_linter/src/rules/json_parser_requirement_rule/from_json_constructor_visitor.dart';
 import 'package:json_parser_linter/src/rules/json_parser_requirement_rule/from_json_static_method_visitor.dart';
@@ -42,46 +43,25 @@ class JsonParserRequirementRuleVisitor extends SimpleAstVisitor<void> {
   final FromJsonStaticMethodVisitor _fromJsonStaticMethodVisitor;
 
   JsonParserRequirementRuleVisitor(
-    AnalysisRule rule,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-  ) : this._(
-        rule,
-        JsonParserRequirementRuleVisitorConfig(),
-        sessionContext,
-        AnnotationTypeResolverFactory.create(),
-        ToJsonMethodVisitor(rule, sessionContext),
-        FromJsonConstructorVisitor(rule, sessionContext),
-        FromJsonStaticMethodVisitor(rule, sessionContext),
-      );
-
-  @visibleForTesting
-  JsonParserRequirementRuleVisitor.test(
-    AnalysisRule rule,
-    JsonParserRequirementRuleVisitorConfig visitorConfig,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-    AnnotationTypeResolver annotationTypeResolver,
-    ToJsonMethodVisitor toJsonMethodVisitor,
-    FromJsonConstructorVisitor fromJsonConstructorVisitor,
-    FromJsonStaticMethodVisitor fromJsonStaticMethodVisitor,
-  ) : this._(
-        rule,
-        visitorConfig,
-        sessionContext,
-        annotationTypeResolver,
-        toJsonMethodVisitor,
-        fromJsonConstructorVisitor,
-        fromJsonStaticMethodVisitor,
-      );
-
-  JsonParserRequirementRuleVisitor._(
     this.rule,
-    this.visitorConfig,
-    this.sessionContext,
-    this._annotationTypeResolver,
-    this._toJsonMethodVisitor,
-    this._fromJsonConstructorVisitor,
-    this._fromJsonStaticMethodVisitor,
-  );
+    this.sessionContext, {
+    @visibleForTesting JsonParserRequirementRuleVisitorConfig? visitorConfig,
+    @visibleForTesting AnnotationTypeResolver? annotationTypeResolver,
+    @visibleForTesting ToJsonMethodVisitor? toJsonMethodVisitor,
+    @visibleForTesting FromJsonConstructorVisitor? fromJsonConstructorVisitor,
+    @visibleForTesting FromJsonStaticMethodVisitor? fromJsonStaticMethodVisitor,
+  }) : visitorConfig =
+           visitorConfig ?? JsonParserRequirementRuleVisitorConfig(),
+       _annotationTypeResolver =
+           annotationTypeResolver ?? AnnotationTypeResolverFactory.create(),
+       _toJsonMethodVisitor =
+           toJsonMethodVisitor ?? ToJsonMethodVisitor(rule, sessionContext),
+       _fromJsonConstructorVisitor =
+           fromJsonConstructorVisitor ??
+           FromJsonConstructorVisitor(rule, sessionContext),
+       _fromJsonStaticMethodVisitor =
+           fromJsonStaticMethodVisitor ??
+           FromJsonStaticMethodVisitor(rule, sessionContext);
 
   @override
   void visitAnnotation(Annotation node) {

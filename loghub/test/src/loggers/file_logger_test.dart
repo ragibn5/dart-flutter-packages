@@ -49,12 +49,12 @@ void main() {
 
     controller = StreamController<LogData>();
 
-    sut = FileLogger.test(
-      tempDir,
-      tempFileNameBuilder,
-      mockFormatter,
-      mockWriter,
-      controller,
+    sut = FileLogger(
+      logDirectory: tempDir,
+      fileNameBuilder: tempFileNameBuilder,
+      formatter: mockFormatter,
+      fileWriter: mockWriter,
+      streamController: controller,
     );
 
     tempDir.createSync(recursive: true);
@@ -227,12 +227,12 @@ void main() {
       () async {
         final streamController = StreamController<LogData>();
         addTearDown(streamController.close);
-        FileLogger.test(
-          tempDir,
-          tempFileNameBuilder,
-          mockFormatter,
-          mockWriter,
-          streamController,
+        FileLogger(
+          logDirectory: tempDir,
+          fileNameBuilder: tempFileNameBuilder,
+          formatter: mockFormatter,
+          fileWriter: mockWriter,
+          streamController: streamController,
         ).log(
           LogData(
             level: LogLevel.ERROR,

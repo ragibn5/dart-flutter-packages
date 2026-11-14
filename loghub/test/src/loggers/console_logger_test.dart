@@ -27,7 +27,7 @@ void main() {
   setUp(() {
     mockFormatter = _MockFormatter();
 
-    sut = ConsoleLogger.test(mockFormatter);
+    sut = ConsoleLogger(formatter: mockFormatter);
 
     when(() => mockFormatter.format(any())).thenReturn(formattedMessage);
   });

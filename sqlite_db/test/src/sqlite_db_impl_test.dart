@@ -66,10 +66,10 @@ void main() {
 
   group('Initialization', () {
     test('Opens database with correct path, name and version', () async {
-      final sut = SQLiteDbImpl.test(
+      final sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
 
       await sut.initialize();
@@ -94,10 +94,10 @@ void main() {
     /// Opens the database, and returns the options it was opened with.
     Future<OpenDatabaseOptions> open() async {
       when(() => mockDatabase.execute(any())).thenAnswer((_) async {});
-      await SQLiteDbImpl.test(
+      await SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       ).initialize();
       return verify(
             () => mockDatabaseFactory.openDatabase(
@@ -177,10 +177,10 @@ void main() {
     late SQLiteDbImpl sut;
 
     setUp(() {
-      sut = SQLiteDbImpl.test(
+      sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
     });
 
@@ -213,10 +213,10 @@ void main() {
     late SQLiteDbImpl sut;
 
     setUp(() async {
-      sut = SQLiteDbImpl.test(
+      sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       when(() => mockDatabase.isOpen).thenReturn(true);
       await sut.initialize();
@@ -274,10 +274,10 @@ void main() {
     late SQLiteDbImpl sut;
 
     setUp(() async {
-      sut = SQLiteDbImpl.test(
+      sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       when(() => mockDatabase.isOpen).thenReturn(true);
       await sut.initialize();
@@ -364,10 +364,10 @@ void main() {
     late SQLiteDbImpl sut;
 
     setUp(() async {
-      sut = SQLiteDbImpl.test(
+      sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       when(() => mockDatabase.isOpen).thenReturn(true);
       await sut.initialize();
@@ -437,10 +437,10 @@ void main() {
     test('Delegates to db.delete', () async {
       when(() => mockDatabase.isOpen).thenReturn(true);
       when(() => mockDatabase.delete(any())).thenAnswer((_) async => 5);
-      final sut = SQLiteDbImpl.test(
+      final sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       await sut.initialize();
 
@@ -472,10 +472,10 @@ void main() {
           {'id': 1},
         ],
       );
-      final sut = SQLiteDbImpl.test(
+      final sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       await sut.initialize();
 
@@ -520,10 +520,10 @@ void main() {
           {'id': 1},
         ],
       );
-      final sut = SQLiteDbImpl.test(
+      final sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       await sut.initialize();
 
@@ -542,10 +542,10 @@ void main() {
     test('Delegates to db.execute', () async {
       when(() => mockDatabase.isOpen).thenReturn(true);
       when(() => mockDatabase.execute(any(), any())).thenAnswer((_) async {});
-      final sut = SQLiteDbImpl.test(
+      final sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       await sut.initialize();
 
@@ -559,10 +559,10 @@ void main() {
     late SQLiteDbImpl sut;
 
     setUp(() async {
-      sut = SQLiteDbImpl.test(
+      sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       when(() => mockDatabase.isOpen).thenReturn(true);
       await sut.initialize();
@@ -589,10 +589,10 @@ void main() {
     test('Closes the underlying database', () async {
       when(() => mockDatabase.isOpen).thenReturn(true);
       when(() => mockDatabase.close()).thenAnswer((_) async {});
-      final sut = SQLiteDbImpl.test(
+      final sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
       await sut.initialize();
 
@@ -602,10 +602,10 @@ void main() {
     });
 
     test('Is safe to call when not initialized', () async {
-      final sut = SQLiteDbImpl.test(
+      final sut = SQLiteDbImpl(
         connectionData,
         mockDbInitializationScripts,
-        mockDatabaseFactory,
+        databaseFactory: mockDatabaseFactory,
       );
 
       await expectLater(sut.dispose(), completes);

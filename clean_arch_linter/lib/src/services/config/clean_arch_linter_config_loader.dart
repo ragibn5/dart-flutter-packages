@@ -18,35 +18,27 @@ class CleanArchLinterConfigLoader
   final DefaultConfigOptions _defaultConfigOptions;
   final ConfigSourceProvider _configSourceProvider;
 
-  CleanArchLinterConfigLoader()
-    : this._(
-        DefaultConfigOptions(
-          logConfig: LogConfig(
-            logDirectoryRelativePathFromProjectRoot: path.joinAll([
-              'logs',
-              'analyzer_plugins',
-              'clean_arch_linter',
-            ]),
-          ),
-          scanConfig: const ScanConfig(),
-          domainConfig: const DomainConfig(),
-          dartSDKConfig: const DartSDKImportConfig(),
-          crossLayerConfig: const CrossLayerImportConfig(),
-          thirdPartyConfig: const ThirdPartyImportConfig(),
-        ),
-        ConfigSourceProviderImpl(),
-      );
-
-  @visibleForTesting
-  CleanArchLinterConfigLoader.test(
-    DefaultConfigOptions defaultConfigOptions,
-    ConfigSourceProvider configSourceProvider,
-  ) : this._(defaultConfigOptions, configSourceProvider);
-
-  CleanArchLinterConfigLoader._(
-    this._defaultConfigOptions,
-    this._configSourceProvider,
-  );
+  CleanArchLinterConfigLoader({
+    @visibleForTesting DefaultConfigOptions? defaultConfigOptions,
+    @visibleForTesting ConfigSourceProvider? configSourceProvider,
+  }) : _defaultConfigOptions =
+           defaultConfigOptions ??
+           DefaultConfigOptions(
+             logConfig: LogConfig(
+               logDirectoryRelativePathFromProjectRoot: path.joinAll([
+                 'logs',
+                 'analyzer_plugins',
+                 'clean_arch_linter',
+               ]),
+             ),
+             scanConfig: const ScanConfig(),
+             domainConfig: const DomainConfig(),
+             dartSDKConfig: const DartSDKImportConfig(),
+             crossLayerConfig: const CrossLayerImportConfig(),
+             thirdPartyConfig: const ThirdPartyImportConfig(),
+           ),
+       _configSourceProvider =
+           configSourceProvider ?? ConfigSourceProviderImpl();
 
   @override
   CleanArchLinterConfig loadPluginConfig(

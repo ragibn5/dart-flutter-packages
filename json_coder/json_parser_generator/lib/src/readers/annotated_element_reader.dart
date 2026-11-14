@@ -8,13 +8,10 @@ import 'package:meta/meta.dart';
 class AnnotatedElementReader {
   final LibraryReaderBuilder _libraryReaderBuilder;
 
-  const AnnotatedElementReader() : this._(const LibraryReaderBuilder());
-
-  @visibleForTesting
-  const AnnotatedElementReader.test(LibraryReaderBuilder libraryReaderBuilder)
-    : this._(libraryReaderBuilder);
-
-  const AnnotatedElementReader._(this._libraryReaderBuilder);
+  const AnnotatedElementReader({
+    @visibleForTesting
+    LibraryReaderBuilder libraryReaderBuilder = const LibraryReaderBuilder(),
+  }) : _libraryReaderBuilder = libraryReaderBuilder;
 
   Future<List<AnnotatedElement>> read(
     BuildStep buildStep,

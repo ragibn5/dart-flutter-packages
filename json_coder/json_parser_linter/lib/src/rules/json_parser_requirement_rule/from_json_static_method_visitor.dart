@@ -45,29 +45,13 @@ class FromJsonStaticMethodVisitor {
   final CollectionTypeResolver _collectionTypeResolver;
 
   FromJsonStaticMethodVisitor(
-    AnalysisRule rule,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-  ) : this._(
-        rule,
-        FromJsonStaticMethodVisitorConfig(),
-        sessionContext,
-        CollectionTypeResolverFactory.create(),
-      );
-
-  @visibleForTesting
-  FromJsonStaticMethodVisitor.test(
-    AnalysisRule rule,
-    FromJsonStaticMethodVisitorConfig visitorConfig,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-    CollectionTypeResolver collectionTypeResolver,
-  ) : this._(rule, visitorConfig, sessionContext, collectionTypeResolver);
-
-  FromJsonStaticMethodVisitor._(
     this.rule,
-    this.visitorConfig,
-    this.sessionContext,
-    this._collectionTypeResolver,
-  );
+    this.sessionContext, {
+    @visibleForTesting FromJsonStaticMethodVisitorConfig? visitorConfig,
+    @visibleForTesting CollectionTypeResolver? collectionTypeResolver,
+  }) : visitorConfig = visitorConfig ?? FromJsonStaticMethodVisitorConfig(),
+       _collectionTypeResolver =
+           collectionTypeResolver ?? CollectionTypeResolverFactory.create();
 
   void visit(
     MethodDeclaration fromJsonMethod,

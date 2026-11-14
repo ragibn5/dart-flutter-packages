@@ -83,9 +83,9 @@ void main() {
     mockDefaultConfigOptions = _MockDefaultConfigOptions();
     mockConfigSourceProvider = _MockConfigSourceProvider();
 
-    sut = CleanArchLinterConfigLoader.test(
-      mockDefaultConfigOptions,
-      mockConfigSourceProvider,
+    sut = CleanArchLinterConfigLoader(
+      defaultConfigOptions: mockDefaultConfigOptions,
+      configSourceProvider: mockConfigSourceProvider,
     );
 
     when(() => mockPackageInfo.name).thenReturn(packageName);

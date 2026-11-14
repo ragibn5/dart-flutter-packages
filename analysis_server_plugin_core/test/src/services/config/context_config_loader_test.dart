@@ -37,7 +37,7 @@ class _TestContextConfigLoader extends ContextConfigLoader<_MockContextConfig> {
 
   // ignore: use_super_parameters
   _TestContextConfigLoader(ConfigSourceProvider sourceProvider)
-    : super.test(sourceProvider);
+    : super(configSourceProvider: sourceProvider);
 
   @override
   _MockContextConfig loadPluginConfig(

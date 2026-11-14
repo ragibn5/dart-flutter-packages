@@ -56,7 +56,7 @@ void main() {
   setUp(() {
     mockCompositeLogger = _MockCompositeLogger();
 
-    sut = AppLoggerImpl.test(mockCompositeLogger);
+    sut = AppLoggerImpl([], {}, compositeLogger: mockCompositeLogger);
   });
 
   test('logDebug forwards correct LogData', () {

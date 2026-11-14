@@ -17,7 +17,7 @@ void main() {
   setUp(() {
     mockPrefs = _MockSharedPreferencesAsync();
 
-    sut = SharedPreferencesStore.test(mockPrefs);
+    sut = SharedPreferencesStore(preferences: mockPrefs);
   });
 
   group('Getters', () {

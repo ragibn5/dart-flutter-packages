@@ -43,7 +43,7 @@ class _UserParser implements Parser<_User, Map<String, dynamic>> {
 class _PublicParserRegistry extends ParserRegistry<Map<String, dynamic>> {}
 
 class _TestParserRegistry extends ParserRegistry<Map<String, dynamic>> {
-  _TestParserRegistry() : super.test({});
+  _TestParserRegistry() : super(parserMap: {});
 }
 
 void main() {
