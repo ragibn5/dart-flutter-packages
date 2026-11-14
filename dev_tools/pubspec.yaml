@@ -1,5 +1,5 @@
 name: dev_tools
-description: Shared developer tooling for Dart and Flutter projects.
+description: Creates white-label apps from app_template.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues

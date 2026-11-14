@@ -44,11 +44,26 @@ Built on top of the core layer. These packages provide higher-level tooling, UI 
 
 ---
 
+### Plugins
+
+Flutter plugins with an Android implementation.
+
+- [`document_tree_android`](document_tree/document_tree_android)
+- [`media_provider_android`](media_provider/media_provider_android)
+- [`user_provider_android`](user_provider/user_provider_android)
+
+---
+
 ### Application / Integration
 
 Top-level integration or reference implementation packages that may depend on multiple core and intermediate packages.
 
 - [`app_template`](app_template)
+- [`dev_tools`](dev_tools): creates white-label apps from `app_template`
+
+`app_template` is not part of the workspace: it keeps its own `pubspec.yaml`,
+lock file and `.fvmrc`, so it resolves on its own (run `flutter pub get` in
+`app_template/`).
 
 ---
 
@@ -85,7 +100,8 @@ git clone git@github.com:Ragibn5/dart-flutter-packages.git
 #### 2. Open the repository in your IDE
 
 The packages form one [pub workspace](https://dart.dev/tools/pub/workspaces):
-open the repository root, and every package resolves together.
+open the repository root, and every package except `app_template`
+resolves together.
 
 #### 3. Install the pinned Flutter SDK and the dependencies
 
@@ -107,6 +123,45 @@ bumping the pin there updates both.
 ```bash
 fvm dart run melos run analyze
 fvm dart run melos run test
+fvm dart run melos run coverage
+fvm dart run melos run release:check
+```
+
+| Script          | What it does                                                                |
+|-----------------|-----------------------------------------------------------------------------|
+| `analyze`       | Runs `dart analyze` in every package.                                       |
+| `test`          | Runs `flutter test` in every package that has a `test` folder.              |
+| `coverage`      | Checks each package's line coverage (see [Coverage](#coverage)).            |
+| `release:check` | Dry-runs publishing every package whose version isn't on pub.dev yet.       |
+
+### Coverage
+
+[`tool/coverage.dart`](tool/coverage.dart) checks one package's line
+coverage; the `coverage` script runs it in every package, and CI runs it in
+the packages a pull request changes.
+
+- Every library in `lib/` counts, including those no test imports.
+- The required coverage is 100%, unless the package's `coverage.yaml` sets a
+  lower `threshold:`.
+- Files matching the `exclude:` patterns are left out: those in the root
+  [`coverage.yaml`](coverage.yaml) apply to every package (generated code and
+  models), and a package's own `coverage.yaml` adds its own.
+- Lines between `// coverage:ignore-start` and `// coverage:ignore-end`, or
+  marked `// coverage:ignore-line`, aren't counted.
+
+A package's `coverage.yaml`, for example:
+
+```yaml
+threshold: 80
+exclude:
+  - 'lib/src/configs/*'
+```
+
+Running it locally needs [lcov](https://github.com/linux-test-project/lcov)
+and, for pure-Dart packages, the `coverage` package:
+
+```bash
+dart pub global activate coverage
 ```
 
 ### Contributing
