@@ -3,7 +3,8 @@ import 'dart:math';
 import 'package:flutter/painting.dart';
 
 final class ColorBuilder {
-  ColorBuilder._();
+  // Never created: it only holds static members.
+  ColorBuilder._(); // coverage:ignore-line
 
   static Color random(double opacity) {
     assert(
