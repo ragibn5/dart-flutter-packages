@@ -1,4 +1,6 @@
-# Coverage is at 74% for now: the native file descriptor IO
-# (descriptor_byte_source, native_descriptor_io) has no tests yet. Raise this
-# as tests come in.
-threshold: 74
+# The descriptor read pipeline calls Android's libc over FFI (pread64,
+# __errno) on a worker isolate, so it can't run in host tests; it needs
+# integration tests on a device.
+exclude:
+  - lib/src/io/source/native_descriptor_io.dart
+  - lib/src/io/source/descriptor_byte_source.dart
