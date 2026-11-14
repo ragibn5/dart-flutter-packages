@@ -58,7 +58,7 @@ class SessionLoggerImpl implements SessionLogger {
   final CompositeLogger _compositeLogger;
 
   bool _enabled;
-  Set<SessionLogLevel> _allowedLevels;
+  final Set<SessionLogLevel> _allowedLevels;
 
   SessionLoggerImpl(
     Map<String, Logger> loggers, {

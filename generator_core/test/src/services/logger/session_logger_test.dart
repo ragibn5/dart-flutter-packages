@@ -103,7 +103,6 @@ void main() {
     sut = SessionLoggerImpl(
       {},
       compositeLogger: mockCompositeLogger,
-      enabled: true,
       allowedLevels: SessionLogLevel.values.toSet(),
     );
 

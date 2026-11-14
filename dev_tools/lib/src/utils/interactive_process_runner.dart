@@ -56,7 +56,7 @@ class InteractiveProcessRunner {
     final stderrDone = process.stderr.forEach(_stderr.add);
     final futures = <Future<void>>[stdoutDone, stderrDone];
     if (_stdin != null) {
-      futures.add(process.stdin.addStream(_stdin!));
+      futures.add(process.stdin.addStream(_stdin));
     } else {
       await process.stdin.close();
     }
