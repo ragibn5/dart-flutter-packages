@@ -60,17 +60,10 @@ jobs:
       - name: Install lcov
         run: sudo apt-get update && sudo apt-get install -y lcov
 
-      # Skipped for now, until they can be measured:
-      # - document_tree_android has no tests yet.
-      # - app_template's data_domain_converters is interfaces only, with no
-      #   executable lines to measure.
       - name: Check coverage across touched packages
         working-directory: dev_tools
         run: |
-          mapfile -t ARGS < <(fvm dart run bin/dev_tools.dart packages get-touched --from ${{ github.event.pull_request.base.sha }} \
-            --skip-path=document_tree/document_tree_android \
-            --skip-path=app_template/packages/data_domain_converters \
-            | sed 's/^/--package=/')
+          mapfile -t ARGS < <(fvm dart run bin/dev_tools.dart packages get-touched --from ${{ github.event.pull_request.base.sha }} | sed 's/^/--package=/')
           if [ ${#ARGS[@]} -eq 0 ]; then
             echo "No packages touched; nothing to check."
             exit 0
