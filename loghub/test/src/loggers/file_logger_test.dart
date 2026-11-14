@@ -214,4 +214,72 @@ void main() {
       expect(msgIdList[i], i, reason: 'Message at index $i should be $i');
     }
   });
+
+  test('writeFailureShouldBePrintedIfTheWriterFails', () async {
+    when(
+      () => mockWriter.writeSync(any(), any(), mode: any(named: modeParamKey)),
+    ).thenReturn(Failure((Exception('disk full'), StackTrace.empty)));
+    final printed = <String>[];
+
+    // The logger prints from its own listener, so it's created in the zone
+    // that captures the print.
+    await runZoned(
+      () async {
+        final streamController = StreamController<LogData>();
+        addTearDown(streamController.close);
+        FileLogger.test(
+          tempDir,
+          tempFileNameBuilder,
+          mockFormatter,
+          mockWriter,
+          streamController,
+        ).log(
+          LogData(
+            level: LogLevel.ERROR,
+            stamp: DateTime.now(),
+            message: 'message',
+            tag: tag,
+          ),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      },
+      zoneSpecification: ZoneSpecification(
+        print: (_, __, ___, line) => printed.add(line),
+      ),
+    );
+
+    expect(
+      printed.single,
+      startsWith('Error writing to file: Exception: disk full'),
+    );
+  });
+
+  test('publicConstructorShouldWriteTheFormattedLogToItsDirectoryIfCalled',
+      () async {
+    final logDirectory = Directory.systemTemp.createTempSync('file_logger');
+    addTearDown(() => logDirectory.deleteSync(recursive: true));
+    String fileNameBuilder(LogData _) => 'today.log';
+    final logger = FileLogger(
+      logDirectory: logDirectory,
+      fileNameBuilder: fileNameBuilder,
+    );
+    addTearDown(logger.dispose);
+
+    logger.log(
+      LogData(
+        level: LogLevel.INFO,
+        stamp: DateTime(2026, 11, 14),
+        message: 'written',
+        tag: tag,
+      ),
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+
+    expect(
+      File(path.join(logDirectory.path, 'today.log')).readAsStringSync(),
+      contains('written'),
+    );
+    expect(logger.logDirectory, logDirectory);
+    expect(logger.fileNameBuilder, fileNameBuilder);
+  });
 }
