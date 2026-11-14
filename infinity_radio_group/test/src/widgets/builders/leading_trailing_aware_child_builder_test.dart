@@ -84,4 +84,21 @@ void main() {
 
     expect(find.text('content-0'), findsOneWidget);
   });
+
+  testWidgets('buildShouldThrowRangeErrorIfTheIndexIsPastEveryWidget', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(
+        LeadingTrailingAwareChildBuilder(
+          index: 3,
+          itemCount: 2,
+          builder: (_) => const Text('content'),
+          leadingWidgets: const [Text('leading')],
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isA<RangeError>());
+  });
 }
