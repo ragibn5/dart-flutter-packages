@@ -25,7 +25,7 @@ class SelectionData {
     if (index < 0 || index >= _current.length) {
       return;
     }
-    if (_maxSelectionCount != null && _selectionCount >= _maxSelectionCount!) {
+    if (_maxSelectionCount != null && _selectionCount >= _maxSelectionCount) {
       return;
     }
     if (_current[index]) {

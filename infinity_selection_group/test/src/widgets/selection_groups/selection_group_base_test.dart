@@ -12,8 +12,6 @@ class _TestSelectionItemUiModel extends SelectionItemUiModel {
 class _TestRadioGroup
     extends SelectionGroupBase<_TestSelectionItemUiModel, WrapLayoutConfig> {
   const _TestRadioGroup({
-    // ignore: unused_element
-    super.key,
     required super.uiModels,
     required super.layoutConfig,
     super.maxSelectionCount,
