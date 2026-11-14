@@ -15,37 +15,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      # The repository root's .fvmrc pins the one Flutter SDK every package
-      # in the workspace builds and tests with.
-      - name: Install fvm
-        run: curl -fsSL https://fvm.app/install.sh | bash
+      # The repository root's .fvmrc pins the one Flutter SDK the workspace
+      # uses. Developers switch to it with fvm; CI reads the same pin and
+      # installs that version directly.
+      - name: Read the pinned Flutter version
+        id: flutter
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
 
-      - name: Add fvm to PATH
-        run: echo "$HOME/fvm/bin" >> "$GITHUB_PATH"
-
-      - name: Cache fvm SDK versions
-        uses: actions/cache@v4
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
         with:
-          path: ~/fvm/versions
-          key: fvm-versions-${{ hashFiles('.fvmrc') }}
-          restore-keys: fvm-versions-
-
-      - name: Install pinned Flutter SDK version via FVM
-        run: fvm install
+          flutter-version: ${{ steps.flutter.outputs.version }}
+          channel: stable
+          cache: true
 
       # Resolves the whole workspace, Melos included.
       - name: Install workspace dependencies
-        run: fvm flutter pub get
-
-      # The root .fvmrc pins a Flutter version, so the step above already
-      # made fvm download the full SDK (bundled Dart included) into
-      # ~/fvm/versions — the same directory cached above. Point plain
-      # flutter/dart at that instead of installing a second SDK copy via
-      # flutter-action.
-      - name: Add FVM's downloaded Flutter SDK to PATH
-        run: |
-          FLUTTER_VERSION=$(jq -r .flutter .fvmrc)
-          echo "$HOME/fvm/versions/$FLUTTER_VERSION/bin" >> "$GITHUB_PATH"
+        run: flutter pub get
 
       # Needed to convert a pure-Dart package's raw `dart test --coverage`
       # output into lcov — see tool/coverage.dart.

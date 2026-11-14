@@ -97,6 +97,9 @@ fvm install
 fvm flutter pub get
 ```
 
+CI reads the same `.fvmrc` and installs that Flutter version directly, so
+bumping the pin there updates both.
+
 #### 4. Run a script across the packages
 
 [Melos](https://melos.invertase.dev) runs the workspace's scripts, such as:
