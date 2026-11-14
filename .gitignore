@@ -3,3 +3,6 @@ build/
 
 # FVM Version Cache
 .fvm/
+# Dart workspace and test output
+.dart_tool/
+coverage/

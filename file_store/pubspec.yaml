@@ -10,7 +10,10 @@ version: 1.0.0
 
 # Range of compatible SDK versions
 environment:
-  sdk: ^3.0.6
+  sdk: ^3.6.0
+
+# Resolved with the rest of the repository; see the root pubspec.
+resolution: workspace
 
 # Regular dependencies
 dependencies:
@@ -20,5 +23,4 @@ dependencies:
 # (NOT Bundled in executable artifact - For DEV use only)
 dev_dependencies:
   test: ^1.25.0
-  lints: ^3.0.0
-  very_good_analysis: ^5.1.0
+  very_good_analysis: ^7.0.0
