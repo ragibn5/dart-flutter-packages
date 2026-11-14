@@ -274,4 +274,31 @@ void main() {
       );
     },
   );
+
+  test('loadConfigShouldKeepTheTrailingSeparatorIfTheLogPathHasOne', () async {
+    final sut = JsonParserGeneratorConfigLoader.test(
+      const BuilderOptions({
+        'log_config': {'log_dir_relative_path': 'custom/log/'},
+      }),
+      defaultConfigOptions,
+    );
+
+    final result = await sut.loadConfig(mockBuildStep);
+
+    expect(
+      result.logConfig.logDirectoryRelativePathFromCurrentDir,
+      '${path.normalize('custom/log')}${path.separator}',
+    );
+  });
+
+  test('publicConstructorShouldUseTheDefaultLogDirectoryIfNoneIsSet', () async {
+    final sut = JsonParserGeneratorConfigLoader(BuilderOptions.empty);
+
+    final result = await sut.loadConfig(mockBuildStep);
+
+    expect(
+      result.logConfig.logDirectoryRelativePathFromCurrentDir,
+      defaultLogDir,
+    );
+  });
 }
