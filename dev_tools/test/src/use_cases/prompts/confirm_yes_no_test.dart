@@ -1,82 +1,39 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:isolate';
-
+import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:test/test.dart';
 
+import '../../../helpers/fakes.dart';
+
 void main() {
-  test('should return true when response is y', () async {
-    final out = await _runScript('y');
-
-    expect(_resultOf(out), 'true');
-    expect(out, contains('Confirm? [y/n]: '));
-  });
-
-  test('should return true when response is yes', () async {
-    expect(_resultOf(await _runScript('yes')), 'true');
-  });
-
-  test('should return true when response is uppercase', () async {
-    expect(_resultOf(await _runScript('Y')), 'true');
-  });
-
-  test('should return true when response has surrounding whitespace', () async {
-    expect(_resultOf(await _runScript('  y  ')), 'true');
-  });
-
-  test('should return false when response is an empty line', () async {
-    expect(_resultOf(await _runScript('')), 'false');
-  });
-
-  test('should return false when stdin is closed without a response', () async {
-    expect(_resultOf(await _runScript(null)), 'false');
-  });
-
-  test('should return false when response is n', () async {
-    expect(_resultOf(await _runScript('n')), 'false');
-  });
-
-  test('should return false when response is anything else', () async {
-    expect(_resultOf(await _runScript('maybe')), 'false');
-  });
-}
-
-String _resultOf(String out) => out
-    .split('\n')
-    .firstWhere((line) => line.contains('RESULT='))
-    .split('RESULT=')[1];
-
-Future<String> _runScript(String? input) async {
-  // Isolated temp dir + this isolate's own package config, rather than a
-  // path computed from Directory.current — that's a process-wide (not
-  // isolate-local) cwd, which other concurrently-running test files in
-  // this suite (e.g. get_repo_root_path_test.dart) deliberately mutate.
-  final tempDir = Directory.systemTemp.createTempSync('confirm_yes_no_test');
-  addTearDown(() {
-    if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
-  });
-
-  final script = File('${tempDir.path}/confirm_yes_no_script.dart');
-  await script.writeAsString(r'''
-  import 'dart:io';
-
-  import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
-
-  Future<void> main() async {
-    final result = await const ConfirmYesNo()('Confirm?');
-    stdout.writeln('RESULT=$result');
+  Future<(bool, String)> confirm(String? input) async {
+    final prompter = FakePrompter([input]);
+    final result = await ConfirmYesNo(prompter: prompter)('Continue?');
+    return (result, prompter.output);
   }
-  ''');
 
-  final packageConfig = await Isolate.packageConfig;
-  final proc = await Process.start('dart', [
-    'run',
-    if (packageConfig != null) '--packages=${packageConfig.toFilePath()}',
-    script.path,
-  ]);
-  if (input != null) proc.stdin.writeln(input);
-  await proc.stdin.close();
-  final out = await proc.stdout.transform(utf8.decoder).join();
-  await proc.exitCode;
-  return out;
+  test('callShouldAskTheQuestionWithTheYesNoHint', () async {
+    final (_, output) = await confirm('y');
+
+    expect(output, 'Continue? [y/n]: ');
+  });
+
+  test('callShouldReturnTrueIfTheAnswerIsY', () async {
+    expect((await confirm('y')).$1, isTrue);
+  });
+
+  test('callShouldReturnTrueIfTheAnswerIsYes', () async {
+    expect((await confirm('yes')).$1, isTrue);
+  });
+
+  test('callShouldIgnoreCaseAndSurroundingWhitespaceIfTheAnswerIsYes',
+      () async {
+    expect((await confirm('  YeS ')).$1, isTrue);
+  });
+
+  test('callShouldReturnFalseIfTheAnswerIsAnythingElse', () async {
+    expect((await confirm('maybe')).$1, isFalse);
+  });
+
+  test('callShouldReturnFalseIfInputHasEnded', () async {
+    expect((await confirm(null)).$1, isFalse);
+  });
 }

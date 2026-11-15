@@ -1,47 +1,31 @@
-import 'dart:convert';
-import 'dart:io';
-
+import 'package:dev_tools/src/use_cases/prompts/prompt_with_default.dart';
 import 'package:test/test.dart';
 
+import '../../../helpers/fakes.dart';
+
 void main() {
-  test('should return default value when response is empty', () async {
-    expect(await _runScript(''), 'default_value');
-  });
-
-  test('should return typed value when response is provided', () async {
-    expect(await _runScript('typed'), 'typed');
-  });
-
-  test('should trim whitespace from response', () async {
-    expect(await _runScript('  spaced  '), 'spaced');
-  });
-}
-
-Future<String> _runScript(String input) async {
-  final dir =
-      Directory('${Directory.current.path}/test/src/use_cases/prompts/');
-  final script = File('${dir.path}/_prompt_with_default_script.dart');
-  await script.writeAsString(r'''
-  import 'dart:io';
-  
-  import 'package:dev_tools/src/use_cases/prompts/prompt_with_default.dart';
-  
-  Future<void> main() async {
-    final result = await const PromptWithDefault()('Prompt?', 'default_value');
-    stdout.writeln('RESULT=$result');
+  Future<(String, String)> prompt(String? input) async {
+    final prompter = FakePrompter([input]);
+    final result =
+        await PromptWithDefault(prompter: prompter)('Package', 'app');
+    return (result, prompter.output);
   }
-  ''');
-  addTearDown(() {
-    if (script.existsSync()) script.deleteSync();
+
+  test('callShouldShowThePromptWithItsDefault', () async {
+    final (_, output) = await prompt('x');
+
+    expect(output, 'Package [app]: ');
   });
 
-  final proc = await Process.start('dart', ['run', script.path]);
-  proc.stdin.writeln(input);
-  await proc.stdin.close();
-  final out = await proc.stdout.transform(utf8.decoder).join();
-  await proc.exitCode;
-  return out
-      .split('\n')
-      .firstWhere((line) => line.contains('RESULT='))
-      .split('RESULT=')[1];
+  test('callShouldReturnTheTrimmedInputIfOneIsGiven', () async {
+    expect((await prompt('  my_app ')).$1, 'my_app');
+  });
+
+  test('callShouldReturnTheDefaultIfTheInputIsBlank', () async {
+    expect((await prompt('   ')).$1, 'app');
+  });
+
+  test('callShouldReturnTheDefaultIfInputHasEnded', () async {
+    expect((await prompt(null)).$1, 'app');
+  });
 }

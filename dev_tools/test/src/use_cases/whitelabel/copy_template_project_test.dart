@@ -88,4 +88,16 @@ exclude:
 
     expect(File('${destination.path}/pubspec.yaml').existsSync(), isTrue);
   });
+
+  test('callShouldCopyASymlinkAsALinkToTheSameTarget', () async {
+    final destination = '${tempDir.path}/new-project';
+    Link('${template.path}/readme_link').createSync('readme.md');
+
+    await sut(template: template.path, destination: destination);
+
+    final link = Link('$destination/readme_link');
+    expect(link.existsSync(), isTrue);
+    expect(link.targetSync(), 'readme.md');
+  });
+
 }

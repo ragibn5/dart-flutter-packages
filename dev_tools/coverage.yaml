@@ -1,3 +1,0 @@
-# Coverage is at 36% for now: most whitelabel use cases, the commands, the
-# prompts and the logger have no tests yet. Raise this as tests come in.
-threshold: 36
