@@ -11,13 +11,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./.github/actions/setup
 
       - name: Set up the workspace
         run: make setup
 
-      # A dry run for every package whose version isn't published yet; --yes
-      # skips the confirmation prompt.
-      - name: Check the packages to release
+      - name: Dry-run publishing the packages whose versions are unpublished
         run: dart run melos publish --yes

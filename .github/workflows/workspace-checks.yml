@@ -17,17 +17,14 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      # The coverage check needs lcov, which ubuntu-latest doesn't have.
-      - name: Install lcov
+      - name: Install lcov for the coverage check
         run: sudo apt-get update && sudo apt-get install -y lcov
 
       - name: Set up the workspace
         run: make setup
 
-      # Only in the packages the pull request changed, and those that depend
-      # on them.
-      - name: Analyze the changed workspace packages
+      - name: Analyze the changed packages and their dependents
         run: dart run melos run analyze --no-select --diff=${{ github.event.pull_request.base.sha }} --include-dependents
 
-      - name: Check coverage of the changed workspace packages
+      - name: Check coverage of the changed packages and their dependents
         run: dart run melos run coverage --no-select --diff=${{ github.event.pull_request.base.sha }} --include-dependents
