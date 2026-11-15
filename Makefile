@@ -48,13 +48,10 @@ coverage-tool:
 
 setup: pub-get coverage-tool
 
+# Melos's coverage script, over every workspace package or, with BASE, the
+# ones changed since it.
 workspace-test: setup
-ifeq ($(BASE),)
-	$(DART) run melos run coverage --no-select
-else
-	$(DART) run melos exec --diff=$(BASE) --concurrency=1 -- \
-		dart run '$$MELOS_ROOT_PATH/tool/coverage.dart'
-endif
+	$(DART) run melos run coverage --no-select $(if $(BASE),--diff=$(BASE))
 
 # app_template and its packages are outside the workspace, so each one is
 # resolved and checked on its own. With BASE, a change inside one of its
