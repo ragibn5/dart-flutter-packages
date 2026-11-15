@@ -32,13 +32,11 @@ dependencies:
 - Convert Hex representation to `Color` (with optional opacity).
 
 ```dart
-final color = Color(0xFFAABBCC);
+// Color to hex
+final hex = const Color(0xFFAABBCC).toHexString(); // '#FFAABBCC'
 
-// Color to Hex
-final Hex = color.toHexString();
-
-// Hex to Color
-final color = RepresentationUtils.fromHex('#AABBCC', opacity: 0.5);
+// Hex to color, with an optional opacity
+final color = ColorBuilder.fromHex('#AABBCC', opacity: 0.5);
 ```
 
 ### Brightness Adjustment
@@ -73,5 +71,7 @@ Generate a random color: Create a random color with a specified opacity.
 
 ```dart
 // Random color with 50% opacity
-final randomColor = RandomizationUtils.random(0.5);
+final randomColor = ColorBuilder.random(0.5);
 ```
+
+See the [example](example/example.dart) for a complete demonstration.
