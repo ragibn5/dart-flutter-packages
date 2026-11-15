@@ -157,17 +157,22 @@ exclude:
   - 'lib/src/configs/*'
 ```
 
-To run every package's tests with this check, the workspace's and then
-`app_template`'s, from the repository root:
+### Checking everything locally
+
+From the repository root, this analyzes every package and runs its tests
+with the coverage check, the workspace's and then `app_template`'s:
 
 ```bash
-make test
+make check
 ```
 
 It needs [lcov](https://github.com/linux-test-project/lcov), activates the
-`coverage` package if it's missing, and uses fvm when it's installed. CI runs
-the same [Makefile](Makefile) targets (`workspace-test`, `app-template-test`
-and `release-check`), with `BASE=<ref>` so only changed packages are checked.
+`coverage` package if it's missing, and uses fvm when it's installed. The
+[Makefile](Makefile) lists its other targets.
+
+CI runs the same targets (`workspace-analyze`, `workspace-test`,
+`app-template-analyze`, `app-template-test` and `release-check`), with
+`BASE=<ref>` so only the packages a pull request changed are checked.
 
 ### Contributing
 

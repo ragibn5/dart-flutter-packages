@@ -1,4 +1,4 @@
-name: Enforce coverage
+name: Workspace checks
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - develop
 
 jobs:
-  # Always runs and reports, so the coverage job below can be a required
+  # Always runs and reports, so the checks job below can be a required
   # check: when it's skipped by its `if`, GitHub counts it as passed.
   changes:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
         id: diff
         run: echo "workspace=$(make -s workspace-changed BASE=${{ github.event.pull_request.base.sha }})" >> "$GITHUB_OUTPUT"
 
-  enforce-coverage:
+  workspace-checks:
     needs: changes
     if: needs.changes.outputs.workspace == 'true'
     runs-on: ubuntu-latest
@@ -39,7 +39,9 @@ jobs:
         with:
           lcov: 'true'
 
-      # Resolves the workspace and runs tool/coverage.dart in every workspace
-      # package the pull request changed — see the Makefile.
+      # The workspace packages the pull request changed — see the Makefile.
+      - name: Analyze the changed workspace packages
+        run: make workspace-analyze BASE=${{ github.event.pull_request.base.sha }}
+
       - name: Check coverage of the changed workspace packages
         run: make workspace-test BASE=${{ github.event.pull_request.base.sha }}

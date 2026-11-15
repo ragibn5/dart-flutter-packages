@@ -1,4 +1,4 @@
-name: app_template coverage
+name: app_template checks
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - develop
 
 jobs:
-  # Always runs and reports, so the coverage job below can be a required
+  # Always runs and reports, so the checks job below can be a required
   # check: when it's skipped by its `if`, GitHub counts it as passed.
   changes:
     runs-on: ubuntu-latest
@@ -22,7 +22,7 @@ jobs:
         id: diff
         run: echo "app_template=$(make -s app-template-changed BASE=${{ github.event.pull_request.base.sha }})" >> "$GITHUB_OUTPUT"
 
-  app-template-coverage:
+  app-template-checks:
     needs: changes
     if: needs.changes.outputs.app_template == 'true'
     runs-on: ubuntu-latest
@@ -39,7 +39,10 @@ jobs:
           flutter-version-target: app-template-flutter-version
           lcov: 'true'
 
-      # Checks app_template and each of its packages the pull request
-      # changed — see the Makefile.
+      # app_template and each of its packages the pull request changed — see
+      # the Makefile.
+      - name: Analyze the changed app_template packages
+        run: make app-template-analyze BASE=${{ github.event.pull_request.base.sha }}
+
       - name: Check coverage of the changed app_template packages
         run: make app-template-test BASE=${{ github.event.pull_request.base.sha }}
