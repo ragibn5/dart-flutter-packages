@@ -1,1 +1,0 @@
-enum AlertType { INFO, SUCCESS, WARNING, ERROR, PROMPT }

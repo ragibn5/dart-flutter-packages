@@ -1,3 +1,0 @@
-# Models only, shared across features: nothing to test.
-exclude:
-  - lib/src/*
