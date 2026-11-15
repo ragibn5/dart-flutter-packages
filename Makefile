@@ -31,9 +31,9 @@ DART := $(if $(FVM),fvm dart,dart)
 ROOT := $(CURDIR)
 BASE ?=
 
-# The workspace's members: the folders under `workspace:` in pubspec.yaml,
-# the list Melos picks packages from.
-WORKSPACE_MEMBERS := $(shell awk '/^workspace:/ {f=1; next} f && /^[[:space:]]*-[[:space:]]/ {gsub(/["\047]/, "", $$2); print $$2; next} f && /^[^[:space:]\#]/ {exit}' pubspec.yaml)
+# The melos constraint the root pubspec.yaml's dev_dependencies give, for the
+# globally activated Melos the workspace gate uses.
+MELOS_CONSTRAINT := $(shell sed -n 's/^  melos: *//p' pubspec.yaml)
 
 # The Flutter version pinned in a .fvmrc.
 fvmrc_flutter = $(shell sed -n 's/.*"flutter": *"\([^"]*\)".*/\1/p' $(1))
@@ -63,8 +63,8 @@ endef
 MELOS_SELECT := --no-select $(if $(BASE),--diff=$(BASE))
 
 .PHONY: check workspace-analyze workspace-test app-template-analyze app-template-test \
-	release-check setup pub-get coverage-tool workspace-changed app-template-changed \
-	flutter-version app-template-flutter-version require-base require-members
+	release-check setup pub-get coverage-tool melos-tool workspace-changed \
+	app-template-changed flutter-version app-template-flutter-version require-base
 
 check: workspace-analyze workspace-test app-template-analyze app-template-test
 
@@ -77,6 +77,11 @@ coverage-tool:
 	@$(DART) pub global list | grep -q '^coverage ' || $(DART) pub global activate coverage
 
 setup: pub-get coverage-tool
+
+# Melos activated globally, so the workspace gate can ask it which packages
+# changed without resolving the workspace, which needs the Flutter SDK.
+melos-tool:
+	@$(DART) pub global list | grep -q '^melos ' || $(DART) pub global activate melos '$(MELOS_CONSTRAINT)' >&2
 
 workspace-analyze: pub-get
 	$(DART) run melos run analyze $(MELOS_SELECT)
@@ -96,8 +101,9 @@ release-check: pub-get
 
 # For CI's gates: print `true` when a workspace package, or app_template, changed
 # since BASE, else `false`.
-workspace-changed: require-base require-members
-	@git diff --name-only "$(BASE)" HEAD -- $(WORKSPACE_MEMBERS) | grep -q . && echo true || echo false
+workspace-changed: require-base melos-tool
+	@packages=$$($(DART) pub global run melos list --diff="$(BASE)" --json) || exit 1; \
+	[ "$$packages" = "[]" ] && echo false || echo true
 
 app-template-changed: require-base
 	@git diff --name-only "$(BASE)" HEAD -- app_template | grep -q . && echo true || echo false
@@ -112,8 +118,3 @@ app-template-flutter-version:
 
 require-base:
 	@[ -n "$(BASE)" ] || { echo 'BASE=<git ref> is required' >&2; exit 1; }
-
-# An empty member list would make the workspace gate say nothing changed and
-# skip CI, so it's an error instead.
-require-members:
-	@[ -n "$(strip $(WORKSPACE_MEMBERS))" ] || { echo 'No workspace members found under `workspace:` in pubspec.yaml' >&2; exit 1; }
