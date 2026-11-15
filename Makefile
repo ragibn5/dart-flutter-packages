@@ -27,7 +27,6 @@
 FVM := $(shell command -v fvm >/dev/null 2>&1 && echo fvm)
 FLUTTER := $(if $(FVM),fvm flutter,flutter)
 DART := $(if $(FVM),fvm dart,dart)
-ROOT := $(CURDIR)
 BASE ?=
 
 # The Flutter version pinned in a .fvmrc.
@@ -55,7 +54,7 @@ endef
 
 # app_template's checks, shared by its own targets and check.
 APP_TEMPLATE_ANALYZE = $(call each_app_template_package,$(DART) analyze)
-APP_TEMPLATE_TEST = $(call each_app_template_package,$(DART) run "$(ROOT)/tool/coverage.dart")
+APP_TEMPLATE_TEST = $(call each_app_template_package,$(DART) run "$(CURDIR)/tool/coverage.dart")
 
 .PHONY: check setup app-template-analyze app-template-test workspace-changed \
 	app-template-changed flutter-version app-template-flutter-version require-base
