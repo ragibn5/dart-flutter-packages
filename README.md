@@ -132,8 +132,10 @@ fvm dart run melos run coverage
 | `test`          | Runs `dart test` or `flutter test` in every package that has a `test` folder. |
 | `coverage`      | Checks each package's line coverage (see [Coverage](#coverage)).            |
 
-`make release-check` dry-runs publishing (`melos publish`) every package
-whose version isn't on pub.dev yet.
+Melos's own commands work on the workspace too, such as
+`fvm dart run melos publish --yes`, which dry-runs publishing every package
+whose version isn't on pub.dev yet. Add `--diff=<ref>` to a script to run it
+only in the packages changed since `<ref>`, as CI does.
 
 ### Coverage
 
@@ -171,9 +173,9 @@ It needs [lcov](https://github.com/linux-test-project/lcov), activates the
 `coverage` package if it's missing, and uses fvm when it's installed. The
 [Makefile](Makefile) lists its other targets.
 
-CI runs the same targets (`workspace-analyze`, `workspace-test`,
-`app-template-analyze`, `app-template-test` and `release-check`), with
-`BASE=<ref>` so only the packages a pull request changed are checked.
+CI runs the same Melos scripts and app_template targets, with
+`--diff=<ref>` or `BASE=<ref>` so only the packages a pull request changed are
+checked.
 
 ### Contributing
 

@@ -1,18 +1,17 @@
-# Checks for the whole repository, run the same way locally and in CI.
+# What Melos can't do: app_template (not a workspace member), CI's helpers,
+# and one command for a full local run. Workspace work runs through Melos
+# directly — see the README.
 #
-#   make check                   Everything: analyze, then the tests with the
-#                                coverage check, for the workspace and then
-#                                app_template.
-#   make workspace-analyze       Analyze the workspace packages.
-#   make workspace-test          The workspace packages' tests with the
-#                                coverage check.
+#   make check                   Everything: the workspace through Melos, then
+#                                app_template, each analyzed and then tested
+#                                with the coverage check.
+#   make setup                   Resolve the workspace and activate the
+#                                coverage package tool/coverage.dart needs.
 #   make app-template-analyze    Analyze app_template and its packages.
 #   make app-template-test       app_template's and its packages' tests with
 #                                the coverage check.
-#   make release-check           Dry-run publishing every package whose
-#                                version isn't on pub.dev yet.
 #
-# The analyze and test targets take an optional BASE=<git ref>: then only the
+# The app_template targets take an optional BASE=<git ref>: then only the
 # packages changed since BASE are checked, as CI does for a pull request.
 #
 # CI also uses:
@@ -30,10 +29,6 @@ FLUTTER := $(if $(FVM),fvm flutter,flutter)
 DART := $(if $(FVM),fvm dart,dart)
 ROOT := $(CURDIR)
 BASE ?=
-
-# The melos constraint the root pubspec.yaml's dev_dependencies give, for the
-# globally activated Melos the workspace gate uses.
-MELOS_CONSTRAINT := $(shell sed -n 's/^  melos: *//p' pubspec.yaml)
 
 # The Flutter version pinned in a .fvmrc.
 fvmrc_flutter = $(shell sed -n 's/.*"flutter": *"\([^"]*\)".*/\1/p' $(1))
@@ -58,58 +53,45 @@ for dir in app_template app_template/packages/*; do \
 	done
 endef
 
-# Melos's options for every workspace package or, with BASE, the ones
-# changed since it.
-MELOS_SELECT := --no-select $(if $(BASE),--diff=$(BASE))
+# app_template's checks, shared by its own targets and check.
+APP_TEMPLATE_ANALYZE = $(call each_app_template_package,$(DART) analyze)
+APP_TEMPLATE_TEST = $(call each_app_template_package,$(DART) run "$(ROOT)/tool/coverage.dart")
 
-.PHONY: check workspace-analyze workspace-test app-template-analyze app-template-test \
-	release-check setup pub-get coverage-tool melos-tool workspace-changed \
+.PHONY: check setup app-template-analyze app-template-test workspace-changed \
 	app-template-changed flutter-version app-template-flutter-version require-base
 
-check: workspace-analyze workspace-test app-template-analyze app-template-test
+check: setup
+	$(DART) run melos run analyze --no-select
+	$(DART) run melos run coverage --no-select
+	@$(APP_TEMPLATE_ANALYZE)
+	@$(APP_TEMPLATE_TEST)
 
-# Resolves the workspace, Melos included.
-pub-get:
+# Resolves the workspace, Melos included, and activates the coverage package
+# tool/coverage.dart needs for pure-Dart packages.
+setup:
 	$(FLUTTER) pub get
-
-# The coverage package, which tool/coverage.dart needs for pure-Dart packages.
-coverage-tool:
 	@$(DART) pub global list | grep -q '^coverage ' || $(DART) pub global activate coverage
 
-setup: pub-get coverage-tool
+app-template-analyze:
+	@$(APP_TEMPLATE_ANALYZE)
 
-# Melos activated globally, so the workspace gate can ask it which packages
-# changed without resolving the workspace, which needs the Flutter SDK.
-melos-tool:
-	@$(DART) pub global list | grep -q '^melos ' || $(DART) pub global activate melos '$(MELOS_CONSTRAINT)' >&2
-
-workspace-analyze: pub-get
-	$(DART) run melos run analyze $(MELOS_SELECT)
-
-workspace-test: setup
-	$(DART) run melos run coverage $(MELOS_SELECT)
-
-app-template-analyze: pub-get
-	@$(call each_app_template_package,$(DART) analyze)
-
+# tool/coverage.dart's own dependencies come from the workspace, hence setup.
 app-template-test: setup
-	@$(call each_app_template_package,$(DART) run "$(ROOT)/tool/coverage.dart")
+	@$(APP_TEMPLATE_TEST)
 
-# melos publish dry-runs unless given --no-dry-run; --yes skips its prompt.
-release-check: pub-get
-	$(DART) run melos publish --yes
-
-# For CI's gates: print `true` when a workspace package, or app_template, changed
-# since BASE, else `false`.
-workspace-changed: require-base melos-tool
+# For CI's gates: print `true` when a workspace package, or app_template, changed since BASE, else `false`.
+# The workspace gate asks a globally activated Melos, at the root pubspec.yaml's melos constraint, so it
+# needs neither the Flutter SDK nor a resolved workspace.
+workspace-changed: require-base
+	@$(DART) pub global list | grep -q '^melos ' || \
+		$(DART) pub global activate melos '$(shell sed -n 's/^  melos: *//p' pubspec.yaml)' >&2
 	@packages=$$($(DART) pub global run melos list --diff="$(BASE)" --json) || exit 1; \
 	[ "$$packages" = "[]" ] && echo false || echo true
 
 app-template-changed: require-base
 	@git diff --name-only "$(BASE)" HEAD -- app_template | grep -q . && echo true || echo false
 
-# For CI's Flutter install: print the version the root's, or app_template's,
-# .fvmrc pins.
+# For CI's Flutter install: print the version the root's, or app_template's, .fvmrc pins.
 flutter-version:
 	@echo $(call fvmrc_flutter,.fvmrc)
 

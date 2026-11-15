@@ -43,9 +43,14 @@ jobs:
         with:
           lcov: 'true'
 
-      # The workspace packages the pull request changed — see the Makefile.
+      # Resolves the workspace, Melos included, and activates the coverage
+      # package tool/coverage.dart needs.
+      - name: Set up the workspace
+        run: make setup
+
+      # Melos runs these in the workspace packages the pull request changed.
       - name: Analyze the changed workspace packages
-        run: make workspace-analyze BASE=${{ github.event.pull_request.base.sha }}
+        run: dart run melos run analyze --no-select --diff=${{ github.event.pull_request.base.sha }}
 
       - name: Check coverage of the changed workspace packages
-        run: make workspace-test BASE=${{ github.event.pull_request.base.sha }}
+        run: dart run melos run coverage --no-select --diff=${{ github.event.pull_request.base.sha }}
