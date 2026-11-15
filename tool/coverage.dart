@@ -23,22 +23,6 @@ const _importsTestPath = 'test/coverage_imports_test.dart';
 const _lcovPath = 'coverage/lcov.info';
 const _defaultThreshold = 100.0;
 
-Future<void> main(List<String> args) async {
-  final package = _Package.current();
-  final packageConfig = _readConfig(p.join(package.dir, _configFileName));
-  final repoConfig = _readConfig(p.join(_repoRoot(), _configFileName));
-
-  await _collectCoverage(package);
-  await _removeExcluded(_combinedExclude(repoConfig, packageConfig));
-
-  final passed = _report(
-    package.name,
-    _lineCounts(File(p.join(package.dir, _lcovPath))),
-    _requiredThreshold(packageConfig, args),
-  );
-  if (!passed) exit(1);
-}
-
 /// The package the script runs in: the current folder.
 class _Package {
   /// The package's folder.
@@ -95,6 +79,22 @@ class _LineCounts {
   /// The line coverage in percent; 100 with no measurable lines, as nothing
   /// is uncovered then.
   double get percent => found == 0 ? 100 : hit / found * 100;
+}
+
+Future<void> main(List<String> args) async {
+  final package = _Package.current();
+  final packageConfig = _readConfig(p.join(package.dir, _configFileName));
+  final repoConfig = _readConfig(p.join(_repoRoot(), _configFileName));
+
+  await _collectCoverage(package);
+  await _removeExcluded(_combinedExclude(repoConfig, packageConfig));
+
+  final passed = _report(
+    package.name,
+    _lineCounts(File(p.join(package.dir, _lcovPath))),
+    _requiredThreshold(packageConfig, args),
+  );
+  if (!passed) exit(1);
 }
 
 // Package and repository.
