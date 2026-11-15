@@ -54,9 +54,9 @@ Flutter plugins with an Android implementation.
 
 ---
 
-### Application / Integration
+### Tooling
 
-Top-level integration or reference implementation packages that may depend on multiple core and intermediate packages.
+Command-line tools for working with projects, not published to pub.dev.
 
 - [`dev_tools`](dev_tools): creates white-label apps from a template project
 
