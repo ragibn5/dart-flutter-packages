@@ -23,64 +23,6 @@ const _importsTestPath = 'test/coverage_imports_test.dart';
 const _lcovPath = 'coverage/lcov.info';
 const _defaultThreshold = 100.0;
 
-/// The package the script runs in: the current folder.
-class _Package {
-  /// The package's folder.
-  final String dir;
-
-  /// The package's name, from its pubspec.
-  final String name;
-
-  /// Whether the package depends on Flutter.
-  final bool isFlutter;
-
-  const _Package({
-    required this.dir,
-    required this.name,
-    required this.isFlutter,
-  });
-
-  /// The package in the current folder.
-  factory _Package.current() {
-    final dir = Directory.current.path;
-    final pubspec = _readPubspec(dir);
-    return _Package(
-      dir: dir,
-      name: _packageName(pubspec),
-      isFlutter: _dependsOnFlutter(pubspec),
-    );
-  }
-}
-
-/// A coverage.yaml's settings.
-class _CoverageConfig {
-  /// The required line coverage in percent, or `null` for the default.
-  final double? threshold;
-
-  /// lcov globs of the files to leave out.
-  final List<String> exclude;
-
-  const _CoverageConfig({required this.exclude, required this.threshold});
-
-  /// No settings: what a missing or empty coverage.yaml gives.
-  const _CoverageConfig.empty() : exclude = const [], threshold = null;
-}
-
-/// The line counts an lcov report sums to.
-class _LineCounts {
-  /// Lines that can be measured.
-  final int found;
-
-  /// Measured lines the tests ran.
-  final int hit;
-
-  const _LineCounts({required this.found, required this.hit});
-
-  /// The line coverage in percent; 100 with no measurable lines, as nothing
-  /// is uncovered then.
-  double get percent => found == 0 ? 100 : hit / found * 100;
-}
-
 Future<void> main(List<String> args) async {
   final package = _Package.current();
   final packageConfig = _readConfig(p.join(package.dir, _configFileName));
@@ -315,4 +257,62 @@ Future<void> _run(String executable, List<String> args) async {
 Never _fail(String message, [int exitCode = 1]) {
   stderr.writeln(message);
   exit(exitCode);
+}
+
+/// The package the script runs in: the current folder.
+class _Package {
+  /// The package's folder.
+  final String dir;
+
+  /// The package's name, from its pubspec.
+  final String name;
+
+  /// Whether the package depends on Flutter.
+  final bool isFlutter;
+
+  const _Package({
+    required this.dir,
+    required this.name,
+    required this.isFlutter,
+  });
+
+  /// The package in the current folder.
+  factory _Package.current() {
+    final dir = Directory.current.path;
+    final pubspec = _readPubspec(dir);
+    return _Package(
+      dir: dir,
+      name: _packageName(pubspec),
+      isFlutter: _dependsOnFlutter(pubspec),
+    );
+  }
+}
+
+/// A coverage.yaml's settings.
+class _CoverageConfig {
+  /// The required line coverage in percent, or `null` for the default.
+  final double? threshold;
+
+  /// lcov globs of the files to leave out.
+  final List<String> exclude;
+
+  const _CoverageConfig({required this.exclude, required this.threshold});
+
+  /// No settings: what a missing or empty coverage.yaml gives.
+  const _CoverageConfig.empty() : exclude = const [], threshold = null;
+}
+
+/// The line counts an lcov report sums to.
+class _LineCounts {
+  /// Lines that can be measured.
+  final int found;
+
+  /// Measured lines the tests ran.
+  final int hit;
+
+  const _LineCounts({required this.found, required this.hit});
+
+  /// The line coverage in percent; 100 with no measurable lines, as nothing
+  /// is uncovered then.
+  double get percent => found == 0 ? 100 : hit / found * 100;
 }
