@@ -1,44 +1,18 @@
 name: Set up
-description: >-
-  Installs the pinned Flutter version, or only the Dart SDK, and lcov when
-  asked. Run after actions/checkout.
-
-inputs:
-  sdk:
-    description: >-
-      flutter (the pinned version) or dart (the latest stable Dart SDK only,
-      for jobs that only list packages).
-    default: flutter
-  lcov:
-    description: Whether to install lcov, which the coverage check needs.
-    default: 'false'
+description: Installs the pinned Flutter version. Run after actions/checkout.
 
 runs:
   using: composite
   steps:
-    - name: Install Dart
-      if: inputs.sdk == 'dart'
-      uses: dart-lang/setup-dart@v1
-      with:
-        sdk: stable
-
     - name: Read the pinned Flutter version
-      if: inputs.sdk == 'flutter'
       id: flutter
       shell: bash
       run: |
         echo "version=$(sed -n 's/.*"flutter": *"\([^"]*\)".*/\1/p' .fvmrc)" >> "$GITHUB_OUTPUT"
 
     - name: Install Flutter
-      if: inputs.sdk == 'flutter'
       uses: subosito/flutter-action@v2
       with:
         flutter-version: ${{ steps.flutter.outputs.version }}
         channel: stable
         cache: true
-
-    # lcov isn't preinstalled on ubuntu-latest.
-    - name: Install lcov
-      if: inputs.lcov == 'true'
-      shell: bash
-      run: sudo apt-get update && sudo apt-get install -y lcov

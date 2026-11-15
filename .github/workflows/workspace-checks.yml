@@ -7,37 +7,7 @@ on:
       - develop
 
 jobs:
-  # Always runs, so the checks job can be required: a job skipped by its
-  # `if` counts as passed.
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      workspace: ${{ steps.diff.outputs.workspace }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # Listing the changed packages needs only the Dart SDK.
-      - uses: ./.github/actions/setup
-        with:
-          sdk: dart
-
-      # The workspace's own tool, at the version the root pubspec.yaml allows.
-      - name: Install the workspace tool
-        run: |
-          dart pub global activate melos "$(sed -n 's/^  melos: *//p' pubspec.yaml)"
-
-      - name: Check whether the pull request changed a workspace package
-        id: diff
-        run: |
-          packages=$(dart pub global run melos list --diff=${{ github.event.pull_request.base.sha }} --json)
-          [ "$packages" = "[]" ] && changed=false || changed=true
-          echo "workspace=$changed" >> "$GITHUB_OUTPUT"
-
   workspace-checks:
-    needs: changes
-    if: needs.changes.outputs.workspace == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -46,8 +16,10 @@ jobs:
           fetch-depth: 0
 
       - uses: ./.github/actions/setup
-        with:
-          lcov: 'true'
+
+      # The coverage check needs lcov, which ubuntu-latest doesn't have.
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
 
       - name: Set up the workspace
         run: make setup
