@@ -1,21 +1,16 @@
 name: Set up
 description: >-
-  Installs the Flutter version a .fvmrc pins, or only the Dart SDK, and lcov
-  when asked. Run after actions/checkout.
+  Installs the pinned Flutter version, or only the Dart SDK, and lcov when
+  asked. Run after actions/checkout.
 
 inputs:
   sdk:
     description: >-
-      flutter (the version flutter-version-target prints) or dart (the latest
-      stable Dart SDK only, for jobs that just run Melos).
+      flutter (the pinned version) or dart (the latest stable Dart SDK only,
+      for jobs that only list packages).
     default: flutter
-  flutter-version-target:
-    description: >-
-      The Makefile target that prints the Flutter version to install:
-      flutter-version (the root's .fvmrc) or app-template-flutter-version.
-    default: flutter-version
   lcov:
-    description: Whether to install lcov, which tool/coverage.dart needs.
+    description: Whether to install lcov, which the coverage check needs.
     default: 'false'
 
 runs:
@@ -31,7 +26,7 @@ runs:
       if: inputs.sdk == 'flutter'
       id: flutter
       shell: bash
-      run: echo "version=$(make -s ${{ inputs.flutter-version-target }})" >> "$GITHUB_OUTPUT"
+      run: echo "version=$(make -s flutter-version)" >> "$GITHUB_OUTPUT"
 
     - name: Install Flutter
       if: inputs.sdk == 'flutter'

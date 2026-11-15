@@ -15,13 +15,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Flutter from the root's .fvmrc.
       - uses: ./.github/actions/setup
 
       - name: Set up the workspace
         run: make setup
 
-      # melos publish dry-runs, unless given --no-dry-run, every package whose
-      # version isn't on pub.dev yet; --yes skips its prompt.
+      # A dry run for every package whose version isn't published yet; --yes
+      # skips the confirmation prompt.
       - name: Check the packages to release
         run: dart run melos publish --yes

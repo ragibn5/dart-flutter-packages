@@ -7,8 +7,8 @@ on:
       - develop
 
 jobs:
-  # Always runs and reports, so the checks job below can be a required
-  # check: when it's skipped by its `if`, GitHub counts it as passed.
+  # Always runs, so the checks job can be required: a job skipped by its
+  # `if` counts as passed.
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -18,8 +18,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Melos decides which workspace packages changed, so the Dart SDK is
-      # enough here — see the Makefile.
+      # Listing the changed packages needs only the Dart SDK.
       - uses: ./.github/actions/setup
         with:
           sdk: dart
@@ -38,17 +37,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Flutter from the root's .fvmrc, and lcov for tool/coverage.dart.
       - uses: ./.github/actions/setup
         with:
           lcov: 'true'
 
-      # Resolves the workspace, Melos included, and activates the coverage
-      # package tool/coverage.dart needs.
       - name: Set up the workspace
         run: make setup
 
-      # Melos runs these in the workspace packages the pull request changed.
+      # Only in the packages the pull request changed.
       - name: Analyze the changed workspace packages
         run: dart run melos run analyze --no-select --diff=${{ github.event.pull_request.base.sha }}
 
