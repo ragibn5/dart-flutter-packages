@@ -167,8 +167,9 @@ It needs [lcov](https://github.com/linux-test-project/lcov), activates the
 `coverage` package if it's missing, and uses fvm when it's installed. The
 [Makefile](Makefile) lists its other targets.
 
-CI runs the same Melos scripts with `--diff=<ref>`, so only the packages a
-pull request changed are checked.
+CI runs the same Melos scripts with `--diff=<ref> --include-dependents`, so
+only the packages a pull request changed, and those that depend on them, are
+checked.
 
 ### Contributing
 

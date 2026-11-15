@@ -24,9 +24,10 @@ jobs:
       - name: Set up the workspace
         run: make setup
 
-      # Only in the packages the pull request changed.
+      # Only in the packages the pull request changed, and those that depend
+      # on them.
       - name: Analyze the changed workspace packages
-        run: dart run melos run analyze --no-select --diff=${{ github.event.pull_request.base.sha }}
+        run: dart run melos run analyze --no-select --diff=${{ github.event.pull_request.base.sha }} --include-dependents
 
       - name: Check coverage of the changed workspace packages
-        run: dart run melos run coverage --no-select --diff=${{ github.event.pull_request.base.sha }}
+        run: dart run melos run coverage --no-select --diff=${{ github.event.pull_request.base.sha }} --include-dependents
