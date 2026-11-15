@@ -20,7 +20,7 @@ jobs:
       # installs that version directly.
       - name: Read the pinned Flutter version
         id: flutter
-        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(make -s flutter-version)" >> "$GITHUB_OUTPUT"
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2

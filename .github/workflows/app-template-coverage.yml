@@ -20,12 +20,7 @@ jobs:
 
       - name: Check whether the pull request changed app_template
         id: diff
-        run: |
-          if git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD -- app_template | grep -q .; then
-            echo "app_template=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "app_template=false" >> "$GITHUB_OUTPUT"
-          fi
+        run: echo "app_template=$(make -s app-template-changed BASE=${{ github.event.pull_request.base.sha }})" >> "$GITHUB_OUTPUT"
 
   app-template-coverage:
     needs: changes
@@ -41,7 +36,7 @@ jobs:
       # workspace, so it's checked here with its own .fvmrc.
       - name: Read app_template's pinned Flutter version
         id: flutter
-        run: echo "version=$(jq -r .flutter app_template/.fvmrc)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(make -s app-template-flutter-version)" >> "$GITHUB_OUTPUT"
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2

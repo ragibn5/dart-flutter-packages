@@ -18,17 +18,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      # The workspace's members are the folders under `workspace:` in the
-      # root pubspec.yaml, the same list Melos picks packages from.
+      # The workspace's members come from the root pubspec.yaml's workspace
+      # list, the one Melos uses — see the Makefile.
       - name: Check whether the pull request changed a workspace package
         id: diff
-        run: |
-          members=$(yq '.workspace[]' pubspec.yaml)
-          if git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD -- $members | grep -q .; then
-            echo "workspace=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "workspace=false" >> "$GITHUB_OUTPUT"
-          fi
+        run: echo "workspace=$(make -s workspace-changed BASE=${{ github.event.pull_request.base.sha }})" >> "$GITHUB_OUTPUT"
 
   enforce-coverage:
     needs: changes
@@ -45,7 +39,7 @@ jobs:
       # installs that version directly.
       - name: Read the pinned Flutter version
         id: flutter
-        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(make -s flutter-version)" >> "$GITHUB_OUTPUT"
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
