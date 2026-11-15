@@ -86,7 +86,7 @@ class ReadWhitelabelConfig {
         .toList();
   }
 
-  List<String>? _readFlavors(YamlMap document) {
+  List<String> _readFlavors(YamlMap document) {
     if (document['flavors'] is! YamlList) return const [];
     return (document['flavors'] as YamlList)
         .map((entry) => entry.toString())
@@ -111,7 +111,7 @@ class ReadWhitelabelConfig {
 
   Map<String, FirebaseFlavorConfig> _requireFirebaseFlavors(
     YamlMap firebase,
-    List<String>? flavors,
+    List<String> flavors,
   ) {
     final keys = firebase.keys
         .map((key) => key.toString())
@@ -143,25 +143,16 @@ class ReadWhitelabelConfig {
 
   /// Validates a per-flavor-keyed yaml section's [keys] against [flavors]:
   /// an exact match is required when there are flavors, or a single
-  /// `default` key when [flavors] is empty. [flavors] being `null` (never
-  /// declared) is itself an error, since a per-flavor section can't be
-  /// validated without knowing the project's flavors.
+  /// `default` key when [flavors] is empty (an absent `flavors:` key reads as
+  /// empty).
   ///
   /// Reusable for any future per-flavor-keyed yaml section, not just
   /// `firebase`.
   void _validateFlavorKeys({
     required String sectionName,
     required Set<String> keys,
-    required List<String>? flavors,
+    required List<String> flavors,
   }) {
-    if (flavors == null) {
-      throw WhitelabelConfigException(
-        "'$sectionName' is configured, but 'flavors' isn't. Declare this "
-        "project's flavors (flavors: [...], or flavors: [] if it has none) "
-        'before configuring a per-flavor section like this one.',
-      );
-    }
-
     final expected = flavors.isEmpty ? {'default'} : flavors.toSet();
     final missing = expected.difference(keys);
     final extra = keys.difference(expected);

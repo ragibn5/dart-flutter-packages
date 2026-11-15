@@ -4,8 +4,9 @@ import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_dart_command.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/read_whitelabel_config.dart';
-import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
+import 'package:dev_tools/src/utils/run_interactive_process.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
 /// One backed-up `ASSETCATALOG_COMPILER_...` line from the Xcode project
@@ -35,16 +36,20 @@ class ShowLauncherIconChangeGuide {
   final ConfirmYesNo _confirmYesNo;
   final FindFvmAwareDartCommand _findDartCommand;
   final ReadWhitelabelConfig _readWhitelabelConfig;
+  final RunInteractiveProcess _runInteractiveProcess;
 
   const ShowLauncherIconChangeGuide({
     Prompter prompter = const ConsolePrompter(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
     FindFvmAwareDartCommand findDartCommand = const FindFvmAwareDartCommand(),
     ReadWhitelabelConfig readWhitelabelConfig = const ReadWhitelabelConfig(),
+    @visibleForTesting
+    RunInteractiveProcess runInteractiveProcess = const RunInteractiveProcess(),
   })  : _prompter = prompter,
         _confirmYesNo = confirmYesNo,
         _findDartCommand = findDartCommand,
-        _readWhitelabelConfig = readWhitelabelConfig;
+        _readWhitelabelConfig = readWhitelabelConfig,
+        _runInteractiveProcess = runInteractiveProcess;
 
   /// Prints launcher icon config file instructions for [projectPath] — one
   /// file per flavor read via [ReadWhitelabelConfig], or the single default
@@ -74,11 +79,11 @@ class ShowLauncherIconChangeGuide {
     final backedUpLines = _readBackedUpLines(pbxprojFile);
 
     final dartCommand = (await _findDartCommand()).split(RegExp(r'\s+'));
-    await InteractiveProcessRunner(
-      executable: dartCommand.first,
-      arguments: [...dartCommand.skip(1), 'run', 'flutter_launcher_icons'],
+    await _runInteractiveProcess(
+      dartCommand.first,
+      [...dartCommand.skip(1), 'run', 'flutter_launcher_icons'],
       workingDirectory: projectPath,
-    ).run();
+    );
 
     if (backedUpLines.isEmpty) {
       _prompter.write('✅ Launcher icon change guide\n');

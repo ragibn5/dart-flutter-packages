@@ -1,14 +1,20 @@
 import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
-import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
+import 'package:dev_tools/src/utils/run_interactive_process.dart';
+import 'package:meta/meta.dart';
 
 /// Shows the Firebase CLI's active account and offers to switch it before
 /// configuring a project.
 class EnsureFirebaseAccount {
   final Prompter _prompter;
+  final RunInteractiveProcess _runInteractiveProcess;
 
-  const EnsureFirebaseAccount({Prompter prompter = const ConsolePrompter()})
-      : _prompter = prompter;
+  const EnsureFirebaseAccount({
+    Prompter prompter = const ConsolePrompter(),
+    @visibleForTesting
+    RunInteractiveProcess runInteractiveProcess = const RunInteractiveProcess(),
+  })  : _prompter = prompter,
+        _runInteractiveProcess = runInteractiveProcess;
 
   /// Runs `firebase login` (a no-op if already authenticated), prints the
   /// active account via `firebase login:list`, then optionally logs out and
@@ -35,11 +41,11 @@ class EnsureFirebaseAccount {
   }
 
   Future<void> _runFirebase(List<String> arguments) async {
-    final exitCode = await InteractiveProcessRunner(
-      executable: 'firebase',
-      arguments: arguments,
+    final exitCode = await _runInteractiveProcess(
+      'firebase',
+      arguments,
       inheritStdio: true,
-    ).run();
+    );
     if (exitCode != 0) {
       throw FirebaseSetupException(
         'firebase ${arguments.join(' ')} exited with code $exitCode.',

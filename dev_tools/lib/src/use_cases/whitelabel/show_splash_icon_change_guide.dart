@@ -2,8 +2,9 @@ import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_dart_command.dart';
 import 'package:dev_tools/src/use_cases/prompts/confirm_yes_no.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/read_whitelabel_config.dart';
-import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
+import 'package:dev_tools/src/utils/run_interactive_process.dart';
+import 'package:meta/meta.dart';
 
 /// Prints splash icon change instructions, then optionally runs
 /// `flutter_native_splash:create`.
@@ -18,16 +19,20 @@ class ShowSplashIconChangeGuide {
   final ConfirmYesNo _confirmYesNo;
   final FindFvmAwareDartCommand _findDartCommand;
   final ReadWhitelabelConfig _readWhitelabelConfig;
+  final RunInteractiveProcess _runInteractiveProcess;
 
   const ShowSplashIconChangeGuide({
     Prompter prompter = const ConsolePrompter(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
     FindFvmAwareDartCommand findDartCommand = const FindFvmAwareDartCommand(),
     ReadWhitelabelConfig readWhitelabelConfig = const ReadWhitelabelConfig(),
+    @visibleForTesting
+    RunInteractiveProcess runInteractiveProcess = const RunInteractiveProcess(),
   })  : _prompter = prompter,
         _confirmYesNo = confirmYesNo,
         _findDartCommand = findDartCommand,
-        _readWhitelabelConfig = readWhitelabelConfig;
+        _readWhitelabelConfig = readWhitelabelConfig,
+        _runInteractiveProcess = runInteractiveProcess;
 
   /// Prints splash config file instructions for [projectPath] — one file per
   /// flavor read via [ReadWhitelabelConfig], or the single default file when
@@ -53,16 +58,16 @@ class ShowSplashIconChangeGuide {
     }
 
     final dartCommand = (await _findDartCommand()).split(RegExp(r'\s+'));
-    await InteractiveProcessRunner(
-      executable: dartCommand.first,
-      arguments: [
+    await _runInteractiveProcess(
+      dartCommand.first,
+      [
         ...dartCommand.skip(1),
         'run',
         'flutter_native_splash:create',
         if (flavors.isNotEmpty) '--all-flavors',
       ],
       workingDirectory: projectPath,
-    ).run();
+    );
     _prompter.write('✅ Splash icon change guide\n');
   }
 

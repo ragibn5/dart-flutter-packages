@@ -6,8 +6,9 @@ import 'package:dev_tools/src/use_cases/whitelabel/ensure_firebase_account.dart'
 import 'package:dev_tools/src/use_cases/whitelabel/firebase_setup_exception.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/read_whitelabel_config.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/whitelabel_config_exception.dart';
-import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/logger.dart';
+import 'package:dev_tools/src/utils/run_interactive_process.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
 /// Runs `flutterfire configure` for one flavor of a white-label project.
@@ -17,6 +18,7 @@ class RunFirebaseSetup {
   final PromptWithDefault _promptWithDefault;
   final ConfirmYesNo _confirmYesNo;
   final EnsureFirebaseAccount _ensureFirebaseAccount;
+  final RunInteractiveProcess _runInteractiveProcess;
 
   const RunFirebaseSetup({
     Logger logger = const ConsoleLogger(),
@@ -24,11 +26,14 @@ class RunFirebaseSetup {
     PromptWithDefault promptWithDefault = const PromptWithDefault(),
     ConfirmYesNo confirmYesNo = const ConfirmYesNo(),
     EnsureFirebaseAccount ensureFirebaseAccount = const EnsureFirebaseAccount(),
+    @visibleForTesting
+    RunInteractiveProcess runInteractiveProcess = const RunInteractiveProcess(),
   })  : _logger = logger,
         _readWhitelabelConfig = readWhitelabelConfig,
         _promptWithDefault = promptWithDefault,
         _confirmYesNo = confirmYesNo,
-        _ensureFirebaseAccount = ensureFirebaseAccount;
+        _ensureFirebaseAccount = ensureFirebaseAccount,
+        _runInteractiveProcess = runInteractiveProcess;
 
   /// Configures Firebase for [flavor] in the project at [projectPath].
   ///
@@ -110,9 +115,9 @@ class RunFirebaseSetup {
     }
 
     _logger.info('\nRunning flutterfire configure...');
-    final exitCode = await InteractiveProcessRunner(
-      executable: 'flutterfire',
-      arguments: [
+    final exitCode = await _runInteractiveProcess(
+      'flutterfire',
+      [
         'configure',
         '--project=$projectId',
         '--out=${outputPaths.dart}',
@@ -123,7 +128,7 @@ class RunFirebaseSetup {
       ],
       workingDirectory: projectPath,
       inheritStdio: true,
-    ).run();
+    );
 
     if (exitCode != 0) {
       throw FirebaseSetupException(

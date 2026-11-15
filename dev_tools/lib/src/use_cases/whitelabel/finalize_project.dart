@@ -2,8 +2,9 @@ import 'package:dev_tools/src/exceptions/command_not_found_exception.dart';
 import 'package:dev_tools/src/use_cases/dart_flutter/find_fvm_aware_flutter_command.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/clean_project_artifacts.dart';
 import 'package:dev_tools/src/use_cases/whitelabel/show_final_todos.dart';
-import 'package:dev_tools/src/utils/interactive_process_runner.dart';
 import 'package:dev_tools/src/utils/prompter.dart';
+import 'package:dev_tools/src/utils/run_interactive_process.dart';
+import 'package:meta/meta.dart';
 
 /// Performs the final cleanup and dependency fetch for a white-label
 /// project, then prints its remaining manual TODOs.
@@ -12,6 +13,7 @@ class FinalizeProject {
   final CleanProjectArtifacts _cleanProjectArtifacts;
   final FindFvmAwareFlutterCommand _findFlutterCommand;
   final ShowFinalTodos _showFinalTodos;
+  final RunInteractiveProcess _runInteractiveProcess;
 
   FinalizeProject({
     Prompter prompter = const ConsolePrompter(),
@@ -19,11 +21,14 @@ class FinalizeProject {
     FindFvmAwareFlutterCommand findFlutterCommand =
         const FindFvmAwareFlutterCommand(),
     ShowFinalTodos showFinalTodos = const ShowFinalTodos(),
+    @visibleForTesting
+    RunInteractiveProcess runInteractiveProcess = const RunInteractiveProcess(),
   })  : _prompter = prompter,
         _cleanProjectArtifacts =
             cleanProjectArtifacts ?? CleanProjectArtifacts(),
         _findFlutterCommand = findFlutterCommand,
-        _showFinalTodos = showFinalTodos;
+        _showFinalTodos = showFinalTodos,
+        _runInteractiveProcess = runInteractiveProcess;
 
   /// Deletes configured artifacts (see [CleanProjectArtifacts]), runs
   /// `pub get` via the fvm-aware Flutter command, then prints the remaining
@@ -40,11 +45,11 @@ class FinalizeProject {
 
     _prompter.write('\nRunning pub get ...\n');
     final flutterCommand = (await _findFlutterCommand()).split(RegExp(r'\s+'));
-    final exitCode = await InteractiveProcessRunner(
-      executable: flutterCommand.first,
-      arguments: [...flutterCommand.skip(1), 'pub', 'get'],
+    final exitCode = await _runInteractiveProcess(
+      flutterCommand.first,
+      [...flutterCommand.skip(1), 'pub', 'get'],
       workingDirectory: projectPath,
-    ).run();
+    );
     if (exitCode != 0) {
       _prompter.write(
         '\n⚠️ pub get failed (exit code $exitCode). This is often the '
