@@ -83,16 +83,28 @@ Future<void> main(List<String> args) async {
   if (!passed) exit(1);
 }
 
-typedef _Config = ({List<String> exclude, double? threshold});
+/// A coverage.yaml's settings.
+class _CoverageConfig {
+  const _CoverageConfig({required this.exclude, required this.threshold});
 
-_Config _readConfig(String path) {
+  /// No settings: what a missing or empty coverage.yaml gives.
+  const _CoverageConfig.empty() : exclude = const [], threshold = null;
+
+  /// lcov globs of the files to leave out.
+  final List<String> exclude;
+
+  /// The required line coverage in percent, or `null` for the default.
+  final double? threshold;
+}
+
+_CoverageConfig _readConfig(String path) {
   final file = File(path);
-  if (!file.existsSync()) return (exclude: const [], threshold: null);
+  if (!file.existsSync()) return const _CoverageConfig.empty();
   final doc = loadYaml(file.readAsStringSync());
-  if (doc is! YamlMap) return (exclude: const [], threshold: null);
+  if (doc is! YamlMap) return const _CoverageConfig.empty();
   final exclude = doc['exclude'];
   final threshold = doc['threshold'];
-  return (
+  return _CoverageConfig(
     exclude: exclude is YamlList ? exclude.map((e) => '$e').toList() : const [],
     threshold: threshold is num ? threshold.toDouble() : null,
   );
