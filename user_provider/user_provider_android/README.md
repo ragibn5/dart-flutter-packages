@@ -1,6 +1,6 @@
 # user_provider_android
 
-A user provider plugin for android.
+Reads the Android identity of the running app: its process uid, the id of the user it runs under, and its app id.
 
 ## Installation
 

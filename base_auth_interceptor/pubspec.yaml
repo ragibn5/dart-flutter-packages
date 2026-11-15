@@ -1,5 +1,5 @@
 name: base_auth_interceptor
-description: A reusable auth interceptor base for `dio`.
+description: A dio interceptor that authorizes every request and, on an auth error, refreshes the auth data once and retries the request.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues

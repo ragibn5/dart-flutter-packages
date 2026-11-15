@@ -1,6 +1,6 @@
 # synced_file_store
 
-File-based data storage.
+A string store backed by a single file, whose reads and writes are queued one at a time so concurrent callers never overlap.
 
 ## Installation
 

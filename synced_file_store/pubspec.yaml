@@ -1,5 +1,5 @@
 name: synced_file_store
-description: File-based data storage.
+description: A string store backed by a single file, whose reads and writes are queued one at a time so concurrent callers never overlap.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues

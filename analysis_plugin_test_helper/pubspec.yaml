@@ -1,5 +1,5 @@
 name: analysis_plugin_test_helper
-description: Utilities to help write tests for the analyzer plugins.
+description: "Utilities for testing analyzer plugins: resolve Dart source and find the constructors, methods, imports and annotations in it."
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
