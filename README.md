@@ -157,12 +157,15 @@ exclude:
   - 'lib/src/configs/*'
 ```
 
-Running it locally needs [lcov](https://github.com/linux-test-project/lcov)
-and, for pure-Dart packages, the `coverage` package:
+To run every package's tests with this check, the workspace's and then
+`app_template`'s, from the repository root:
 
 ```bash
-dart pub global activate coverage
+make test
 ```
+
+It needs [lcov](https://github.com/linux-test-project/lcov), activates the
+`coverage` package if it's missing, and uses fvm when it's installed.
 
 ### Contributing
 
