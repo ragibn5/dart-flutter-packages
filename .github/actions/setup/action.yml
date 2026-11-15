@@ -26,7 +26,8 @@ runs:
       if: inputs.sdk == 'flutter'
       id: flutter
       shell: bash
-      run: echo "version=$(make -s flutter-version)" >> "$GITHUB_OUTPUT"
+      run: |
+        echo "version=$(sed -n 's/.*"flutter": *"\([^"]*\)".*/\1/p' .fvmrc)" >> "$GITHUB_OUTPUT"
 
     - name: Install Flutter
       if: inputs.sdk == 'flutter'

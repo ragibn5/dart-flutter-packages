@@ -23,9 +23,17 @@ jobs:
         with:
           sdk: dart
 
+      # The workspace's own tool, at the version the root pubspec.yaml allows.
+      - name: Install the workspace tool
+        run: |
+          dart pub global activate melos "$(sed -n 's/^  melos: *//p' pubspec.yaml)"
+
       - name: Check whether the pull request changed a workspace package
         id: diff
-        run: echo "workspace=$(make -s workspace-changed BASE=${{ github.event.pull_request.base.sha }})" >> "$GITHUB_OUTPUT"
+        run: |
+          packages=$(dart pub global run melos list --diff=${{ github.event.pull_request.base.sha }} --json)
+          [ "$packages" = "[]" ] && changed=false || changed=true
+          echo "workspace=$changed" >> "$GITHUB_OUTPUT"
 
   workspace-checks:
     needs: changes
