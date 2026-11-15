@@ -51,26 +51,12 @@ jobs:
           channel: stable
           cache: true
 
-      # Resolves the whole workspace, Melos included.
-      - name: Install workspace dependencies
-        run: flutter pub get
-
-      # Needed to convert a pure-Dart package's raw `dart test --coverage`
-      # output into lcov — see tool/coverage.dart.
-      - name: Activate the coverage package
-        run: dart pub global activate coverage
-
       # lcov (used by tool/coverage.dart to leave excluded files out) isn't
       # preinstalled on ubuntu-latest.
       - name: Install lcov
         run: sudo apt-get update && sudo apt-get install -y lcov
 
-      # Melos runs tool/coverage.dart in every workspace package the pull
-      # request changed.
+      # Resolves the workspace and runs tool/coverage.dart in every workspace
+      # package the pull request changed — see the Makefile.
       - name: Check coverage of the changed workspace packages
-        run: >
-          dart run melos exec
-          --diff=${{ github.event.pull_request.base.sha }}
-          --concurrency=1
-          -- dart run '$MELOS_ROOT_PATH/tool/coverage.dart'
-
+        run: make workspace-test BASE=${{ github.event.pull_request.base.sha }}

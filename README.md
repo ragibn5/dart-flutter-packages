@@ -165,7 +165,9 @@ make test
 ```
 
 It needs [lcov](https://github.com/linux-test-project/lcov), activates the
-`coverage` package if it's missing, and uses fvm when it's installed.
+`coverage` package if it's missing, and uses fvm when it's installed. CI runs
+the same [Makefile](Makefile) targets (`workspace-test`, `app-template-test`
+and `release-check`), with `BASE=<ref>` so only changed packages are checked.
 
 ### Contributing
 

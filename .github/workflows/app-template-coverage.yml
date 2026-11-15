@@ -50,35 +50,12 @@ jobs:
           channel: stable
           cache: true
 
-      # Resolves tool/coverage.dart's own dependencies.
-      - name: Install the coverage script's dependencies
-        run: flutter pub get
-
-      # Needed to convert a pure-Dart package's raw `dart test --coverage`
-      # output into lcov — see tool/coverage.dart.
-      - name: Activate the coverage package
-        run: dart pub global activate coverage
-
       # lcov (used by tool/coverage.dart to leave excluded files out) isn't
       # preinstalled on ubuntu-latest.
       - name: Install lcov
         run: sudo apt-get update && sudo apt-get install -y lcov
 
-      # app_template and each of its own packages is checked when the pull
-      # request changed it; a change in one of its packages doesn't count as
-      # a change to app_template itself.
+      # Checks app_template and each of its packages the pull request
+      # changed — see the Makefile.
       - name: Check coverage of the changed app_template packages
-        run: |
-          BASE=${{ github.event.pull_request.base.sha }}
-          for dir in app_template app_template/packages/*; do
-            [ -f "$dir/pubspec.yaml" ] || continue
-            if [ "$dir" = app_template ]; then
-              changed=$(git diff --name-only "$BASE" HEAD -- app_template ':!app_template/packages')
-            else
-              changed=$(git diff --name-only "$BASE" HEAD -- "$dir")
-            fi
-            [ -n "$changed" ] || continue
-            echo "::group::$dir"
-            (cd "$dir" && flutter pub get && dart run "$GITHUB_WORKSPACE/tool/coverage.dart")
-            echo "::endgroup::"
-          done
+        run: make app-template-test BASE=${{ github.event.pull_request.base.sha }}
