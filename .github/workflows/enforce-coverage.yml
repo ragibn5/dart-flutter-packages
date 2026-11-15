@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - develop
+    # app_template has its own workflow (app-template-coverage.yml); a pull
+    # request touching only app_template doesn't run this one.
+    paths-ignore:
+      - 'app_template/**'
 
 jobs:
   enforce-coverage:
