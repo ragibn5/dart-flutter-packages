@@ -5,9 +5,8 @@ publish_to: none
 environment:
   sdk: ^3.11.0
 
-# Every package resolves together, against this root's pinned SDK.
-# app_template and the example and demo apps stay outside: they keep their
-# own resolution.
+# Every package resolves together, against this root's pinned SDK. The
+# example and demo apps stay outside: they keep their own resolution.
 workspace:
   - analysis_plugin_test_helper
   - analysis_server_plugin_core

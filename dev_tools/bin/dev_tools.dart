@@ -7,7 +7,7 @@ import 'package:dev_tools/src/exceptions/command_execution_exception.dart';
 
 Future<void> main(List<String> args) async {
   const executableName = 'dev_tools';
-  const description = 'Creates white-label apps from app_template.';
+  const description = 'Creates white-label apps from a template project.';
   final runner = CommandRunner<dynamic>(executableName, description)
     ..addCommand(WhitelabelCommand());
 

@@ -58,12 +58,7 @@ Flutter plugins with an Android implementation.
 
 Top-level integration or reference implementation packages that may depend on multiple core and intermediate packages.
 
-- [`app_template`](app_template)
-- [`dev_tools`](dev_tools): creates white-label apps from `app_template`
-
-`app_template` is not part of the workspace: it keeps its own `pubspec.yaml`,
-lock file and `.fvmrc`, so it resolves on its own (run `flutter pub get` in
-`app_template/`).
+- [`dev_tools`](dev_tools): creates white-label apps from a template project
 
 ---
 
@@ -100,8 +95,7 @@ git clone git@github.com:Ragibn5/dart-flutter-packages.git
 #### 2. Open the repository in your IDE
 
 The packages form one [pub workspace](https://dart.dev/tools/pub/workspaces):
-open the repository root, and every package except `app_template`
-resolves together.
+open the repository root, and every package resolves together.
 
 #### 3. Install the pinned Flutter SDK and the dependencies
 
@@ -163,7 +157,7 @@ exclude:
 ### Checking everything locally
 
 From the repository root, this analyzes every package and runs its tests
-with the coverage check, the workspace's and then `app_template`'s:
+with the coverage check:
 
 ```bash
 make check
@@ -173,9 +167,8 @@ It needs [lcov](https://github.com/linux-test-project/lcov), activates the
 `coverage` package if it's missing, and uses fvm when it's installed. The
 [Makefile](Makefile) lists its other targets.
 
-CI runs the same Melos scripts and app_template targets, with
-`--diff=<ref>` or `BASE=<ref>` so only the packages a pull request changed are
-checked.
+CI runs the same Melos scripts with `--diff=<ref>`, so only the packages a
+pull request changed are checked.
 
 ### Contributing
 

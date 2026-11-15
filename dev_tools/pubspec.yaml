@@ -1,5 +1,5 @@
 name: dev_tools
-description: Creates white-label apps from app_template.
+description: Creates white-label apps from a template project.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues

@@ -1,16 +1,19 @@
 # dev_tools
 
-Creates white-label apps from app_template.
+Creates white-label apps from a template project.
 
 ## Installation
 
-dev_tools is this repository's own tooling and isn't published. Use it from
-a package in this repository by path:
+dev_tools isn't published to pub.dev. Depend on it from git, pinned to a tag
+or commit:
 
 ```yaml
 dev_dependencies:
   dev_tools:
-    path: ../dev_tools
+    git:
+      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      path: dev_tools
+      ref: <tag or commit>
 ```
 
 ## Usage
