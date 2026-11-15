@@ -54,7 +54,9 @@ melos:
 
     test:
       description: Run every package's tests, Dart or Flutter alike.
-      run: dart run melos run test:dart --no-select && dart run melos run test:flutter --no-select
+      steps:
+        - test:dart
+        - test:flutter
 
     test:dart:
       description: Run the pure-Dart packages' tests.
@@ -75,14 +77,8 @@ melos:
         flutter: true
 
     coverage:
-      description: >-
-        Check each package's test coverage: tool/coverage.dart, with the root's
-        and each package's coverage.yaml.
+      description: Check each package's test coverage - tool/coverage.dart, with the root's and each package's coverage.yaml.
       exec:
         command: dart run "$MELOS_ROOT_PATH/tool/coverage.dart"
         concurrency: 1
-
-    release:check:
-      description: Dry-run publishing every package whose version isn't on pub.dev.
-      run: dart run melos publish --yes
 

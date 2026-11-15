@@ -90,8 +90,9 @@ app-template-analyze: pub-get
 app-template-test: setup
 	@$(call each_app_template_package,$(DART) run "$(ROOT)/tool/coverage.dart")
 
+# melos publish dry-runs unless given --no-dry-run; --yes skips its prompt.
 release-check: pub-get
-	$(DART) run melos run release:check
+	$(DART) run melos publish --yes
 
 # For CI's gates: print `true` when a workspace package, or app_template, changed
 # since BASE, else `false`.
