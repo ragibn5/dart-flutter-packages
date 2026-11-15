@@ -23,7 +23,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_coder/json_parser_annotations
-      ref: json_coder/json_parser_annotations-1.0.1
+      ref: json_parser_annotations-1.0.1
 ```
 
 The `json_parser_annotations` package provides the following annotations used to trigger this plugin's linting rules:
@@ -39,7 +39,7 @@ The `json_parser_annotations` package provides the following annotations used to
 ```yaml
 plugins:
   json_parser_linter:
-    version: ^1.0.4
+    version: ^1.0.5
     diagnostics:
       json_parser_requirements: true
 ```
@@ -52,7 +52,7 @@ plugins:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: json_coder/json_parser_linter
-      ref: json_coder/json_parser_linter-1.0.4
+      ref: json_parser_linter-1.0.5
     diagnostics:
       json_parser_requirements: true
 ```
@@ -169,3 +169,7 @@ If you are not seeing expected diagnostics, try:
 - Ensuring the class is annotated with `@GenerateJsonParser` and is not abstract.
 - Ensuring `scan_test_dir: true` if the file is under `test/`.
 - Checking your `json_parser_linter_config.yaml` for invalid YAML syntax or incorrect indentation. If the file is malformed, the plugin may crash or fall back to default silently.
+
+## 📄 Example
+
+See the [example](example/README.md) for a minimal project with the plugin enabled.
