@@ -1,0 +1,35 @@
+name: Set up
+description: >-
+  Installs the Flutter version a .fvmrc pins, and lcov when asked. Run after
+  actions/checkout.
+
+inputs:
+  flutter-version-target:
+    description: >-
+      The Makefile target that prints the Flutter version to install:
+      flutter-version (the root's .fvmrc) or app-template-flutter-version.
+    default: flutter-version
+  lcov:
+    description: Whether to install lcov, which tool/coverage.dart needs.
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Read the pinned Flutter version
+      id: flutter
+      shell: bash
+      run: echo "version=$(make -s ${{ inputs.flutter-version-target }})" >> "$GITHUB_OUTPUT"
+
+    - name: Install Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ steps.flutter.outputs.version }}
+        channel: stable
+        cache: true
+
+    # lcov isn't preinstalled on ubuntu-latest.
+    - name: Install lcov
+      if: inputs.lcov == 'true'
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y lcov

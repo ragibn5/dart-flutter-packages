@@ -32,23 +32,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      # app_template keeps its own resolution and Flutter pin, outside the
-      # workspace, so it's checked here with its own .fvmrc.
-      - name: Read app_template's pinned Flutter version
-        id: flutter
-        run: echo "version=$(make -s app-template-flutter-version)" >> "$GITHUB_OUTPUT"
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
+      # app_template keeps its own Flutter pin, outside the workspace, so
+      # Flutter comes from its .fvmrc; lcov is for tool/coverage.dart.
+      - uses: ./.github/actions/setup
         with:
-          flutter-version: ${{ steps.flutter.outputs.version }}
-          channel: stable
-          cache: true
-
-      # lcov (used by tool/coverage.dart to leave excluded files out) isn't
-      # preinstalled on ubuntu-latest.
-      - name: Install lcov
-        run: sudo apt-get update && sudo apt-get install -y lcov
+          flutter-version-target: app-template-flutter-version
+          lcov: 'true'
 
       # Checks app_template and each of its packages the pull request
       # changed — see the Makefile.

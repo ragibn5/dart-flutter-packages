@@ -15,19 +15,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      # The repository root's .fvmrc pins the one Flutter SDK the workspace
-      # uses. Developers switch to it with fvm; CI reads the same pin and
-      # installs that version directly.
-      - name: Read the pinned Flutter version
-        id: flutter
-        run: echo "version=$(make -s flutter-version)" >> "$GITHUB_OUTPUT"
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ steps.flutter.outputs.version }}
-          channel: stable
-          cache: true
+      # Flutter from the root's .fvmrc.
+      - uses: ./.github/actions/setup
 
       # Dry-runs publishing every package whose version isn't on pub.dev yet
       # — see the Makefile.
