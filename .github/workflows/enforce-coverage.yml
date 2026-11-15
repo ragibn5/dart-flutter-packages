@@ -5,13 +5,31 @@ on:
     branches:
       - main
       - develop
-    # app_template has its own workflow (app-template-coverage.yml); a pull
-    # request touching only app_template doesn't run this one.
-    paths-ignore:
-      - 'app_template/**'
 
 jobs:
+  # Always runs and reports, so the coverage job below can be a required
+  # check: when it's skipped by its `if`, GitHub counts it as passed.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      workspace: ${{ steps.diff.outputs.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check whether the pull request changed anything outside app_template
+        id: diff
+        run: |
+          if git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD -- . ':!app_template' | grep -q .; then
+            echo "workspace=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "workspace=false" >> "$GITHUB_OUTPUT"
+          fi
+
   enforce-coverage:
+    needs: changes
+    if: needs.changes.outputs.workspace == 'true'
     runs-on: ubuntu-latest
 
     steps:
