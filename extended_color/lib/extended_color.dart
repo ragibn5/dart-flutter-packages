@@ -1,6 +1,6 @@
-/// The `color_utils` package.
+/// The `extended_color` package.
 /// Import this file to use the package in your project.
-library color_utils;
+library extended_color;
 
 export 'src/extensions/brightness_extensions.dart';
 export 'src/extensions/representation_extensions.dart';

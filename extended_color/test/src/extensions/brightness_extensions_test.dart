@@ -1,4 +1,4 @@
-import 'package:color_utils/color_utils.dart';
+import 'package:extended_color/extended_color.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 

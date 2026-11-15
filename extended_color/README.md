@@ -1,4 +1,4 @@
-# color_utils
+# extended_color
 
 Useful utils and extensions over Flutter's built-in `Color` data type.
 
@@ -10,18 +10,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  color_utils: ^1.0.0
+  extended_color: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  color_utils:
+  extended_color:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: color_utils
-      ref: color_utils-1.0.0
+      path: extended_color
+      ref: extended_color-1.0.0
 ```
 
 ## Example

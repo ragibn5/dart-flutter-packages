@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:file_store/file_store.dart';
+import 'package:synced_file_store/synced_file_store.dart';
 
 void main() async {
   final store = FileStore(File('/tmp/example.txt'));

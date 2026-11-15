@@ -1,4 +1,4 @@
-# file_store
+# synced_file_store
 
 File-based data storage.
 
@@ -10,18 +10,18 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  file_store: ^1.0.0
+  synced_file_store: ^1.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  file_store:
+  synced_file_store:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: file_store
-      ref: file_store-1.0.0
+      path: synced_file_store
+      ref: synced_file_store-1.0.0
 ```
 
 ## Example

@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:color_utils/src/utils/color_builder.dart';
+import 'package:extended_color/src/utils/color_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

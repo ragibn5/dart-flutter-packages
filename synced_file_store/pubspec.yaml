@@ -1,9 +1,9 @@
-name: file_store
+name: synced_file_store
 description: File-based data storage.
 
 repository: https://github.com/Ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/file_store
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/synced_file_store
 
 # Library version
 version: 1.0.0

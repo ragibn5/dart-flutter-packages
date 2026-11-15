@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:file_store/file_store.dart';
+import 'package:synced_file_store/synced_file_store.dart';
 import 'package:test/test.dart';
 
 void main() {

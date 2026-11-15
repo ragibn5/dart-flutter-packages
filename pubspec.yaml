@@ -13,14 +13,13 @@ workspace:
   - base_auth_interceptor
   - clean_arch_linter
   - collection_utils
-  - color_utils
   - dart_functionals
   - dev_tools
   - document_tree/document_tree_android
+  - extended_color
   - extended_datetime
   - extended_string
   - feature_api_client
-  - file_store
   - generator_core
   - infinity_menu
   - infinity_radio_group
@@ -35,6 +34,7 @@ workspace:
   - parser_core
   - preference_store
   - sqlite_db
+  - synced_file_store
   - user_provider/user_provider_android
 
 dev_dependencies:
