@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+
 import 'imports_test.dart';
 import 'package.dart';
 import 'paths.dart';
@@ -8,6 +10,7 @@ import 'process.dart';
 /// Runs the package's tests with every library loaded, leaving the lcov
 /// report at [lcovPath].
 Future<void> collectCoverage(Package package) async {
+  _clearPreviousResults(package);
   final importsTest = writeImportsTest(package);
   try {
     await _runTestsWithCoverage(package);
@@ -40,6 +43,20 @@ Future<void> _formatDartCoverage() => run('dart', [
   '--report-on=lib',
   '--check-ignore',
 ]);
+
+/// Deletes the lcov report and `dart test`'s raw results from an earlier run,
+/// which format_coverage would otherwise merge in, stale line numbers and
+/// deleted tests' hits included.
+void _clearPreviousResults(Package package) {
+  _deleteIfExists(File(p.join(package.dir, lcovPath)));
+  final rawResults = Directory(p.join(package.dir, 'coverage'));
+  if (!rawResults.existsSync()) return;
+  rawResults
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.vm.json'))
+      .forEach(_deleteIfExists);
+}
 
 void _deleteIfExists(File? file) {
   if (file != null && file.existsSync()) file.deleteSync();
