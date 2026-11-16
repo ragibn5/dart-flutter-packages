@@ -5,10 +5,15 @@ import 'package:document_tree_android/src/exceptions/document_exceptions.dart';
 import 'package:document_tree_android/src/exceptions/tree_pick_exception.dart';
 import 'package:document_tree_android/src/exceptions/tree_request_exception.dart';
 import 'package:document_tree_android/src/models/copy_document_request.dart';
+import 'package:document_tree_android/src/models/create_directory_request.dart';
+import 'package:document_tree_android/src/models/delete_document_request.dart';
 import 'package:document_tree_android/src/models/document_info.dart';
 import 'package:document_tree_android/src/models/document_tree.dart';
+import 'package:document_tree_android/src/models/get_document_request.dart';
 import 'package:document_tree_android/src/models/list_documents_request.dart';
+import 'package:document_tree_android/src/models/move_document_request.dart';
 import 'package:document_tree_android/src/models/pick_tree_request.dart';
+import 'package:document_tree_android/src/models/rename_document_request.dart';
 import 'package:document_tree_android/src/utils/json_decoder.dart';
 import 'package:document_tree_android/src/utils/platform_call_guarder.dart';
 import 'package:flutter/foundation.dart';
@@ -95,6 +100,34 @@ class MethodChannelDocumentTreeAndroid extends DocumentTreeAndroidPlatform {
   }
 
   @override
+  Future<DocumentInfo?> getDocument(GetDocumentRequest request) async {
+    final result = await guardPlatformCall(
+      _documentQueryExceptionMapper,
+      () => methodChannel.invokeMethod<String>(
+        'getDocument',
+        jsonEncode(request.toJson()),
+      ),
+    );
+
+    return result == null
+        ? null
+        : decodeJsonObject(result, DocumentInfo.fromJson);
+  }
+
+  @override
+  Future<DocumentInfo> createDirectory(CreateDirectoryRequest request) async {
+    final result = await guardPlatformCall(
+      _documentWriteExceptionMapper,
+      () => methodChannel.invokeMethod<String>(
+        'createDirectory',
+        jsonEncode(request.toJson()),
+      ),
+    );
+
+    return decodeJsonObject(result!, DocumentInfo.fromJson);
+  }
+
+  @override
   Future<DocumentInfo> copyDocument(CopyDocumentRequest request) async {
     final result = await guardPlatformCall(
       _documentWriteExceptionMapper,
@@ -105,5 +138,42 @@ class MethodChannelDocumentTreeAndroid extends DocumentTreeAndroidPlatform {
     );
 
     return decodeJsonObject(result!, DocumentInfo.fromJson);
+  }
+
+  @override
+  Future<DocumentInfo> renameDocument(RenameDocumentRequest request) async {
+    final result = await guardPlatformCall(
+      _documentWriteExceptionMapper,
+      () => methodChannel.invokeMethod<String>(
+        'renameDocument',
+        jsonEncode(request.toJson()),
+      ),
+    );
+
+    return decodeJsonObject(result!, DocumentInfo.fromJson);
+  }
+
+  @override
+  Future<DocumentInfo> moveDocument(MoveDocumentRequest request) async {
+    final result = await guardPlatformCall(
+      _documentWriteExceptionMapper,
+      () => methodChannel.invokeMethod<String>(
+        'moveDocument',
+        jsonEncode(request.toJson()),
+      ),
+    );
+
+    return decodeJsonObject(result!, DocumentInfo.fromJson);
+  }
+
+  @override
+  Future<void> deleteDocument(DeleteDocumentRequest request) {
+    return guardPlatformCall(
+      _documentWriteExceptionMapper,
+      () => methodChannel.invokeMethod<void>(
+        'deleteDocument',
+        jsonEncode(request.toJson()),
+      ),
+    );
   }
 }

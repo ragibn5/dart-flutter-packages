@@ -49,10 +49,45 @@ abstract class DocumentTreeAndroidPlatform extends PlatformInterface {
     throw UnimplementedError('listDocuments() has not been implemented.');
   }
 
+  /// Describes the document [request] points to.
+  ///
+  /// See [GetDocumentRequest] for more info.
+  Future<DocumentInfo?> getDocument(GetDocumentRequest request) {
+    throw UnimplementedError('getDocument() has not been implemented.');
+  }
+
+  /// Creates the folder [request] points to.
+  ///
+  /// See [CreateDirectoryRequest] for more info.
+  Future<DocumentInfo> createDirectory(CreateDirectoryRequest request) {
+    throw UnimplementedError('createDirectory() has not been implemented.');
+  }
+
   /// Copies the file [request] points to into its tree.
   ///
   /// See [CopyDocumentRequest] for more info.
   Future<DocumentInfo> copyDocument(CopyDocumentRequest request) {
     throw UnimplementedError('copyDocument() has not been implemented.');
+  }
+
+  /// Renames the document [request] points to, in its folder.
+  ///
+  /// See [RenameDocumentRequest] for more info.
+  Future<DocumentInfo> renameDocument(RenameDocumentRequest request) {
+    throw UnimplementedError('renameDocument() has not been implemented.');
+  }
+
+  /// Moves the document [request] points to into another folder of its tree.
+  ///
+  /// See [MoveDocumentRequest] for more info.
+  Future<DocumentInfo> moveDocument(MoveDocumentRequest request) {
+    throw UnimplementedError('moveDocument() has not been implemented.');
+  }
+
+  /// Deletes the document [request] points to.
+  ///
+  /// See [DeleteDocumentRequest] for more info.
+  Future<void> deleteDocument(DeleteDocumentRequest request) {
+    throw UnimplementedError('deleteDocument() has not been implemented.');
   }
 }

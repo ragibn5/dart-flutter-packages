@@ -101,8 +101,9 @@ class _TreePageState extends State<TreePage> {
     );
   });
 
-  /// Copies a fresh cache file into the tree, at `copy-test/sample.txt`.
-  Future<void> _copy({required bool overwrite}) => _run(() async {
+  /// Copies a fresh cache file into the tree's root, as `sample.txt`; fails
+  /// if it's already there.
+  Future<void> _copy() => _run(() async {
     final treeUri = _treeUri;
     if (treeUri == null) {
       return;
@@ -114,8 +115,7 @@ class _TreePageState extends State<TreePage> {
       CopyDocumentRequest(
         sourceUri: source.uri.toString(),
         treeUri: treeUri,
-        path: 'copy-test/sample.txt',
-        overwrite: overwrite,
+        path: 'sample.txt',
       ),
     );
     setState(() => _copied = copied);
@@ -141,14 +141,7 @@ class _TreePageState extends State<TreePage> {
             OutlinedButton(onPressed: _refresh, child: const Text('Refresh')),
             OutlinedButton(onPressed: _release, child: const Text('Release')),
             OutlinedButton(onPressed: _list, child: const Text('List')),
-            OutlinedButton(
-              onPressed: () => _copy(overwrite: false),
-              child: const Text('Copy'),
-            ),
-            OutlinedButton(
-              onPressed: () => _copy(overwrite: true),
-              child: const Text('Copy (overwrite)'),
-            ),
+            OutlinedButton(onPressed: _copy, child: const Text('Copy')),
           ],
         ),
         const SizedBox(height: 16),

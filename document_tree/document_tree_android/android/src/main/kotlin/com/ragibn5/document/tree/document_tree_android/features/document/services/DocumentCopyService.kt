@@ -11,7 +11,6 @@ import com.ragibn5.document.tree.document_tree_android.features.document.constan
 import com.ragibn5.document.tree.document_tree_android.features.document.models.CopyDocumentRequest
 import com.ragibn5.document.tree.document_tree_android.features.document.models.DocumentInfo
 import com.ragibn5.document.tree.document_tree_android.features.document.models.DocumentRow
-import com.ragibn5.document.tree.document_tree_android.features.tree.services.PersistedTreeGrants
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -27,12 +26,10 @@ import java.io.OutputStream
  */
 internal fun interface DocumentCopyService {
     /**
-     * Copies the file [request] points to into its tree.
+     * Copies the file [request] points to into its tree, as a new file in an existing folder.
      *
      * Note:
-     * A file the copy created is deleted again if the copy fails or is
-     * cancelled. A file it overwrote can't be restored: it's left with what
-     * was copied so far.
+     * The copy is deleted again if it fails or is cancelled, so it leaves nothing behind.
      *
      * @return the copy.
      * @throws DocumentTreeException with a [DocumentWriteExceptionCodes] code.
@@ -42,7 +39,7 @@ internal fun interface DocumentCopyService {
 
 internal class DocumentCopyServiceImpl(
     private val contentResolver: ContentResolver,
-    private val grants: PersistedTreeGrants,
+    private val grantVerifier: WritableGrantVerifier,
     private val rowReader: DocumentRowReader,
     private val pathResolver: DocumentPathResolver,
     private val creator: DocumentCreator,
@@ -51,58 +48,42 @@ internal class DocumentCopyServiceImpl(
 ) : DocumentCopyService {
     override suspend fun copy(request: CopyDocumentRequest): DocumentInfo = withContext(ioDispatcher) {
         val treeUri = request.treeUri.toUri()
-        val grant = grants.find(treeUri)
-            ?: throw DocumentTreeException(
-                DocumentWriteExceptionCodes.ACCESS_LOST,
-                "The app holds no grant on the tree: ${request.treeUri}"
-            )
-        if (!grant.isWritePermission) {
-            throw DocumentTreeException(
-                DocumentWriteExceptionCodes.NOT_WRITABLE,
-                "The app's grant on the tree doesn't allow writing: ${request.treeUri}"
-            )
-        }
+        grantVerifier.verify(treeUri)
 
         val sourceUri = request.sourceUri.toUri()
         val fileName = DocumentPaths.name(request.path)
-        val folder = pathResolver.findOrCreateFolder(treeUri, DocumentPaths.parent(request.path))
-        val siblings = rowReader.readChildren(treeUri, folder.documentId)
-        val existing = siblings.firstOrNull { it.displayName == fileName }
-        if (existing != null && existing.isDirectory) {
-            throw DocumentTreeException(
-                DocumentWriteExceptionCodes.ALREADY_EXISTS,
-                "A folder is already at: ${request.path}"
+        val parentPath = DocumentPaths.parent(request.path)
+        val folder = pathResolver.findFolder(treeUri, parentPath)
+            ?: throw DocumentTreeException(
+                DocumentWriteExceptionCodes.NOT_FOUND,
+                "No folder is at: $parentPath"
             )
-        }
-        if (existing != null && !request.overwrite) {
+        if (rowReader.readChildren(treeUri, folder.documentId).any { it.displayName == fileName }) {
             throw DocumentTreeException(
                 DocumentWriteExceptionCodes.ALREADY_EXISTS,
-                "A file is already at: ${request.path}"
+                "A document is already at: ${request.path}"
             )
         }
 
         // Opened before anything is created, so a missing source leaves no trace.
         val document = openSource(sourceUri).use { input ->
-            val target = existing ?: creator.create(
+            val target = creator.create(
                 treeUri = treeUri,
                 parent = folder,
-                siblings = siblings,
                 mimeType = mimeTypeResolver.resolve(request.mimeType, fileName, sourceUri),
                 displayName = fileName,
             )
             try {
                 write(treeUri, target, input, request.path)
             } catch (e: Throwable) {
-                if (existing == null) {
-                    creator.delete(treeUri, target.documentId)
-                }
+                creator.delete(treeUri, target.documentId)
                 throw e
             }
             target
         }
 
         return@withContext rowReader.readDocument(treeUri, document.documentId)
-            .toInfo(treeUri, request.path, grant.isWritePermission)
+            .toInfo(treeUri, request.path, grantAllowsWriting = true)
     }
 
     private fun openSource(sourceUri: Uri): InputStream {
@@ -120,14 +101,13 @@ internal class DocumentCopyServiceImpl(
     }
 
     /**
-     * Writes [input] over the contents of [target], at [path] in [treeUri].
+     * Writes [input] into the new, empty [target], at [path] in [treeUri].
      */
     private suspend fun write(treeUri: Uri, target: DocumentRow, input: InputStream, path: String) {
         val targetUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, target.documentId)
         try {
-            // "wt" truncates, so an overwritten file doesn't keep a longer original's tail.
             val output = try {
-                contentResolver.openOutputStream(targetUri, "wt")
+                contentResolver.openOutputStream(targetUri, "w")
             } catch (e: SecurityException) {
                 throw DocumentTreeException(
                     DocumentWriteExceptionCodes.ACCESS_LOST,

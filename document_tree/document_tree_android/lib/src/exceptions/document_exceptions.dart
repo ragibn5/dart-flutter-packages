@@ -1,13 +1,13 @@
 import 'package:document_tree_android/src/exceptions/platform_exception_mapper.dart';
 import 'package:flutter/services.dart';
 
-/// A failure to list the documents in a tree.
+/// A failure to list or describe the documents in a tree.
 sealed class DocumentQueryException implements Exception {
   /// A description of the failure.
   String? get message;
 }
 
-/// A failure to write a document into a tree.
+/// A failure to create, copy, rename, move or delete a document in a tree.
 sealed class DocumentWriteException implements Exception {
   /// A description of the failure.
   String? get message;
@@ -39,6 +39,8 @@ sealed class _DocumentException implements Exception {
     SourcePermissionDeniedException() => '$SourcePermissionDeniedException',
     NotEnoughSpaceException() => '$NotEnoughSpaceException',
     DocumentWriteFailedException() => '$DocumentWriteFailedException',
+    DocumentOperationUnsupportedException() =>
+      '$DocumentOperationUnsupportedException',
   };
 }
 
@@ -62,15 +64,17 @@ final class InvalidQueryError extends _DocumentException
   const InvalidQueryError(super.message);
 }
 
-/// No folder is at the requested path.
+/// No document is at the requested path: no folder to list, write into or
+/// move into, or no document to rename, move or delete.
 final class DocumentNotFoundException extends _DocumentException
-    implements DocumentQueryException {
+    implements DocumentQueryException, DocumentWriteException {
   const DocumentNotFoundException(super.message);
 }
 
 /// The request is malformed: the source URI has no scheme, the tree URI isn't
-/// a tree's, the path doesn't name a file or has empty, `.` or `..` segments,
-/// or the MIME type is blank.
+/// a tree's, a path doesn't name a document or has empty, `.` or `..`
+/// segments, a name is empty, `.` or `..`, or has a `/`, the MIME type is
+/// blank, or a folder would be moved into itself.
 final class InvalidWriteError extends _DocumentException
     implements DocumentWriteException {
   const InvalidWriteError(super.message);
@@ -82,9 +86,7 @@ final class TreeNotWritableException extends _DocumentException
   const TreeNotWritableException(super.message);
 }
 
-/// A document is already where the write would go: a file, when overwriting
-/// wasn't asked for, a folder, or one whose name differs only in case. Also
-/// when a file is where a folder on the path should be.
+/// A document is already where the write would go.
 final class DocumentAlreadyExistsException extends _DocumentException
     implements DocumentWriteException {
   const DocumentAlreadyExistsException(super.message);
@@ -109,10 +111,18 @@ final class NotEnoughSpaceException extends _DocumentException
 }
 
 /// The write failed for another reason, such as an I/O error, or the provider
-/// refusing to create the document or naming it differently.
+/// refusing to create the document or naming it differently, such as when
+/// the name is taken by its rules, like a filesystem that ignores case.
 final class DocumentWriteFailedException extends _DocumentException
     implements DocumentWriteException {
   const DocumentWriteFailedException(super.message);
+}
+
+/// The document's provider doesn't support the operation, such as renaming or
+/// moving it.
+final class DocumentOperationUnsupportedException extends _DocumentException
+    implements DocumentWriteException {
+  const DocumentOperationUnsupportedException(super.message);
 }
 
 // Must match DocumentAccessExceptionCodes on the platform side.
@@ -147,6 +157,8 @@ class DocumentWriteExceptionMapper implements PlatformExceptionMapper {
   static const _sourcePermissionDeniedCode = 'source_permission_denied';
   static const _notEnoughSpaceCode = 'not_enough_space';
   static const _writeErrorCode = 'write_error';
+  static const _notFoundCode = 'not_found';
+  static const _unsupportedOperationCode = 'unsupported_operation';
 
   const DocumentWriteExceptionMapper();
 
@@ -162,6 +174,10 @@ class DocumentWriteExceptionMapper implements PlatformExceptionMapper {
       _sourcePermissionDeniedCode => SourcePermissionDeniedException(e.message),
       _notEnoughSpaceCode => NotEnoughSpaceException(e.message),
       _writeErrorCode => DocumentWriteFailedException(e.message),
+      _notFoundCode => DocumentNotFoundException(e.message),
+      _unsupportedOperationCode => DocumentOperationUnsupportedException(
+        e.message,
+      ),
       _ => e,
     };
   }

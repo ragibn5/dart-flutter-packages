@@ -20,15 +20,11 @@ internal data class CopyDocumentRequest(
     val treeUri: String,
     /**
      * Where to put the copy, relative to the tree's root, such as `DCIM/Camera/IMG_1.jpg`.
-     * The missing folders on the way are created.
+     * The folder holding it must exist, and nothing must be at it.
      */
     val path: String,
     /**
      * The copy's MIME type, or `null` to tell it from [path]'s extension, then from the source.
      */
     val mimeType: String? = null,
-    /**
-     * Whether to replace a file already at [path]; if not, the copy fails.
-     */
-    val overwrite: Boolean = false,
 )
