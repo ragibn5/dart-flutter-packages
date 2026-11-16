@@ -28,7 +28,7 @@ dependencies:
 dependencies:
   collection_utils:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: collection_utils
       ref: collection_utils-1.0.1
 ```

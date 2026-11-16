@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   analysis_server_plugin_core:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: analysis_server_plugin_core
       ref: analysis_server_plugin_core-1.1.5
 ```

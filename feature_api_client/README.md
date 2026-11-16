@@ -22,7 +22,7 @@ dependencies:
 dependencies:
   feature_api_client:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: feature_api_client
       ref: feature_api_client-2.0.0
 ```

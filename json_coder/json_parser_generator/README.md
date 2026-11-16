@@ -29,7 +29,7 @@ dev_dependencies:
 dependencies:
   json_parser_annotations:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: json_coder/json_parser_annotations
       ref: json_parser_annotations-1.0.1
 
@@ -37,7 +37,7 @@ dev_dependencies:
   build_runner: ^2.4.15
   json_parser_generator:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: json_coder/json_parser_generator
       ref: json_parser_generator-1.0.1
 ```

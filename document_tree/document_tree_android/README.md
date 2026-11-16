@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   document_tree_android:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: document_tree/document_tree_android
       ref: document_tree_android-1.0.0
 ```

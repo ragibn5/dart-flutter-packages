@@ -24,7 +24,7 @@ plugins:
 plugins:
   clean_arch_linter:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: clean_arch_linter
       ref: clean_arch_linter-2.0.5
     diagnostics:

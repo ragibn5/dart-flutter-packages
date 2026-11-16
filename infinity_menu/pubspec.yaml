@@ -1,9 +1,9 @@
 name: infinity_menu
 description: An infinitely customizable Menu for flutter apps with support for nested menu and much more.
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/infinity_menu
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/infinity_menu
 
 # Library version
 version: 2.0.1

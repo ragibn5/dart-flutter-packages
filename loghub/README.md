@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   loghub:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: loghub
       ref: loghub-1.0.1
 ```

@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   sqlite_db:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: sqlite_db
       ref: sqlite_db-1.0.0
 ```

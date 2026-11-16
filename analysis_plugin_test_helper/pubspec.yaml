@@ -1,9 +1,9 @@
 name: analysis_plugin_test_helper
 description: "Utilities for testing analyzer plugins: resolve Dart source and find the constructors, methods, imports and annotations in it."
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analysis_plugin_test_helper
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/analysis_plugin_test_helper
 
 # Library version
 version: 1.0.6

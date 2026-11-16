@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   user_provider_android:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: user_provider/user_provider_android
       ref: user_provider_android-1.0.0
 ```

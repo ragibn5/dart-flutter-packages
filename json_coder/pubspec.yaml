@@ -1,9 +1,9 @@
 name: json_coder
 description: A lightweight & flexible JSON parser for encoding and decoding data in Dart & Flutter applications.
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/json_coder
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/json_coder
 
 # Library version
 version: 1.0.1

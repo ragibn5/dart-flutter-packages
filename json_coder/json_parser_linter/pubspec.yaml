@@ -1,9 +1,9 @@
 name: json_parser_linter
 description: Analysis server plugin to enforce json_coder compatible structures.
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/json_coder/json_parser_linter
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/json_coder/json_parser_linter
 
 # Library version
 version: 1.0.5

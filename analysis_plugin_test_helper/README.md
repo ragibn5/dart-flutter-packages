@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   analysis_plugin_test_helper:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: analysis_plugin_test_helper
       ref: analysis_plugin_test_helper-1.0.6
 ```

@@ -1,9 +1,9 @@
 name: user_provider_android
 description: "Reads the Android identity of the running app: its process uid, the id of the user it runs under, and its app id."
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/user_provider/user_provider_android
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/user_provider/user_provider_android
 
 # Library version
 version: 1.0.0

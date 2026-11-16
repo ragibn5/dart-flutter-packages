@@ -1,9 +1,9 @@
 name: loghub
 description: A simple and extensible logging solution for dart and flutter apps with handy pre-built loggers.
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/loghub
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/loghub
 
 # Library version
 version: 1.0.1
