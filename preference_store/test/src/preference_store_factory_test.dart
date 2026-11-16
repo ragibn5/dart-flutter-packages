@@ -12,7 +12,10 @@ void main() {
     SharedPreferencesAsyncPlatform.instance =
         InMemorySharedPreferencesAsync.empty();
 
-    sut = const PreferenceStoreFactory();
+    // A const instance is built at compile time, so the constructor would
+    // never run and its line would count as uncovered.
+    // ignore: prefer_const_constructors
+    sut = PreferenceStoreFactory();
   });
 
   tearDown(() {

@@ -1,0 +1,3 @@
+# Layout and feedback settings: data holders, like models.
+exclude:
+  - lib/src/configs/*

@@ -7,12 +7,10 @@ class CachedStreamController<T> {
   T? _lastItem;
   final StreamController<T> _controller;
 
-  @visibleForTesting
-  CachedStreamController.test(StreamController<T> controller)
-      : _controller = controller;
-
   /// Create a single subscriber [CachedStreamController]
-  CachedStreamController.single() : this._(StreamController<T>());
+  CachedStreamController.single({
+    @visibleForTesting StreamController<T>? controller,
+  }) : this._(controller ?? StreamController<T>());
 
   /// Create a broadcast subscriber [CachedStreamController]
   CachedStreamController.broadcast() : this._(StreamController<T>.broadcast());

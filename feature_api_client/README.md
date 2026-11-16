@@ -1,6 +1,6 @@
 # feature_api_client
 
-A feature-based type-safe network client over [`net_client`](https://pub.dev/packages/net_client) package.
+A feature-based, type-safe API client over [`dio`](https://pub.dev/packages/dio).
 
 ## Installation
 
@@ -10,85 +10,87 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
+  dio: ^5.8.0+1
   dart_functionals: ^1.0.1
-  net_client: ^1.0.0
-  feature_api_client: ^1.0.0
+  net_models: ^1.0.0
+  feature_api_client: ^2.0.0
 ```
 
 #### Or, From Git repo
 
 ```yaml
 dependencies:
-  dart_functionals:
-    git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: dart_functionals
-      ref: dart_functionals-1.0.1
-  net_client:
-    git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
-      path: net_client
-      ref: net_client-1.0.0
   feature_api_client:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: feature_api_client
-      ref: feature_api_client-1.0.0
+      ref: feature_api_client-2.0.0
 ```
-
-> **Note:** Both `dart_functionals` and `net_client` are required.
 
 ## Get started
 
-This package is a thin, feature-based layer over [`net_client`](https://pub.dev/packages/net_client).
-
-You define typed request/response/error contracts per API feature, and the client handles issuing the request and decoding the response — plus uniform error mapping.
+Define a client per API feature, with typed request, response and error
+contracts. The client sends the request through `dio`, decodes what the server
+answers, and maps the failures with no answer to a `net_models` `ApiError`.
 
 ### Define a feature client
 
-Extend `FeatureApiClient<Req, Res, Err>` and implement its two contracts:
+Extend `FeatureApiClient<Req, Res, Err>` and implement:
 
-- `createRequest`: Create the request specification.
-- `decodeResponse`: Decode the raw response to the expected type.
+- `send`: Send the request through the given `Dio`, with any of its options
+  (query parameters, multipart, progress, cancel tokens).
+- `decodeResponse`: Decode what the server answered, whatever its status: the
+  `Res` on success, the `Err` otherwise.
 
 ```dart
-class UserClient extends FeatureApiClient<GetUserRequest, UserResponse, AppError> {
-  UserClient(super.client);
+class UserClient extends FeatureApiClient<GetUserRequest, User, ServerMessage> {
+  UserClient(super.dio);
 
   @override
-  RequestSpec createRequest(GetUserRequest body) =>
-      RequestSpec(
-        pathOrUrl: 'https://api.example.com/users/${body.id}',
-        method: HttpMethod.GET,
-      );
+  Future<Response<Object?>> send(Dio dio, GetUserRequest body) =>
+      dio.get<Object?>('/users/${body.id}');
 
   @override
-  ApiResponse<AppError, UserResponse> decodeResponse(
-    NetClientResponse response,
-  ) =>
-      SuccessResponse(
-        data: UserResponse.fromJson(response.data),
-        statusCode: response.statusCode,
-        headers: response.headers,
+  ApiResponse<ServerMessage, User> decodeResponse(Response<Object?> response) {
+    final json = response.data! as Map<String, dynamic>;
+    final statusCode = response.statusCode!;
+    if (statusCode >= 400) {
+      return FailureResponse(
+        error: ServerMessage.fromJson(json),
+        statusCode: statusCode,
+        headers: response.headers.map,
       );
+    }
+    return SuccessResponse(
+      data: User.fromJson(json),
+      statusCode: statusCode,
+      headers: response.headers.map,
+    );
+  }
 }
 ```
 
-### 3. Make the call
+### Make the call
 
 ```dart
-void main() async {
-  // ...
+final client = UserClient(dio);
 
-  final client = UserClient(netClient);
-
-  final result = await client.request(GetUserRequest(id: '42'));
-  result.fold(
-    onSuccess: (response) => print('User: ${response.data}'),
-    onFailure: (error) => print('Failed: $error'),
-  );
-}
+final result = await client.request(GetUserRequest('42'));
+result.fold(
+  onLeft: (error) => print('No answer: $error'),
+  onRight: (response) => response.fold(
+    onFailure: (message) => print('Server error: $message'),
+    onSuccess: (user) => print('User: $user'),
+  ),
+);
 ```
+
+`request` never throws:
+
+- **No answer** (a timeout, no connection, a cancellation): the `ApiError`
+  from `DioExceptionTransformer`.
+- **An answer, whatever its status:** what `decodeResponse` made of it.
+- **An answer `decodeResponse` couldn't decode:** an `UnexpectedError`.
 
 ## Example
 

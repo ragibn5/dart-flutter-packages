@@ -58,11 +58,11 @@ void main() {
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
 
-    sut = FromJsonConstructorVisitor.test(
+    sut = FromJsonConstructorVisitor(
       mockRule,
-      visitorConfig,
       mockSessionContext,
-      CollectionTypeResolverFactory.create(),
+      visitorConfig: visitorConfig,
+      collectionTypeResolver: CollectionTypeResolverFactory.create(),
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);
@@ -210,11 +210,11 @@ void main() {
   test(
     'Reports nothing when fromJson factory uses typedef for parameter type',
     () async {
-      final localSUT = FromJsonConstructorVisitor.test(
+      final localSUT = FromJsonConstructorVisitor(
         mockRule,
-        visitorConfig,
         mockSessionContext,
-        CollectionTypeResolverFactory.create(),
+        visitorConfig: visitorConfig,
+        collectionTypeResolver: CollectionTypeResolverFactory.create(),
       );
 
       final resolved = await dartResolver.resolveSource('''
@@ -234,6 +234,34 @@ void main() {
       localSUT.visit(constructorDeclaration);
 
       verifyNoReports(mockRule);
+    },
+  );
+
+  test(
+    'visitShouldReportTheDeclarationIfAnOptionalParameterIsAFieldFormal',
+    () async {
+      final resolved = await dartResolver.resolveSource('''
+      class MyModel {
+        final Map<String, dynamic> map;
+
+        factory MyModel.fromJson([this.map = const {}]) => MyModel();
+        Map<String, dynamic> toJson() => {};
+      }
+      ''');
+
+      final constructorDeclaration = getFactoryConstructorDeclaration(
+        resolved.unit,
+        'fromJson',
+      );
+
+      sut.visit(constructorDeclaration);
+
+      verify(
+        () => mockRule.reportAtNode(
+          any(),
+          arguments: [visitorConfig.wrongParamDeclarationTypeContextMessage],
+        ),
+      ).called(1);
     },
   );
 }

@@ -58,9 +58,9 @@ void main() {
     mockDefaultConfigOptions = _MockDefaultConfigOptions();
     mockConfigSourceProvider = _MockConfigSourceProvider();
 
-    sut = JsonParserLinterConfigLoader.test(
-      mockDefaultConfigOptions,
-      mockConfigSourceProvider,
+    sut = JsonParserLinterConfigLoader(
+      defaultConfigOptions: mockDefaultConfigOptions,
+      configSourceProvider: mockConfigSourceProvider,
     );
 
     when(() => mockPackageInfo.name).thenReturn(packageName);

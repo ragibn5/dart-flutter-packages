@@ -1,0 +1,45 @@
+name: document_tree_android
+description: "Reads and writes folders the user picks, through Android's Storage Access Framework."
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/document_tree/document_tree_android
+
+# Library version
+version: 1.0.0
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.11.0
+  flutter: '>=3.3.0'
+
+# Resolved with the rest of the repository; see the root pubspec.
+resolution: workspace
+
+# Regular dependencies
+# (Bundled in executable artifact)
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.12.0
+  equatable: ^2.0.8
+  json_annotation: ^4.9.0
+  plugin_platform_interface: ^2.0.2
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  very_good_analysis: ^7.0.0
+  build_runner: ^2.4.15
+  json_serializable: ^6.9.4
+
+# The following section is specific to Flutter packages.
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.ragibn5.document.tree.document_tree_android
+        pluginClass: DocumentTreeAndroidPlugin

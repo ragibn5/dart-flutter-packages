@@ -83,9 +83,9 @@ void main() {
     mockDefaultConfigOptions = _MockDefaultConfigOptions();
     mockConfigSourceProvider = _MockConfigSourceProvider();
 
-    sut = CleanArchLinterConfigLoader.test(
-      mockDefaultConfigOptions,
-      mockConfigSourceProvider,
+    sut = CleanArchLinterConfigLoader(
+      defaultConfigOptions: mockDefaultConfigOptions,
+      configSourceProvider: mockConfigSourceProvider,
     );
 
     when(() => mockPackageInfo.name).thenReturn(packageName);
@@ -447,4 +447,19 @@ void main() {
       );
     },
   );
+
+  test('loadPluginConfigShouldUseEmptyListsIfARuleSectionHasNoList', () {
+    when(() => mockConfigFile.readAsStringSync()).thenReturn('''
+      rules:
+        cross_layer_import:
+          unrelated_option: true
+        third_party_import:
+          unrelated_option: true
+      ''');
+
+    final config = sut.loadPluginConfig(mockRuleContext, mockPackageInfo);
+
+    expect(config.crossLayerConfig.excludedProjectPaths, isEmpty);
+    expect(config.thirdPartyConfig.excludedLibraryPackages, isEmpty);
+  });
 }

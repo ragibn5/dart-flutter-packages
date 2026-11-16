@@ -63,4 +63,60 @@ void main() {
       );
     },
   );
+
+  test('findMethodDeclarationShouldFindTheMethodIfItIsInAMixin', () async {
+    final resolved = await resolver.resolveSource('''
+    mixin MyMixin {
+      void myMethod() {}
+    }
+    ''');
+
+    expect(findMethodDeclaration(resolved.unit, 'myMethod'), isNotNull);
+  });
+
+  test('findMethodDeclarationShouldFindTheMethodIfItIsInAnExtension', () async {
+    final resolved = await resolver.resolveSource('''
+    extension MyExtension on int {
+      void myMethod() {}
+    }
+    ''');
+
+    expect(findMethodDeclaration(resolved.unit, 'myMethod'), isNotNull);
+  });
+
+  test(
+    'findMethodDeclarationShouldFindTheMethodIfItIsInAnExtensionType',
+    () async {
+      final resolved = await resolver.resolveSource('''
+    extension type MyId(int value) {
+      void myMethod() {}
+    }
+    ''');
+
+      expect(findMethodDeclaration(resolved.unit, 'myMethod'), isNotNull);
+    },
+  );
+
+  test('findMethodDeclarationShouldFindTheMethodIfItIsInAnEnum', () async {
+    final resolved = await resolver.resolveSource('''
+    enum MyEnum {
+      a;
+
+      void myMethod() {}
+    }
+    ''');
+
+    expect(findMethodDeclaration(resolved.unit, 'myMethod'), isNotNull);
+  });
+
+  test(
+    'findMethodDeclarationShouldReturnNullIfOnlyATopLevelFunctionHasTheName',
+    () async {
+      final resolved = await resolver.resolveSource('''
+    void myMethod() {}
+    ''');
+
+      expect(findMethodDeclaration(resolved.unit, 'myMethod'), isNull);
+    },
+  );
 }

@@ -3,3 +3,8 @@ build/
 
 # FVM Version Cache
 .fvm/
+# Dart workspace and test output
+.dart_tool/
+# Coverage output only: source folders can be named coverage too.
+**/coverage/lcov.info
+**/coverage/**/*.vm.json

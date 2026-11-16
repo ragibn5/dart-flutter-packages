@@ -7,9 +7,13 @@ sealed class Result<F, S> {
     return switch (self) {
       Failure<F>() => onFailure(self.f),
       Success<S>() => onSuccess(self.s),
+      // Unreachable: the class is sealed, but the analyzer can't tell
+      // with generics, so the switch needs this arm.
+      // coverage:ignore-start
       _ => throw StateError(
           'Invalid state: expected Failure or Success',
         ),
+      // coverage:ignore-end
     };
   }
 
@@ -24,9 +28,13 @@ sealed class Result<F, S> {
       Success<S>() => throw StateError(
           'Expected Failure, but was Success(${self.s})',
         ),
+      // Unreachable: the class is sealed, but the analyzer can't tell
+      // with generics, so the switch needs this arm.
+      // coverage:ignore-start
       _ => throw StateError(
           'Invalid state: expected Failure or Success',
         ),
+      // coverage:ignore-end
     };
   }
 
@@ -37,9 +45,13 @@ sealed class Result<F, S> {
       Failure<F>() => throw StateError(
           'Expected Success, but was Failure(${self.f})',
         ),
+      // Unreachable: the class is sealed, but the analyzer can't tell
+      // with generics, so the switch needs this arm.
+      // coverage:ignore-start
       _ => throw StateError(
           'Invalid state: expected Failure or Success',
         ),
+      // coverage:ignore-end
     };
   }
 }

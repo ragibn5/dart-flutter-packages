@@ -65,7 +65,8 @@ void main() {
     final levels = {LogLevel.DEBUG, LogLevel.INFO};
     final ids = {'logger1', 'logger2'};
 
-    final testController = DefaultLogPolicyController.test(tags, levels, ids);
+    final testController = DefaultLogPolicyController(
+        blockedTags: tags, blockedLevels: levels, blockedLoggerIds: ids);
 
     expect(testController.currentPolicy.blockedTags, equals(tags));
     expect(testController.currentPolicy.blockedLevels, equals(levels));

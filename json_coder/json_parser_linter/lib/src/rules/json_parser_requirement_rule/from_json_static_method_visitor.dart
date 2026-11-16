@@ -45,29 +45,13 @@ class FromJsonStaticMethodVisitor {
   final CollectionTypeResolver _collectionTypeResolver;
 
   FromJsonStaticMethodVisitor(
-    AnalysisRule rule,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-  ) : this._(
-        rule,
-        FromJsonStaticMethodVisitorConfig(),
-        sessionContext,
-        CollectionTypeResolverFactory.create(),
-      );
-
-  @visibleForTesting
-  FromJsonStaticMethodVisitor.test(
-    AnalysisRule rule,
-    FromJsonStaticMethodVisitorConfig visitorConfig,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-    CollectionTypeResolver collectionTypeResolver,
-  ) : this._(rule, visitorConfig, sessionContext, collectionTypeResolver);
-
-  FromJsonStaticMethodVisitor._(
     this.rule,
-    this.visitorConfig,
-    this.sessionContext,
-    this._collectionTypeResolver,
-  );
+    this.sessionContext, {
+    @visibleForTesting FromJsonStaticMethodVisitorConfig? visitorConfig,
+    @visibleForTesting CollectionTypeResolver? collectionTypeResolver,
+  }) : visitorConfig = visitorConfig ?? FromJsonStaticMethodVisitorConfig(),
+       _collectionTypeResolver =
+           collectionTypeResolver ?? CollectionTypeResolverFactory.create();
 
   void visit(
     MethodDeclaration fromJsonMethod,
@@ -91,6 +75,9 @@ class FromJsonStaticMethodVisitor {
 
   void _checkParamType(MethodDeclaration fromJsonMethod) {
     final params = fromJsonMethod.parameters?.parameters;
+    // Unreachable: visit returns early for getters, the only methods without
+    // parameters. Kept for certainty.
+    // coverage:ignore-start
     if (params == null) {
       rule.reportAtToken(
         fromJsonMethod.name,
@@ -104,6 +91,7 @@ class FromJsonStaticMethodVisitor {
       // needed. So, will return.
       return;
     }
+    // coverage:ignore-end
 
     if (params.length != 1) {
       rule.reportAtNode(
@@ -183,17 +171,17 @@ class FromJsonStaticMethodVisitor {
   }
 
   bool _isValidParam(FormalParameter param) {
+    // An optional parameter, such as `[this.json]`, comes wrapped.
+    final actual = param is DefaultFormalParameter ? param.parameter : param;
     return param.isPositional &&
-        param is! FieldFormalParameter &&
-        param is! SuperFormalParameter;
+        actual is! FieldFormalParameter &&
+        actual is! SuperFormalParameter;
   }
 
   TypeAnnotation? _parameterType(FormalParameter param) {
     final actual = param is DefaultFormalParameter ? param.parameter : param;
     return switch (actual) {
       final SimpleFormalParameter p => p.type,
-      final FieldFormalParameter p => p.type,
-      final SuperFormalParameter p => p.type,
       _ => null,
     };
   }

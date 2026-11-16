@@ -18,13 +18,10 @@ class SessionDataFactoryImpl implements SessionDataFactory {
   final Directory _currentDirectory;
   final ContextConfigLoader _configLoader;
 
-  SessionDataFactoryImpl(ContextConfigLoader configLoader)
-    : this._(Directory.current, configLoader);
-
-  @visibleForTesting
-  SessionDataFactoryImpl.test(this._currentDirectory, this._configLoader);
-
-  SessionDataFactoryImpl._(this._currentDirectory, this._configLoader);
+  SessionDataFactoryImpl(
+    this._configLoader, {
+    @visibleForTesting Directory? currentDirectory,
+  }) : _currentDirectory = currentDirectory ?? Directory.current;
 
   @override
   Future<SessionData> createSessionData(BuildStep buildStep) async {

@@ -5,13 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreferencesStore implements PreferenceStore {
   final SharedPreferencesAsync _preferences;
 
-  SharedPreferencesStore() : this._(SharedPreferencesAsync());
-
-  @visibleForTesting
-  SharedPreferencesStore.test(SharedPreferencesAsync preferences)
-    : this._(preferences);
-
-  SharedPreferencesStore._(this._preferences);
+  SharedPreferencesStore({
+    @visibleForTesting SharedPreferencesAsync? preferences,
+  }) : _preferences = preferences ?? SharedPreferencesAsync();
 
   @override
   Future<bool> containsKey(String key) {

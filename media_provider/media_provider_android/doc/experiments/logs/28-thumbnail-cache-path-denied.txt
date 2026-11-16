@@ -1,0 +1,21 @@
+# Thumbnail cache files read by path from the app (dart:io), then openThumbnailReadSession, profile build, 2026-10-25.
+# Cache files exist (Pictures/.thumbnails/<id>.jpg, Movies/.thumbnails/<id>.jpg, owned by MediaProvider, .nomedia; MD5 equal to our thumbnail reads) but the app gets EACCES.
+I/flutter ( 7660): [IMPORTANT:flutter/shell/platform/android/android_context_vk_impeller.cc(62)] Using the Impeller rendering backend (Vulkan).
+I/flutter ( 7660): 2026-10-25 01:13:10.338571       INFO     Routing: / -> /
+I/flutter ( 7660): 2026-10-25 01:13:10.344554       INFO     Routing: /home -> /home
+I/flutter ( 7660): === Thumbnail path (photo): /storage/emulated/0/Pictures/.thumbnails/1000000127.jpg
+I/flutter ( 7660): === Thumbnail path (photo) run 1: FAILED OS Error: Permission denied, errno = 13
+I/flutter ( 7660): === Thumbnail path (photo) run 2: FAILED OS Error: Permission denied, errno = 13
+I/flutter ( 7660): === Thumbnail path (photo) run 3: FAILED OS Error: Permission denied, errno = 13
+I/flutter ( 7660): === Thumbnail path (video): /storage/emulated/0/Movies/.thumbnails/1000011695.jpg
+I/flutter ( 7660): === Thumbnail path (video) run 1: FAILED OS Error: Permission denied, errno = 13
+I/flutter ( 7660): === Thumbnail path (video) run 2: FAILED OS Error: Permission denied, errno = 13
+I/flutter ( 7660): === Thumbnail path (video) run 3: FAILED OS Error: Permission denied, errno = 13
+I/flutter ( 7660): === Thumbnail (photo): content://media/external/images/media/1000000127, item 204488 bytes, requested 256x256
+I/flutter ( 7660): === Thumbnail (photo) run 1 - session local-1: open 27.2ms, read 2.8ms, reported 124929 bytes, read 124929 bytes, jpeg true
+I/flutter ( 7660): === Thumbnail (photo) run 2 - session local-2: open 10.8ms, read 2.0ms, reported 124929 bytes, read 124929 bytes, jpeg true
+I/flutter ( 7660): === Thumbnail (photo) run 3 - session local-3: open 10.1ms, read 2.6ms, reported 124929 bytes, read 124929 bytes, jpeg true
+I/flutter ( 7660): === Thumbnail (video): content://media/external/video/media/1000011695, item 392674791 bytes, requested 256x256
+I/flutter ( 7660): === Thumbnail (video) run 1 - session local-4: open 13.0ms, read 2.1ms, reported 41352 bytes, read 41352 bytes, jpeg true
+I/flutter ( 7660): === Thumbnail (video) run 2 - session local-5: open 9.1ms, read 2.6ms, reported 41352 bytes, read 41352 bytes, jpeg true
+I/flutter ( 7660): === Thumbnail (video) run 3 - session local-6: open 6.6ms, read 1.2ms, reported 41352 bytes, read 41352 bytes, jpeg true

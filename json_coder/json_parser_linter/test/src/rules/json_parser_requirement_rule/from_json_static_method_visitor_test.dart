@@ -66,11 +66,11 @@ void main() {
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
 
-    sut = FromJsonStaticMethodVisitor.test(
+    sut = FromJsonStaticMethodVisitor(
       mockRule,
-      visitorConfig,
       mockSessionContext,
-      CollectionTypeResolverFactory.create(),
+      visitorConfig: visitorConfig,
+      collectionTypeResolver: CollectionTypeResolverFactory.create(),
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);

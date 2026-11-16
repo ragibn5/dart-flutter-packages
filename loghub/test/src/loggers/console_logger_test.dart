@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:loghub/src/constants/log_level.dart';
 import 'package:loghub/src/loggers/console_logger.dart';
 import 'package:loghub/src/models/log_data.dart';
+import 'package:loghub/src/services/default_log_formatter.dart';
 import 'package:loghub/src/services/log_formatter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -26,7 +27,7 @@ void main() {
   setUp(() {
     mockFormatter = _MockFormatter();
 
-    sut = ConsoleLogger.test(mockFormatter);
+    sut = ConsoleLogger(formatter: mockFormatter);
 
     when(() => mockFormatter.format(any())).thenReturn(formattedMessage);
   });
@@ -61,5 +62,24 @@ void main() {
 
     expect(printed.length, 2);
     verify(() => mockFormatter.format(any())).called(2);
+  });
+
+  test('publicConstructorShouldPrintWithTheDefaultFormatterIfNoneIsGiven', () {
+    final data = LogData(
+      level: LogLevel.INFO,
+      stamp: DateTime(2026, 11, 14),
+      message: 'message',
+      tag: tag,
+    );
+    final printed = <String>[];
+
+    runZoned(
+      () => ConsoleLogger().log(data),
+      zoneSpecification: ZoneSpecification(
+        print: (_, __, ___, line) => printed.add(line),
+      ),
+    );
+
+    expect(printed, [const DefaultLogFormatter().format(data)]);
   });
 }

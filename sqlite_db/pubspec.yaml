@@ -12,6 +12,9 @@ version: 1.0.0
 environment:
   sdk: ^3.11.0
 
+# Resolved with the rest of the repository; see the root pubspec.
+resolution: workspace
+
 # Regular dependencies
 dependencies:
   flutter:
@@ -26,6 +29,5 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.5
-  lints: ^3.0.0
   sqflite_common: ^2.5.8
-  very_good_analysis: ^5.1.0
+  very_good_analysis: ^7.0.0

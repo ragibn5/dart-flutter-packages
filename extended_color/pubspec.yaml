@@ -1,0 +1,30 @@
+name: extended_color
+description: Useful utils and extensions over Flutter's built-in `Color` data type.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/extended_color
+
+# Library version
+version: 1.0.0
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.6.0
+  flutter: ">=1.17.0"
+
+# Resolved with the rest of the repository; see the root pubspec.
+resolution: workspace
+
+# Regular dependencies
+# (Bundled in executable artifact)
+dependencies:
+  flutter:
+    sdk: flutter
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^7.0.0

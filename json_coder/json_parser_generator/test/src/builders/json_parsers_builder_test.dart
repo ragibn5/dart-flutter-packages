@@ -154,4 +154,31 @@ void main() {
     expect(writtenId.package, 'example');
     expect(writtenId.path, config.outputPathRelativeToPackageRoot);
   });
+
+  test('buildShouldWriteARegistryForEachRegistryKeyIfClassesHaveOne', () async {
+    final classElement = _MockClassElement();
+    final libraryElement = _MockLibraryElement();
+
+    when(() => classElement.displayName).thenReturn('User');
+    when(() => classElement.library).thenReturn(libraryElement);
+    when(
+      () => libraryElement.uri,
+    ).thenReturn(Uri.parse('package:example/user.dart'));
+
+    when(() => mockGJPAnnotationReader.read([])).thenReturn([
+      GJPAnnotatedClass(
+        element: classElement,
+        config: const GJPAnnotationConfig(registryKeys: {'api'}),
+      ),
+    ]);
+
+    await sut.build(mockBuildStep);
+
+    final written =
+        verify(
+              () => mockBuildStep.writeAsString(any(), captureAny()),
+            ).captured.single
+            as String;
+    expect(written, contains('class ApiJsonParserRegistry'));
+  });
 }

@@ -1,0 +1,30 @@
+name: Workspace checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  workspace-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - name: Install lcov for the coverage check
+        run: sudo apt-get update && sudo apt-get install -y lcov
+
+      - name: Set up the workspace
+        run: make setup
+
+      - name: Analyze the changed packages and their dependents
+        run: dart run melos run analyze --no-select --diff=${{ github.event.pull_request.base.sha }} --include-dependents
+
+      - name: Check coverage of the changed packages and their dependents
+        run: dart run melos run coverage --no-select --diff=${{ github.event.pull_request.base.sha }} --include-dependents

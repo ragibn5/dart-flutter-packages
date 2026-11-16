@@ -29,7 +29,7 @@ void main() {
     mockClassElement = _MockClassElement();
     mockLibraryElement = _MockLibraryElement();
 
-    generator = const ParserClassGenerator.test(config);
+    generator = const ParserClassGenerator();
 
     when(() => mockClassElement.displayName).thenReturn('User');
     when(() => mockClassElement.library).thenReturn(mockLibraryElement);

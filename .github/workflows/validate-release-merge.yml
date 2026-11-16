@@ -1,8 +1,7 @@
-name: Validate release for merge
+name: Validate release merge
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
     branches:
       - main
 
@@ -12,15 +11,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
-      - name: Validate release branch
-        run: |
-          BRANCH="${{ github.head_ref }}"
-          source scripts/publish_utils.sh
-          branch_info=$(parse_release_branch "$BRANCH") || {
-            echo "Error: Branch '$BRANCH' does not match format release/<package-path>-<version>"
-            exit 1
-          }
-          PKG_PATH=$(echo "$branch_info" | cut -d' ' -f1)
-          validate_package_path "$PKG_PATH" || exit 1
-          echo "Branch name and package validated."
+      - name: Set up the workspace
+        run: make setup
+
+      - name: Dry-run publishing the packages whose versions are unpublished
+        run: dart run melos publish --yes

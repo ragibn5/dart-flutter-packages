@@ -6,11 +6,14 @@ issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
 homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/json_coder/json_parser_linter
 
 # Library version
-version: 1.0.4
+version: 1.0.5
 
 # Range of compatible SDK versions
 environment:
   sdk: ^3.11.0
+
+# Resolved with the rest of the repository; see the root pubspec.
+resolution: workspace
 
 # Regular dependencies
 # (Bundled in executable artifact)
@@ -28,6 +31,5 @@ dependencies:
 dev_dependencies:
   test: ^1.25.6
   mocktail: ^1.0.4
-  lints: ^6.0.0
   very_good_analysis: ^7.0.0
   analysis_plugin_test_helper: ^1.0.5

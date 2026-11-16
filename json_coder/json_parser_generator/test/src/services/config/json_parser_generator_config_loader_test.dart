@@ -52,9 +52,9 @@ void main() {
   test(
     'Should return config with default LogConfig when no log_config is provided',
     () async {
-      final sut = JsonParserGeneratorConfigLoader.test(
+      final sut = JsonParserGeneratorConfigLoader(
         BuilderOptions.empty,
-        defaultConfigOptions,
+        defaultConfigOptions: defaultConfigOptions,
       );
 
       final result = await sut.loadConfig(mockBuildStep);
@@ -90,9 +90,9 @@ void main() {
   test(
     'Should return config with default LogConfig when log_config is not a Map',
     () async {
-      final sut = JsonParserGeneratorConfigLoader.test(
+      final sut = JsonParserGeneratorConfigLoader(
         const BuilderOptions({'log_config': 'invalid'}),
-        defaultConfigOptions,
+        defaultConfigOptions: defaultConfigOptions,
       );
 
       final result = await sut.loadConfig(mockBuildStep);
@@ -128,7 +128,7 @@ void main() {
   test(
     'Should return config with provided LogConfig values when log_config is valid',
     () async {
-      final sut = JsonParserGeneratorConfigLoader.test(
+      final sut = JsonParserGeneratorConfigLoader(
         const BuilderOptions({
           'log_config': {
             'enabled': true,
@@ -138,7 +138,7 @@ void main() {
             'log_dir_relative_path': 'custom/log/dir',
           },
         }),
-        defaultConfigOptions,
+        defaultConfigOptions: defaultConfigOptions,
       );
 
       final result = await sut.loadConfig(mockBuildStep);
@@ -172,11 +172,11 @@ void main() {
   );
 
   test('Should normalize mixed separators in log_dir_relative_path', () async {
-    final sut = JsonParserGeneratorConfigLoader.test(
+    final sut = JsonParserGeneratorConfigLoader(
       const BuilderOptions({
         'log_config': {'log_dir_relative_path': r'custom\log/dir'},
       }),
-      defaultConfigOptions,
+      defaultConfigOptions: defaultConfigOptions,
     );
 
     final result = await sut.loadConfig(mockBuildStep);
@@ -194,9 +194,9 @@ void main() {
   test(
     'Should fall back to defaults for missing keys within log_config',
     () async {
-      final sut = JsonParserGeneratorConfigLoader.test(
+      final sut = JsonParserGeneratorConfigLoader(
         const BuilderOptions({'log_config': <String, dynamic>{}}),
-        defaultConfigOptions,
+        defaultConfigOptions: defaultConfigOptions,
       );
 
       final result = await sut.loadConfig(mockBuildStep);
@@ -232,7 +232,7 @@ void main() {
   test(
     'Should fall back to defaults when log_config values have wrong types',
     () async {
-      final sut = JsonParserGeneratorConfigLoader.test(
+      final sut = JsonParserGeneratorConfigLoader(
         const BuilderOptions({
           'log_config': {
             'enabled': 'not_a_bool',
@@ -242,7 +242,7 @@ void main() {
             'log_dir_relative_path': 42,
           },
         }),
-        defaultConfigOptions,
+        defaultConfigOptions: defaultConfigOptions,
       );
 
       final result = await sut.loadConfig(mockBuildStep);
@@ -274,4 +274,31 @@ void main() {
       );
     },
   );
+
+  test('loadConfigShouldKeepTheTrailingSeparatorIfTheLogPathHasOne', () async {
+    final sut = JsonParserGeneratorConfigLoader(
+      const BuilderOptions({
+        'log_config': {'log_dir_relative_path': 'custom/log/'},
+      }),
+      defaultConfigOptions: defaultConfigOptions,
+    );
+
+    final result = await sut.loadConfig(mockBuildStep);
+
+    expect(
+      result.logConfig.logDirectoryRelativePathFromCurrentDir,
+      '${path.normalize('custom/log')}${path.separator}',
+    );
+  });
+
+  test('publicConstructorShouldUseTheDefaultLogDirectoryIfNoneIsSet', () async {
+    final sut = JsonParserGeneratorConfigLoader(BuilderOptions.empty);
+
+    final result = await sut.loadConfig(mockBuildStep);
+
+    expect(
+      result.logConfig.logDirectoryRelativePathFromCurrentDir,
+      defaultLogDir,
+    );
+  });
 }

@@ -58,27 +58,23 @@ class SessionLoggerImpl implements SessionLogger {
   final CompositeLogger _compositeLogger;
 
   bool _enabled;
-  Set<SessionLogLevel> _allowedLevels;
+  final Set<SessionLogLevel> _allowedLevels;
 
-  SessionLoggerImpl(Map<String, Logger> loggers)
-    : this._(CompositeLogger(loggers.map(MapEntry.new), []), true, {
-        SessionLogLevel.INFO,
-        SessionLogLevel.WARNING,
-        SessionLogLevel.ERROR,
-      });
-
-  @visibleForTesting
-  SessionLoggerImpl.test(
-    CompositeLogger compositeLogger, {
-    required bool enabled,
-    required Set<SessionLogLevel> allowedLevels,
-  }) : this._(compositeLogger, enabled, allowedLevels);
-
-  SessionLoggerImpl._(
-    this._compositeLogger,
-    this._enabled,
-    this._allowedLevels,
-  );
+  SessionLoggerImpl(
+    Map<String, Logger> loggers, {
+    @visibleForTesting CompositeLogger? compositeLogger,
+    @visibleForTesting bool enabled = true,
+    @visibleForTesting Set<SessionLogLevel>? allowedLevels,
+  }) : _compositeLogger =
+           compositeLogger ?? CompositeLogger(loggers.map(MapEntry.new), []),
+       _enabled = enabled,
+       _allowedLevels =
+           allowedLevels ??
+           {
+             SessionLogLevel.INFO,
+             SessionLogLevel.WARNING,
+             SessionLogLevel.ERROR,
+           };
 
   @override
   @visibleForTesting

@@ -1,92 +1,139 @@
+import 'dart:typed_data';
+
 import 'package:dart_functionals/dart_functionals.dart';
+import 'package:dio/dio.dart';
 import 'package:feature_api_client/feature_api_client.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:net_client/net_client.dart';
 import 'package:net_models/net_models.dart';
 import 'package:test/test.dart';
 
-class _MockNetClient extends Mock implements NetClient {}
+class _MockDioExceptionTransformer extends Mock
+    implements DioExceptionTransformer {}
 
-class _TestApiClient extends FeatureApiClient<String, int, String> {
-  _TestApiClient(super.client);
+/// Answers every request with [respond].
+class _FakeAdapter implements HttpClientAdapter {
+  final ResponseBody Function(RequestOptions) respond;
+
+  _FakeAdapter(this.respond);
 
   @override
-  RequestSpec createRequest(String body) {
-    return RequestSpec(pathOrUrl: body, method: HttpMethod.GET);
-  }
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async =>
+      respond(options);
 
   @override
-  ApiResponse<String, int> decodeResponse(NetClientResponse response) {
+  void close({bool force = false}) {}
+}
+
+/// Sends a GET to the path it's given, and decodes the body as text: the
+/// response on success, the error otherwise.
+class _TestApiClient extends FeatureApiClient<String, String, String> {
+  _TestApiClient(super.dio, {super.exceptionTransformer});
+
+  @override
+  Future<Response<Object?>> send(Dio dio, String body) =>
+      dio.get<Object?>(body);
+
+  @override
+  ApiResponse<String, String> decodeResponse(Response<Object?> response) {
+    final statusCode = response.statusCode!;
+    final data = response.data! as String;
+    if (statusCode >= 400) {
+      return FailureResponse(
+        error: data,
+        statusCode: statusCode,
+        headers: response.headers.map,
+      );
+    }
     return SuccessResponse(
-      data: response.statusCode,
-      statusCode: response.statusCode,
-      headers: response.headers,
+      data: data,
+      statusCode: statusCode,
+      headers: response.headers.map,
     );
   }
 }
 
 void main() {
-  final requestSpec = RequestSpec(pathOrUrl: '/test', method: HttpMethod.GET);
-
-  late _MockNetClient mockClient;
-
-  late _TestApiClient sut;
+  late _MockDioExceptionTransformer mockTransformer;
 
   setUpAll(() {
-    registerFallbackValue(RequestSpec(pathOrUrl: '', method: HttpMethod.GET));
-    registerFallbackValue(const DefaultResponseClassifier());
+    registerFallbackValue(DioException(requestOptions: RequestOptions()));
   });
 
   setUp(() {
-    mockClient = _MockNetClient();
-    sut = _TestApiClient(mockClient);
+    mockTransformer = _MockDioExceptionTransformer();
   });
 
-  test('Should return Right with decoded response on success', () async {
-    const statusCode = 200;
-    final netKitResponse = NetClientResponse(
-      isError: false,
-      statusCode: statusCode,
-      data: null,
-      headers: {},
-      requestSpec: requestSpec,
-    );
-    when(
-      () => mockClient.execute(
-        spec: any(named: 'spec'),
-        onSendProgress: any(named: 'onSendProgress'),
-        onReceiveProgress: any(named: 'onReceiveProgress'),
-        requestCanceller: any(named: 'requestCanceller'),
-        responseClassifier: any(named: 'responseClassifier'),
-      ),
-    ).thenAnswer((_) async => Success(netKitResponse));
+  _TestApiClient build(ResponseBody Function(RequestOptions) respond) {
+    final dio = Dio(BaseOptions(baseUrl: 'https://example.com'))
+      ..httpClientAdapter = _FakeAdapter(respond);
+    return _TestApiClient(dio, exceptionTransformer: mockTransformer);
+  }
 
-    final result = await sut.request('/test');
+  ApiResponse<String, String> decoded(
+    Either<ApiError, ApiResponse<String, String>> result,
+  ) =>
+      result.fold(
+        onLeft: (e) => throw StateError('Expected a response, got $e'),
+        onRight: (r) => r,
+      );
 
-    expect(result.isRight, true);
-    final apiResponse = result.rightOrThrow;
-    expect(apiResponse, isA<SuccessResponse<int>>());
-    expect(apiResponse.statusCode, statusCode);
+  ApiError failed(Either<ApiError, ApiResponse<String, String>> result) =>
+      result.fold(
+        onLeft: (e) => e,
+        onRight: (r) => throw StateError('Expected an error, got $r'),
+      );
+
+  test('requestShouldDecodeTheAnswerIfTheServerSucceeds', () async {
+    final client = build((_) => ResponseBody.fromString('user', 200));
+
+    final response = decoded(await client.request('/users/1'));
+
+    expect(response, isA<SuccessResponse<String>>());
+    expect((response as SuccessResponse<String>).data, 'user');
+    expect(response.statusCode, 200);
   });
 
-  test('Should return Left with ApiError on exception', () async {
-    final exception = TransportException(
-      type: TransportExceptionType.CONNECTION_ERROR,
-      request: requestSpec,
-    );
-    when(
-      () => mockClient.execute(
-        spec: any(named: 'spec'),
-        onSendProgress: any(named: 'onSendProgress'),
-        onReceiveProgress: any(named: 'onReceiveProgress'),
-        requestCanceller: any(named: 'requestCanceller'),
-        responseClassifier: any(named: 'responseClassifier'),
+  test('requestShouldDecodeTheErrorBodyIfTheServerAnswersAnError', () async {
+    final client = build((_) => ResponseBody.fromString('not found', 404));
+
+    final response = decoded(await client.request('/users/1'));
+
+    expect(response, isA<FailureResponse<String>>());
+    expect((response as FailureResponse<String>).error, 'not found');
+    expect(response.statusCode, 404);
+  });
+
+  test('requestShouldReturnTheMappedErrorIfThereIsNoAnswer', () async {
+    const error = TransportError(type: TransportErrorType.CONNECTION_ERROR);
+    when(() => mockTransformer.transformApiError(any())).thenReturn(error);
+    final client = build(
+      (o) => throw DioException.connectionError(
+        requestOptions: o,
+        reason: 'offline',
       ),
-    ).thenAnswer((_) async => Failure(exception));
+    );
 
-    final result = await sut.request('/test');
+    expect(failed(await client.request('/users/1')), error);
+    final mapped = verify(
+      () => mockTransformer.transformApiError(captureAny()),
+    ).captured;
+    expect(
+      (mapped.single as DioException).type,
+      DioExceptionType.connectionError,
+    );
+  });
 
-    expect(result.isLeft, true);
-    expect(result.leftOrThrow, isA<TransportError>());
+  test('requestShouldReturnUnexpectedErrorIfTheAnswerCannotBeDecoded',
+      () async {
+    final client = build((_) => ResponseBody.fromString('', 204));
+
+    final error = failed(await client.request('/users/1'));
+
+    expect(error, isA<UnexpectedError>());
+    expect((error as UnexpectedError).cause, isA<TypeError>());
   });
 }

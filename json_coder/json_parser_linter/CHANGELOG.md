@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2026-11-16
+
+### Fixed
+
+- An optional `this.`/`super.` `fromJson` parameter, such as
+  `fromJson([this.json])`, is now reported as the wrong kind of parameter,
+  the same as a required one, instead of for its type.
+
 ## [1.0.4] - 2026-08-02
 
 ### Changed

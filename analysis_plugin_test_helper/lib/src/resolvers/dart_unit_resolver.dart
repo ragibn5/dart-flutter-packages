@@ -77,9 +77,14 @@ class DartUnitResolver {
 
       final context = contextCollection.contextFor(file.path);
       final result = await context.currentSession.getResolvedUnit(file.path);
+      // The file is a `.dart` file inside the analysis root, so the analyzer
+      // always resolves it, even when the source has errors: this only
+      // guards the analyzer's contract, and no source can reach it.
+      // coverage:ignore-start
       if (result is! ResolvedUnitResult) {
         throw StateError('Failed to resolve source:\n$source');
       }
+      // coverage:ignore-end
 
       return result;
     } finally {

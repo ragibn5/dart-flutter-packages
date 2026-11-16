@@ -176,4 +176,29 @@ void main() {
       ).called(1);
     },
   );
+
+  test('diagnosticCodeShouldBeTheRulesLintCode', () {
+    expect(sut.diagnosticCode, ThirdPartyImportRule.lintCode);
+  });
+
+  test('registerShouldSkipTheUnitIfItHasNoPackageRoot', () {
+    when(() => mockRuleContext.package).thenReturn(null);
+
+    sut.registerSessionedNodeProcessors(
+      mockRuleContext,
+      mockRuleVisitorRegistry,
+      mockRuleSessionContext,
+    );
+
+    verify(
+      () => mockSessionLogger.logInfo(
+        tag: '$ThirdPartyImportRule',
+        message: 'Skipping unit (no package root): $domainUnitLocation',
+      ),
+    ).called(1);
+    verifyNever(() => mockRuleVisitorRegistry.addImportDirective(sut, any()));
+    verifyNever(
+      () => mockDomainDirPathResolver.findDomainDirPath(any(), any()),
+    );
+  });
 }

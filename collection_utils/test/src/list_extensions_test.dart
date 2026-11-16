@@ -1,5 +1,5 @@
-import 'package:test/test.dart';
 import 'package:collection_utils/collection_utils.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('ListExtension.replaceWhere', () {

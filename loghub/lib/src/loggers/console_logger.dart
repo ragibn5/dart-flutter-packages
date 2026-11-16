@@ -2,7 +2,6 @@ import 'package:loghub/src/loggers/logger.dart';
 import 'package:loghub/src/models/log_data.dart';
 import 'package:loghub/src/services/default_log_formatter.dart';
 import 'package:loghub/src/services/log_formatter.dart';
-import 'package:meta/meta.dart';
 
 /// A [Logger] implementation that logs messages to the console.
 class ConsoleLogger implements Logger {
@@ -17,11 +16,6 @@ class ConsoleLogger implements Logger {
   ConsoleLogger({
     LogFormatter formatter = const DefaultLogFormatter(),
   }) : _formatter = formatter;
-
-  @visibleForTesting
-  ConsoleLogger.test(
-    this._formatter,
-  );
 
   @override
   void log(LogData data) => print(_formatter.format(data));

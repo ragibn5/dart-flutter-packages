@@ -82,4 +82,9 @@ void main() {
     verify(() => mockLogger1.log(logData)).called(1);
     verify(() => mockLogger2.log(logData)).called(1);
   });
+
+  test('loggersAndFiltersShouldBeTheGivenOnesIfCreated', () {
+    expect(sut.loggers, mockLoggers);
+    expect(sut.filters, mockFilters);
+  });
 }

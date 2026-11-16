@@ -33,29 +33,13 @@ class ToJsonMethodVisitor {
   final CollectionTypeResolver _collectionTypeResolver;
 
   ToJsonMethodVisitor(
-    AnalysisRule rule,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-  ) : this._(
-        rule,
-        ToJsonMethodVisitorConfig(),
-        sessionContext,
-        CollectionTypeResolverFactory.create(),
-      );
-
-  @visibleForTesting
-  ToJsonMethodVisitor.test(
-    AnalysisRule rule,
-    ToJsonMethodVisitorConfig visitorConfig,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-    CollectionTypeResolver collectionTypeResolver,
-  ) : this._(rule, visitorConfig, sessionContext, collectionTypeResolver);
-
-  ToJsonMethodVisitor._(
     this.rule,
-    this.visitorConfig,
-    this.sessionContext,
-    this._collectionTypeResolver,
-  );
+    this.sessionContext, {
+    @visibleForTesting ToJsonMethodVisitorConfig? visitorConfig,
+    @visibleForTesting CollectionTypeResolver? collectionTypeResolver,
+  }) : visitorConfig = visitorConfig ?? ToJsonMethodVisitorConfig(),
+       _collectionTypeResolver =
+           collectionTypeResolver ?? CollectionTypeResolverFactory.create();
 
   void visit(MethodDeclaration toJsonMethod) {
     if (toJsonMethod.isGetter) {

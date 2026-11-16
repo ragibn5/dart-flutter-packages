@@ -29,7 +29,7 @@ void main() {
     mockBuildStep = _MockBuildStep();
     mockSessionData = _MockSessionData();
 
-    sut = SessionDataManagerImpl.test({}, mockSessionDataFactory);
+    sut = SessionDataManagerImpl(mockSessionDataFactory, sessionDataMap: {});
 
     when(
       () => mockBuildStep.inputId,
@@ -40,9 +40,10 @@ void main() {
   });
 
   test('If already cached, return cached SessionData', () async {
-    final localSUT = SessionDataManagerImpl.test({
-      packageName: mockSessionData,
-    }, mockSessionDataFactory);
+    final localSUT = SessionDataManagerImpl(
+      mockSessionDataFactory,
+      sessionDataMap: {packageName: mockSessionData},
+    );
 
     final result = await localSUT.getSessionDataFor(mockBuildStep);
     expect(result.isNewlyCreated, false);

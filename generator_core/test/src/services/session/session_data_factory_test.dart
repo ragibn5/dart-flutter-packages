@@ -51,9 +51,9 @@ void main() {
 
     fakeCurrentDirectory = Directory('/fake/root');
 
-    sut = SessionDataFactoryImpl.test(
-      fakeCurrentDirectory,
+    sut = SessionDataFactoryImpl(
       mockContextConfigLoader,
+      currentDirectory: fakeCurrentDirectory,
     );
 
     when(
@@ -108,4 +108,24 @@ void main() {
       expect(fileLogger.logDirectory.path, equals(expectedPath));
     },
   );
+
+  test('fileLoggerShouldNameTheLogFileAfterTheDayIfItLogs', () async {
+    final logger =
+        (await sut.createSessionData(mockBuildStep)).logger
+            as SessionLoggerImpl;
+    final fileLogger = logger.getLogger('file-logger') as FileLogger;
+
+    final fileNameBuilder =
+        fileLogger.fileNameBuilder as String Function(LogData);
+    final fileName = fileNameBuilder(
+      LogData(
+        tag: 'tag',
+        level: LogLevel.INFO,
+        stamp: DateTime(2026, 11, 14),
+        message: 'message',
+      ),
+    );
+
+    expect(fileName, 'LOG-14-11-2026.log');
+  });
 }

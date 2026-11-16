@@ -18,7 +18,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        OverlayFeedbackContainer.test(
+        OverlayFeedbackContainer(
           feedbackConfig: config,
           onTap: () {},
           child: visibleChild,
@@ -35,7 +35,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        OverlayFeedbackContainer.test(
+        OverlayFeedbackContainer(
           feedbackConfig: config,
           onTap: () {},
           child: visibleChild,
@@ -55,7 +55,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        OverlayFeedbackContainer.test(
+        OverlayFeedbackContainer(
           feedbackConfig: config,
           onTap: () {},
           child: visibleChild,
@@ -79,7 +79,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        OverlayFeedbackContainer.test(
+        OverlayFeedbackContainer(
           feedbackConfig: const OverlayFeedbackConfig(Color(0xFFFFFFFF)),
           onTap: () => tapped = true,
           child: visibleChild,
@@ -103,7 +103,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        OverlayFeedbackContainer.test(
+        OverlayFeedbackContainer(
           feedbackConfig: config,
           onTap: () {},
           child: visibleChild,
@@ -125,7 +125,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        OverlayFeedbackContainer.test(
+        OverlayFeedbackContainer(
           feedbackConfig: config,
           onTap: () {},
           child: visibleChild,
@@ -150,7 +150,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        OverlayFeedbackContainer.test(
+        OverlayFeedbackContainer(
           feedbackConfig: config,
           onTap: () {},
           child: visibleChild,

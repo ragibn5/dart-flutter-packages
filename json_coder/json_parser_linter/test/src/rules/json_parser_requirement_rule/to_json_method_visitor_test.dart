@@ -59,11 +59,11 @@ void main() {
     mockRule = _MockAnalysisRule();
     mockSessionContext = _MockRuleSessionContext();
 
-    sut = ToJsonMethodVisitor.test(
+    sut = ToJsonMethodVisitor(
       mockRule,
-      visitorConfig,
       mockSessionContext,
-      CollectionTypeResolverFactory.create(),
+      visitorConfig: visitorConfig,
+      collectionTypeResolver: CollectionTypeResolverFactory.create(),
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);
@@ -186,11 +186,11 @@ void main() {
   );
 
   test('Reports nothing when toJson uses typedef for return type', () async {
-    final localSUT = ToJsonMethodVisitor.test(
+    final localSUT = ToJsonMethodVisitor(
       mockRule,
-      visitorConfig,
       mockSessionContext,
-      CollectionTypeResolverFactory.create(),
+      visitorConfig: visitorConfig,
+      collectionTypeResolver: CollectionTypeResolverFactory.create(),
     );
 
     final resolved = await dartResolver.resolveSource('''

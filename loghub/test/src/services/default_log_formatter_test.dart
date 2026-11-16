@@ -158,4 +158,19 @@ void main() {
       stackTrace: fakeStacktrace,
     );
   });
+
+  test('formatShouldWriteAnExtraAsTextIfItIsNotJson', () {
+    final formatted =
+        const DefaultLogFormatter(prettyPrintExtras: false).format(
+      LogData(
+        tag: 'tag',
+        level: LogLevel.INFO,
+        stamp: DateTime(2026, 11, 14),
+        message: 'message',
+        extras: {'when': DateTime.utc(2026, 11, 14)},
+      ),
+    );
+
+    expect(formatted, endsWith('{"when":"2026-11-14 00:00:00.000Z"}'));
+  });
 }

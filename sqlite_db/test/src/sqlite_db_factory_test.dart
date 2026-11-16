@@ -19,7 +19,10 @@ void main() {
   setUp(() {
     mockDbInitializationScripts = _MockDbInitializationScripts();
 
-    sut = const SQLiteDbFactory();
+    // A const instance is built at compile time, so the constructor would
+    // never run and its line would count as uncovered.
+    // ignore: prefer_const_constructors
+    sut = SQLiteDbFactory();
   });
 
   test('Create passes connectionData and initializerScripts through', () async {

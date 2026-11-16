@@ -16,14 +16,6 @@ class OverlayFeedbackContainer extends StatefulWidget {
     required this.child,
   });
 
-  @visibleForTesting
-  const OverlayFeedbackContainer.test({
-    super.key,
-    required this.feedbackConfig,
-    required this.onTap,
-    required this.child,
-  }) : hitTestBehavior = HitTestBehavior.opaque;
-
   @override
   State<OverlayFeedbackContainer> createState() =>
       _OverlayFeedbackContainerState();

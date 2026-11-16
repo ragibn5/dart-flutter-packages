@@ -1,6 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:json_parser_generator/src/models/gjp_annotated_class.dart';
 import 'package:meta/meta.dart';
 
 class RegistryClassGeneratorConfig {
@@ -18,35 +17,14 @@ class RegistryClassGeneratorConfig {
 class RegistryClassGenerator {
   final RegistryClassGeneratorConfig _config;
 
-  const RegistryClassGenerator()
-    : this._(
-        const RegistryClassGeneratorConfig(
-          classSuffix: 'JsonParserRegistry',
-          parserSuffix: 'JsonParser',
-          registryUri: 'package:json_coder/json_coder.dart',
-        ),
-      );
-
-  @visibleForTesting
-  const RegistryClassGenerator.test(RegistryClassGeneratorConfig config)
-    : this._(config);
-
-  const RegistryClassGenerator._(this._config);
-
-  Map<String, List<ClassElement>> buildRegistryMap(
-    List<GJPAnnotatedClass> annotatedClasses,
-  ) {
-    final registryMap = <String, List<ClassElement>>{};
-    for (final item in annotatedClasses) {
-      for (final key in item.config.registryKeys) {
-        final list = registryMap.putIfAbsent(key, () => []);
-        if (!list.contains(item.element)) {
-          list.add(item.element);
-        }
-      }
-    }
-    return registryMap;
-  }
+  const RegistryClassGenerator({
+    @visibleForTesting
+    RegistryClassGeneratorConfig config = const RegistryClassGeneratorConfig(
+      classSuffix: 'JsonParserRegistry',
+      parserSuffix: 'JsonParser',
+      registryUri: 'package:json_coder/json_coder.dart',
+    ),
+  }) : _config = config;
 
   Class generateRegistryClass(String key, List<ClassElement> elements) {
     final className = '${_toPascalCase(key)}${_config.classSuffix}';

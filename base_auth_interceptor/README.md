@@ -1,6 +1,10 @@
 # base_auth_interceptor
 
-A reusable auth interceptor base based on [`net_client`](https://pub.dev/packages/net_client) package.
+A reusable auth interceptor base for [`dio`](https://pub.dev/packages/dio).
+
+It authorizes every request, and on an auth error refreshes the auth data and
+retries the request. Requests pass through one at a time, so concurrent auth
+errors lead to a single refresh.
 
 ## Installation
 
@@ -10,7 +14,7 @@ Add this to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  base_auth_interceptor: ^1.0.0
+  base_auth_interceptor: ^2.0.0
 ```
 
 #### Or, From Git repo
@@ -21,7 +25,7 @@ dependencies:
     git:
       url: https://github.com/Ragibn5/dart-flutter-packages.git
       path: base_auth_interceptor
-      ref: base_auth_interceptor-1.0.0
+      ref: base_auth_interceptor-2.0.0
 ```
 
 ## 🚀 Get started
@@ -31,13 +35,13 @@ dependencies:
 Supplies current and refreshed auth data.
 
 ```dart
-/// Demo implementation
 class AuthDataProviderImpl implements AuthDataProvider<String> {
   @override
   Future<String?> getAuthData() async => 'my-token';
 
   @override
-  Future<String?> requestAuthDataRefresh(String oldAuthData) async => null;
+  Future<String?> requestAuthDataRefresh(String oldAuthData) async =>
+      'my-new-token';
 }
 ```
 
@@ -46,68 +50,64 @@ class AuthDataProviderImpl implements AuthDataProvider<String> {
 Decides when an auth error should trigger a refresh.
 
 ```dart
-/// Demo implementation
 class AuthRefreshPolicyImpl implements AuthRefreshPolicy<String> {
   @override
-  bool didServerReportAuthError(RawResponse response) =>
+  bool didServerReportAuthError(Response<dynamic> response) =>
       response.statusCode == HttpStatus.unauthorized;
 
+  /// Refresh only if the request was sent with the current auth data;
+  /// otherwise another request has refreshed it already.
   @override
-  bool shouldRefreshAuthData(RequestSpec request, String authData) => false;
+  bool shouldRefreshAuthData(RequestOptions request, String authData) =>
+      request.headers[HttpHeaders.authorizationHeader] == 'Bearer $authData';
 }
 ```
 
 ### AuthRequestTransformer
 
-Adds auth data to requests.
+Adds auth data to requests, and to the retried request after a refresh.
 
 ```dart
-/// Demo implementation
 class AuthRequestTransformerImpl implements AuthRequestTransformer<String> {
   @override
-  Future<RequestSpec> transformRequestWithAuthData(RequestSpec request,
-      String authData,) async =>
+  Future<RequestOptions> transformRequestWithAuthData(
+    RequestOptions request,
+    String authData,
+  ) async =>
       request.copyWith(
-        headers: {...request.headers, HttpHeaders.authorizationHeader: 'Bearer $authData'},
+        headers: {
+          ...request.headers,
+          HttpHeaders.authorizationHeader: 'Bearer $authData',
+        },
       );
-}
-```
-
-### RequestRetrier
-
-Replays a request with refreshed auth data.
-
-```dart
-/// Demo implementation
-class RequestRetrierImpl implements RequestRetrier<String> {
-  @override
-  Future<ApiCallResult> retryRequest(RequestSpec request,
-      String refreshedAuthData,) async =>
-      Success(NetClientResponse(
-        isError: false,
-        statusCode: 200,
-        data: '',
-        headers: {},
-        requestSpec: request,
-      ));
 }
 ```
 
 ### Compose
 
-Compose the earlier dependencies to build the interceptor.
+`retryDio` sends a request again after an auth error, with the auth data
+already applied. Use a `Dio` without the interceptor: a request sent through
+the interceptor's own `Dio` waits behind its queue, which is waiting for the
+retry.
 
 ```dart
-/// Demo implementation
-class AppAuthInterceptor extends BaseAuthInterceptor<String> {
-  AppAuthInterceptor() : super(
-    AuthDataProviderImpl(),
-    AuthRefreshPolicyImpl(),
-    AuthRequestTransformerImpl(),
-    RequestRetrierImpl(),
+final options = BaseOptions(baseUrl: 'https://example.com');
+final dio = Dio(options)
+  ..interceptors.add(
+    AuthInterceptor<String>(
+      AuthDataProviderImpl(),
+      AuthRefreshPolicyImpl(),
+      AuthRequestTransformerImpl(),
+      retryDio: Dio(options),
+    ),
   );
-}
 ```
+
+### When recovery fails
+
+The request is rejected with a cancelled `DioException` whose `error` is an
+`AuthRecoveryException`. Its `reason` says why: no auth data, the refresh
+failed, or the retry failed (with the retry's error as its `cause`).
 
 ## 🧪 Example
 
