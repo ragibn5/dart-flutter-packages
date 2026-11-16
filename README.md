@@ -83,13 +83,13 @@ Some packages may be available on pub.dev. Please check individual package docum
 Using HTTPS:
 
 ```bash
-git clone https://github.com/Ragibn5/dart-flutter-packages.git
+git clone https://github.com/ragibn5/dart-flutter-packages.git
 ```
 
 Or, using SSH:
 
 ```bash
-git clone git@github.com:Ragibn5/dart-flutter-packages.git
+git clone git@github.com:ragibn5/dart-flutter-packages.git
 ```
 
 #### 2. Open the repository in your IDE

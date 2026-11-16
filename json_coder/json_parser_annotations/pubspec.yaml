@@ -1,9 +1,9 @@
 name: json_parser_annotations
 description: Annotations to support analysis and code-gen features for json_coder package.
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/json_coder/json_parser_annotations
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/json_coder/json_parser_annotations
 
 # Library version
 version: 1.0.1

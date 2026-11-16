@@ -1,9 +1,9 @@
 name: feature_api_client
 description: "A feature-based, type-safe API client over dio: one client per API feature, with typed requests, responses and errors."
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/feature_api_client
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/feature_api_client
 
 # Library version
 version: 2.0.0

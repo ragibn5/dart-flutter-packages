@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   preference_store:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: preference_store
       ref: preference_store-1.0.0
 ```

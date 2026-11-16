@@ -11,7 +11,7 @@ or commit:
 dev_dependencies:
   dev_tools:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: dev_tools
       ref: <tag or commit>
 ```

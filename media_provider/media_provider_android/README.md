@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   media_provider_android:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: media_provider/media_provider_android
       ref: media_provider_android-1.0.0
 ```

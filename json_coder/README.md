@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   json_coder:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: json_coder
       ref: json_coder-1.0.1
 ```

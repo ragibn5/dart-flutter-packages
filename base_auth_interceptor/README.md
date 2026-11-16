@@ -23,7 +23,7 @@ dependencies:
 dependencies:
   base_auth_interceptor:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: base_auth_interceptor
       ref: base_auth_interceptor-2.0.0
 ```

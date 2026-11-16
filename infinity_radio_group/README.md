@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   infinity_radio_group:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: infinity_radio_group
       ref: infinity_radio_group-2.0.1
 ```
@@ -37,9 +37,9 @@ dependencies:
 
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_radio_group/assets/list_preview.jpeg" alt="List layout"></td>
-    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_radio_group/assets/grid_preview.jpeg" alt="Grid layout"></td>
-    <td><img src="https://raw.githubusercontent.com/Ragibn5/dart-flutter-packages/main/infinity_radio_group/assets/wrap_preview.jpeg" alt="Wrap layout"></td>
+    <td><img src="https://raw.githubusercontent.com/ragibn5/dart-flutter-packages/main/infinity_radio_group/assets/list_preview.jpeg" alt="List layout"></td>
+    <td><img src="https://raw.githubusercontent.com/ragibn5/dart-flutter-packages/main/infinity_radio_group/assets/grid_preview.jpeg" alt="Grid layout"></td>
+    <td><img src="https://raw.githubusercontent.com/ragibn5/dart-flutter-packages/main/infinity_radio_group/assets/wrap_preview.jpeg" alt="Wrap layout"></td>
   </tr>
 </table>
 

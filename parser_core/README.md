@@ -29,7 +29,7 @@ dependencies:
 dependencies:
   parser_core:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: parser_core
       ref: parser_core-1.0.1
 ```

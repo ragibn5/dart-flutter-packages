@@ -1,9 +1,9 @@
 name: analysis_server_plugin_core
 description: Core components to build a custom Dart analysis server plugin.
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/analysis_server_plugin_core
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/analysis_server_plugin_core
 
 # Library version
 version: 1.1.5

@@ -1,9 +1,9 @@
 name: infinity_radio_group
 description: A fully customizable radio group widget for Flutter.
 
-repository: https://github.com/Ragibn5/dart-flutter-packages
-issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
-homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/infinity_radio_group
+repository: https://github.com/ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/ragibn5/dart-flutter-packages/tree/main/infinity_radio_group
 
 # Library version
 version: 2.0.1

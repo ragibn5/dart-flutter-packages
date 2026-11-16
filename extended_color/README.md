@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   extended_color:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: extended_color
       ref: extended_color-1.0.0
 ```

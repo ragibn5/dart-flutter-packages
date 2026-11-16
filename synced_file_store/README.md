@@ -19,7 +19,7 @@ dependencies:
 dependencies:
   synced_file_store:
     git:
-      url: https://github.com/Ragibn5/dart-flutter-packages.git
+      url: https://github.com/ragibn5/dart-flutter-packages.git
       path: synced_file_store
       ref: synced_file_store-1.0.0
 ```
