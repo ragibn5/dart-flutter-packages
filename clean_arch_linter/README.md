@@ -165,7 +165,3 @@ If you are not seeing expected diagnostics, try:
 - Ensuring the file is inside a directory that matches `domain_dir_names` (default: `domain/`).
 - Ensuring `scan_test_dir: true` if the file is under `test/`.
 - Checking your `clean_arch_linter_config.yaml` for invalid YAML syntax or incorrect indentation. If the file is malformed, the plugin may crash or fall back to default silently.
-
-## 📄 Example
-
-See the [`app_template`](../app_template) project for a complete demonstration.

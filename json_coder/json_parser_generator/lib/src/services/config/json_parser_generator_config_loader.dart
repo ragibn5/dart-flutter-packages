@@ -9,30 +9,20 @@ class JsonParserGeneratorConfigLoader
     extends ContextConfigLoader<JsonParserGeneratorContextConfig> {
   final DefaultConfigOptions _defaultConfigOptions;
 
-  JsonParserGeneratorConfigLoader(BuilderOptions builderOptions)
-    : this._(
-        builderOptions,
-        DefaultConfigOptions(
-          logConfig: LogConfig(
-            logDirectoryRelativePathFromCurrentDir: path.joinAll([
-              'logs',
-              'generators',
-              'json_parser_generator',
-            ]),
-          ),
-        ),
-      );
-
-  @visibleForTesting
-  JsonParserGeneratorConfigLoader.test(
-    BuilderOptions builderOptions,
-    DefaultConfigOptions defaultConfigOptions,
-  ) : this._(builderOptions, defaultConfigOptions);
-
-  JsonParserGeneratorConfigLoader._(
-    super.builderOptions,
-    this._defaultConfigOptions,
-  );
+  JsonParserGeneratorConfigLoader(
+    super.builderOptions, {
+    @visibleForTesting DefaultConfigOptions? defaultConfigOptions,
+  }) : _defaultConfigOptions =
+           defaultConfigOptions ??
+           DefaultConfigOptions(
+             logConfig: LogConfig(
+               logDirectoryRelativePathFromCurrentDir: path.joinAll([
+                 'logs',
+                 'generators',
+                 'json_parser_generator',
+               ]),
+             ),
+           );
 
   @override
   JsonParserGeneratorContextConfig loadPluginConfig(

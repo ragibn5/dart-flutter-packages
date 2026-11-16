@@ -9,6 +9,7 @@ import 'package:analysis_server_plugin_core/src/services/config/context_config_l
 import 'package:analysis_server_plugin_core/src/services/logger/session_logger.dart';
 import 'package:analysis_server_plugin_core/src/services/session/session_data_factory.dart';
 import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:loghub/loghub.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
@@ -86,4 +87,24 @@ void main() {
       expect(config, localConfig);
     },
   );
+
+  test('fileLoggerShouldNameTheLogFileAfterTheDayIfItLogs', () {
+    final logger =
+        sut.createSessionData(mockRuleContext).logger as SessionLoggerImpl;
+    final fileLogger =
+        logger.getLogger(config.packageInfo.location) as FileLogger;
+
+    final fileNameBuilder =
+        fileLogger.fileNameBuilder as String Function(LogData);
+    final fileName = fileNameBuilder(
+      LogData(
+        tag: 'tag',
+        level: LogLevel.INFO,
+        stamp: DateTime(2026, 11, 14),
+        message: 'message',
+      ),
+    );
+
+    expect(fileName, 'LOG-14-11-2026.log');
+  });
 }

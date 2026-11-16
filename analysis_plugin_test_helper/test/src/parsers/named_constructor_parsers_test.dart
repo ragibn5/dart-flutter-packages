@@ -137,4 +137,139 @@ void main() {
       );
     },
   );
+
+  test(
+    'findConstructorDeclarationShouldFindTheConstructorIfMixinsAndExtensionsComeFirst',
+    () async {
+      final result = await resolver.resolveSource('''
+      mixin MyMixin {}
+
+      extension MyExtension on int {}
+
+      class MyClass {
+        MyClass.named();
+      }
+      ''');
+
+      expect(findConstructorDeclaration(result.unit, 'named'), isNotNull);
+    },
+  );
+
+  test(
+    'findConstructorDeclarationShouldFindTheConstructorIfItIsInAnExtensionType',
+    () async {
+      final result = await resolver.resolveSource('''
+      extension type MyId(int value) {
+        MyId.zero() : value = 0;
+      }
+      ''');
+
+      expect(findConstructorDeclaration(result.unit, 'zero'), isNotNull);
+    },
+  );
+
+  test(
+    'findConstructorDeclarationShouldFindTheConstructorIfItIsInAnEnum',
+    () async {
+      final result = await resolver.resolveSource('''
+      enum MyEnum {
+        a.named();
+
+        const MyEnum.named();
+      }
+      ''');
+
+      expect(findConstructorDeclaration(result.unit, 'named'), isNotNull);
+    },
+  );
+
+  test(
+    'findConstructorDeclarationShouldReturnNullIfOnlyATopLevelFunctionHasTheName',
+    () async {
+      final result = await resolver.resolveSource('''
+      void named() {}
+      ''');
+
+      expect(findConstructorDeclaration(result.unit, 'named'), isNull);
+    },
+  );
+
+  test(
+    'findFactoryConstructorDeclarationShouldFindTheFactoryIfMixinsAndExtensionsComeFirst',
+    () async {
+      final result = await resolver.resolveSource('''
+      mixin MyMixin {}
+
+      extension MyExtension on int {}
+
+      class MyClass {
+        MyClass();
+
+        factory MyClass.fromMap(Map map) => MyClass();
+      }
+      ''');
+
+      expect(
+        findFactoryConstructorDeclaration(result.unit, 'fromMap'),
+        isNotNull,
+      );
+    },
+  );
+
+  test(
+    'findFactoryConstructorDeclarationShouldFindTheFactoryIfItIsInAnExtensionType',
+    () async {
+      final result = await resolver.resolveSource('''
+      extension type MyId(int value) {
+        factory MyId.zero() => MyId(0);
+      }
+      ''');
+
+      expect(findFactoryConstructorDeclaration(result.unit, 'zero'), isNotNull);
+    },
+  );
+
+  test(
+    'findFactoryConstructorDeclarationShouldFindTheFactoryIfItIsInAnEnum',
+    () async {
+      final result = await resolver.resolveSource('''
+      enum MyEnum {
+        a;
+
+        const MyEnum();
+
+        factory MyEnum.first() => a;
+      }
+      ''');
+
+      expect(
+        findFactoryConstructorDeclaration(result.unit, 'first'),
+        isNotNull,
+      );
+    },
+  );
+
+  test(
+    'findFactoryConstructorDeclarationShouldReturnNullIfOnlyAPlainConstructorHasTheName',
+    () async {
+      final result = await resolver.resolveSource('''
+      class MyClass {
+        MyClass.fromMap(Map map);
+      }
+      ''');
+
+      expect(findFactoryConstructorDeclaration(result.unit, 'fromMap'), isNull);
+    },
+  );
+
+  test(
+    'findFactoryConstructorDeclarationShouldReturnNullIfOnlyATopLevelFunctionHasTheName',
+    () async {
+      final result = await resolver.resolveSource('''
+      void fromMap() {}
+      ''');
+
+      expect(findFactoryConstructorDeclaration(result.unit, 'fromMap'), isNull);
+    },
+  );
 }

@@ -1,7 +1,8 @@
 import 'dart:io';
 
 final class Constants {
-  Constants._();
+  // Never created: it only holds static members.
+  Constants._(); // coverage:ignore-line
 
   static final lineSeparator = Platform.isWindows ? '\r\n' : '\n';
 }

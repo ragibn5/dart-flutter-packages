@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ragibn5.document.tree.document_tree_android">
+
+    <!-- No permissions: access to a tree is granted by the user through the
+         system picker, and persisted per tree. -->
+
+</manifest>

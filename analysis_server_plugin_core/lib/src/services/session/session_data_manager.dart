@@ -17,16 +17,11 @@ class SessionDataManagerImpl implements SessionDataManager {
 
   final SessionDataFactory _factory;
 
-  SessionDataManagerImpl(SessionDataFactory sessionDataFactory)
-    : this._({}, sessionDataFactory);
-
-  @visibleForTesting
-  SessionDataManagerImpl.test(
-    Map<String, SessionData> sessionDataMap,
-    SessionDataFactory sessionDataFactory,
-  ) : this._(sessionDataMap, sessionDataFactory);
-
-  SessionDataManagerImpl._(this._cache, this._factory);
+  SessionDataManagerImpl(
+    SessionDataFactory sessionDataFactory, {
+    @visibleForTesting Map<String, SessionData>? sessionDataMap,
+  }) : _cache = sessionDataMap ?? {},
+       _factory = sessionDataFactory;
 
   @override
   SessionDataFetchResult getSessionDataFor(RuleContext context) {

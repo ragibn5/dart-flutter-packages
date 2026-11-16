@@ -33,29 +33,13 @@ class FromJsonConstructorVisitor {
   final CollectionTypeResolver _collectionTypeResolver;
 
   FromJsonConstructorVisitor(
-    AnalysisRule rule,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-  ) : this._(
-        rule,
-        FromJsonConstructorVisitorConfig(),
-        sessionContext,
-        CollectionTypeResolverFactory.create(),
-      );
-
-  @visibleForTesting
-  FromJsonConstructorVisitor.test(
-    AnalysisRule rule,
-    FromJsonConstructorVisitorConfig visitorConfig,
-    RuleSessionContext<JsonParserLinterConfig> sessionContext,
-    CollectionTypeResolver collectionTypeResolver,
-  ) : this._(rule, visitorConfig, sessionContext, collectionTypeResolver);
-
-  FromJsonConstructorVisitor._(
     this.rule,
-    this.visitorConfig,
-    this.sessionContext,
-    this._collectionTypeResolver,
-  );
+    this.sessionContext, {
+    @visibleForTesting FromJsonConstructorVisitorConfig? visitorConfig,
+    @visibleForTesting CollectionTypeResolver? collectionTypeResolver,
+  }) : visitorConfig = visitorConfig ?? FromJsonConstructorVisitorConfig(),
+       _collectionTypeResolver =
+           collectionTypeResolver ?? CollectionTypeResolverFactory.create();
 
   void visit(ConstructorDeclaration fromJsonConstructor) {
     final params = fromJsonConstructor.parameters.parameters;
@@ -113,17 +97,17 @@ class FromJsonConstructorVisitor {
   }
 
   bool _isValidParam(FormalParameter param) {
+    // An optional parameter, such as `[this.json]`, comes wrapped.
+    final actual = param is DefaultFormalParameter ? param.parameter : param;
     return param.isPositional &&
-        param is! FieldFormalParameter &&
-        param is! SuperFormalParameter;
+        actual is! FieldFormalParameter &&
+        actual is! SuperFormalParameter;
   }
 
   TypeAnnotation? _parameterType(FormalParameter param) {
     final actual = param is DefaultFormalParameter ? param.parameter : param;
     return switch (actual) {
       final SimpleFormalParameter p => p.type,
-      final FieldFormalParameter p => p.type,
-      final SuperFormalParameter p => p.type,
       _ => null,
     };
   }

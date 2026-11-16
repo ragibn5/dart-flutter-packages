@@ -18,7 +18,7 @@ void main() {
     mockStream = _MockStream();
     mockController = _MockStreamController();
 
-    sut = CachedStreamController.test(mockController);
+    sut = CachedStreamController.single(controller: mockController);
 
     when(() => mockController.add(any())).thenAnswer((_) {});
     when(() => mockController.close()).thenAnswer((_) async {});
@@ -38,5 +38,11 @@ void main() {
     sut.close();
 
     verify(() => mockController.close()).called(1);
+  });
+
+  test('broadcastShouldAllowSeveralListenersIfCreated', () {
+    final controller = CachedStreamController<int>.broadcast();
+
+    expect(controller.stream.isBroadcast, isTrue);
   });
 }

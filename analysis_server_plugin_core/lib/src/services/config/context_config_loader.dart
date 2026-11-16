@@ -11,13 +11,10 @@ import 'package:yaml/yaml.dart';
 abstract class ContextConfigLoader<C extends ContextConfig> {
   final ConfigSourceProvider _configSourceProvider;
 
-  ContextConfigLoader() : this._(ConfigSourceProviderImpl());
-
-  @visibleForTesting
-  ContextConfigLoader.test(ConfigSourceProvider configSourceProvider)
-    : this._(configSourceProvider);
-
-  ContextConfigLoader._(this._configSourceProvider);
+  ContextConfigLoader({
+    @visibleForTesting ConfigSourceProvider? configSourceProvider,
+  }) : _configSourceProvider =
+           configSourceProvider ?? ConfigSourceProviderImpl();
 
   /// Load plugin specific config.
   ///

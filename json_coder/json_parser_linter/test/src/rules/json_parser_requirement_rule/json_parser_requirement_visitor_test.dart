@@ -73,14 +73,14 @@ void main() {
     mockFromJsonConstructorVisitor = _MockFromJsonConstructorVisitor();
     mockFromJsonStaticMethodVisitor = _MockFromJsonStaticMethodVisitor();
 
-    sut = JsonParserRequirementRuleVisitor.test(
+    sut = JsonParserRequirementRuleVisitor(
       mockRule,
-      visitorConfig,
       mockSessionContext,
-      AnnotationTypeResolverFactory.create(),
-      mockToJsonMethodVisitor,
-      mockFromJsonConstructorVisitor,
-      mockFromJsonStaticMethodVisitor,
+      visitorConfig: visitorConfig,
+      annotationTypeResolver: AnnotationTypeResolverFactory.create(),
+      toJsonMethodVisitor: mockToJsonMethodVisitor,
+      fromJsonConstructorVisitor: mockFromJsonConstructorVisitor,
+      fromJsonStaticMethodVisitor: mockFromJsonStaticMethodVisitor,
     );
 
     when(() => mockSessionContext.logger).thenReturn(mockLogger);
@@ -286,6 +286,42 @@ void main() {
           arguments: [visitorConfig.missingFromJsonContextMessage],
         ),
       ).called(1);
+    },
+  );
+
+  test(
+    'visitAnnotationShouldCheckTheStaticFromJsonIfThereIsNoFromJsonFactory',
+    () async {
+      final resolved = await dartResolver.resolveSource('''
+      @GenerateJsonParser()
+      class MyModel {
+        static MyModel fromJson(Map<String, dynamic> json) => MyModel();
+        Map<String, dynamic> toJson() => {};
+      }
+
+      class GenerateJsonParser {
+        const GenerateJsonParser();
+      }
+      ''');
+      final annotation = getAnnotation<ClassDeclaration>(
+        resolved.unit,
+        annotationName: 'GenerateJsonParser',
+      );
+
+      sut.visitAnnotation(annotation);
+
+      verify(
+        () => mockFromJsonStaticMethodVisitor.visit(
+          getMethodDeclaration(resolved.unit, 'fromJson'),
+          resolved.unit.declarations.first as ClassDeclaration,
+        ),
+      ).called(1);
+      verifyNever(
+        () => mockRule.reportAtToken(
+          any(),
+          arguments: [visitorConfig.missingFromJsonContextMessage],
+        ),
+      );
     },
   );
 }

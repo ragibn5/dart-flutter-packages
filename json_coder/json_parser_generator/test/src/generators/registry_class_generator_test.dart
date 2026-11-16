@@ -18,7 +18,7 @@ void main() {
 
   setUp(() {
     emitter = DartEmitter(useNullSafetySyntax: true);
-    generator = const RegistryClassGenerator.test(config);
+    generator = const RegistryClassGenerator(config: config);
   });
 
   _MockClassElement mockElement(String name) {

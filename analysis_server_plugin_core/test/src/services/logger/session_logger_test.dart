@@ -100,9 +100,9 @@ void main() {
   setUp(() {
     mockCompositeLogger = _MockCompositeLogger();
 
-    sut = SessionLoggerImpl.test(
-      mockCompositeLogger,
-      enabled: true,
+    sut = SessionLoggerImpl(
+      {},
+      compositeLogger: mockCompositeLogger,
       allowedLevels: SessionLogLevel.values.toSet(),
     );
 

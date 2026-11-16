@@ -3,7 +3,8 @@ import 'package:analysis_server_plugin_core/src/services/session/session_data_fa
 import 'package:analysis_server_plugin_core/src/services/session/session_data_manager.dart';
 
 final class SessionDataManagerFactory {
-  const SessionDataManagerFactory._();
+  // Never created: it only holds static members.
+  const SessionDataManagerFactory._(); // coverage:ignore-line
 
   static SessionDataManager createNewInstance(
     ContextConfigLoader packageConfigLoader,

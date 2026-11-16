@@ -50,7 +50,7 @@ void main() {
     mockContextUnitFile = _MockRuleContextFile();
     mockSessionData = _MockSessionData();
 
-    sut = SessionDataManagerImpl.test({}, mockSessionDataFactory);
+    sut = SessionDataManagerImpl(mockSessionDataFactory, sessionDataMap: {});
 
     when(() => mockRuleContext.package).thenReturn(mockWorkspacePackage);
     when(() => mockWorkspacePackage.root).thenReturn(mockContextPackageRoot);
@@ -65,9 +65,10 @@ void main() {
   });
 
   test('If already cached, return cached SessionData', () {
-    final localSUT = SessionDataManagerImpl.test({
-      packageRoot: mockSessionData,
-    }, mockSessionDataFactory);
+    final localSUT = SessionDataManagerImpl(
+      mockSessionDataFactory,
+      sessionDataMap: {packageRoot: mockSessionData},
+    );
 
     final sessionData = localSUT.getSessionDataFor(mockRuleContext);
     expect(sessionData.isNewlyCreated, false);

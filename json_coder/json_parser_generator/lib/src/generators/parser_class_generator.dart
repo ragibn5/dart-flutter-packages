@@ -19,21 +19,15 @@ class ParserClassGeneratorConfig {
 class ParserClassGenerator {
   final ParserClassGeneratorConfig _config;
 
-  const ParserClassGenerator()
-    : this._(
-        const ParserClassGeneratorConfig(
-          classSuffix: 'JsonParser',
-          jsonParserUri: 'package:json_coder/json_coder.dart',
-          encodeParamName: 'value',
-          decodeParamName: 'encoded',
-        ),
-      );
-
-  @visibleForTesting
-  const ParserClassGenerator.test(ParserClassGeneratorConfig config)
-    : this._(config);
-
-  const ParserClassGenerator._(this._config);
+  const ParserClassGenerator({
+    @visibleForTesting
+    ParserClassGeneratorConfig config = const ParserClassGeneratorConfig(
+      classSuffix: 'JsonParser',
+      jsonParserUri: 'package:json_coder/json_coder.dart',
+      encodeParamName: 'value',
+      decodeParamName: 'encoded',
+    ),
+  }) : _config = config;
 
   Class generate(ClassElement element) {
     final sourceUri = element.library.uri.toString();

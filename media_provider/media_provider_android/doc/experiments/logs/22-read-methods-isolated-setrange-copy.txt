@@ -1,0 +1,54 @@
+# Read methods in isolation (no delivery to the caller), profile build, 2026-10-24. FFI chunks copied with setRange.
+I/flutter (10498): [IMPORTANT:flutter/shell/platform/android/android_context_vk_impeller.cc(62)] Using the Impeller rendering backend (Vulkan).
+I/flutter (10498): 2026-10-24 23:15:35.926495       INFO     Routing: / -> /
+I/flutter (10498): 2026-10-24 23:15:35.940896       INFO     Routing: /home -> /home
+I/flutter (10498): === Methods (photo): /storage/emulated/0/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/IMG-20241230-WA0014.jpg, 204488 bytes
+I/flutter (10498): === photo asyncDartIo 512KB run 1: read 1.3ms (147 MB/s), other 13.1ms, 204488 bytes
+I/flutter (10498): === photo asyncDartIo 512KB run 2: read 0.7ms (260 MB/s), other 5.5ms, 204488 bytes
+I/flutter (10498): === photo asyncDartIo 512KB run 3: read 0.6ms (343 MB/s), other 8.0ms, 204488 bytes
+I/flutter (10498): === photo syncDartIoWorker 512KB run 1: read 0.4ms (552 MB/s), other 6.4ms, 204488 bytes
+I/flutter (10498): === photo syncDartIoWorker 512KB run 2: read 1.3ms (150 MB/s), other 6.4ms, 204488 bytes
+I/flutter (10498): === photo syncDartIoWorker 512KB run 3: read 0.4ms (512 MB/s), other 12.5ms, 204488 bytes
+I/flutter (10498): === photo syncFfiWorker 512KB run 1: read 0.5ms (415 MB/s), other 10.3ms, 204488 bytes
+I/flutter (10498): === photo syncFfiWorker 512KB run 2: read 0.3ms (661 MB/s), other 12.9ms, 204488 bytes
+I/flutter (10498): === photo syncFfiWorker 512KB run 3: read 0.5ms (411 MB/s), other 12.4ms, 204488 bytes
+I/flutter (10498): === photo syncFfiCaller 512KB run 1: read 0.3ms (689 MB/s), other 14.7ms, 204488 bytes
+I/flutter (10498): === photo syncFfiCaller 512KB run 2: read 0.2ms (823 MB/s), other 13.6ms, 204488 bytes
+I/flutter (10498): === photo syncFfiCaller 512KB run 3: read 0.3ms (623 MB/s), other 13.7ms, 204488 bytes
+I/flutter (10498): === photo asyncDartIo 64KB run 1: read 2.3ms (83 MB/s), other 11.2ms, 204488 bytes
+I/flutter (10498): === photo asyncDartIo 64KB run 2: read 1.7ms (112 MB/s), other 10.9ms, 204488 bytes
+I/flutter (10498): === photo asyncDartIo 64KB run 3: read 1.6ms (125 MB/s), other 10.7ms, 204488 bytes
+I/flutter (10498): === photo syncDartIoWorker 64KB run 1: read 0.8ms (254 MB/s), other 13.3ms, 204488 bytes
+I/flutter (10498): === photo syncDartIoWorker 64KB run 2: read 0.7ms (300 MB/s), other 10.7ms, 204488 bytes
+I/flutter (10498): === photo syncDartIoWorker 64KB run 3: read 0.8ms (252 MB/s), other 13.4ms, 204488 bytes
+I/flutter (10498): === photo syncFfiWorker 64KB run 1: read 0.2ms (965 MB/s), other 12.8ms, 204488 bytes
+I/flutter (10498): === photo syncFfiWorker 64KB run 2: read 0.2ms (903 MB/s), other 11.9ms, 204488 bytes
+I/flutter (10498): === photo syncFfiWorker 64KB run 3: read 0.2ms (990 MB/s), other 13.6ms, 204488 bytes
+I/flutter (10498): === photo syncFfiCaller 64KB run 1: read 0.2ms (875 MB/s), other 8.9ms, 204488 bytes
+I/flutter (10498): === photo syncFfiCaller 64KB run 2: read 0.1ms (1403 MB/s), other 8.6ms, 204488 bytes
+I/flutter (10498): === photo syncFfiCaller 64KB run 3: read 0.2ms (1102 MB/s), other 8.9ms, 204488 bytes
+I/flutter (10498): === Methods (video): /storage/emulated/0/DCIM/Camera/VID_20260916_092913055.mp4, 392674791 bytes
+I/flutter (10498): === video asyncDartIo 512KB run 1: read 647.6ms (578 MB/s), other 25.3ms, 392674791 bytes
+I/flutter (10498): === video asyncDartIo 512KB run 2: read 606.2ms (618 MB/s), other 17.7ms, 392674791 bytes
+I/flutter (10498): === video asyncDartIo 512KB run 3: read 657.2ms (570 MB/s), other 20.5ms, 392674791 bytes
+I/flutter (10498): === video syncDartIoWorker 512KB run 1: read 199.8ms (1874 MB/s), other 13.8ms, 392674791 bytes
+I/flutter (10498): === video syncDartIoWorker 512KB run 2: read 226.1ms (1656 MB/s), other 17.2ms, 392674791 bytes
+I/flutter (10498): === video syncDartIoWorker 512KB run 3: read 196.5ms (1906 MB/s), other 4.9ms, 392674791 bytes
+I/flutter (10498): === video syncFfiWorker 512KB run 1: read 716.4ms (523 MB/s), other 18.6ms, 392674791 bytes
+I/flutter (10498): === video syncFfiWorker 512KB run 2: read 677.6ms (553 MB/s), other 15.9ms, 392674791 bytes
+I/flutter (10498): === video syncFfiWorker 512KB run 3: read 685.3ms (546 MB/s), other 12.8ms, 392674791 bytes
+I/flutter (10498): === video syncFfiCaller 512KB run 1: read 663.2ms (565 MB/s), other 12.5ms, 392674791 bytes
+I/flutter (10498): === video syncFfiCaller 512KB run 2: read 674.2ms (555 MB/s), other 21.1ms, 392674791 bytes
+I/flutter (10498): === video syncFfiCaller 512KB run 3: read 672.4ms (557 MB/s), other 14.6ms, 392674791 bytes
+I/flutter (10498): === video asyncDartIo 64KB run 1: read 1701.1ms (220 MB/s), other 22.3ms, 392674791 bytes
+I/flutter (10498): === video asyncDartIo 64KB run 2: read 1647.8ms (227 MB/s), other 18.3ms, 392674791 bytes
+I/flutter (10498): === video asyncDartIo 64KB run 3: read 1636.8ms (229 MB/s), other 20.1ms, 392674791 bytes
+I/flutter (10498): === video syncDartIoWorker 64KB run 1: read 199.7ms (1875 MB/s), other 15.6ms, 392674791 bytes
+I/flutter (10498): === video syncDartIoWorker 64KB run 2: read 197.4ms (1897 MB/s), other 14.3ms, 392674791 bytes
+I/flutter (10498): === video syncDartIoWorker 64KB run 3: read 199.6ms (1876 MB/s), other 14.4ms, 392674791 bytes
+I/flutter (10498): === video syncFfiWorker 64KB run 1: read 164.1ms (2281 MB/s), other 15.8ms, 392674791 bytes
+I/flutter (10498): === video syncFfiWorker 64KB run 2: read 161.6ms (2317 MB/s), other 10.8ms, 392674791 bytes
+I/flutter (10498): === video syncFfiWorker 64KB run 3: read 163.4ms (2291 MB/s), other 15.5ms, 392674791 bytes
+I/flutter (10498): === video syncFfiCaller 64KB run 1: read 158.2ms (2368 MB/s), other 12.4ms, 392674791 bytes
+I/flutter (10498): === video syncFfiCaller 64KB run 2: read 160.0ms (2340 MB/s), other 13.7ms, 392674791 bytes
+I/flutter (10498): === video syncFfiCaller 64KB run 3: read 164.5ms (2277 MB/s), other 16.3ms, 392674791 bytes

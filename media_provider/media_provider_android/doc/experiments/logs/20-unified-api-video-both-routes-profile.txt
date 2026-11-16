@@ -1,0 +1,20 @@
+# Unified read API on device, 392,674,791-byte video, profile build,
+# 2026-10-24. 512 KB chunks (openRead default). Run 1 of each route also
+# streamed a copy to disk.
+# Reconstructed: these lines were relayed verbatim by the log monitor; the
+# run's log file was overwritten by a later run.
+I/flutter ( 5728): === Benchmark (path hint): VID_20260916_092913055.mp4, 392674791 bytes, content://media/external/video/media/1000011695
+I/flutter ( 5728): === Run 1/5 (path hint) - session local-1: open 89.8ms, read 392674791 bytes in 749 chunks, 898.9ms (417 MB/s)
+I/flutter ( 5728): === Run 2/5 (path hint) - session local-2: open 22.9ms, read 392674791 bytes in 749 chunks, 585.2ms (640 MB/s)
+I/flutter ( 5728): === Run 3/5 (path hint) - session local-3: open 22.4ms, read 392674791 bytes in 749 chunks, 574.9ms (651 MB/s)
+I/flutter ( 5728): === Run 4/5 (path hint) - session local-4: open 21.5ms, read 392674791 bytes in 749 chunks, 657.4ms (570 MB/s)
+I/flutter ( 5728): === Run 5/5 (path hint) - session local-5: open 23.4ms, read 392674791 bytes in 749 chunks, 606.4ms (618 MB/s)
+I/flutter ( 5728): === Benchmark (uri only): VID_20260916_092913055.mp4, 392674791 bytes, content://media/external/video/media/1000011695
+I/flutter ( 5728): === Run 1/5 (uri only) - session local-6: open 26.9ms, read 392674791 bytes in 749 chunks, 773.5ms (484 MB/s)
+I/flutter ( 5728): === Run 2/5 (uri only) - session local-7: open 22.6ms, read 392674791 bytes in 749 chunks, 614.9ms (609 MB/s)
+I/flutter ( 5728): === Run 3/5 (uri only) - session local-8: open 22.6ms, read 392674791 bytes in 749 chunks, 589.3ms (635 MB/s)
+I/flutter ( 5728): === Run 4/5 (uri only) - session local-9: open 23.4ms, read 392674791 bytes in 749 chunks, 571.3ms (656 MB/s)
+I/flutter ( 5728): === Run 5/5 (uri only) - session local-10: open 22.4ms, read 392674791 bytes in 749 chunks, 568.4ms (659 MB/s)
+# Integrity: original (DCIM/Camera/VID_20260916_092913055.mp4), copy_path and
+# copy_uri all have MD5 5da10dfaa29ec566ddabbd779a658bb2.
+# logcat: no fdsan, FATAL or SIGABRT lines.

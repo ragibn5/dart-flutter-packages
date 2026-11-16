@@ -49,22 +49,14 @@ class FileLogger implements Logger {
     required Directory logDirectory,
     required String Function(LogData data) fileNameBuilder,
     LogFormatter formatter = const DefaultLogFormatter(),
+    @visibleForTesting FileWriter? fileWriter,
+    @visibleForTesting StreamController<LogData>? streamController,
   })  : _logDirectory = logDirectory,
         _fileNameBuilder = fileNameBuilder,
         _formatter = formatter,
-        _fileWriter = DefaultFileWriter(Platform.isWindows ? '\r\n' : '\n'),
-        _streamController = StreamController() {
-    _startListener();
-  }
-
-  @visibleForTesting
-  FileLogger.test(
-    this._logDirectory,
-    this._fileNameBuilder,
-    this._formatter,
-    this._fileWriter,
-    this._streamController,
-  ) {
+        _fileWriter =
+            fileWriter ?? DefaultFileWriter(Platform.isWindows ? '\r\n' : '\n'),
+        _streamController = streamController ?? StreamController() {
     _startListener();
   }
 

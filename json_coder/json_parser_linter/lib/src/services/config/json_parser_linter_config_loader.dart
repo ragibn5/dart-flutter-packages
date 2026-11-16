@@ -14,31 +14,23 @@ class JsonParserLinterConfigLoader
   final DefaultConfigOptions _defaultConfigOptions;
   final ConfigSourceProvider _configSourceProvider;
 
-  JsonParserLinterConfigLoader()
-    : this._(
-        DefaultConfigOptions(
-          logConfig: LogConfig(
-            logDirectoryRelativePathFromProjectRoot: path.joinAll([
-              'logs',
-              'analyzer_plugins',
-              'json_parser_linter',
-            ]),
-          ),
-          scanConfig: const ScanConfig(),
-        ),
-        ConfigSourceProviderImpl(),
-      );
-
-  @visibleForTesting
-  JsonParserLinterConfigLoader.test(
-    DefaultConfigOptions defaultConfigOptions,
-    ConfigSourceProvider configSourceProvider,
-  ) : this._(defaultConfigOptions, configSourceProvider);
-
-  JsonParserLinterConfigLoader._(
-    this._defaultConfigOptions,
-    this._configSourceProvider,
-  );
+  JsonParserLinterConfigLoader({
+    @visibleForTesting DefaultConfigOptions? defaultConfigOptions,
+    @visibleForTesting ConfigSourceProvider? configSourceProvider,
+  }) : _defaultConfigOptions =
+           defaultConfigOptions ??
+           DefaultConfigOptions(
+             logConfig: LogConfig(
+               logDirectoryRelativePathFromProjectRoot: path.joinAll([
+                 'logs',
+                 'analyzer_plugins',
+                 'json_parser_linter',
+               ]),
+             ),
+             scanConfig: const ScanConfig(),
+           ),
+       _configSourceProvider =
+           configSourceProvider ?? ConfigSourceProviderImpl();
 
   @override
   JsonParserLinterConfig loadPluginConfig(

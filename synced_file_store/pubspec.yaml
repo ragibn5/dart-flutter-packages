@@ -1,0 +1,26 @@
+name: synced_file_store
+description: A string store backed by a single file, whose reads and writes are queued one at a time so concurrent callers never overlap.
+
+repository: https://github.com/Ragibn5/dart-flutter-packages
+issue_tracker: https://github.com/Ragibn5/dart-flutter-packages/issues
+homepage: https://github.com/Ragibn5/dart-flutter-packages/tree/main/synced_file_store
+
+# Library version
+version: 1.0.0
+
+# Range of compatible SDK versions
+environment:
+  sdk: ^3.6.0
+
+# Resolved with the rest of the repository; see the root pubspec.
+resolution: workspace
+
+# Regular dependencies
+dependencies:
+  synchronized: ^3.1.0
+
+# Dev dependencies
+# (NOT Bundled in executable artifact - For DEV use only)
+dev_dependencies:
+  test: ^1.25.0
+  very_good_analysis: ^7.0.0

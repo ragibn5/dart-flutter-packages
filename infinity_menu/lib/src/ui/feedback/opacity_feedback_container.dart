@@ -16,14 +16,6 @@ class OpacityFeedbackContainer extends StatefulWidget {
     required this.child,
   });
 
-  @visibleForTesting
-  const OpacityFeedbackContainer.test({
-    super.key,
-    required this.feedbackConfig,
-    required this.onTap,
-    required this.child,
-  }) : hitTestBehavior = HitTestBehavior.opaque;
-
   @override
   State<OpacityFeedbackContainer> createState() =>
       _OpacityFeedbackContainerState();
