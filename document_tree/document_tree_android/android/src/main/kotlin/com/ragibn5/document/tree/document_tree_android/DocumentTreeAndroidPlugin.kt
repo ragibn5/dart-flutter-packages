@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.ragibn5.document.tree.document_tree_android.features.document.di.DirectoryCreateServiceFactory
 import com.ragibn5.document.tree.document_tree_android.features.document.di.DocumentCopyServiceFactory
+import com.ragibn5.document.tree.document_tree_android.features.document.di.DocumentCreateServiceFactory
 import com.ragibn5.document.tree.document_tree_android.features.document.di.DocumentDeleteServiceFactory
 import com.ragibn5.document.tree.document_tree_android.features.document.di.DocumentGetServiceFactory
 import com.ragibn5.document.tree.document_tree_android.features.document.di.DocumentListServiceFactory
@@ -11,6 +12,7 @@ import com.ragibn5.document.tree.document_tree_android.features.document.di.Docu
 import com.ragibn5.document.tree.document_tree_android.features.document.di.DocumentRenameServiceFactory
 import com.ragibn5.document.tree.document_tree_android.features.document.handlers.CopyDocumentRequestHandler
 import com.ragibn5.document.tree.document_tree_android.features.document.handlers.CreateDirectoryRequestHandler
+import com.ragibn5.document.tree.document_tree_android.features.document.handlers.CreateDocumentRequestHandler
 import com.ragibn5.document.tree.document_tree_android.features.document.handlers.DeleteDocumentRequestHandler
 import com.ragibn5.document.tree.document_tree_android.features.document.handlers.GetDocumentRequestHandler
 import com.ragibn5.document.tree.document_tree_android.features.document.handlers.ListDocumentsRequestHandler
@@ -18,6 +20,7 @@ import com.ragibn5.document.tree.document_tree_android.features.document.handler
 import com.ragibn5.document.tree.document_tree_android.features.document.handlers.RenameDocumentRequestHandler
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DirectoryCreateService
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCopyService
+import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCreateService
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentDeleteService
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentGetService
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentListService
@@ -42,6 +45,7 @@ public class DocumentTreeAndroidPlugin : FlutterPlugin, ActivityAware {
     private lateinit var documentListService: DocumentListService
     private lateinit var documentGetService: DocumentGetService
     private lateinit var directoryCreateService: DirectoryCreateService
+    private lateinit var documentCreateService: DocumentCreateService
     private lateinit var documentCopyService: DocumentCopyService
     private lateinit var documentRenameService: DocumentRenameService
     private lateinit var documentMoveService: DocumentMoveService
@@ -72,6 +76,7 @@ public class DocumentTreeAndroidPlugin : FlutterPlugin, ActivityAware {
         documentListService = DocumentListServiceFactory.create(appContext)
         documentGetService = DocumentGetServiceFactory.create(appContext)
         directoryCreateService = DirectoryCreateServiceFactory.create(appContext)
+        documentCreateService = DocumentCreateServiceFactory.create(appContext)
         documentCopyService = DocumentCopyServiceFactory.create(appContext)
         documentRenameService = DocumentRenameServiceFactory.create(appContext)
         documentMoveService = DocumentMoveServiceFactory.create(appContext)
@@ -86,6 +91,7 @@ public class DocumentTreeAndroidPlugin : FlutterPlugin, ActivityAware {
                 ListDocumentsRequestHandler(documentListService),
                 GetDocumentRequestHandler(documentGetService),
                 CreateDirectoryRequestHandler(directoryCreateService),
+                CreateDocumentRequestHandler(documentCreateService),
                 CopyDocumentRequestHandler(documentCopyService),
                 RenameDocumentRequestHandler(documentRenameService),
                 MoveDocumentRequestHandler(documentMoveService),

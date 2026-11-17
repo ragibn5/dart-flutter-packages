@@ -6,6 +6,7 @@ import 'package:document_tree_android/src/exceptions/tree_pick_exception.dart';
 import 'package:document_tree_android/src/exceptions/tree_request_exception.dart';
 import 'package:document_tree_android/src/models/copy_document_request.dart';
 import 'package:document_tree_android/src/models/create_directory_request.dart';
+import 'package:document_tree_android/src/models/create_document_request.dart';
 import 'package:document_tree_android/src/models/delete_document_request.dart';
 import 'package:document_tree_android/src/models/document_info.dart';
 import 'package:document_tree_android/src/models/document_tree.dart';
@@ -122,6 +123,20 @@ class MethodChannelDocumentTreeAndroid extends DocumentTreeAndroidPlatform {
         'createDirectory',
         jsonEncode(request.toJson()),
       ),
+    );
+
+    return decodeJsonObject(result!, DocumentInfo.fromJson);
+  }
+
+  @override
+  Future<DocumentInfo> createDocument(CreateDocumentRequest request) async {
+    // The bytes go outside the JSON, so they're sent as they are.
+    final result = await guardPlatformCall(
+      _documentWriteExceptionMapper,
+      () => methodChannel.invokeMethod<String>('createDocument', {
+        'request': jsonEncode(request.toJson()),
+        'bytes': request.bytes,
+      }),
     );
 
     return decodeJsonObject(result!, DocumentInfo.fromJson);

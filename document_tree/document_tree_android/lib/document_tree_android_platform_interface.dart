@@ -63,6 +63,13 @@ abstract class DocumentTreeAndroidPlatform extends PlatformInterface {
     throw UnimplementedError('createDirectory() has not been implemented.');
   }
 
+  /// Creates the file [request] points to, with its bytes if any.
+  ///
+  /// See [CreateDocumentRequest] for more info.
+  Future<DocumentInfo> createDocument(CreateDocumentRequest request) {
+    throw UnimplementedError('createDocument() has not been implemented.');
+  }
+
   /// Copies the file [request] points to into its tree.
   ///
   /// See [CopyDocumentRequest] for more info.

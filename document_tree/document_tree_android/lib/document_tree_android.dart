@@ -8,6 +8,7 @@ import 'package:document_tree_android/src/exceptions/tree_pick_exception.dart';
 import 'package:document_tree_android/src/exceptions/tree_request_exception.dart';
 import 'package:document_tree_android/src/models/copy_document_request.dart';
 import 'package:document_tree_android/src/models/create_directory_request.dart';
+import 'package:document_tree_android/src/models/create_document_request.dart';
 import 'package:document_tree_android/src/models/delete_document_request.dart';
 import 'package:document_tree_android/src/models/document_info.dart';
 import 'package:document_tree_android/src/models/document_tree.dart';
@@ -24,6 +25,7 @@ export 'src/exceptions/tree_request_exception.dart'
     hide TreeRequestExceptionMapper;
 export 'src/models/copy_document_request.dart';
 export 'src/models/create_directory_request.dart';
+export 'src/models/create_document_request.dart';
 export 'src/models/delete_document_request.dart';
 export 'src/models/document_info.dart';
 export 'src/models/document_tree.dart';
@@ -98,6 +100,24 @@ class DocumentTreeAndroid {
   /// [CreateDirectoryRequest] for more info.
   Future<DocumentInfo> createDirectory(CreateDirectoryRequest request) {
     return DocumentTreeAndroidPlatform.instance.createDirectory(request);
+  }
+
+  /// Creates the file [request] points to, in the existing folder holding
+  /// it, with [CreateDocumentRequest.bytes] as its content.
+  ///
+  /// Fails with a [DocumentAlreadyExistsException] if a document already has
+  /// its name. The file is deleted again if writing its bytes fails, so it
+  /// leaves nothing behind.
+  ///
+  /// Note:
+  /// For small files written in one go; the bytes are sent in one piece.
+  ///
+  /// Returns: the created file.
+  ///
+  /// Throws: a [DocumentWriteException] if it can't be created. See
+  /// [CreateDocumentRequest] for more info.
+  Future<DocumentInfo> createDocument(CreateDocumentRequest request) {
+    return DocumentTreeAndroidPlatform.instance.createDocument(request);
   }
 
   /// Copies the file [request] points to into its tree, as a new file in an

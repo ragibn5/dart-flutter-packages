@@ -5,7 +5,7 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 
 /**
- * Tells the MIME type to create a copy with.
+ * Tells the MIME type to create a file with.
  */
 internal class DocumentMimeTypeResolver(
     private val contentResolver: ContentResolver,
@@ -15,12 +15,13 @@ internal class DocumentMimeTypeResolver(
 ) {
     /**
      * The [requested] MIME type if any, or else the one [fileName]'s extension
-     * stands for, or else [sourceUri]'s, or else `application/octet-stream`.
+     * stands for, or else [sourceUri]'s if the file is copied from one, or else
+     * `application/octet-stream`.
      *
      * The extension comes before the source: a provider may add an extension
      * that matches the MIME type, so the two should agree.
      */
-    fun resolve(requested: String?, fileName: String, sourceUri: Uri): String {
+    fun resolve(requested: String?, fileName: String, sourceUri: Uri?): String {
         if (requested != null) {
             return requested
         }
@@ -30,7 +31,7 @@ internal class DocumentMimeTypeResolver(
             mimeTypeFromExtension(extension.lowercase())?.let { return it }
         }
 
-        return contentResolver.getType(sourceUri) ?: OCTET_STREAM
+        return sourceUri?.let { contentResolver.getType(it) } ?: OCTET_STREAM
     }
 
     private companion object {
