@@ -2,22 +2,17 @@ package com.ragibn5.document.tree.document_tree_android.features.document.servic
 
 import android.content.ContentResolver
 import android.net.Uri
-import android.provider.DocumentsContract
-import android.system.ErrnoException
-import android.system.OsConstants
 import androidx.core.net.toUri
 import com.ragibn5.document.tree.document_tree_android.exceptions.DocumentTreeException
 import com.ragibn5.document.tree.document_tree_android.features.document.constants.DocumentWriteExceptionCodes
 import com.ragibn5.document.tree.document_tree_android.features.document.models.CopyDocumentRequest
 import com.ragibn5.document.tree.document_tree_android.features.document.models.DocumentInfo
-import com.ragibn5.document.tree.document_tree_android.features.document.models.DocumentRow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -44,6 +39,7 @@ internal class DocumentCopyServiceImpl(
     private val pathResolver: DocumentPathResolver,
     private val creator: DocumentCreator,
     private val mimeTypeResolver: DocumentMimeTypeResolver,
+    private val contentWriter: DocumentContentWriter,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : DocumentCopyService {
     override suspend fun copy(request: CopyDocumentRequest): DocumentInfo = withContext(ioDispatcher) {
@@ -74,7 +70,7 @@ internal class DocumentCopyServiceImpl(
                 displayName = fileName,
             )
             try {
-                write(treeUri, target, input, request.path)
+                contentWriter.write(treeUri, target, request.path) { copyBytes(input, it) }
             } catch (e: Throwable) {
                 creator.delete(treeUri, target.documentId)
                 throw e
@@ -100,31 +96,6 @@ internal class DocumentCopyServiceImpl(
         } ?: throw sourceNotFound(sourceUri)
     }
 
-    /**
-     * Writes [input] into the new, empty [target], at [path] in [treeUri].
-     */
-    private suspend fun write(treeUri: Uri, target: DocumentRow, input: InputStream, path: String) {
-        val targetUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, target.documentId)
-        try {
-            val output = try {
-                contentResolver.openOutputStream(targetUri, "w")
-            } catch (e: SecurityException) {
-                throw DocumentTreeException(
-                    DocumentWriteExceptionCodes.ACCESS_LOST,
-                    e.message ?: "The grant no longer covers the tree",
-                    cause = e
-                )
-            } ?: throw DocumentTreeException(
-                DocumentWriteExceptionCodes.WRITE_ERROR,
-                "The provider couldn't open the copy for writing: $path"
-            )
-            // Closing can fail too, such as when the volume fills up while flushing.
-            output.use { copyBytes(input, it) }
-        } catch (e: IOException) {
-            throw copyFailed(path, e)
-        }
-    }
-
     private suspend fun copyBytes(input: InputStream, output: OutputStream) {
         val buffer = ByteArray(BUFFER_SIZE_IN_BYTES)
         while (true) {
@@ -134,25 +105,6 @@ internal class DocumentCopyServiceImpl(
                 return
             }
             output.write(buffer, 0, count)
-        }
-    }
-
-    private fun copyFailed(path: String, cause: IOException): DocumentTreeException {
-        val isOutOfSpace = generateSequence<Throwable>(cause) { it.cause }.any {
-            (it is ErrnoException && it.errno == OsConstants.ENOSPC) || it.message?.contains("ENOSPC") == true
-        }
-        return if (isOutOfSpace) {
-            DocumentTreeException(
-                DocumentWriteExceptionCodes.NOT_ENOUGH_SPACE,
-                "The volume ran out of space while copying to: $path",
-                cause = cause
-            )
-        } else {
-            DocumentTreeException(
-                DocumentWriteExceptionCodes.WRITE_ERROR,
-                cause.message ?: "Failed to copy to: $path",
-                cause = cause
-            )
         }
     }
 

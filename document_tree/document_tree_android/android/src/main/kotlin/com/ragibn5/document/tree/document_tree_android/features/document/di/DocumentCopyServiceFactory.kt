@@ -1,6 +1,7 @@
 package com.ragibn5.document.tree.document_tree_android.features.document.di
 
 import android.content.Context
+import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentContentWriter
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCopyService
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCopyServiceImpl
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCreator
@@ -22,6 +23,7 @@ internal object DocumentCopyServiceFactory {
             pathResolver = DocumentPathResolver(rowReader),
             creator = creator,
             mimeTypeResolver = DocumentMimeTypeResolver(contentResolver),
+            contentWriter = DocumentContentWriter(contentResolver),
         )
     }
 }
