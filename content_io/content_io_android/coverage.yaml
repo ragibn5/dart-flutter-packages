@@ -1,0 +1,7 @@
+# The descriptor read and write pipelines call Android's libc over FFI
+# (pread64, write, fsync, __errno) on a worker isolate, so they can't run in
+# host tests; they need integration tests on a device.
+exclude:
+  - lib/src/io/native_descriptor_io.dart
+  - lib/src/io/reader/descriptor_content_reader.dart
+  - lib/src/io/writer/descriptor_content_writer.dart

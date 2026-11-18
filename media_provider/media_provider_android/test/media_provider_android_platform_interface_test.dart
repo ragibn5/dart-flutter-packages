@@ -1,12 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
 import 'package:media_provider_android/media_provider_android_platform_interface.dart';
-import 'package:media_provider_android/src/models/open_media_read_request.dart';
 import 'package:media_provider_android/src/models/open_media_with_request.dart';
-import 'package:media_provider_android/src/models/open_thumbnail_read_request.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/share_media_request.dart';
-import 'package:media_provider_android/src/models/thumbnail_size.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// Extends the platform interface without overriding anything.
@@ -69,30 +66,6 @@ void main() {
       throwsUnimplementedError,
     );
   });
-
-  test('openReadSessionShouldThrowUnimplementedErrorIfNotOverridden', () {
-    expect(
-      () => platform.openReadSession(
-        const OpenMediaReadRequest(contentUri: 'content://media/1'),
-      ),
-      throwsUnimplementedError,
-    );
-  });
-
-  test(
-    'openThumbnailReadSessionShouldThrowUnimplementedErrorIfNotOverridden',
-    () {
-      expect(
-        () => platform.openThumbnailReadSession(
-          const OpenThumbnailReadRequest(
-            contentUri: 'content://media/1',
-            size: ThumbnailSize(width: 256, height: 256),
-          ),
-        ),
-        throwsUnimplementedError,
-      );
-    },
-  );
 
   test('shareMediaShouldThrowUnimplementedErrorIfNotOverridden', () {
     expect(

@@ -48,6 +48,7 @@ Built on top of the core layer. These packages provide higher-level tooling, UI 
 
 Flutter plugins with an Android implementation.
 
+- [`content_io_android`](content_io/content_io_android)
 - [`document_tree_android`](document_tree/document_tree_android)
 - [`media_provider_android`](media_provider/media_provider_android)
 - [`user_provider_android`](user_provider/user_provider_android)

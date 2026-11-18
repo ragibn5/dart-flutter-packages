@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android.dart';
 import 'package:media_provider_android/media_provider_android_platform_interface.dart';
-import 'package:media_provider_android/src/io/source/media_byte_source.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -10,8 +9,6 @@ import 'helpers/fixtures.dart';
 class _MockPlatform extends Mock
     with MockPlatformInterfaceMixin
     implements MediaProviderAndroidPlatform {}
-
-class _MockSource extends Mock implements MediaByteSource {}
 
 void main() {
   late MediaProviderAndroidPlatform original;
@@ -42,32 +39,6 @@ void main() {
 
     expect(await sut.getMedia(query), [photoItem]);
   });
-
-  test('openReadSessionShouldReturnWhatPlatformReturnsForRequest', () async {
-    const request = OpenMediaReadRequest(contentUri: 'content://media/1');
-    final session = MediaReadSession(source: _MockSource());
-    when(
-      () => platform.openReadSession(request),
-    ).thenAnswer((_) async => session);
-
-    expect(await sut.openReadSession(request), same(session));
-  });
-
-  test(
-    'openThumbnailReadSessionShouldReturnWhatPlatformReturnsForRequest',
-    () async {
-      const request = OpenThumbnailReadRequest(
-        contentUri: 'content://media/1',
-        size: ThumbnailSize(width: 256, height: 256),
-      );
-      final session = MediaReadSession(source: _MockSource());
-      when(
-        () => platform.openThumbnailReadSession(request),
-      ).thenAnswer((_) async => session);
-
-      expect(await sut.openThumbnailReadSession(request), same(session));
-    },
-  );
 
   test('shareMediaShouldPassRequestToPlatform', () async {
     final request = ShareMediaRequest(contentUris: const ['content://media/1']);
