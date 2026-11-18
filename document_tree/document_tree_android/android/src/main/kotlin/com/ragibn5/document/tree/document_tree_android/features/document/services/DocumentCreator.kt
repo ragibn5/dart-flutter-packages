@@ -20,14 +20,13 @@ internal class DocumentCreator(
     private val rowReader: DocumentRowReader,
 ) {
     /**
-     * Creates a document named [displayName] in [parent], whose current children are
-     * [siblings].
+     * Creates a document named [displayName] in [parent].
      *
      * Note:
      * A provider may name the document differently than asked: it renames it when the name is
-     * taken, such as by a sibling that differs only in case on a FAT volume, and may add an
-     * extension that matches [mimeType]. Such a document is deleted again, and the creation
-     * fails, so a document is never written under a name the caller didn't ask for.
+     * taken by its rules, such as a filesystem that ignores case, and may add an extension that
+     * matches [mimeType]. Such a document is deleted again, and the creation fails, so a
+     * document is never written under a name the caller didn't ask for.
      *
      * @param mimeType its MIME type; `vnd.android.document/directory` for a folder.
      * @return the created document.
@@ -36,7 +35,6 @@ internal class DocumentCreator(
     fun create(
         treeUri: Uri,
         parent: DocumentFolder,
-        siblings: List<DocumentRow>,
         mimeType: String,
         displayName: String,
     ): DocumentRow {
@@ -69,17 +67,11 @@ internal class DocumentCreator(
         }
 
         delete(treeUri, row.documentId)
-        val path = DocumentPaths.child(parent.path, displayName)
-        if (siblings.any { it.displayName.equals(displayName, ignoreCase = true) }) {
-            throw DocumentTreeException(
-                DocumentWriteExceptionCodes.ALREADY_EXISTS,
-                "A document whose name differs only in case is already at: $path"
-            )
-        }
         throw DocumentTreeException(
             DocumentWriteExceptionCodes.WRITE_ERROR,
-            "The provider named the document `${row.displayName}` instead; " +
-                "its extension may not match the MIME type `$mimeType`: $path"
+            "The provider named the document `${row.displayName}` instead, such as when the " +
+                "name is taken by its rules, or its extension doesn't match the MIME type " +
+                "`$mimeType`: ${DocumentPaths.child(parent.path, displayName)}"
         )
     }
 

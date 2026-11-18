@@ -1,12 +1,14 @@
 package com.ragibn5.document.tree.document_tree_android.features.document.di
 
 import android.content.Context
+import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentContentWriter
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCopyService
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCopyServiceImpl
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCreator
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentMimeTypeResolver
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentPathResolver
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentRowReader
+import com.ragibn5.document.tree.document_tree_android.features.document.services.WritableGrantVerifier
 import com.ragibn5.document.tree.document_tree_android.features.tree.services.PersistedTreeGrants
 
 internal object DocumentCopyServiceFactory {
@@ -16,11 +18,12 @@ internal object DocumentCopyServiceFactory {
         val creator = DocumentCreator(contentResolver, rowReader)
         return DocumentCopyServiceImpl(
             contentResolver = contentResolver,
-            grants = PersistedTreeGrants(contentResolver),
+            grantVerifier = WritableGrantVerifier(PersistedTreeGrants(contentResolver)),
             rowReader = rowReader,
-            pathResolver = DocumentPathResolver(rowReader, creator),
+            pathResolver = DocumentPathResolver(rowReader),
             creator = creator,
             mimeTypeResolver = DocumentMimeTypeResolver(contentResolver),
+            contentWriter = DocumentContentWriter(contentResolver),
         )
     }
 }

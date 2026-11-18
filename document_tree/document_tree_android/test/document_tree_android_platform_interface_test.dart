@@ -74,4 +74,40 @@ void main() {
   test('copyDocumentShouldThrowUnimplementedErrorIfNotOverridden', () {
     expect(() => platform.copyDocument(copyRequest), throwsUnimplementedError);
   });
+
+  test('getDocumentShouldThrowUnimplementedErrorIfNotOverridden', () {
+    expect(() => platform.getDocument(getRequest), throwsUnimplementedError);
+  });
+
+  test('createDirectoryShouldThrowUnimplementedErrorIfNotOverridden', () {
+    expect(
+      () => platform.createDirectory(createDirectoryRequest),
+      throwsUnimplementedError,
+    );
+  });
+
+  test('createDocumentShouldThrowUnimplementedErrorIfNotOverridden', () {
+    expect(
+      () => platform.createDocument(createDocumentRequest),
+      throwsUnimplementedError,
+    );
+  });
+
+  test('renameDocumentShouldThrowUnimplementedErrorIfNotOverridden', () {
+    expect(
+      () => platform.renameDocument(renameRequest),
+      throwsUnimplementedError,
+    );
+  });
+
+  test('moveDocumentShouldThrowUnimplementedErrorIfNotOverridden', () {
+    expect(() => platform.moveDocument(moveRequest), throwsUnimplementedError);
+  });
+
+  test('deleteDocumentShouldThrowUnimplementedErrorIfNotOverridden', () {
+    expect(
+      () => platform.deleteDocument(deleteRequest),
+      throwsUnimplementedError,
+    );
+  });
 }

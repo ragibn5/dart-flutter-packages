@@ -58,4 +58,52 @@ void main() {
 
     expect(await sut.copyDocument(copyRequest), document);
   });
+
+  test('getDocumentShouldReturnWhatPlatformReturnsForRequest', () async {
+    when(
+      () => platform.getDocument(getRequest),
+    ).thenAnswer((_) async => document);
+
+    expect(await sut.getDocument(getRequest), document);
+  });
+
+  test('createDirectoryShouldReturnWhatPlatformReturnsForRequest', () async {
+    when(
+      () => platform.createDirectory(createDirectoryRequest),
+    ).thenAnswer((_) async => document);
+
+    expect(await sut.createDirectory(createDirectoryRequest), document);
+  });
+
+  test('createDocumentShouldReturnWhatPlatformReturnsForRequest', () async {
+    when(
+      () => platform.createDocument(createDocumentRequest),
+    ).thenAnswer((_) async => document);
+
+    expect(await sut.createDocument(createDocumentRequest), document);
+  });
+
+  test('renameDocumentShouldReturnWhatPlatformReturnsForRequest', () async {
+    when(
+      () => platform.renameDocument(renameRequest),
+    ).thenAnswer((_) async => document);
+
+    expect(await sut.renameDocument(renameRequest), document);
+  });
+
+  test('moveDocumentShouldReturnWhatPlatformReturnsForRequest', () async {
+    when(
+      () => platform.moveDocument(moveRequest),
+    ).thenAnswer((_) async => document);
+
+    expect(await sut.moveDocument(moveRequest), document);
+  });
+
+  test('deleteDocumentShouldDeleteThroughPlatform', () async {
+    when(() => platform.deleteDocument(deleteRequest)).thenAnswer((_) async {});
+
+    await sut.deleteDocument(deleteRequest);
+
+    verify(() => platform.deleteDocument(deleteRequest)).called(1);
+  });
 }

@@ -16,6 +16,8 @@ void main() {
       SourcePermissionDeniedException('m'): 'SourcePermissionDeniedException',
       NotEnoughSpaceException('m'): 'NotEnoughSpaceException',
       DocumentWriteFailedException('m'): 'DocumentWriteFailedException',
+      DocumentOperationUnsupportedException('m'):
+          'DocumentOperationUnsupportedException',
     };
 
     for (final MapEntry(key: exception, value: name) in exceptions.entries) {
@@ -71,6 +73,8 @@ void main() {
       'source_permission_denied': isA<SourcePermissionDeniedException>(),
       'not_enough_space': isA<NotEnoughSpaceException>(),
       'write_error': isA<DocumentWriteFailedException>(),
+      'not_found': isA<DocumentNotFoundException>(),
+      'unsupported_operation': isA<DocumentOperationUnsupportedException>(),
     };
 
     for (final MapEntry(key: code, value: matcher) in codes.entries) {

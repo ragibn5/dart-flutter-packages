@@ -16,26 +16,23 @@ class CopyDocumentRequest extends Equatable {
   final String treeUri;
 
   /// Where to put the copy, relative to the tree's root, such as
-  /// `DCIM/Camera/IMG_1.jpg`. The missing folders on the way are created.
+  /// `DCIM/Camera/IMG_1.jpg`. The folder holding it must exist, and nothing
+  /// must be at it.
   final String path;
 
   /// The copy's MIME type, or `null` to tell it from [path]'s extension, then
   /// from the source.
   final String? mimeType;
 
-  /// Whether to replace a file already at [path]; if not, the copy fails.
-  final bool overwrite;
-
   const CopyDocumentRequest({
     required this.sourceUri,
     required this.treeUri,
     required this.path,
     this.mimeType,
-    this.overwrite = false,
   });
 
   @override
-  List<Object?> get props => [sourceUri, treeUri, path, mimeType, overwrite];
+  List<Object?> get props => [sourceUri, treeUri, path, mimeType];
 
   Map<String, dynamic> toJson() => _$CopyDocumentRequestToJson(this);
 

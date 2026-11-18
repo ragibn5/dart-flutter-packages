@@ -185,6 +185,113 @@ void main() {
     });
   });
 
+  group('getDocument', () {
+    test('getDocumentShouldSendRequestAsJsonToGetDocument', () async {
+      replyWith(null);
+
+      await sut.getDocument(getRequest);
+
+      expect(calls.single.method, 'getDocument');
+      expect(jsonDecode(calls.single.arguments as String), getRequest.toJson());
+    });
+
+    test('getDocumentShouldReturnDecodedDocumentIfOneIsAtPath', () async {
+      replyWith(jsonEncode(document.toJson()));
+
+      expect(await sut.getDocument(getRequest), document);
+    });
+
+    test('getDocumentShouldReturnNullIfNoneIsAtPath', () async {
+      replyWith(null);
+
+      expect(await sut.getDocument(getRequest), isNull);
+    });
+
+    test('getDocumentShouldThrowMappedExceptionIfPlatformFails', () {
+      when(
+        () => documentQueryMapper.map(any()),
+      ).thenReturn(const _MappedException());
+      replyWith(PlatformException(code: 'tree_access_lost'));
+
+      expect(sut.getDocument(getRequest), throwsA(isA<_MappedException>()));
+    });
+  });
+
+  group('createDirectory', () {
+    test('createDirectoryShouldSendRequestAsJsonToCreateDirectory', () async {
+      replyWith(jsonEncode(document.toJson()));
+
+      await sut.createDirectory(createDirectoryRequest);
+
+      expect(calls.single.method, 'createDirectory');
+      expect(
+        jsonDecode(calls.single.arguments as String),
+        createDirectoryRequest.toJson(),
+      );
+    });
+
+    test(
+      'createDirectoryShouldReturnDecodedDocumentIfPlatformReplies',
+      () async {
+        replyWith(jsonEncode(document.toJson()));
+
+        expect(await sut.createDirectory(createDirectoryRequest), document);
+      },
+    );
+
+    test('createDirectoryShouldThrowMappedExceptionIfPlatformFails', () {
+      when(
+        () => documentWriteMapper.map(any()),
+      ).thenReturn(const _MappedException());
+      replyWith(PlatformException(code: 'already_exists'));
+
+      expect(
+        sut.createDirectory(createDirectoryRequest),
+        throwsA(isA<_MappedException>()),
+      );
+    });
+  });
+
+  group('createDocument', () {
+    test(
+      'createDocumentShouldSendRequestAsJsonAndBytesApartToCreateDocument',
+      () async {
+        replyWith(jsonEncode(document.toJson()));
+
+        await sut.createDocument(createDocumentRequest);
+
+        final arguments = calls.single.arguments as Map<Object?, Object?>;
+        expect(calls.single.method, 'createDocument');
+        expect(
+          jsonDecode(arguments['request']! as String),
+          createDocumentRequest.toJson(),
+        );
+        expect(arguments['bytes'], createDocumentRequest.bytes);
+      },
+    );
+
+    test(
+      'createDocumentShouldReturnDecodedDocumentIfPlatformReplies',
+      () async {
+        replyWith(jsonEncode(document.toJson()));
+
+        expect(await sut.createDocument(createDocumentRequest), document);
+      },
+    );
+
+    test('createDocumentShouldThrowMappedExceptionIfPlatformFails', () {
+      when(
+        () => documentWriteMapper.map(any()),
+      ).thenReturn(const _MappedException());
+      replyWith(PlatformException(code: 'already_exists'));
+
+      expect(
+        sut.createDocument(createDocumentRequest),
+        throwsA(isA<_MappedException>()),
+      );
+    });
+  });
+
   group('copyDocument', () {
     test('copyDocumentShouldSendRequestAsJsonToCopyDocument', () async {
       replyWith(jsonEncode(document.toJson()));
@@ -211,6 +318,96 @@ void main() {
       replyWith(PlatformException(code: 'not_enough_space'));
 
       expect(sut.copyDocument(copyRequest), throwsA(isA<_MappedException>()));
+    });
+  });
+
+  group('renameDocument', () {
+    test('renameDocumentShouldSendRequestAsJsonToRenameDocument', () async {
+      replyWith(jsonEncode(document.toJson()));
+
+      await sut.renameDocument(renameRequest);
+
+      expect(calls.single.method, 'renameDocument');
+      expect(
+        jsonDecode(calls.single.arguments as String),
+        renameRequest.toJson(),
+      );
+    });
+
+    test(
+      'renameDocumentShouldReturnDecodedDocumentIfPlatformReplies',
+      () async {
+        replyWith(jsonEncode(document.toJson()));
+
+        expect(await sut.renameDocument(renameRequest), document);
+      },
+    );
+
+    test('renameDocumentShouldThrowMappedExceptionIfPlatformFails', () {
+      when(
+        () => documentWriteMapper.map(any()),
+      ).thenReturn(const _MappedException());
+      replyWith(PlatformException(code: 'already_exists'));
+
+      expect(
+        sut.renameDocument(renameRequest),
+        throwsA(isA<_MappedException>()),
+      );
+    });
+  });
+
+  group('moveDocument', () {
+    test('moveDocumentShouldSendRequestAsJsonToMoveDocument', () async {
+      replyWith(jsonEncode(document.toJson()));
+
+      await sut.moveDocument(moveRequest);
+
+      expect(calls.single.method, 'moveDocument');
+      expect(
+        jsonDecode(calls.single.arguments as String),
+        moveRequest.toJson(),
+      );
+    });
+
+    test('moveDocumentShouldReturnDecodedDocumentIfPlatformReplies', () async {
+      replyWith(jsonEncode(document.toJson()));
+
+      expect(await sut.moveDocument(moveRequest), document);
+    });
+
+    test('moveDocumentShouldThrowMappedExceptionIfPlatformFails', () {
+      when(
+        () => documentWriteMapper.map(any()),
+      ).thenReturn(const _MappedException());
+      replyWith(PlatformException(code: 'unsupported_operation'));
+
+      expect(sut.moveDocument(moveRequest), throwsA(isA<_MappedException>()));
+    });
+  });
+
+  group('deleteDocument', () {
+    test('deleteDocumentShouldSendRequestAsJsonToDeleteDocument', () async {
+      replyWith(null);
+
+      await sut.deleteDocument(deleteRequest);
+
+      expect(calls.single.method, 'deleteDocument');
+      expect(
+        jsonDecode(calls.single.arguments as String),
+        deleteRequest.toJson(),
+      );
+    });
+
+    test('deleteDocumentShouldThrowMappedExceptionIfPlatformFails', () {
+      when(
+        () => documentWriteMapper.map(any()),
+      ).thenReturn(const _MappedException());
+      replyWith(PlatformException(code: 'not_found'));
+
+      expect(
+        sut.deleteDocument(deleteRequest),
+        throwsA(isA<_MappedException>()),
+      );
     });
   });
 }

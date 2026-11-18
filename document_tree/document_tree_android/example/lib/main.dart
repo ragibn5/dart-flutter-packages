@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:document_tree_android/document_tree_android.dart';
@@ -35,7 +36,7 @@ class _TreePageState extends State<TreePage> {
   String? _treeUri;
   DocumentTree? _tree;
   List<DocumentInfo>? _documents;
-  DocumentInfo? _copied;
+  DocumentInfo? _written;
   String? _error;
 
   Future<void> _run(Future<void> Function() action) async {
@@ -101,8 +102,9 @@ class _TreePageState extends State<TreePage> {
     );
   });
 
-  /// Copies a fresh cache file into the tree, at `copy-test/sample.txt`.
-  Future<void> _copy({required bool overwrite}) => _run(() async {
+  /// Copies a fresh cache file into the tree's root, as `sample.txt`; fails
+  /// if it's already there.
+  Future<void> _copy() => _run(() async {
     final treeUri = _treeUri;
     if (treeUri == null) {
       return;
@@ -114,11 +116,28 @@ class _TreePageState extends State<TreePage> {
       CopyDocumentRequest(
         sourceUri: source.uri.toString(),
         treeUri: treeUri,
-        path: 'copy-test/sample.txt',
-        overwrite: overwrite,
+        path: 'sample.txt',
       ),
     );
-    setState(() => _copied = copied);
+    setState(() => _written = copied);
+  });
+
+  /// Creates `created.txt` in the tree's root, with its content; fails if
+  /// it's already there.
+  Future<void> _create() => _run(() async {
+    final treeUri = _treeUri;
+    if (treeUri == null) {
+      return;
+    }
+
+    final created = await _documentTree.createDocument(
+      CreateDocumentRequest(
+        treeUri: treeUri,
+        path: 'created.txt',
+        bytes: utf8.encode('Created at ${DateTime.now()}\n'),
+      ),
+    );
+    setState(() => _written = created);
   });
 
   String _formatMillis(int? millis) {
@@ -141,14 +160,8 @@ class _TreePageState extends State<TreePage> {
             OutlinedButton(onPressed: _refresh, child: const Text('Refresh')),
             OutlinedButton(onPressed: _release, child: const Text('Release')),
             OutlinedButton(onPressed: _list, child: const Text('List')),
-            OutlinedButton(
-              onPressed: () => _copy(overwrite: false),
-              child: const Text('Copy'),
-            ),
-            OutlinedButton(
-              onPressed: () => _copy(overwrite: true),
-              child: const Text('Copy (overwrite)'),
-            ),
+            OutlinedButton(onPressed: _copy, child: const Text('Copy')),
+            OutlinedButton(onPressed: _create, child: const Text('Create')),
           ],
         ),
         const SizedBox(height: 16),
@@ -164,11 +177,11 @@ class _TreePageState extends State<TreePage> {
             'Location: ${tree.location == null ? 'not on device storage' : '${tree.location!.volumeId} / "${tree.location!.relativePath}"'}',
           ),
         ],
-        if (_copied case final copied?) ...[
+        if (_written case final written?) ...[
           const SizedBox(height: 16),
           Text(
-            'Copied: ${copied.path} · ${copied.sizeInBytes} B · '
-            '${copied.mimeType} · ${_formatMillis(copied.lastModifiedInMillis)}',
+            'Written: ${written.path} · ${written.sizeInBytes} B · '
+            '${written.mimeType} · ${_formatMillis(written.lastModifiedInMillis)}',
           ),
         ],
         if (_documents case final documents?) ...[

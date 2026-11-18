@@ -1,7 +1,6 @@
 package com.ragibn5.document.tree.document_tree_android.features.document.di
 
 import android.content.Context
-import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentCreator
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentListService
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentListServiceImpl
 import com.ragibn5.document.tree.document_tree_android.features.document.services.DocumentPathResolver
@@ -14,7 +13,7 @@ internal object DocumentListServiceFactory {
         return DocumentListServiceImpl(
             grants = PersistedTreeGrants(context.contentResolver),
             rowReader = rowReader,
-            pathResolver = DocumentPathResolver(rowReader, DocumentCreator(context.contentResolver, rowReader)),
+            pathResolver = DocumentPathResolver(rowReader),
         )
     }
 }
