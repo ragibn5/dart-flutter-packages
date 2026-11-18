@@ -6,18 +6,18 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:content_io_android/src/exceptions/content_write_exception.dart';
-import 'package:content_io_android/src/io/sink/content_byte_sink.dart';
-import 'package:content_io_android/src/io/source/native_descriptor_io.dart';
+import 'package:content_io_android/src/io/native_descriptor_io.dart';
+import 'package:content_io_android/src/io/writer/content_writer.dart';
 
-/// A [ContentByteSink] for a file descriptor, written with libc over FFI.
+/// A [ContentWriter] for a file descriptor, written with libc over FFI.
 ///
 /// - Owns the descriptor, and closes it on [close], [abort], or when garbage
 ///   collected.
 /// - Writes with `write`, and syncs with `fsync` on [close].
-/// - Writes run on a worker isolate of the sink's own, so they never block
+/// - Writes run on a worker isolate of the writer's own, so they never block
 ///   the calling isolate, even on a pipe that waits for its reader.
-final class DescriptorByteSink extends ContentByteSink {
-  /// Closes the descriptor of sinks garbage collected without being closed.
+final class DescriptorContentWriter extends ContentWriter {
+  /// Closes the descriptor of writers garbage collected without being closed.
   static final _finalizer = Finalizer<_DescriptorWriter>((it) => it.abort());
 
   /// Writes the descriptor on the worker isolate.
@@ -26,7 +26,7 @@ final class DescriptorByteSink extends ContentByteSink {
   @override
   final String id;
 
-  DescriptorByteSink({required this.id, required int fd})
+  DescriptorContentWriter({required this.id, required int fd})
     : _writer = _DescriptorWriter(fd) {
     _finalizer.attach(this, _writer, detach: this);
   }
@@ -47,11 +47,11 @@ final class DescriptorByteSink extends ContentByteSink {
   }
 }
 
-/// The main-isolate side of a [DescriptorByteSink]'s worker isolate.
+/// The main-isolate side of a [DescriptorContentWriter]'s worker isolate.
 ///
 /// Note:
-/// Separate from the sink, so the finalizer can close the descriptor after
-/// the sink is garbage collected.
+/// Separate from the writer, so the finalizer can close the descriptor after
+/// the writer is garbage collected.
 final class _DescriptorWriter {
   /// The number of bytes copied to native memory per worker request.
   static const _pieceSize = 1024 * 1024;
@@ -198,7 +198,7 @@ final class _Worker {
         _run,
         _WorkerStart(fd: fd, replies: replies.sendPort),
         onExit: replies.sendPort,
-        debugName: 'DescriptorByteSink',
+        debugName: 'DescriptorContentWriter',
       );
       return worker = _Worker._(await ready.future);
     } on IsolateSpawnException catch (e, stackTrace) {

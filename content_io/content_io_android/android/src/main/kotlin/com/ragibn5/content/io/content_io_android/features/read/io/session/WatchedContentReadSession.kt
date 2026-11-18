@@ -12,7 +12,7 @@ import java.io.InputStream
  * failed. Closing it here tells the provider whether the read finished or was
  * cancelled.
  */
-internal class DescriptorContentReadSession(
+internal class WatchedContentReadSession(
     override val sessionId: String,
     /** The content's descriptor; closed with the session. */
     private val descriptor: AssetFileDescriptor,

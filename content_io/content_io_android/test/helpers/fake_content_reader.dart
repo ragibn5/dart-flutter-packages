@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:content_io_android/src/io/source/content_byte_source.dart';
+import 'package:content_io_android/src/io/reader/content_reader.dart';
 
-/// A [ContentByteSource] that serves scripted pieces, one per read.
-final class FakeByteSource extends ContentByteSource {
+/// A [ContentReader] that serves scripted pieces, one per read.
+final class FakeContentReader extends ContentReader {
   /// The pieces still to serve; an empty read follows the last one.
   final List<Uint8List> _pieces;
 
@@ -29,7 +29,7 @@ final class FakeByteSource extends ContentByteSource {
   @override
   bool get isSeekable => true;
 
-  FakeByteSource({
+  FakeContentReader({
     this.id = 'fake-1',
     this.length,
     List<List<int>> pieces = const [],

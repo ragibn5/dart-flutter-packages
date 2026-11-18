@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:content_io_android/src/exceptions/content_read_exception.dart';
-import 'package:content_io_android/src/io/source/channel_byte_source.dart';
+import 'package:content_io_android/src/io/reader/channel_content_reader.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,7 +13,7 @@ class _MappedException implements Exception {
   const _MappedException();
 }
 
-/// The most bytes the source asks for in one call.
+/// The most bytes the reader asks for in one call.
 const _maxBytesPerCall = 512 * 1024;
 
 void main() {
@@ -45,8 +45,8 @@ void main() {
     });
   }
 
-  ChannelByteSource createSource({bool isSeekable = true}) {
-    return ChannelByteSource(
+  ChannelContentReader createSource({bool isSeekable = true}) {
+    return ChannelContentReader(
       channel: channel,
       readChannel: readChannel,
       id: 'session-1',
@@ -89,10 +89,10 @@ void main() {
 
     test('readShouldStartWhereThePreviousReadEnded', () async {
       serveItem(10);
-      final source = createSource();
+      final reader = createSource();
 
-      await source.read(4);
-      expect(await source.read(2), [4, 5]);
+      await reader.read(4);
+      expect(await reader.read(2), [4, 5]);
     });
 
     test('readShouldStartAtPositionIfPositionIsGiven', () async {
@@ -146,10 +146,10 @@ void main() {
       'readAllShouldReadToEndFromCurrentPositionIfPositionIsNotGiven',
       () async {
         serveItem(6);
-        final source = createSource();
-        await source.read(2);
+        final reader = createSource();
+        await reader.read(2);
 
-        expect(await source.readAll(), [2, 3, 4, 5]);
+        expect(await reader.readAll(), [2, 3, 4, 5]);
       },
     );
 

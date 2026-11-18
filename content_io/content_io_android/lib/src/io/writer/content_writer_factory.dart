@@ -1,34 +1,34 @@
 import 'dart:convert';
 
 import 'package:content_io_android/src/exceptions/content_open_exception.dart';
-import 'package:content_io_android/src/io/sink/channel_byte_sink.dart';
-import 'package:content_io_android/src/io/sink/content_byte_sink.dart';
-import 'package:content_io_android/src/io/sink/descriptor_byte_sink.dart';
+import 'package:content_io_android/src/io/writer/channel_content_writer.dart';
+import 'package:content_io_android/src/io/writer/content_writer.dart';
+import 'package:content_io_android/src/io/writer/descriptor_content_writer.dart';
 import 'package:content_io_android/src/models/open_write_reply.dart';
 import 'package:content_io_android/src/models/open_write_request.dart';
 import 'package:content_io_android/src/utils/json_decoder.dart';
 import 'package:content_io_android/src/utils/platform_call_guarder.dart';
 import 'package:flutter/services.dart';
 
-/// Opens a [ContentByteSink] for the content behind a URI.
-abstract interface class ContentByteSinkFactory {
-  /// Opens a sink for the content [request] points to.
+/// Opens a [ContentWriter] for the content behind a URI.
+abstract interface class ContentWriterFactory {
+  /// Opens a writer for the content [request] points to.
   ///
   /// Parameters:
   /// - [request]: the content to open, and how.
   ///
-  /// Returns: an open sink; the caller must close or abort it.
+  /// Returns: an open writer; the caller must close or abort it.
   ///
   /// Throws:
   /// - [ContentOpenException] if the content can't be opened for writing.
-  Future<ContentByteSink> open(OpenWriteRequest request);
+  Future<ContentWriter> open(OpenWriteRequest request);
 }
 
-/// The [ContentByteSinkFactory] that writes the way the platform's
-/// `openWriteSession` reply describes: a [DescriptorByteSink] or a
-/// [ChannelByteSink].
-final class DefaultContentByteSinkFactory implements ContentByteSinkFactory {
-  /// The number of local ids handed out, for sinks with no platform-side
+/// The [ContentWriterFactory] that writes the way the platform's
+/// `openWriteSession` reply describes: a [DescriptorContentWriter] or a
+/// [ChannelContentWriter].
+final class DefaultContentWriterFactory implements ContentWriterFactory {
+  /// The number of local ids handed out, for writers with no platform-side
   /// session.
   static int _localIdCount = 0;
 
@@ -41,7 +41,7 @@ final class DefaultContentByteSinkFactory implements ContentByteSinkFactory {
   /// Maps [PlatformException]s to [ContentOpenException]s.
   final ContentOpenExceptionMapper _exceptionMapper;
 
-  const DefaultContentByteSinkFactory({
+  const DefaultContentWriterFactory({
     required MethodChannel channel,
     required MethodChannel writeChannel,
     ContentOpenExceptionMapper exceptionMapper =
@@ -54,7 +54,7 @@ final class DefaultContentByteSinkFactory implements ContentByteSinkFactory {
   /// - [ContentOpenException] if the platform can't open the content.
   /// - [FormatException] if the reply is malformed.
   @override
-  Future<ContentByteSink> open(OpenWriteRequest request) async {
+  Future<ContentWriter> open(OpenWriteRequest request) async {
     final result = await guardPlatformCall(
       _exceptionMapper,
       () => _channel.invokeMethod<String>(
@@ -65,17 +65,17 @@ final class DefaultContentByteSinkFactory implements ContentByteSinkFactory {
     final reply = decodeJsonObject(result!, OpenWriteReply.fromJson);
 
     return switch (reply) {
-      WriteDescriptorReply() => DescriptorByteSink(
+      WriteDescriptorReply() => DescriptorContentWriter(
         id: _nextLocalId(),
         fd: reply.fd,
       ),
-      WriteChannelReply() => ChannelByteSink(
+      WriteChannelReply() => ChannelContentWriter(
         id: reply.sessionId,
         writeChannel: _writeChannel,
       ),
     };
   }
 
-  /// Returns a new id for a sink with no platform-side session.
+  /// Returns a new id for a writer with no platform-side session.
   static String _nextLocalId() => 'local-write-${++_localIdCount}';
 }

@@ -3,8 +3,8 @@ package com.ragibn5.content.io.content_io_android.features.read.services
 import android.util.Log
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoException
 import com.ragibn5.content.io.content_io_android.features.read.constants.ReadExceptionCodes
-import com.ragibn5.content.io.content_io_android.features.read.io.session.DescriptorContentReadSession
 import com.ragibn5.content.io.content_io_android.features.read.io.session.StreamContentReadSession
+import com.ragibn5.content.io.content_io_android.features.read.io.session.WatchedContentReadSession
 import com.ragibn5.content.io.content_io_android.features.read.models.OpenReadReply
 import com.ragibn5.content.io.content_io_android.features.read.models.OpenReadRequest
 import com.ragibn5.content.io.content_io_android.features.read.models.OpenThumbnailReadRequest
@@ -65,25 +65,25 @@ internal interface ContentReadService {
 }
 
 internal class ContentReadServiceImpl(
-    private val contentSourceOpener: ContentSourceOpener,
+    private val contentReadOpener: ContentReadOpener,
     private val sessionRegistry: ContentReadSessionRegistry = ContentReadSessionRegistry(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ContentReadService {
     override suspend fun openRead(request: OpenReadRequest): OpenReadReply {
         // Opening blocks, so keep it off the main thread.
-        val source = withContext(dispatcher) {
-            contentSourceOpener.open(request).getOrThrow()
+        val opened = withContext(dispatcher) {
+            contentReadOpener.open(request).getOrThrow()
         }
 
-        return toReply(source)
+        return toReply(opened)
     }
 
     override suspend fun openThumbnail(request: OpenThumbnailReadRequest): OpenReadReply {
         // Opening blocks, so keep it off the main thread.
-        val source = withContext(dispatcher) {
-            contentSourceOpener.openThumbnail(request).getOrThrow()
+        val opened = withContext(dispatcher) {
+            contentReadOpener.openThumbnail(request).getOrThrow()
         }
-        return toReply(source)
+        return toReply(opened)
     }
 
     override fun readFromSession(request: ReadRequest): ByteArray {
@@ -121,14 +121,14 @@ internal class ContentReadServiceImpl(
     }
 
     /**
-     * The reply for [source]: a descriptor is handed over and not kept here;
+     * The reply for [opened]: a descriptor is handed over and not kept here;
      * anything else becomes a session kept here, read over the channel.
      */
-    private fun toReply(source: OpenedContentSource): OpenReadReply {
-        val session = when (source) {
-            is OpenedContentSource.Fd -> return source.toReply()
-            is OpenedContentSource.AssetFd -> DescriptorContentReadSession(newSessionId(), source.descriptor)
-            is OpenedContentSource.Stream -> StreamContentReadSession(newSessionId(), source.stream)
+    private fun toReply(opened: OpenedForRead): OpenReadReply {
+        val session = when (opened) {
+            is OpenedForRead.DetachedFd -> return opened.toReply()
+            is OpenedForRead.WatchedAssetFd -> WatchedContentReadSession(newSessionId(), opened.descriptor)
+            is OpenedForRead.FallbackStream -> StreamContentReadSession(newSessionId(), opened.stream)
         }
         sessionRegistry.addSession(session)
         return OpenReadReply.Channel(
@@ -145,7 +145,7 @@ internal class ContentReadServiceImpl(
      *
      * @return the reply that hands the descriptor over to the Dart side.
      */
-    private fun OpenedContentSource.Fd.toReply() = OpenReadReply.Descriptor(
+    private fun OpenedForRead.DetachedFd.toReply() = OpenReadReply.Descriptor(
         fd = fd,
         offset = offset,
         sizeInBytes = sizeInBytes,

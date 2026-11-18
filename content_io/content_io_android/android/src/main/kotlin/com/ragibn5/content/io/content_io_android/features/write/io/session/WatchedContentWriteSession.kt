@@ -18,7 +18,7 @@ import java.io.OutputStream
  * failed, never that it finished. Closing it here tells the provider how the
  * write ended.
  */
-internal class DescriptorContentWriteSession(
+internal class WatchedContentWriteSession(
     override val sessionId: String,
     /** The content's descriptor; closed with the session. */
     private val descriptor: ParcelFileDescriptor,

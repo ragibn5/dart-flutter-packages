@@ -1,8 +1,8 @@
 import 'package:content_io_android/content_io_android_method_channel.dart';
-import 'package:content_io_android/src/io/sink/content_byte_sink.dart';
-import 'package:content_io_android/src/io/sink/content_byte_sink_factory.dart';
-import 'package:content_io_android/src/io/source/content_byte_source.dart';
-import 'package:content_io_android/src/io/source/content_byte_source_factory.dart';
+import 'package:content_io_android/src/io/reader/content_reader.dart';
+import 'package:content_io_android/src/io/reader/content_reader_factory.dart';
+import 'package:content_io_android/src/io/writer/content_writer.dart';
+import 'package:content_io_android/src/io/writer/content_writer_factory.dart';
 import 'package:content_io_android/src/models/open_read_request.dart';
 import 'package:content_io_android/src/models/open_thumbnail_read_request.dart';
 import 'package:content_io_android/src/models/open_write_request.dart';
@@ -10,60 +10,60 @@ import 'package:content_io_android/src/models/thumbnail_size.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockSourceFactory extends Mock implements ContentByteSourceFactory {}
+class _MockReaderFactory extends Mock implements ContentReaderFactory {}
 
-class _MockSource extends Mock implements ContentByteSource {}
+class _MockReader extends Mock implements ContentReader {}
 
-class _MockSinkFactory extends Mock implements ContentByteSinkFactory {}
+class _MockWriterFactory extends Mock implements ContentWriterFactory {}
 
-class _MockSink extends Mock implements ContentByteSink {}
+class _MockWriter extends Mock implements ContentWriter {}
 
 void main() {
-  late _MockSourceFactory sourceFactory;
-  late _MockSinkFactory sinkFactory;
+  late _MockReaderFactory readerFactory;
+  late _MockWriterFactory writerFactory;
   late MethodChannelContentIoAndroid sut;
 
   setUp(() {
-    sourceFactory = _MockSourceFactory();
-    sinkFactory = _MockSinkFactory();
+    readerFactory = _MockReaderFactory();
+    writerFactory = _MockWriterFactory();
     sut = MethodChannelContentIoAndroid(
-      sourceFactory: sourceFactory,
-      sinkFactory: sinkFactory,
+      readerFactory: readerFactory,
+      writerFactory: writerFactory,
     );
   });
 
-  test('openReadSessionShouldReadFromSourceFactoryOpens', () async {
+  test('openReadSessionShouldReadFromReaderFactoryOpens', () async {
     const request = OpenReadRequest(uri: 'content://media/1');
-    final source = _MockSource();
-    when(() => source.id).thenReturn('local-1');
-    when(() => sourceFactory.open(request)).thenAnswer((_) async => source);
+    final reader = _MockReader();
+    when(() => reader.id).thenReturn('local-1');
+    when(() => readerFactory.open(request)).thenAnswer((_) async => reader);
 
     final session = await sut.openReadSession(request);
 
     expect(session.sessionId, 'local-1');
   });
 
-  test('openThumbnailReadSessionShouldReadFromSourceFactoryOpens', () async {
+  test('openThumbnailReadSessionShouldReadFromReaderFactoryOpens', () async {
     const request = OpenThumbnailReadRequest(
       uri: 'content://media/1',
       size: ThumbnailSize(width: 256, height: 256),
     );
-    final source = _MockSource();
-    when(() => source.id).thenReturn('session-1');
+    final reader = _MockReader();
+    when(() => reader.id).thenReturn('session-1');
     when(
-      () => sourceFactory.openThumbnail(request),
-    ).thenAnswer((_) async => source);
+      () => readerFactory.openThumbnail(request),
+    ).thenAnswer((_) async => reader);
 
     final session = await sut.openThumbnailReadSession(request);
 
     expect(session.sessionId, 'session-1');
   });
 
-  test('openWriteSessionShouldWriteToSinkFactoryOpens', () async {
+  test('openWriteSessionShouldWriteToWriterFactoryOpens', () async {
     const request = OpenWriteRequest(uri: 'content://media/1');
-    final sink = _MockSink();
-    when(() => sink.id).thenReturn('local-write-1');
-    when(() => sinkFactory.open(request)).thenAnswer((_) async => sink);
+    final writer = _MockWriter();
+    when(() => writer.id).thenReturn('local-write-1');
+    when(() => writerFactory.open(request)).thenAnswer((_) async => writer);
 
     final session = await sut.openWriteSession(request);
 

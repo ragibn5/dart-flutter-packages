@@ -24,7 +24,7 @@ sealed class OpenReadReply extends Equatable {
     return switch (kind) {
       'descriptor' => DescriptorReply.fromJson(json),
       'channel' => ChannelReply.fromJson(json),
-      _ => throw FormatException('Unknown read source kind: $kind'),
+      _ => throw FormatException('Unknown read reply kind: $kind'),
     };
   }
 }

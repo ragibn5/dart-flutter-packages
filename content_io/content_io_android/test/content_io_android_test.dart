@@ -1,7 +1,7 @@
 import 'package:content_io_android/content_io_android.dart';
 import 'package:content_io_android/content_io_android_platform_interface.dart';
-import 'package:content_io_android/src/io/sink/content_byte_sink.dart';
-import 'package:content_io_android/src/io/source/content_byte_source.dart';
+import 'package:content_io_android/src/io/reader/content_reader.dart';
+import 'package:content_io_android/src/io/writer/content_writer.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -10,9 +10,9 @@ class _MockPlatform extends Mock
     with MockPlatformInterfaceMixin
     implements ContentIoAndroidPlatform {}
 
-class _MockSource extends Mock implements ContentByteSource {}
+class _MockReader extends Mock implements ContentReader {}
 
-class _MockSink extends Mock implements ContentByteSink {}
+class _MockWriter extends Mock implements ContentWriter {}
 
 void main() {
   late ContentIoAndroidPlatform original;
@@ -29,7 +29,7 @@ void main() {
 
   test('openReadSessionShouldReturnWhatPlatformReturnsForRequest', () async {
     const request = OpenReadRequest(uri: 'content://media/1');
-    final session = ContentReadSession(source: _MockSource());
+    final session = ContentReadSession(reader: _MockReader());
     when(
       () => platform.openReadSession(request),
     ).thenAnswer((_) async => session);
@@ -44,7 +44,7 @@ void main() {
         uri: 'content://media/1',
         size: ThumbnailSize(width: 256, height: 256),
       );
-      final session = ContentReadSession(source: _MockSource());
+      final session = ContentReadSession(reader: _MockReader());
       when(
         () => platform.openThumbnailReadSession(request),
       ).thenAnswer((_) async => session);
@@ -55,7 +55,7 @@ void main() {
 
   test('openWriteSessionShouldReturnWhatPlatformReturnsForRequest', () async {
     const request = OpenWriteRequest(uri: 'content://media/1');
-    final session = ContentWriteSession(sink: _MockSink());
+    final session = ContentWriteSession(writer: _MockWriter());
     when(
       () => platform.openWriteSession(request),
     ).thenAnswer((_) async => session);

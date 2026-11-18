@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:content_io_android/src/exceptions/content_read_exception.dart';
-import 'package:content_io_android/src/io/source/content_byte_source.dart';
+import 'package:content_io_android/src/io/reader/content_reader.dart';
 import 'package:meta/meta.dart';
 
 /// A single-use reader for the content behind one URI.
@@ -23,21 +23,21 @@ class ContentReadSession {
   /// succeeded or failed.
   Future<void> _lastCall = Future.value();
 
-  /// The source the session reads from.
-  final ContentByteSource _source;
+  /// The reader the session reads from.
+  final ContentReader _reader;
 
-  /// Creates a session that reads from [source].
+  /// Creates a session that reads from [reader].
   ///
   /// Parameters:
-  /// - [source]: the source to read from; the session closes it.
+  /// - [reader]: the reader to read from; the session closes it.
   @internal
-  ContentReadSession({required ContentByteSource source}) : _source = source;
+  ContentReadSession({required ContentReader reader}) : _reader = reader;
 
   /// The id of this session.
-  String get sessionId => _source.id;
+  String get sessionId => _reader.id;
 
   /// The size of the content in bytes, or `null` if unknown.
-  int? get sizeInBytes => _source.length;
+  int? get sizeInBytes => _reader.length;
 
   /// Whether the session is closed.
   bool get isClosed => _isClosed;
@@ -88,7 +88,7 @@ class ContentReadSession {
     try {
       return await _serialized(() {
         _checkOpen();
-        return _source.readAll();
+        return _reader.readAll();
       });
     } finally {
       await close();
@@ -107,7 +107,7 @@ class ContentReadSession {
         return;
       }
       _isClosed = true;
-      await _source.close();
+      await _reader.close();
     });
   }
 
@@ -116,7 +116,7 @@ class ContentReadSession {
       while (true) {
         final chunk = await _serialized(() {
           _checkOpen();
-          return _source.read(chunkSize);
+          return _reader.read(chunkSize);
         });
         if (chunk.isEmpty) {
           break;

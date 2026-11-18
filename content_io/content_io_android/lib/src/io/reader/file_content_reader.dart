@@ -3,17 +3,17 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:content_io_android/src/exceptions/content_read_exception.dart';
-import 'package:content_io_android/src/io/source/content_byte_source.dart';
+import 'package:content_io_android/src/io/reader/content_reader.dart';
 
-/// A [ContentByteSource] for a file opened by path, read with `dart:io`.
+/// A [ContentReader] for a file opened by path, read with `dart:io`.
 ///
 /// Makes no platform calls. Reads run on `dart:io`'s IO threads and don't
 /// block the calling isolate.
-final class FileByteSource extends ContentByteSource {
+final class FileContentReader extends ContentReader {
   /// The minimum number of bytes [readAll] requests per read.
   static const _minPieceSize = 64 * 1024;
 
-  /// The open file. Its own position is the source's current position.
+  /// The open file. Its own position is the reader's current position.
   final RandomAccessFile _file;
 
   @override
@@ -22,26 +22,26 @@ final class FileByteSource extends ContentByteSource {
   @override
   final int length;
 
-  FileByteSource._(this.id, this._file, this.length);
+  FileContentReader._(this.id, this._file, this.length);
 
   /// Opens the file at [path] for reading.
   ///
   /// Parameters:
-  /// - [id]: the id of the source.
+  /// - [id]: the id of the reader.
   /// - [path]: the absolute path of the file.
   ///
-  /// Returns: the source for the open file.
+  /// Returns: the reader for the open file.
   ///
   /// Throws:
   /// - [FileSystemException] if the file can't be opened, for example when the
   ///   app may not read it via the path.
-  static Future<FileByteSource> open({
+  static Future<FileContentReader> open({
     required String id,
     required String path,
   }) async {
     final file = await File(path).open();
     try {
-      return FileByteSource._(id, file, await file.length());
+      return FileContentReader._(id, file, await file.length());
       // An opened file whose length can't be read can't be set up in a test:
       // this only makes sure the file isn't left open.
       // coverage:ignore-start

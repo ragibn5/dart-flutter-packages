@@ -23,7 +23,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 internal class ContentWriteServiceTest {
-    private val opener = Mockito.mock(ContentSinkOpener::class.java)
+    private val opener = Mockito.mock(ContentWriteOpener::class.java)
     private val registry = ContentWriteSessionRegistry()
     private val request = OpenWriteRequest(uri = "content://a/document/1", mode = WriteMode.TRUNCATE)
 
@@ -35,13 +35,13 @@ internal class ContentWriteServiceTest {
         registry.addSession(it)
     }
 
-    private fun givenOpened(sink: Result<OpenedContentSink>) {
-        Mockito.doAnswer { unboxed(sink) }.`when`(opener).open(request)
+    private fun givenOpened(opened: Result<OpenedForWrite>) {
+        Mockito.doAnswer { unboxed(opened) }.`when`(opener).open(request)
     }
 
     @Test
     fun openWriteShouldReturnDescriptorReplyAndKeepNoSessionIfContentOpensAsDescriptor() = runTest {
-        givenOpened(Result.success(OpenedContentSink.Fd(fd = 42)))
+        givenOpened(Result.success(OpenedForWrite.DetachedFd(fd = 42)))
 
         assertEquals(OpenWriteReply.Descriptor(fd = 42), service(testScheduler).openWrite(request))
         assertTrue(registry.sessionMap.isEmpty())
@@ -52,7 +52,7 @@ internal class ContentWriteServiceTest {
         val descriptor = Mockito.mock(ParcelFileDescriptor::class.java).also {
             Mockito.`when`(it.fileDescriptor).thenReturn(FileDescriptor())
         }
-        givenOpened(Result.success(OpenedContentSink.ParcelFd(descriptor)))
+        givenOpened(Result.success(OpenedForWrite.WatchedParcelFd(descriptor)))
 
         val reply = assertIs<OpenWriteReply.Channel>(service(testScheduler).openWrite(request))
 

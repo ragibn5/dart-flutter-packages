@@ -3,18 +3,18 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:content_io_android/src/exceptions/content_read_exception.dart';
-import 'package:content_io_android/src/io/source/content_byte_source.dart';
+import 'package:content_io_android/src/io/reader/content_reader.dart';
 import 'package:content_io_android/src/models/read_request.dart';
 import 'package:content_io_android/src/utils/platform_call_guarder.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
-/// A [ContentByteSource] for a platform-side read session, read over the
+/// A [ContentReader] for a platform-side read session, read over the
 /// method channel.
 ///
 /// Each read takes one or more `readFromSession` calls, of at most
 /// [_maxBytesPerCall] bytes each.
-final class ChannelByteSource extends ContentByteSource {
+final class ChannelContentReader extends ContentReader {
   /// The maximum number of bytes requested per `readFromSession` call.
   static const _maxBytesPerCall = 512 * 1024;
 
@@ -41,7 +41,7 @@ final class ChannelByteSource extends ContentByteSource {
   @override
   final bool isSeekable;
 
-  ChannelByteSource({
+  ChannelContentReader({
     required MethodChannel readChannel,
     required MethodChannel channel,
     required this.id,

@@ -1,6 +1,5 @@
-
 import 'package:content_io_android/src/exceptions/content_write_exception.dart';
-import 'package:content_io_android/src/io/sink/channel_byte_sink.dart';
+import 'package:content_io_android/src/io/writer/channel_content_writer.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -11,7 +10,7 @@ class _MappedException implements Exception {
   const _MappedException();
 }
 
-/// The most bytes the sink sends in one call.
+/// The most bytes the writer sends in one call.
 const _maxBytesPerCall = 512 * 1024;
 
 void main() {
@@ -22,7 +21,7 @@ void main() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
   late _MockMapper mapper;
-  late ChannelByteSink sut;
+  late ChannelContentWriter sut;
 
   /// The calls the platform side received, in order.
   late List<MethodCall> calls;
@@ -44,7 +43,7 @@ void main() {
   setUp(() {
     mapper = _MockMapper();
     calls = [];
-    sut = ChannelByteSink(
+    sut = ChannelContentWriter(
       writeChannel: writeChannel,
       id: 'session-1',
       exceptionMapper: mapper,

@@ -5,37 +5,39 @@ import 'package:content_io_android/src/exceptions/content_write_exception.dart';
 import 'package:content_io_android/src/io/session/content_write_session.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/fake_byte_sink.dart';
+import '../../../helpers/fake_content_writer.dart';
 
 void main() {
-  test('sessionIdShouldBeSinkId', () {
-    final session = ContentWriteSession(sink: FakeByteSink(id: 'session-1'));
+  test('sessionIdShouldBeWriterId', () {
+    final session = ContentWriteSession(
+      writer: FakeContentWriter(id: 'session-1'),
+    );
 
     expect(session.sessionId, 'session-1');
   });
 
   group('write', () {
-    test('writeShouldPassBytesToSinkAsTheyAreIfUint8List', () async {
-      final sink = FakeByteSink();
+    test('writeShouldPassBytesToWriterAsTheyAreIfUint8List', () async {
+      final writer = FakeContentWriter();
       final bytes = Uint8List.fromList([1, 2]);
 
-      await ContentWriteSession(sink: sink).write(bytes);
+      await ContentWriteSession(writer: writer).write(bytes);
 
-      expect(sink.writes.single, same(bytes));
+      expect(writer.writes.single, same(bytes));
     });
 
     test('writeShouldCopyBytesIntoUint8ListIfOtherList', () async {
-      final sink = FakeByteSink();
+      final writer = FakeContentWriter();
 
-      await ContentWriteSession(sink: sink).write([1, 2]);
+      await ContentWriteSession(writer: writer).write([1, 2]);
 
-      expect(sink.writes.single, [1, 2]);
+      expect(writer.writes.single, [1, 2]);
     });
 
-    test('writeShouldThrowSinkErrorAndKeepSessionOpenIfWriteFails', () async {
-      final sink = FakeByteSink()
+    test('writeShouldThrowWriterErrorAndKeepSessionOpenIfWriteFails', () async {
+      final writer = FakeContentWriter()
         ..writeError = const NotEnoughSpaceException('full');
-      final session = ContentWriteSession(sink: sink);
+      final session = ContentWriteSession(writer: writer);
 
       await expectLater(
         session.write([1]),
@@ -45,7 +47,9 @@ void main() {
     });
 
     test('writeShouldThrowSessionNotFoundIfSessionIsClosed', () async {
-      final session = ContentWriteSession(sink: FakeByteSink(id: 'session-1'));
+      final session = ContentWriteSession(
+        writer: FakeContentWriter(id: 'session-1'),
+      );
       await session.close();
 
       expect(
@@ -61,15 +65,15 @@ void main() {
     });
 
     test('writeShouldWaitForPreviousWrite', () async {
-      final sink = FakeByteSink()..writeGate = Completer<void>();
-      final session = ContentWriteSession(sink: sink);
+      final writer = FakeContentWriter()..writeGate = Completer<void>();
+      final session = ContentWriteSession(writer: writer);
 
       final first = session.write([1]);
       final second = session.write([2]);
-      sink.writeGate!.complete();
+      writer.writeGate!.complete();
       await Future.wait([first, second]);
 
-      expect(sink.writes, [
+      expect(writer.writes, [
         [1],
         [2],
       ]);
@@ -78,8 +82,8 @@ void main() {
 
   group('writeStream', () {
     test('writeStreamShouldWriteEveryChunkThenCloseSession', () async {
-      final sink = FakeByteSink();
-      final session = ContentWriteSession(sink: sink);
+      final writer = FakeContentWriter();
+      final session = ContentWriteSession(writer: writer);
 
       await session.writeStream(
         Stream.fromIterable([
@@ -88,54 +92,55 @@ void main() {
         ]),
       );
 
-      expect(sink.writes, [
+      expect(writer.writes, [
         [1, 2],
         [3],
       ]);
-      expect(sink.closeCount, 1);
+      expect(writer.closeCount, 1);
       expect(session.isClosed, isTrue);
     });
 
     test('writeStreamShouldAbortAndRethrowIfStreamFails', () async {
-      final sink = FakeByteSink();
+      final writer = FakeContentWriter();
 
       await expectLater(
         ContentWriteSession(
-          sink: sink,
+          writer: writer,
         ).writeStream(Stream.error(const FormatException('broken'))),
         throwsFormatException,
       );
-      expect(sink.abortCount, 1);
-      expect(sink.closeCount, 0);
+      expect(writer.abortCount, 1);
+      expect(writer.closeCount, 0);
     });
 
     test('writeStreamShouldAbortAndRethrowIfWriteFails', () async {
-      final sink = FakeByteSink()..writeError = const WriteException('io');
+      final writer = FakeContentWriter()
+        ..writeError = const WriteException('io');
 
       await expectLater(
-        ContentWriteSession(sink: sink).writeStream(Stream.value([1])),
+        ContentWriteSession(writer: writer).writeStream(Stream.value([1])),
         throwsA(isA<WriteException>()),
       );
-      expect(sink.abortCount, 1);
+      expect(writer.abortCount, 1);
     });
   });
 
   group('close', () {
-    test('closeShouldCloseSinkOnce', () async {
-      final sink = FakeByteSink();
-      final session = ContentWriteSession(sink: sink);
+    test('closeShouldCloseWriterOnce', () async {
+      final writer = FakeContentWriter();
+      final session = ContentWriteSession(writer: writer);
 
       await session.close();
       await session.close();
 
-      expect(sink.closeCount, 1);
+      expect(writer.closeCount, 1);
       expect(session.isClosed, isTrue);
     });
 
-    test('closeShouldThrowSinkErrorAndLeaveSessionClosed', () async {
-      final sink = FakeByteSink()
+    test('closeShouldThrowWriterErrorAndLeaveSessionClosed', () async {
+      final writer = FakeContentWriter()
         ..closeError = const NotEnoughSpaceException('full');
-      final session = ContentWriteSession(sink: sink);
+      final session = ContentWriteSession(writer: writer);
 
       await expectLater(
         session.close(),
@@ -145,41 +150,41 @@ void main() {
     });
 
     test('closeShouldWaitForInProgressWrite', () async {
-      final sink = FakeByteSink()..writeGate = Completer<void>();
-      final session = ContentWriteSession(sink: sink);
+      final writer = FakeContentWriter()..writeGate = Completer<void>();
+      final session = ContentWriteSession(writer: writer);
 
       final write = session.write([1]);
       final close = session.close();
-      sink.writeGate!.complete();
+      writer.writeGate!.complete();
       await Future.wait([write, close]);
 
-      expect(sink.writes, [
+      expect(writer.writes, [
         [1],
       ]);
-      expect(sink.closeCount, 1);
+      expect(writer.closeCount, 1);
     });
   });
 
   group('abort', () {
-    test('abortShouldAbortSinkOnce', () async {
-      final sink = FakeByteSink();
-      final session = ContentWriteSession(sink: sink);
+    test('abortShouldAbortWriterOnce', () async {
+      final writer = FakeContentWriter();
+      final session = ContentWriteSession(writer: writer);
 
       await session.abort();
       await session.abort();
 
-      expect(sink.abortCount, 1);
+      expect(writer.abortCount, 1);
       expect(session.isClosed, isTrue);
     });
 
     test('abortShouldDoNothingIfSessionIsClosed', () async {
-      final sink = FakeByteSink();
-      final session = ContentWriteSession(sink: sink);
+      final writer = FakeContentWriter();
+      final session = ContentWriteSession(writer: writer);
       await session.close();
 
       await session.abort();
 
-      expect(sink.abortCount, 0);
+      expect(writer.abortCount, 0);
     });
   });
 }

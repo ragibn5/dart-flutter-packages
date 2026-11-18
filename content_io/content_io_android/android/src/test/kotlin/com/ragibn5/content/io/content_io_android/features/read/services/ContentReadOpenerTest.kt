@@ -25,9 +25,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame
 
-internal class ContentSourceOpenerTest {
+internal class ContentReadOpenerTest {
     private val contentResolver = Mockito.mock(ContentResolver::class.java)
-    private val opener = ContentSourceOpener(contentResolver)
+    private val opener = ContentReadOpener(contentResolver)
 
     private val request = OpenReadRequest(uri = CONTENT_URI)
     private val thumbnailRequest = OpenThumbnailReadRequest(CONTENT_URI, ThumbnailSize(256, 256))
@@ -106,7 +106,7 @@ internal class ContentSourceOpenerTest {
         givenOpensAs(descriptor(length = 1024, offset = 512, fileSize = 4096))
 
         assertEquals(
-            OpenedContentSource.Fd(fd = FD, offset = 512, sizeInBytes = 1024, isSeekable = true),
+            OpenedForRead.DetachedFd(fd = FD, offset = 512, sizeInBytes = 1024, isSeekable = true),
             opener.open(request).getOrThrow(),
         )
     }
@@ -115,16 +115,16 @@ internal class ContentSourceOpenerTest {
     fun openShouldUseFileSizeAfterOffsetIfLengthIsUnknownAndFileIsRegular() {
         givenOpensAs(descriptor(length = AssetFileDescriptor.UNKNOWN_LENGTH, offset = 512, fileSize = 4096))
 
-        assertEquals(3584L, assertIs<OpenedContentSource.Fd>(opener.open(request).getOrThrow()).sizeInBytes)
+        assertEquals(3584L, assertIs<OpenedForRead.DetachedFd>(opener.open(request).getOrThrow()).sizeInBytes)
     }
 
     @Test
     fun openShouldReportNoSizeAndNoSeekingIfLengthIsUnknownAndFileIsNotRegular() {
         givenOpensAs(descriptor(length = AssetFileDescriptor.UNKNOWN_LENGTH, isRegularFile = false))
 
-        val source = assertIs<OpenedContentSource.Fd>(opener.open(request).getOrThrow())
+        val opened = assertIs<OpenedForRead.DetachedFd>(opener.open(request).getOrThrow())
 
-        assertEquals(null to false, source.sizeInBytes to source.isSeekable)
+        assertEquals(null to false, opened.sizeInBytes to opened.isSeekable)
     }
 
     @Test
@@ -144,7 +144,7 @@ internal class ContentSourceOpenerTest {
         val descriptor = watchedDescriptor()
         givenOpensAs(descriptor)
 
-        assertSame(descriptor, assertIs<OpenedContentSource.AssetFd>(opener.open(request).getOrThrow()).descriptor)
+        assertSame(descriptor, assertIs<OpenedForRead.WatchedAssetFd>(opener.open(request).getOrThrow()).descriptor)
         Mockito.verify(descriptor.parcelFileDescriptor, Mockito.never()).detachFd()
     }
 
@@ -154,7 +154,7 @@ internal class ContentSourceOpenerTest {
         givenOpensAs(null)
         Mockito.`when`(contentResolver.openInputStream(uri)).thenReturn(stream)
 
-        assertSame(stream, assertIs<OpenedContentSource.Stream>(opener.open(request).getOrThrow()).stream)
+        assertSame(stream, assertIs<OpenedForRead.FallbackStream>(opener.open(request).getOrThrow()).stream)
     }
 
     @Test
@@ -210,7 +210,7 @@ internal class ContentSourceOpenerTest {
         givenThumbnailOpensAs(descriptor(length = 1024))
 
         assertEquals(
-            OpenedContentSource.Fd(fd = FD, offset = 0, sizeInBytes = 1024, isSeekable = true),
+            OpenedForRead.DetachedFd(fd = FD, offset = 0, sizeInBytes = 1024, isSeekable = true),
             opener.openThumbnail(thumbnailRequest).getOrThrow(),
         )
     }
@@ -222,7 +222,7 @@ internal class ContentSourceOpenerTest {
 
         assertSame(
             descriptor,
-            assertIs<OpenedContentSource.AssetFd>(opener.openThumbnail(thumbnailRequest).getOrThrow()).descriptor,
+            assertIs<OpenedForRead.WatchedAssetFd>(opener.openThumbnail(thumbnailRequest).getOrThrow()).descriptor,
         )
     }
 

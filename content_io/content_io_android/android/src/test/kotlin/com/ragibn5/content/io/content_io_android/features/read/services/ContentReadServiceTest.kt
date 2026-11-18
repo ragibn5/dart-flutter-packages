@@ -26,10 +26,10 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 internal class ContentReadServiceTest {
-    private val opener = Mockito.mock(ContentSourceOpener::class.java)
+    private val opener = Mockito.mock(ContentReadOpener::class.java)
     private val registry = ContentReadSessionRegistry()
     private val request = OpenReadRequest(uri = "content://media/external/images/media/1")
-    private val descriptor = OpenedContentSource.Fd(fd = 42, offset = 0, sizeInBytes = 2048, isSeekable = true)
+    private val descriptor = OpenedForRead.DetachedFd(fd = 42, offset = 0, sizeInBytes = 2048, isSeekable = true)
 
     private fun service(scheduler: TestCoroutineScheduler) =
         ContentReadServiceImpl(opener, registry, UnconfinedTestDispatcher(scheduler))
@@ -39,8 +39,8 @@ internal class ContentReadServiceTest {
         registry.addSession(it)
     }
 
-    private fun givenOpened(source: Result<OpenedContentSource>) {
-        Mockito.doAnswer { unboxed(source) }.`when`(opener).open(request)
+    private fun givenOpened(opened: Result<OpenedForRead>) {
+        Mockito.doAnswer { unboxed(opened) }.`when`(opener).open(request)
     }
 
     @Test
@@ -56,7 +56,7 @@ internal class ContentReadServiceTest {
 
     @Test
     fun openReadShouldReturnChannelReplyAndKeepSessionIfContentOpensAsStream() = runTest {
-        givenOpened(Result.success(OpenedContentSource.Stream(ByteArray(0).inputStream())))
+        givenOpened(Result.success(OpenedForRead.FallbackStream(ByteArray(0).inputStream())))
 
         val reply = assertIs<OpenReadReply.Channel>(service(testScheduler).openRead(request))
 
@@ -79,7 +79,7 @@ internal class ContentReadServiceTest {
             Mockito.`when`(it.length).thenReturn(2048L)
             Mockito.`when`(it.createInputStream()).thenReturn(Mockito.mock(FileInputStream::class.java))
         }
-        givenOpened(Result.success(OpenedContentSource.AssetFd(descriptor)))
+        givenOpened(Result.success(OpenedForRead.WatchedAssetFd(descriptor)))
 
         val reply = assertIs<OpenReadReply.Channel>(service(testScheduler).openRead(request))
 

@@ -17,9 +17,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame
 
-internal class ContentSinkOpenerTest {
+internal class ContentWriteOpenerTest {
     private val contentResolver = Mockito.mock(ContentResolver::class.java)
-    private val opener = ContentSinkOpener(contentResolver)
+    private val opener = ContentWriteOpener(contentResolver)
 
     private val request = OpenWriteRequest(uri = CONTENT_URI, mode = WriteMode.APPEND)
 
@@ -60,7 +60,7 @@ internal class ContentSinkOpenerTest {
     fun openShouldReturnDetachedDescriptorInRequestedModeIfProviderDoesNotWatchIt() {
         givenOpensAs(descriptor(isWatched = false))
 
-        assertEquals(OpenedContentSink.Fd(fd = FD), opener.open(request).getOrThrow())
+        assertEquals(OpenedForWrite.DetachedFd(fd = FD), opener.open(request).getOrThrow())
     }
 
     @Test
@@ -68,7 +68,7 @@ internal class ContentSinkOpenerTest {
         val descriptor = descriptor(isWatched = true)
         givenOpensAs(descriptor)
 
-        assertSame(descriptor, assertIs<OpenedContentSink.ParcelFd>(opener.open(request).getOrThrow()).descriptor)
+        assertSame(descriptor, assertIs<OpenedForWrite.WatchedParcelFd>(opener.open(request).getOrThrow()).descriptor)
         Mockito.verify(descriptor, Mockito.never()).detachFd()
     }
 

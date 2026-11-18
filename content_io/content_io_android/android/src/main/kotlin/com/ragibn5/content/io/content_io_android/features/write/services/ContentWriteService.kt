@@ -6,7 +6,7 @@ import android.util.Log
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoException
 import com.ragibn5.content.io.content_io_android.features.write.constants.WriteExceptionCodes
 import com.ragibn5.content.io.content_io_android.features.write.io.session.ContentWriteSession
-import com.ragibn5.content.io.content_io_android.features.write.io.session.DescriptorContentWriteSession
+import com.ragibn5.content.io.content_io_android.features.write.io.session.WatchedContentWriteSession
 import com.ragibn5.content.io.content_io_android.features.write.models.OpenWriteReply
 import com.ragibn5.content.io.content_io_android.features.write.models.OpenWriteRequest
 import kotlinx.coroutines.CoroutineDispatcher
@@ -66,21 +66,21 @@ internal interface ContentWriteService {
 }
 
 internal class ContentWriteServiceImpl(
-    private val contentSinkOpener: ContentSinkOpener,
+    private val contentWriteOpener: ContentWriteOpener,
     private val sessionRegistry: ContentWriteSessionRegistry = ContentWriteSessionRegistry(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ContentWriteService {
     override suspend fun openWrite(request: OpenWriteRequest): OpenWriteReply {
         // Opening blocks, so keep it off the main thread.
-        val sink = withContext(dispatcher) {
-            contentSinkOpener.open(request).getOrThrow()
+        val opened = withContext(dispatcher) {
+            contentWriteOpener.open(request).getOrThrow()
         }
 
-        return when (sink) {
-            is OpenedContentSink.Fd -> OpenWriteReply.Descriptor(fd = sink.fd)
+        return when (opened) {
+            is OpenedForWrite.DetachedFd -> OpenWriteReply.Descriptor(fd = opened.fd)
 
-            is OpenedContentSink.ParcelFd -> {
-                val session = DescriptorContentWriteSession(UUID.randomUUID().toString(), sink.descriptor)
+            is OpenedForWrite.WatchedParcelFd -> {
+                val session = WatchedContentWriteSession(UUID.randomUUID().toString(), opened.descriptor)
                 sessionRegistry.addSession(session)
                 OpenWriteReply.Channel(sessionId = session.sessionId)
             }

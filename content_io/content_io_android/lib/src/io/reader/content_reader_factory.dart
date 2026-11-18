@@ -3,10 +3,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:content_io_android/src/exceptions/content_open_exception.dart';
-import 'package:content_io_android/src/io/source/channel_byte_source.dart';
-import 'package:content_io_android/src/io/source/content_byte_source.dart';
-import 'package:content_io_android/src/io/source/descriptor_byte_source.dart';
-import 'package:content_io_android/src/io/source/file_byte_source.dart';
+import 'package:content_io_android/src/io/reader/channel_content_reader.dart';
+import 'package:content_io_android/src/io/reader/content_reader.dart';
+import 'package:content_io_android/src/io/reader/descriptor_content_reader.dart';
+import 'package:content_io_android/src/io/reader/file_content_reader.dart';
 import 'package:content_io_android/src/models/open_read_reply.dart';
 import 'package:content_io_android/src/models/open_read_request.dart';
 import 'package:content_io_android/src/models/open_thumbnail_read_request.dart';
@@ -15,44 +15,43 @@ import 'package:content_io_android/src/utils/platform_call_guarder.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 
-/// Opens a [ContentByteSource] for the content behind a URI.
-abstract interface class ContentByteSourceFactory {
-  /// Opens a source for the content [request] points to.
+/// Opens a [ContentReader] for the content behind a URI.
+abstract interface class ContentReaderFactory {
+  /// Opens a reader for the content [request] points to.
   ///
   /// Parameters:
   /// - [request]: the content to open.
   ///
-  /// Returns: an open source; the caller must close it.
+  /// Returns: an open reader; the caller must close it.
   ///
   /// Throws:
   /// - [ContentOpenException] if the content can't be opened.
-  Future<ContentByteSource> open(OpenReadRequest request);
+  Future<ContentReader> open(OpenReadRequest request);
 
-  /// Opens a source for the thumbnail of the content [request] points to.
+  /// Opens a reader for the thumbnail of the content [request] points to.
   ///
   /// Parameters:
   /// - [request]: the content, and the size to request its thumbnail at.
   ///
-  /// Returns: an open source; the caller must close it.
+  /// Returns: an open reader; the caller must close it.
   ///
   /// Throws:
   /// - [ContentOpenException] if the thumbnail can't be opened.
   ///
   /// Note:
   /// Only the thumbnail's bytes are read, never the original content's.
-  Future<ContentByteSource> openThumbnail(OpenThumbnailReadRequest request);
+  Future<ContentReader> openThumbnail(OpenThumbnailReadRequest request);
 }
 
-/// The [ContentByteSourceFactory] that picks the fastest way to read content.
+/// The [ContentReaderFactory] that picks the fastest way to read content.
 ///
 /// In order:
-/// 1. A [FileByteSource], when [OpenReadRequest.filePath] is given and
+/// 1. A [FileContentReader], when [OpenReadRequest.filePath] is given and
 ///    can be opened.
-/// 2. Otherwise, the source the platform's `openReadSession` reply
-///    describes: a [DescriptorByteSource] or a [ChannelByteSource].
-final class DefaultContentByteSourceFactory
-    implements ContentByteSourceFactory {
-  /// The number of local ids handed out, for sources with no platform-side
+/// 2. Otherwise, the reader the platform's `openReadSession` reply
+///    describes: a [DescriptorContentReader] or a [ChannelContentReader].
+final class DefaultContentReaderFactory implements ContentReaderFactory {
+  /// The number of local ids handed out, for readers with no platform-side
   /// session.
   static int _localIdCount = 0;
 
@@ -65,7 +64,7 @@ final class DefaultContentByteSourceFactory
   /// Maps [PlatformException]s to [ContentOpenException]s.
   final ContentOpenExceptionMapper _exceptionMapper;
 
-  const DefaultContentByteSourceFactory({
+  const DefaultContentReaderFactory({
     required MethodChannel channel,
     required MethodChannel readChannel,
     ContentOpenExceptionMapper exceptionMapper =
@@ -75,11 +74,11 @@ final class DefaultContentByteSourceFactory
        _exceptionMapper = exceptionMapper;
 
   @override
-  Future<ContentByteSource> open(OpenReadRequest request) async {
+  Future<ContentReader> open(OpenReadRequest request) async {
     final filePath = request.filePath;
     if (filePath != null) {
       try {
-        return await FileByteSource.open(id: _nextLocalId(), path: filePath);
+        return await FileContentReader.open(id: _nextLocalId(), path: filePath);
       } on FileSystemException catch (e, st) {
         // Not readable by path: falls back to the platform.
 
@@ -88,7 +87,7 @@ final class DefaultContentByteSourceFactory
           'Exception while opening ${e.path} - falling back to platform.'
           '\nMessage: ${e.message}'
           '\nOsError: ${e.osError}',
-          name: 'ContentByteSourceFactory',
+          name: 'ContentReaderFactory',
           level: Level.WARNING.value,
           error: e,
           stackTrace: st,
@@ -96,13 +95,13 @@ final class DefaultContentByteSourceFactory
       }
     }
 
-    return _openPlatformSource('openReadSession', jsonEncode(request.toJson()));
+    return _openPlatformReader('openReadSession', jsonEncode(request.toJson()));
   }
 
   @override
-  Future<ContentByteSource> openThumbnail(OpenThumbnailReadRequest request) {
+  Future<ContentReader> openThumbnail(OpenThumbnailReadRequest request) {
     // A thumbnail has no file of its own: only the platform can open it.
-    return _openPlatformSource(
+    return _openPlatformReader(
       'openThumbnailReadSession',
       jsonEncode(request.toJson()),
     );
@@ -114,12 +113,12 @@ final class DefaultContentByteSourceFactory
   /// - [method]: the platform method that opens it.
   /// - [arguments]: the encoded request.
   ///
-  /// Returns: the source the platform's reply describes.
+  /// Returns: the reader the platform's reply describes.
   ///
   /// Throws:
   /// - [ContentOpenException] if the platform can't open the content.
   /// - [FormatException] if the reply is malformed.
-  Future<ContentByteSource> _openPlatformSource(
+  Future<ContentReader> _openPlatformReader(
     String method,
     String arguments,
   ) async {
@@ -130,14 +129,14 @@ final class DefaultContentByteSourceFactory
     final reply = decodeJsonObject(result!, OpenReadReply.fromJson);
 
     return switch (reply) {
-      DescriptorReply() => DescriptorByteSource(
+      DescriptorReply() => DescriptorContentReader(
         id: _nextLocalId(),
         fd: reply.fd,
         offset: reply.offset,
         length: reply.sizeInBytes,
         isSeekable: reply.isSeekable,
       ),
-      ChannelReply() => ChannelByteSource(
+      ChannelReply() => ChannelContentReader(
         id: reply.sessionId,
         channel: _channel,
         readChannel: _readChannel,
@@ -147,6 +146,6 @@ final class DefaultContentByteSourceFactory
     };
   }
 
-  /// Returns a new id for a source with no platform-side session.
+  /// Returns a new id for a reader with no platform-side session.
   static String _nextLocalId() => 'local-${++_localIdCount}';
 }

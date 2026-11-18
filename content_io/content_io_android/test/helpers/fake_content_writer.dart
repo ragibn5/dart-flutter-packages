@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:content_io_android/src/io/sink/content_byte_sink.dart';
+import 'package:content_io_android/src/io/writer/content_writer.dart';
 
-/// A [ContentByteSink] that records what it's given.
-final class FakeByteSink extends ContentByteSink {
+/// A [ContentWriter] that records what it's given.
+final class FakeContentWriter extends ContentWriter {
   /// The bytes of each [write] call, in order.
   final writes = <Uint8List>[];
 
@@ -26,7 +26,7 @@ final class FakeByteSink extends ContentByteSink {
   @override
   final String id;
 
-  FakeByteSink({this.id = 'sink-1'});
+  FakeContentWriter({this.id = 'writer-1'});
 
   @override
   Future<void> write(Uint8List bytes) async {

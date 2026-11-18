@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _MappedException implements Exception {
-  final PlatformException source;
+  final PlatformException reader;
 
-  const _MappedException(this.source);
+  const _MappedException(this.reader);
 }
 
 class _FakeMapper implements PlatformExceptionMapper {
@@ -30,8 +30,8 @@ void main() {
         guardPlatformCall<void>(const _FakeMapper(), () => throw exception),
         throwsA(
           isA<_MappedException>().having(
-            (e) => e.source,
-            'source',
+            (e) => e.reader,
+            'reader',
             same(exception),
           ),
         ),

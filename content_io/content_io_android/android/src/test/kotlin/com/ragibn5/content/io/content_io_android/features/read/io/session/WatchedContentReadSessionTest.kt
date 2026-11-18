@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 
-internal class DescriptorContentReadSessionTest {
+internal class WatchedContentReadSessionTest {
     private val parcel = Mockito.mock(ParcelFileDescriptor::class.java)
 
     private fun descriptor(length: Long) = Mockito.mock(AssetFileDescriptor::class.java).also {
@@ -22,7 +22,7 @@ internal class DescriptorContentReadSessionTest {
         content: ByteArray,
         length: Long = AssetFileDescriptor.UNKNOWN_LENGTH,
         stream: InputStream = content.inputStream(),
-    ) = DescriptorContentReadSession("session-1", descriptor(length), stream)
+    ) = WatchedContentReadSession("session-1", descriptor(length), stream)
 
     @Test
     fun sizeInBytesShouldBeDescriptorLengthIfKnown() {

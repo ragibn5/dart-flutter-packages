@@ -13,24 +13,24 @@ import java.io.FileNotFoundException
 /**
  * Content opened for writing.
  */
-internal sealed interface OpenedContentSink {
+internal sealed interface OpenedForWrite {
     /**
      * A descriptor its provider doesn't watch, detached from its
      * [ParcelFileDescriptor]: whoever receives [fd] owns it and must close it.
      */
-    data class Fd(
+    data class DetachedFd(
         /** The file descriptor. */
         val fd: Int,
-    ) : OpenedContentSink
+    ) : OpenedForWrite
 
     /**
      * A descriptor its provider watches for how the write ends, kept as it is
      * so the provider can be told; see [ParcelFileDescriptor.canDetectErrors].
      */
-    class ParcelFd(
+    class WatchedParcelFd(
         /** The open descriptor; whoever receives it must close it. */
         val descriptor: ParcelFileDescriptor,
-    ) : OpenedContentSink
+    ) : OpenedForWrite
 }
 
 /**
@@ -41,21 +41,21 @@ internal sealed interface OpenedContentSink {
  * provider, such as one streaming the content through a pipe or uploading a
  * file once it's closed, that the write failed; such a descriptor is kept.
  */
-internal class ContentSinkOpener(
+internal class ContentWriteOpener(
     private val contentResolver: ContentResolver,
 ) {
     /**
      * Opens the content [request] points to, in its mode.
      *
      * @param request the content to open, and how.
-     * @return the opened sink; the caller owns what it holds.
+     * @return the opened content; the caller owns what it holds.
      * @throws ContentIoException with an [OpenWriteExceptionCodes] code;
      * [OpenWriteExceptionCodes.UNSUPPORTED_OPERATION] if the provider offers
      * only part of a file. Or
      * [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED] if the provider
      * opens nothing.
      */
-    fun open(request: OpenWriteRequest): Result<OpenedContentSink> = runCatching {
+    fun open(request: OpenWriteRequest): Result<OpenedForWrite> = runCatching {
         // Opened as an asset, not with openFileDescriptor, to see whether it's a
         // whole file: openFileDescriptor rejects part of a file only by message.
         val asset = guardOpen(request.uri) {
@@ -74,9 +74,9 @@ internal class ContentSinkOpener(
 
         val descriptor = asset.parcelFileDescriptor
         return@runCatching if (descriptor.canDetectErrors()) {
-            OpenedContentSink.ParcelFd(descriptor)
+            OpenedForWrite.WatchedParcelFd(descriptor)
         } else {
-            OpenedContentSink.Fd(descriptor.detachFd())
+            OpenedForWrite.DetachedFd(descriptor.detachFd())
         }
     }
 

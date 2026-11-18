@@ -6,22 +6,22 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:content_io_android/src/exceptions/content_read_exception.dart';
-import 'package:content_io_android/src/io/source/content_byte_source.dart';
-import 'package:content_io_android/src/io/source/native_descriptor_io.dart';
+import 'package:content_io_android/src/io/native_descriptor_io.dart';
+import 'package:content_io_android/src/io/reader/content_reader.dart';
 
-/// A [ContentByteSource] for a file descriptor, read with libc over FFI.
+/// A [ContentReader] for a file descriptor, read with libc over FFI.
 ///
 /// - Owns the descriptor, and closes it on [close] or when garbage collected.
 /// - Reads seekable descriptors with `pread64`, others with `read`.
-/// - Reads run on a worker isolate of the source's own, so they never block
+/// - Reads run on a worker isolate of the reader's own, so they never block
 ///   the calling isolate, even on a pipe that waits for its writer.
 /// - Reads go straight into native memory, returned without copying.
-final class DescriptorByteSource extends ContentByteSource {
+final class DescriptorContentReader extends ContentReader {
   /// The number of bytes requested per read when [readAll] doesn't know the
   /// size.
   static const _pieceSize = 1024 * 1024;
 
-  /// Closes the descriptor of sources garbage collected without being closed.
+  /// Closes the descriptor of readers garbage collected without being closed.
   static final _finalizer = Finalizer<_DescriptorReader>((it) => it.close());
 
   /// The current position, from the content's start.
@@ -45,7 +45,7 @@ final class DescriptorByteSource extends ContentByteSource {
   @override
   final bool isSeekable;
 
-  DescriptorByteSource({
+  DescriptorContentReader({
     required this.id,
     required int fd,
     int offset = 0,
@@ -136,11 +136,11 @@ final class DescriptorByteSource extends ContentByteSource {
   }
 }
 
-/// The main-isolate side of a [DescriptorByteSource]'s worker isolate.
+/// The main-isolate side of a [DescriptorContentReader]'s worker isolate.
 ///
 /// Note:
-/// Separate from the source, so the finalizer can close the descriptor after
-/// the source is garbage collected.
+/// Separate from the reader, so the finalizer can close the descriptor after
+/// the reader is garbage collected.
 final class _DescriptorReader {
   /// The worker, once started by the first read.
   Future<_Worker>? _worker;
@@ -281,7 +281,7 @@ final class _Worker {
         _run,
         _WorkerStart(fd: fd, replies: replies.sendPort),
         onExit: replies.sendPort,
-        debugName: 'DescriptorByteSource',
+        debugName: 'DescriptorContentReader',
       );
       return worker = _Worker._(await ready.future);
     } on IsolateSpawnException catch (e, stackTrace) {

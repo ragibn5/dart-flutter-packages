@@ -20,12 +20,12 @@ import java.io.InputStream
 /**
  * Content opened for reading.
  */
-internal sealed interface OpenedContentSource {
+internal sealed interface OpenedForRead {
     /**
      * A file descriptor, detached from its [android.os.ParcelFileDescriptor]:
      * whoever receives [fd] owns it and must close it.
      */
-    data class Fd(
+    data class DetachedFd(
         /** The file descriptor. */
         val fd: Int,
         /** The offset of the content's first byte in the descriptor. */
@@ -34,24 +34,24 @@ internal sealed interface OpenedContentSource {
         val sizeInBytes: Long?,
         /** Whether the descriptor is a regular file, readable at an offset. */
         val isSeekable: Boolean,
-    ) : OpenedContentSource
+    ) : OpenedForRead
 
     /**
      * A descriptor its provider watches for how the read ends, kept as it is
      * so the provider can be told; see [ParcelFileDescriptor.canDetectErrors].
      */
-    class AssetFd(
+    class WatchedAssetFd(
         /** The open descriptor; whoever receives it must close it. */
         val descriptor: AssetFileDescriptor,
-    ) : OpenedContentSource
+    ) : OpenedForRead
 
     /**
      * A stream, for content that can't be opened as a descriptor.
      */
-    class Stream(
+    class FallbackStream(
         /** The open stream; whoever receives it must close it. */
         val stream: InputStream,
-    ) : OpenedContentSource
+    ) : OpenedForRead
 }
 
 /**
@@ -62,19 +62,19 @@ internal sealed interface OpenedContentSource {
  * Handing it over detaches it, which tells a watching provider the read
  * failed; such a descriptor is kept instead.
  */
-internal class ContentSourceOpener(
+internal class ContentReadOpener(
     private val contentResolver: ContentResolver,
 ) {
     /**
      * Opens the content [request] points to.
      *
      * @param request the content to open.
-     * @return the opened source; the caller owns what it holds.
+     * @return the opened content; the caller owns what it holds.
      * @throws ContentIoException with an [OpenReadExceptionCodes]
      * code, or [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED] if the
      * provider isn't responding.
      */
-    fun open(request: OpenReadRequest): Result<OpenedContentSource> = runCatching {
+    fun open(request: OpenReadRequest): Result<OpenedForRead> = runCatching {
         val uri = request.uri.toUri()
         val descriptor = guardOpen(request.uri) {
             contentResolver.openAssetFileDescriptor(uri, "r")
@@ -88,7 +88,7 @@ internal class ContentSourceOpener(
                 ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
                 "The content provider is not responding, we probably need a device restart"
             )
-        return@runCatching OpenedContentSource.Stream(stream)
+        return@runCatching OpenedForRead.FallbackStream(stream)
     }
 
     /**
@@ -104,7 +104,7 @@ internal class ContentSourceOpener(
      *
      * Note: Only the thumbnail's bytes are opened, never the original content's.
      */
-    fun openThumbnail(request: OpenThumbnailReadRequest): Result<OpenedContentSource> =
+    fun openThumbnail(request: OpenThumbnailReadRequest): Result<OpenedForRead> =
         runCatching {
             val options = Bundle().apply {
                 putParcelable(
@@ -129,16 +129,16 @@ internal class ContentSourceOpener(
      * Keeps [descriptor] if its provider watches it, otherwise builds a
      * descriptor to hand over.
      */
-    private fun handOverOrKeep(descriptor: AssetFileDescriptor): OpenedContentSource {
+    private fun handOverOrKeep(descriptor: AssetFileDescriptor): OpenedForRead {
         return if (descriptor.parcelFileDescriptor.canDetectErrors()) {
-            OpenedContentSource.AssetFd(descriptor)
+            OpenedForRead.WatchedAssetFd(descriptor)
         } else {
-            buildFdSource(descriptor)
+            buildDetachedFd(descriptor)
         }
     }
 
     /**
-     * Builds an [OpenedContentSource.Fd] from [descriptor], detaching its
+     * Builds an [OpenedForRead.DetachedFd] from [descriptor], detaching its
      * file descriptor.
      *
      * @param descriptor the opened content; closed if it can't be inspected.
@@ -149,7 +149,7 @@ internal class ContentSourceOpener(
      * Note: Detaches last, so a failure before that leaves nothing to leak.
      * After it, the caller owns the file descriptor and must close it.
      */
-    private fun buildFdSource(descriptor: AssetFileDescriptor): OpenedContentSource.Fd {
+    private fun buildDetachedFd(descriptor: AssetFileDescriptor): OpenedForRead.DetachedFd {
         val stat = try {
             Os.fstat(descriptor.fileDescriptor)
         } catch (e: ErrnoException) {
@@ -169,7 +169,7 @@ internal class ContentSourceOpener(
         }
         // Last: after this, the descriptor is no longer this side's to close.
         val fd = descriptor.parcelFileDescriptor.detachFd()
-        return OpenedContentSource.Fd(
+        return OpenedForRead.DetachedFd(
             fd = fd,
             offset = descriptor.startOffset,
             sizeInBytes = sizeInBytes,

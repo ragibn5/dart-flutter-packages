@@ -25,7 +25,7 @@ sealed class OpenWriteReply extends Equatable {
     return switch (kind) {
       'descriptor' => WriteDescriptorReply.fromJson(json),
       'channel' => WriteChannelReply.fromJson(json),
-      _ => throw FormatException('Unknown write sink kind: $kind'),
+      _ => throw FormatException('Unknown write reply kind: $kind'),
     };
   }
 }

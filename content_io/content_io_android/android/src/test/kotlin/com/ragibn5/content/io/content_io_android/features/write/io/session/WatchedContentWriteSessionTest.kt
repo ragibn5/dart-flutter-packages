@@ -10,7 +10,7 @@ import java.io.FileDescriptor
 import java.io.OutputStream
 import kotlin.test.assertContentEquals
 
-internal class DescriptorContentWriteSessionTest {
+internal class WatchedContentWriteSessionTest {
     private val os = Mockito.mockStatic(Os::class.java)
     private val fileDescriptor = FileDescriptor()
     private val descriptor = Mockito.mock(ParcelFileDescriptor::class.java).also {
@@ -23,7 +23,7 @@ internal class DescriptorContentWriteSessionTest {
     @Test
     fun writeShouldWriteBytesToStream() {
         val stream = ByteArrayOutputStream()
-        val session = DescriptorContentWriteSession("session-1", descriptor, stream)
+        val session = WatchedContentWriteSession("session-1", descriptor, stream)
 
         session.write(byteArrayOf(1, 2))
         session.write(byteArrayOf(3))
@@ -35,7 +35,7 @@ internal class DescriptorContentWriteSessionTest {
     fun syncShouldFlushStreamThenSyncDescriptor() {
         val stream = Mockito.mock(OutputStream::class.java)
 
-        DescriptorContentWriteSession("session-1", descriptor, stream).sync()
+        WatchedContentWriteSession("session-1", descriptor, stream).sync()
 
         Mockito.verify(stream).flush()
         os.verify { Os.fsync(fileDescriptor) }
@@ -43,14 +43,14 @@ internal class DescriptorContentWriteSessionTest {
 
     @Test
     fun closeShouldCloseDescriptor() {
-        DescriptorContentWriteSession("session-1", descriptor, ByteArrayOutputStream()).close()
+        WatchedContentWriteSession("session-1", descriptor, ByteArrayOutputStream()).close()
 
         Mockito.verify(descriptor).close()
     }
 
     @Test
     fun abortShouldCloseDescriptorWithReason() {
-        DescriptorContentWriteSession("session-1", descriptor, ByteArrayOutputStream()).abort("Gave up")
+        WatchedContentWriteSession("session-1", descriptor, ByteArrayOutputStream()).abort("Gave up")
 
         Mockito.verify(descriptor).closeWithError("Gave up")
     }

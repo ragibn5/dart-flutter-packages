@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:content_io_android/src/exceptions/content_write_exception.dart';
-import 'package:content_io_android/src/io/sink/content_byte_sink.dart';
+import 'package:content_io_android/src/io/writer/content_writer.dart';
 import 'package:meta/meta.dart';
 
 /// A single-use writer for the content behind one URI.
@@ -18,18 +18,18 @@ class ContentWriteSession {
   /// succeeded or failed.
   Future<void> _lastCall = Future.value();
 
-  /// The sink the session writes to.
-  final ContentByteSink _sink;
+  /// The writer the session writes to.
+  final ContentWriter _writer;
 
-  /// Creates a session that writes to [sink].
+  /// Creates a session that writes to [writer].
   ///
   /// Parameters:
-  /// - [sink]: the sink to write to; the session closes it.
+  /// - [writer]: the writer to write to; the session closes it.
   @internal
-  ContentWriteSession({required ContentByteSink sink}) : _sink = sink;
+  ContentWriteSession({required ContentWriter writer}) : _writer = writer;
 
   /// The id of this session.
-  String get sessionId => _sink.id;
+  String get sessionId => _writer.id;
 
   /// Whether the session is closed.
   bool get isClosed => _isClosed;
@@ -47,7 +47,7 @@ class ContentWriteSession {
   Future<void> write(List<int> bytes) {
     return _serialized(() {
       _checkOpen();
-      return _sink.write(
+      return _writer.write(
         bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
       );
     });
@@ -92,7 +92,7 @@ class ContentWriteSession {
         return;
       }
       _isClosed = true;
-      await _sink.close();
+      await _writer.close();
     });
   }
 
@@ -110,7 +110,7 @@ class ContentWriteSession {
         return;
       }
       _isClosed = true;
-      await _sink.abort();
+      await _writer.abort();
     });
   }
 

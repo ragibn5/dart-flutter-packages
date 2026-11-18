@@ -1,18 +1,18 @@
 import 'dart:math';
 
 import 'package:content_io_android/src/exceptions/content_write_exception.dart';
-import 'package:content_io_android/src/io/sink/content_byte_sink.dart';
+import 'package:content_io_android/src/io/writer/content_writer.dart';
 import 'package:content_io_android/src/utils/platform_call_guarder.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
-/// A [ContentByteSink] for a platform-side write session, written over the
+/// A [ContentWriter] for a platform-side write session, written over the
 /// method channel.
 ///
 /// Each write takes one or more `writeToSession` calls, of at most
 /// [_maxBytesPerCall] bytes each. Closing and aborting go over the same
 /// channel, so they run after every write sent before them.
-final class ChannelByteSink extends ContentByteSink {
+final class ChannelContentWriter extends ContentWriter {
   /// The maximum number of bytes sent per `writeToSession` call.
   static const _maxBytesPerCall = 512 * 1024;
 
@@ -27,7 +27,7 @@ final class ChannelByteSink extends ContentByteSink {
   @override
   final String id;
 
-  ChannelByteSink({
+  ChannelContentWriter({
     required MethodChannel writeChannel,
     required this.id,
     @visibleForTesting

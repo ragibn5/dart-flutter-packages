@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:content_io_android/src/exceptions/content_open_exception.dart';
-import 'package:content_io_android/src/io/sink/channel_byte_sink.dart';
-import 'package:content_io_android/src/io/sink/content_byte_sink_factory.dart';
-import 'package:content_io_android/src/io/sink/descriptor_byte_sink.dart';
+import 'package:content_io_android/src/io/writer/channel_content_writer.dart';
+import 'package:content_io_android/src/io/writer/content_writer_factory.dart';
+import 'package:content_io_android/src/io/writer/descriptor_content_writer.dart';
 import 'package:content_io_android/src/models/open_write_request.dart';
 import 'package:content_io_android/src/models/write_mode.dart';
 import 'package:flutter/services.dart';
@@ -24,9 +24,9 @@ const _request = OpenWriteRequest(
   mode: WriteMode.append,
 );
 
-/// Descriptor sinks the tests opened, kept reachable: their finalizer would
+/// Descriptor writers the tests opened, kept reachable: their finalizer would
 /// close the descriptor through Android's libc, which the host doesn't have.
-final _keptAlive = <DescriptorByteSink>[];
+final _keptAlive = <DescriptorContentWriter>[];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +37,7 @@ void main() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
   late _MockMapper mapper;
-  late DefaultContentByteSinkFactory sut;
+  late DefaultContentWriterFactory sut;
 
   /// The calls the platform side received, in order.
   late List<MethodCall> calls;
@@ -59,7 +59,7 @@ void main() {
   setUp(() {
     mapper = _MockMapper();
     calls = [];
-    sut = DefaultContentByteSinkFactory(
+    sut = DefaultContentWriterFactory(
       channel: channel,
       writeChannel: writeChannel,
       exceptionMapper: mapper,
@@ -78,18 +78,18 @@ void main() {
   });
 
   test(
-    'openShouldReturnDescriptorSinkWithLocalIdIfReplyIsDescriptor',
+    'openShouldReturnDescriptorWriterWithLocalIdIfReplyIsDescriptor',
     () async {
       replyWith(const {'kind': 'descriptor', 'fd': _unusedFd});
 
-      final sink = await sut.open(_request);
-      if (sink is DescriptorByteSink) {
-        _keptAlive.add(sink);
+      final writer = await sut.open(_request);
+      if (writer is DescriptorContentWriter) {
+        _keptAlive.add(writer);
       }
 
       expect(
-        sink,
-        isA<DescriptorByteSink>().having(
+        writer,
+        isA<DescriptorContentWriter>().having(
           (e) => e.id,
           'id',
           startsWith('local-write-'),
@@ -98,12 +98,12 @@ void main() {
     },
   );
 
-  test('openShouldReturnChannelSinkWithSessionIdIfReplyIsChannel', () async {
+  test('openShouldReturnChannelWriterWithSessionIdIfReplyIsChannel', () async {
     replyWith(const {'kind': 'channel', 'sessionId': 'session-1'});
 
     expect(
       await sut.open(_request),
-      isA<ChannelByteSink>().having((e) => e.id, 'id', 'session-1'),
+      isA<ChannelContentWriter>().having((e) => e.id, 'id', 'session-1'),
     );
   });
 
