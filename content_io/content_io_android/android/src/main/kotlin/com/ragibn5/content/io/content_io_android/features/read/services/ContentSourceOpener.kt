@@ -25,7 +25,7 @@ internal sealed interface OpenedContentSource {
      * A file descriptor, detached from its [android.os.ParcelFileDescriptor]:
      * whoever receives [fd] owns it and must close it.
      */
-    data class Descriptor(
+    data class Fd(
         /** The file descriptor. */
         val fd: Int,
         /** The offset of the content's first byte in the descriptor. */
@@ -40,7 +40,7 @@ internal sealed interface OpenedContentSource {
      * A descriptor its provider watches for how the read ends, kept as it is
      * so the provider can be told; see [ParcelFileDescriptor.canDetectErrors].
      */
-    class Kept(
+    class AssetFd(
         /** The open descriptor; whoever receives it must close it. */
         val descriptor: AssetFileDescriptor,
     ) : OpenedContentSource
@@ -131,14 +131,14 @@ internal class ContentSourceOpener(
      */
     private fun handOverOrKeep(descriptor: AssetFileDescriptor): OpenedContentSource {
         return if (descriptor.parcelFileDescriptor.canDetectErrors()) {
-            OpenedContentSource.Kept(descriptor)
+            OpenedContentSource.AssetFd(descriptor)
         } else {
-            buildDescriptorSource(descriptor)
+            buildFdSource(descriptor)
         }
     }
 
     /**
-     * Builds an [OpenedContentSource.Descriptor] from [descriptor], detaching its
+     * Builds an [OpenedContentSource.Fd] from [descriptor], detaching its
      * file descriptor.
      *
      * @param descriptor the opened content; closed if it can't be inspected.
@@ -149,7 +149,7 @@ internal class ContentSourceOpener(
      * Note: Detaches last, so a failure before that leaves nothing to leak.
      * After it, the caller owns the file descriptor and must close it.
      */
-    private fun buildDescriptorSource(descriptor: AssetFileDescriptor): OpenedContentSource.Descriptor {
+    private fun buildFdSource(descriptor: AssetFileDescriptor): OpenedContentSource.Fd {
         val stat = try {
             Os.fstat(descriptor.fileDescriptor)
         } catch (e: ErrnoException) {
@@ -169,7 +169,7 @@ internal class ContentSourceOpener(
         }
         // Last: after this, the descriptor is no longer this side's to close.
         val fd = descriptor.parcelFileDescriptor.detachFd()
-        return OpenedContentSource.Descriptor(
+        return OpenedContentSource.Fd(
             fd = fd,
             offset = descriptor.startOffset,
             sizeInBytes = sizeInBytes,

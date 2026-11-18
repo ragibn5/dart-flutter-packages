@@ -126,8 +126,8 @@ internal class ContentReadServiceImpl(
      */
     private fun toReply(source: OpenedContentSource): OpenReadReply {
         val session = when (source) {
-            is OpenedContentSource.Descriptor -> return source.toReply()
-            is OpenedContentSource.Kept -> DescriptorContentReadSession(newSessionId(), source.descriptor)
+            is OpenedContentSource.Fd -> return source.toReply()
+            is OpenedContentSource.AssetFd -> DescriptorContentReadSession(newSessionId(), source.descriptor)
             is OpenedContentSource.Stream -> StreamContentReadSession(newSessionId(), source.stream)
         }
         sessionRegistry.addSession(session)
@@ -145,7 +145,7 @@ internal class ContentReadServiceImpl(
      *
      * @return the reply that hands the descriptor over to the Dart side.
      */
-    private fun OpenedContentSource.Descriptor.toReply() = OpenReadReply.Descriptor(
+    private fun OpenedContentSource.Fd.toReply() = OpenReadReply.Descriptor(
         fd = fd,
         offset = offset,
         sizeInBytes = sizeInBytes,

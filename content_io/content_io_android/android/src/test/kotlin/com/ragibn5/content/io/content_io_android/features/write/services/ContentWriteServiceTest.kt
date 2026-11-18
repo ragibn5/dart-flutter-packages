@@ -41,7 +41,7 @@ internal class ContentWriteServiceTest {
 
     @Test
     fun openWriteShouldReturnDescriptorReplyAndKeepNoSessionIfContentOpensAsDescriptor() = runTest {
-        givenOpened(Result.success(OpenedContentSink.Descriptor(fd = 42)))
+        givenOpened(Result.success(OpenedContentSink.Fd(fd = 42)))
 
         assertEquals(OpenWriteReply.Descriptor(fd = 42), service(testScheduler).openWrite(request))
         assertTrue(registry.sessionMap.isEmpty())
@@ -52,7 +52,7 @@ internal class ContentWriteServiceTest {
         val descriptor = Mockito.mock(ParcelFileDescriptor::class.java).also {
             Mockito.`when`(it.fileDescriptor).thenReturn(FileDescriptor())
         }
-        givenOpened(Result.success(OpenedContentSink.Kept(descriptor)))
+        givenOpened(Result.success(OpenedContentSink.ParcelFd(descriptor)))
 
         val reply = assertIs<OpenWriteReply.Channel>(service(testScheduler).openWrite(request))
 

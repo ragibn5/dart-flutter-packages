@@ -29,7 +29,7 @@ internal class ContentReadServiceTest {
     private val opener = Mockito.mock(ContentSourceOpener::class.java)
     private val registry = ContentReadSessionRegistry()
     private val request = OpenReadRequest(uri = "content://media/external/images/media/1")
-    private val descriptor = OpenedContentSource.Descriptor(fd = 42, offset = 0, sizeInBytes = 2048, isSeekable = true)
+    private val descriptor = OpenedContentSource.Fd(fd = 42, offset = 0, sizeInBytes = 2048, isSeekable = true)
 
     private fun service(scheduler: TestCoroutineScheduler) =
         ContentReadServiceImpl(opener, registry, UnconfinedTestDispatcher(scheduler))
@@ -79,7 +79,7 @@ internal class ContentReadServiceTest {
             Mockito.`when`(it.length).thenReturn(2048L)
             Mockito.`when`(it.createInputStream()).thenReturn(Mockito.mock(FileInputStream::class.java))
         }
-        givenOpened(Result.success(OpenedContentSource.Kept(descriptor)))
+        givenOpened(Result.success(OpenedContentSource.AssetFd(descriptor)))
 
         val reply = assertIs<OpenReadReply.Channel>(service(testScheduler).openRead(request))
 

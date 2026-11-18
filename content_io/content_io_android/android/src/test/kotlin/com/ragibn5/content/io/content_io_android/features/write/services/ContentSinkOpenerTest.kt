@@ -1,6 +1,7 @@
 package com.ragibn5.content.io.content_io_android.features.write.services
 
 import android.content.ContentResolver
+import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoCommonExceptionCodes
@@ -36,19 +37,30 @@ internal class ContentSinkOpenerTest {
             Mockito.`when`(it.detachFd()).thenReturn(FD)
         }
 
+    /** [descriptor] as the provider hands it over: part of a file when [declaredLength] isn't negative. */
+    private fun asset(descriptor: ParcelFileDescriptor, declaredLength: Long = -1): AssetFileDescriptor =
+        Mockito.mock(AssetFileDescriptor::class.java).also {
+            Mockito.`when`(it.parcelFileDescriptor).thenReturn(descriptor)
+            Mockito.`when`(it.declaredLength).thenReturn(declaredLength)
+        }
+
     private fun givenOpensAs(descriptor: ParcelFileDescriptor?) {
-        Mockito.`when`(contentResolver.openFileDescriptor(uri, "wa")).thenReturn(descriptor)
+        givenOpensAsAsset(descriptor?.let { asset(it) })
+    }
+
+    private fun givenOpensAsAsset(asset: AssetFileDescriptor?) {
+        Mockito.`when`(contentResolver.openAssetFileDescriptor(uri, "wa")).thenReturn(asset)
     }
 
     private fun givenOpenFails(exception: Exception) {
-        Mockito.`when`(contentResolver.openFileDescriptor(uri, "wa")).thenThrow(exception)
+        Mockito.`when`(contentResolver.openAssetFileDescriptor(uri, "wa")).thenThrow(exception)
     }
 
     @Test
     fun openShouldReturnDetachedDescriptorInRequestedModeIfProviderDoesNotWatchIt() {
         givenOpensAs(descriptor(isWatched = false))
 
-        assertEquals(OpenedContentSink.Descriptor(fd = FD), opener.open(request).getOrThrow())
+        assertEquals(OpenedContentSink.Fd(fd = FD), opener.open(request).getOrThrow())
     }
 
     @Test
@@ -56,7 +68,7 @@ internal class ContentSinkOpenerTest {
         val descriptor = descriptor(isWatched = true)
         givenOpensAs(descriptor)
 
-        assertSame(descriptor, assertIs<OpenedContentSink.Kept>(opener.open(request).getOrThrow()).descriptor)
+        assertSame(descriptor, assertIs<OpenedContentSink.ParcelFd>(opener.open(request).getOrThrow()).descriptor)
         Mockito.verify(descriptor, Mockito.never()).detachFd()
     }
 
@@ -70,10 +82,12 @@ internal class ContentSinkOpenerTest {
     }
 
     @Test
-    fun openShouldFailWithUnsupportedOperationIfProviderOffersOnlyPartOfFile() {
-        givenOpenFails(FileNotFoundException("Not a whole file"))
+    fun openShouldFailWithUnsupportedOperationAndCloseItIfProviderOffersOnlyPartOfFile() {
+        val asset = asset(descriptor(isWatched = false), declaredLength = 20)
+        givenOpensAsAsset(asset)
 
         assertContentIoError(OpenWriteExceptionCodes.UNSUPPORTED_OPERATION) { opener.open(request).getOrThrow() }
+        Mockito.verify(asset).close()
     }
 
     @Test

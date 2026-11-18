@@ -1,6 +1,7 @@
 package com.ragibn5.content.io.content_io_android.features.write.services
 
 import android.content.ContentResolver
+import android.content.res.AssetFileDescriptor
 import android.os.ParcelFileDescriptor
 import androidx.core.net.toUri
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoCommonExceptionCodes
@@ -17,7 +18,7 @@ internal sealed interface OpenedContentSink {
      * A descriptor its provider doesn't watch, detached from its
      * [ParcelFileDescriptor]: whoever receives [fd] owns it and must close it.
      */
-    data class Descriptor(
+    data class Fd(
         /** The file descriptor. */
         val fd: Int,
     ) : OpenedContentSink
@@ -26,7 +27,7 @@ internal sealed interface OpenedContentSink {
      * A descriptor its provider watches for how the write ends, kept as it is
      * so the provider can be told; see [ParcelFileDescriptor.canDetectErrors].
      */
-    class Kept(
+    class ParcelFd(
         /** The open descriptor; whoever receives it must close it. */
         val descriptor: ParcelFileDescriptor,
     ) : OpenedContentSink
@@ -48,22 +49,34 @@ internal class ContentSinkOpener(
      *
      * @param request the content to open, and how.
      * @return the opened sink; the caller owns what it holds.
-     * @throws ContentIoException with an [OpenWriteExceptionCodes] code, or
+     * @throws ContentIoException with an [OpenWriteExceptionCodes] code;
+     * [OpenWriteExceptionCodes.UNSUPPORTED_OPERATION] if the provider offers
+     * only part of a file. Or
      * [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED] if the provider
      * opens nothing.
      */
     fun open(request: OpenWriteRequest): Result<OpenedContentSink> = runCatching {
-        val descriptor = guardOpen(request.uri) {
-            contentResolver.openFileDescriptor(request.uri.toUri(), request.mode.fileMode)
+        // Opened as an asset, not with openFileDescriptor, to see whether it's a
+        // whole file: openFileDescriptor rejects part of a file only by message.
+        val asset = guardOpen(request.uri) {
+            contentResolver.openAssetFileDescriptor(request.uri.toUri(), request.mode.fileMode)
         } ?: throw ContentIoException(
             ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
             "The content's provider opened nothing for writing: ${request.uri}"
         )
+        if (asset.declaredLength >= 0) {
+            asset.close()
+            throw ContentIoException(
+                OpenWriteExceptionCodes.UNSUPPORTED_OPERATION,
+                "The content's provider offers only part of a file, which can't be written: ${request.uri}"
+            )
+        }
 
+        val descriptor = asset.parcelFileDescriptor
         return@runCatching if (descriptor.canDetectErrors()) {
-            OpenedContentSink.Kept(descriptor)
+            OpenedContentSink.ParcelFd(descriptor)
         } else {
-            OpenedContentSink.Descriptor(descriptor.detachFd())
+            OpenedContentSink.Fd(descriptor.detachFd())
         }
     }
 
@@ -79,14 +92,6 @@ internal class ContentSinkOpener(
         try {
             return open()
         } catch (e: FileNotFoundException) {
-            // Thrown by ContentResolver itself when the provider offers only part of a file.
-            if (e.message == "Not a whole file") {
-                throw ContentIoException(
-                    OpenWriteExceptionCodes.UNSUPPORTED_OPERATION,
-                    "The content's provider offers only part of a file, which can't be written",
-                    cause = e
-                )
-            }
             throw ContentIoException(
                 OpenWriteExceptionCodes.CONTENT_NOT_FOUND,
                 e.message ?: "The requested content does not seem to exist",

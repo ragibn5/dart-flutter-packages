@@ -77,9 +77,9 @@ internal class ContentWriteServiceImpl(
         }
 
         return when (sink) {
-            is OpenedContentSink.Descriptor -> OpenWriteReply.Descriptor(fd = sink.fd)
+            is OpenedContentSink.Fd -> OpenWriteReply.Descriptor(fd = sink.fd)
 
-            is OpenedContentSink.Kept -> {
+            is OpenedContentSink.ParcelFd -> {
                 val session = DescriptorContentWriteSession(UUID.randomUUID().toString(), sink.descriptor)
                 sessionRegistry.addSession(session)
                 OpenWriteReply.Channel(sessionId = session.sessionId)
