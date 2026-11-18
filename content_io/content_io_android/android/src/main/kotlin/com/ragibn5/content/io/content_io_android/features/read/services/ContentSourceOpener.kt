@@ -176,6 +176,16 @@ internal class ContentSourceOpener(
                 cause = e
             )
         } catch (e: IllegalArgumentException) {
+            // A document provider reports a document missing from its tree this
+            // way, naming the FileNotFoundException only in the message.
+            if (e.message?.contains(FileNotFoundException::class.java.name) == true) {
+                throw ContentIoException(
+                    OpenReadExceptionCodes.CONTENT_NOT_FOUND,
+                    "The requested content does not seem to exist",
+                    details = mapOf("uri" to uri),
+                    cause = e
+                )
+            }
             throw ContentIoException(
                 OpenReadExceptionCodes.INVALID_REQUEST,
                 e.message ?: "The uri is not a valid content uri",

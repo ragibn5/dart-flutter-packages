@@ -159,6 +159,21 @@ internal class ContentSourceOpenerTest {
     }
 
     @Test
+    fun openShouldFailWithContentNotFoundAndUriIfProviderNamesMissingDocumentInError() {
+        givenOpenFails(
+            IllegalArgumentException(
+                "Failed to determine if primary:a/b.jpg is child of primary:a: " +
+                    "java.io.FileNotFoundException: Missing file for primary:a/b.jpg"
+            )
+        )
+
+        val error = assertContentIoError(OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
+            opener.open(request).getOrThrow()
+        }
+        assertEquals(mapOf("uri" to CONTENT_URI), error.details)
+    }
+
+    @Test
     fun openShouldFailWithPermissionDeniedIfProviderDeniesAccess() {
         givenOpenFails(SecurityException("Permission Denial"))
 
