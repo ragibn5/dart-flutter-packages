@@ -1,5 +1,6 @@
 import 'package:content_io_android/content_io_android.dart';
 import 'package:content_io_android/content_io_android_platform_interface.dart';
+import 'package:content_io_android/src/io/sink/content_byte_sink.dart';
 import 'package:content_io_android/src/io/source/content_byte_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -10,6 +11,8 @@ class _MockPlatform extends Mock
     implements ContentIoAndroidPlatform {}
 
 class _MockSource extends Mock implements ContentByteSource {}
+
+class _MockSink extends Mock implements ContentByteSink {}
 
 void main() {
   late ContentIoAndroidPlatform original;
@@ -49,4 +52,14 @@ void main() {
       expect(await sut.openThumbnailReadSession(request), same(session));
     },
   );
+
+  test('openWriteSessionShouldReturnWhatPlatformReturnsForRequest', () async {
+    const request = OpenWriteRequest(uri: 'content://media/1');
+    final session = ContentWriteSession(sink: _MockSink());
+    when(
+      () => platform.openWriteSession(request),
+    ).thenAnswer((_) async => session);
+
+    expect(await sut.openWriteSession(request), same(session));
+  });
 }

@@ -76,17 +76,27 @@ internal class ContentIoAndroidPluginTest {
     }
 
     @Test
-    fun onDetachedFromEngineShouldStopServingBothChannels() {
+    fun onAttachedToEngineShouldServeWriteChannelOnBackgroundTaskQueue() {
+        plugin.onAttachedToEngine(binding)
+
+        assertNotNull(messenger.handlers[WRITE_CHANNEL])
+        assertNotNull(messenger.taskQueues[WRITE_CHANNEL])
+    }
+
+    @Test
+    fun onDetachedFromEngineShouldStopServingEveryChannel() {
         plugin.onAttachedToEngine(binding)
 
         plugin.onDetachedFromEngine(binding)
 
         assertNull(messenger.handlers[MAIN_CHANNEL])
         assertNull(messenger.handlers[READ_CHANNEL])
+        assertNull(messenger.handlers[WRITE_CHANNEL])
     }
 
     private companion object {
         const val MAIN_CHANNEL = "content_io_android"
         const val READ_CHANNEL = "content_io_android/read"
+        const val WRITE_CHANNEL = "content_io_android/write"
     }
 }

@@ -2,6 +2,7 @@ import 'package:content_io_android/content_io_android_method_channel.dart';
 import 'package:content_io_android/content_io_android_platform_interface.dart';
 import 'package:content_io_android/src/models/open_read_request.dart';
 import 'package:content_io_android/src/models/open_thumbnail_read_request.dart';
+import 'package:content_io_android/src/models/open_write_request.dart';
 import 'package:content_io_android/src/models/thumbnail_size.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -79,4 +80,13 @@ void main() {
       );
     },
   );
+
+  test('openWriteSessionShouldThrowUnimplementedErrorIfNotOverridden', () {
+    expect(
+      () => platform.openWriteSession(
+        const OpenWriteRequest(uri: 'content://media/1'),
+      ),
+      throwsUnimplementedError,
+    );
+  });
 }
