@@ -1,5 +1,5 @@
 name: content_io_android
-description: "Reads the bytes behind Android content:// URIs, such as photos, videos and documents, with their thumbnails."
+description: "Reads and writes the bytes behind Android content:// URIs, such as photos, videos and documents, and reads their thumbnails."
 
 repository: https://github.com/ragibn5/dart-flutter-packages
 issue_tracker: https://github.com/ragibn5/dart-flutter-packages/issues

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-18
+
+### Removed
+
+- **Breaking:** `openReadSession`, `openThumbnailReadSession`, `MediaReadSession`
+  and their requests and exceptions. Reading moved to `content_io_android`,
+  which reads any `content://` URI: pass it an item's `uri`, and its
+  `fileLocation.absoluteFilePath` as the `filePath` to read it directly.
+
 ## [1.0.0] - 2026-11-16
 
 ### Added
