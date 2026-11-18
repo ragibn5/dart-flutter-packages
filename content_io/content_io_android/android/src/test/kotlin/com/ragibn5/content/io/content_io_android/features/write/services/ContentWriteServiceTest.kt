@@ -1,5 +1,6 @@
 package com.ragibn5.content.io.content_io_android.features.write.services
 
+import android.os.ParcelFileDescriptor
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoException
 import com.ragibn5.content.io.content_io_android.features.write.constants.OpenWriteExceptionCodes
 import com.ragibn5.content.io.content_io_android.features.write.constants.WriteExceptionCodes
@@ -15,7 +16,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import java.io.ByteArrayOutputStream
+import java.io.FileDescriptor
 import java.io.IOException
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -47,8 +48,11 @@ internal class ContentWriteServiceTest {
     }
 
     @Test
-    fun openWriteShouldReturnChannelReplyAndKeepSessionIfContentOpensAsStream() = runTest {
-        givenOpened(Result.success(OpenedContentSink.Stream(ByteArrayOutputStream())))
+    fun openWriteShouldReturnChannelReplyAndKeepSessionIfDescriptorIsKept() = runTest {
+        val descriptor = Mockito.mock(ParcelFileDescriptor::class.java).also {
+            Mockito.`when`(it.fileDescriptor).thenReturn(FileDescriptor())
+        }
+        givenOpened(Result.success(OpenedContentSink.Kept(descriptor)))
 
         val reply = assertIs<OpenWriteReply.Channel>(service(testScheduler).openWrite(request))
 
@@ -117,15 +121,24 @@ internal class ContentWriteServiceTest {
     }
 
     @Test
-    fun closeWriteSessionShouldThrowNotEnoughSpaceAndStillCloseAndForgetIfSyncFindsVolumeFull() {
+    fun closeWriteSessionShouldThrowNotEnoughSpaceAbortAndForgetIfSyncFindsVolumeFull() {
         val session = session("session-1")
         Mockito.doAnswer { throw IOException("fsync failed: ENOSPC (No space left on device)") }
             .`when`(session).sync()
 
         assertContentIoError(WriteExceptionCodes.NOT_ENOUGH_SPACE) { service().closeWriteSession("session-1") }
 
-        Mockito.verify(session).close()
+        Mockito.verify(session).abort(Mockito.anyString())
+        Mockito.verify(session, Mockito.never()).close()
         assertTrue(registry.sessionMap.isEmpty())
+    }
+
+    @Test
+    fun closeWriteSessionShouldThrowWriteErrorIfSessionCloseFails() {
+        val session = session("session-1")
+        Mockito.doAnswer { throw IOException("Remote error") }.`when`(session).close()
+
+        assertContentIoError(WriteExceptionCodes.WRITE_ERROR) { service().closeWriteSession("session-1") }
     }
 
     @Test
@@ -134,20 +147,20 @@ internal class ContentWriteServiceTest {
     }
 
     @Test
-    fun abortWriteSessionShouldCloseWithoutSyncAndForgetSession() {
+    fun abortWriteSessionShouldAbortWithoutSyncAndForgetSession() {
         val session = session("session-1")
 
         service().abortWriteSession("session-1")
 
-        Mockito.verify(session).close()
+        Mockito.verify(session).abort("The write was aborted")
         Mockito.verify(session, Mockito.never()).sync()
         assertTrue(registry.sessionMap.isEmpty())
     }
 
     @Test
-    fun abortWriteSessionShouldNotThrowIfSessionCloseFails() {
+    fun abortWriteSessionShouldNotThrowIfSessionAbortFails() {
         val session = session("session-1")
-        Mockito.`when`(session.close()).thenThrow(IOException("Already closed"))
+        Mockito.doAnswer { throw IOException("Already closed") }.`when`(session).abort(Mockito.anyString())
 
         service().abortWriteSession("session-1")
 
@@ -162,14 +175,14 @@ internal class ContentWriteServiceTest {
     }
 
     @Test
-    fun abortAllWriteSessionsShouldCloseAndForgetEverySession() {
+    fun abortAllWriteSessionsShouldAbortAndForgetEverySession() {
         val first = session("session-1")
         val second = session("session-2")
 
         service().abortAllWriteSessions()
 
-        Mockito.verify(first).close()
-        Mockito.verify(second).close()
+        Mockito.verify(first).abort("The write was aborted")
+        Mockito.verify(second).abort("The write was aborted")
         assertTrue(registry.sessionMap.isEmpty())
     }
 }

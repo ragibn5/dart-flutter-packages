@@ -6,7 +6,7 @@ import android.util.Log
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoException
 import com.ragibn5.content.io.content_io_android.features.write.constants.WriteExceptionCodes
 import com.ragibn5.content.io.content_io_android.features.write.io.session.ContentWriteSession
-import com.ragibn5.content.io.content_io_android.features.write.io.session.StreamContentWriteSession
+import com.ragibn5.content.io.content_io_android.features.write.io.session.DescriptorContentWriteSession
 import com.ragibn5.content.io.content_io_android.features.write.models.OpenWriteReply
 import com.ragibn5.content.io.content_io_android.features.write.models.OpenWriteRequest
 import kotlinx.coroutines.CoroutineDispatcher
@@ -39,7 +39,8 @@ internal interface ContentWriteService {
      * Syncs what the session [sessionId] wrote to the storage, then closes it,
      * on the calling thread.
      *
-     * Note: The session is closed and removed even when syncing fails.
+     * Note: The session is ended and removed even when syncing fails; the
+     * provider is then told the write failed.
      *
      * @throws ContentIoException with a [WriteExceptionCodes] code; such as
      * [WriteExceptionCodes.NOT_ENOUGH_SPACE] when the volume filled up.
@@ -47,7 +48,8 @@ internal interface ContentWriteService {
     fun closeWriteSession(sessionId: String)
 
     /**
-     * Closes the session [sessionId] without syncing, on the calling thread.
+     * Ends the session [sessionId] without syncing, telling the content's
+     * provider the write failed, on the calling thread.
      *
      * Does nothing if no such session is open. What was written may or may
      * not be stored.
@@ -77,8 +79,8 @@ internal class ContentWriteServiceImpl(
         return when (sink) {
             is OpenedContentSink.Descriptor -> OpenWriteReply.Descriptor(fd = sink.fd)
 
-            is OpenedContentSink.Stream -> {
-                val session = StreamContentWriteSession(UUID.randomUUID().toString(), sink.stream)
+            is OpenedContentSink.Kept -> {
+                val session = DescriptorContentWriteSession(UUID.randomUUID().toString(), sink.descriptor)
                 sessionRegistry.addSession(session)
                 OpenWriteReply.Channel(sessionId = session.sessionId)
             }
@@ -98,18 +100,25 @@ internal class ContentWriteServiceImpl(
         val session = findSession(sessionId)
         sessionRegistry.removeSession(sessionId)
         try {
-            session.use { it.sync() }
+            session.sync()
+        } catch (e: IOException) {
+            val failure = writeFailed(e)
+            abortQuietly(session, failure.message ?: "The content couldn't be stored")
+            throw failure
+        }
+        try {
+            session.close()
         } catch (e: IOException) {
             throw writeFailed(e)
         }
     }
 
     override fun abortWriteSession(sessionId: String) {
-        sessionRegistry.removeSession(sessionId)?.let(::closeQuietly)
+        sessionRegistry.removeSession(sessionId)?.let { abortQuietly(it, ABORTED) }
     }
 
     override fun abortAllWriteSessions() {
-        sessionRegistry.removeAllSessions().forEach(::closeQuietly)
+        sessionRegistry.removeAllSessions().forEach { abortQuietly(it, ABORTED) }
     }
 
     private fun findSession(sessionId: String): ContentWriteSession {
@@ -121,9 +130,9 @@ internal class ContentWriteServiceImpl(
             )
     }
 
-    private fun closeQuietly(session: ContentWriteSession) {
-        runCatching { session.close() }
-            .onFailure { Log.w(TAG, "Failed to close the session stream", it) }
+    private fun abortQuietly(session: ContentWriteSession, reason: String) {
+        runCatching { session.abort(reason) }
+            .onFailure { Log.w(TAG, "Failed to abort the session", it) }
     }
 
     /**
@@ -151,5 +160,8 @@ internal class ContentWriteServiceImpl(
 
     companion object {
         const val TAG = "ContentWriteServiceImpl"
+
+        /** What the provider is told when the Dart side gives up on a write. */
+        private const val ABORTED = "The write was aborted"
     }
 }

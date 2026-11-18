@@ -1,8 +1,8 @@
 package com.ragibn5.content.io.content_io_android.features.write.services
 
-import com.ragibn5.content.io.content_io_android.features.write.io.session.StreamContentWriteSession
+import com.ragibn5.content.io.content_io_android.features.write.io.session.ContentWriteSession
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayOutputStream
+import org.mockito.Mockito
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertSame
@@ -11,7 +11,9 @@ import kotlin.test.assertTrue
 internal class ContentWriteSessionRegistryTest {
     private val registry = ContentWriteSessionRegistry()
 
-    private fun session(id: String) = StreamContentWriteSession(id, ByteArrayOutputStream())
+    private fun session(id: String) = Mockito.mock(ContentWriteSession::class.java).also {
+        Mockito.`when`(it.sessionId).thenReturn(id)
+    }
 
     @Test
     fun addSessionShouldKeepSessionUnderItsId() {

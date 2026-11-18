@@ -18,7 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ContentReadSession`: reads the content once, as a stream of chunks or all
   at once, and closes itself when done.
 - `openWriteSession`: writes existing content, replacing it or adding to its
-  end, through a file descriptor or a platform stream.
+  end: a regular file straight through its descriptor, anything else, such as
+  a provider's pipe, through the platform, so the provider learns whether the
+  write finished or was aborted.
 - `ContentWriteSession`: writes the content in pieces or from a stream, then
   closes after the content is synced to the storage, so a full volume is
   reported as `NotEnoughSpaceException` rather than lost; or aborts.
