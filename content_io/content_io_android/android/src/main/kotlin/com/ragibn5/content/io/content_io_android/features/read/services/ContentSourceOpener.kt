@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.res.AssetFileDescriptor
 import android.graphics.Point
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.system.ErrnoException
 import android.system.Os
 import android.system.OsConstants
@@ -36,6 +37,15 @@ internal sealed interface OpenedContentSource {
     ) : OpenedContentSource
 
     /**
+     * A descriptor its provider watches for how the read ends, kept as it is
+     * so the provider can be told; see [ParcelFileDescriptor.canDetectErrors].
+     */
+    class Kept(
+        /** The open descriptor; whoever receives it must close it. */
+        val descriptor: AssetFileDescriptor,
+    ) : OpenedContentSource
+
+    /**
      * A stream, for content that can't be opened as a descriptor.
      */
     class Stream(
@@ -47,6 +57,10 @@ internal sealed interface OpenedContentSource {
 /**
  * Opens content for reading: as a descriptor when possible, otherwise as a
  * stream.
+ *
+ * Note: A descriptor is handed over only when its provider doesn't watch it.
+ * Handing it over detaches it, which tells a watching provider the read
+ * failed; such a descriptor is kept instead.
  */
 internal class ContentSourceOpener(
     private val contentResolver: ContentResolver,
@@ -66,7 +80,7 @@ internal class ContentSourceOpener(
             contentResolver.openAssetFileDescriptor(uri, "r")
         }
         if (descriptor != null) {
-            return@runCatching buildDescriptorSource(descriptor)
+            return@runCatching handOverOrKeep(descriptor)
         }
 
         val stream = guardOpen(request.uri) { contentResolver.openInputStream(uri) }
@@ -82,7 +96,7 @@ internal class ContentSourceOpener(
      * `ContentResolver.loadThumbnail` does, without decoding it.
      *
      * @param request the content and the size to request its thumbnail at.
-     * @return the thumbnail as a detached descriptor; the caller owns it.
+     * @return the opened thumbnail; the caller owns what it holds.
      * @throws ContentIoException with an [OpenReadExceptionCodes]
      * code; [OpenReadExceptionCodes.CONTENT_NOT_FOUND] if the content has
      * no thumbnail, or [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED]
@@ -90,7 +104,7 @@ internal class ContentSourceOpener(
      *
      * Note: Only the thumbnail's bytes are opened, never the original content's.
      */
-    fun openThumbnail(request: OpenThumbnailReadRequest): Result<OpenedContentSource.Descriptor> =
+    fun openThumbnail(request: OpenThumbnailReadRequest): Result<OpenedContentSource> =
         runCatching {
             val options = Bundle().apply {
                 putParcelable(
@@ -108,8 +122,20 @@ internal class ContentSourceOpener(
                 ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
                 "The content provider is not responding, we probably need a device restart"
             )
-            return@runCatching buildDescriptorSource(descriptor)
+            return@runCatching handOverOrKeep(descriptor)
         }
+
+    /**
+     * Keeps [descriptor] if its provider watches it, otherwise builds a
+     * descriptor to hand over.
+     */
+    private fun handOverOrKeep(descriptor: AssetFileDescriptor): OpenedContentSource {
+        return if (descriptor.parcelFileDescriptor.canDetectErrors()) {
+            OpenedContentSource.Kept(descriptor)
+        } else {
+            buildDescriptorSource(descriptor)
+        }
+    }
 
     /**
      * Builds an [OpenedContentSource.Descriptor] from [descriptor], detaching its

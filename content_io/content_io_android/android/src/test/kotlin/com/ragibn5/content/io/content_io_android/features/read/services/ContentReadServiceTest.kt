@@ -1,5 +1,6 @@
 package com.ragibn5.content.io.content_io_android.features.read.services
 
+import android.content.res.AssetFileDescriptor
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoException
 import com.ragibn5.content.io.content_io_android.features.read.constants.OpenReadExceptionCodes
 import com.ragibn5.content.io.content_io_android.features.read.constants.ReadExceptionCodes
@@ -16,6 +17,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import java.io.FileInputStream
 import java.io.IOException
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -69,6 +71,20 @@ internal class ContentReadServiceTest {
         assertContentIoError(OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
             service(testScheduler).openRead(request)
         }
+    }
+
+    @Test
+    fun openReadShouldReturnChannelReplyAndKeepSessionIfDescriptorIsKept() = runTest {
+        val descriptor = Mockito.mock(AssetFileDescriptor::class.java).also {
+            Mockito.`when`(it.length).thenReturn(2048L)
+            Mockito.`when`(it.createInputStream()).thenReturn(Mockito.mock(FileInputStream::class.java))
+        }
+        givenOpened(Result.success(OpenedContentSource.Kept(descriptor)))
+
+        val reply = assertIs<OpenReadReply.Channel>(service(testScheduler).openRead(request))
+
+        assertEquals(setOf(reply.sessionId), registry.sessionMap.keys)
+        assertEquals(2048L, reply.sizeInBytes)
     }
 
     @Test

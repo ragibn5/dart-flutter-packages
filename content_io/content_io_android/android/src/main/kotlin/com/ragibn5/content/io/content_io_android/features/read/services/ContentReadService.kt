@@ -3,6 +3,7 @@ package com.ragibn5.content.io.content_io_android.features.read.services
 import android.util.Log
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoException
 import com.ragibn5.content.io.content_io_android.features.read.constants.ReadExceptionCodes
+import com.ragibn5.content.io.content_io_android.features.read.io.session.DescriptorContentReadSession
 import com.ragibn5.content.io.content_io_android.features.read.io.session.StreamContentReadSession
 import com.ragibn5.content.io.content_io_android.features.read.models.OpenReadReply
 import com.ragibn5.content.io.content_io_android.features.read.models.OpenReadRequest
@@ -30,7 +31,8 @@ internal interface ContentReadService {
      * Opens the thumbnail of the content [request] points to for reading.
      *
      * @return a [OpenReadReply.Descriptor] for the thumbnail, which is
-     * handed over and not kept here.
+     * handed over and not kept here; or a [OpenReadReply.Channel] for a
+     * session kept here, when the provider watches the descriptor.
      * @throws ContentIoException with an open error code.
      *
      * Note: Only the thumbnail's bytes are opened, never the original content's.
@@ -73,19 +75,7 @@ internal class ContentReadServiceImpl(
             contentSourceOpener.open(request).getOrThrow()
         }
 
-        return when (source) {
-            is OpenedContentSource.Descriptor -> source.toReply()
-
-            is OpenedContentSource.Stream -> {
-                val session = StreamContentReadSession(UUID.randomUUID().toString(), source.stream)
-                sessionRegistry.addSession(session)
-                OpenReadReply.Channel(
-                    sessionId = session.sessionId,
-                    sizeInBytes = session.sizeInBytes,
-                    isSeekable = session.isSeekable,
-                )
-            }
-        }
+        return toReply(source)
     }
 
     override suspend fun openThumbnail(request: OpenThumbnailReadRequest): OpenReadReply {
@@ -93,7 +83,7 @@ internal class ContentReadServiceImpl(
         val source = withContext(dispatcher) {
             contentSourceOpener.openThumbnail(request).getOrThrow()
         }
-        return source.toReply()
+        return toReply(source)
     }
 
     override fun readFromSession(request: ReadRequest): ByteArray {
@@ -129,6 +119,26 @@ internal class ContentReadServiceImpl(
                 .onFailure { Log.w(TAG, "Failed to close the session stream", it) }
         }
     }
+
+    /**
+     * The reply for [source]: a descriptor is handed over and not kept here;
+     * anything else becomes a session kept here, read over the channel.
+     */
+    private fun toReply(source: OpenedContentSource): OpenReadReply {
+        val session = when (source) {
+            is OpenedContentSource.Descriptor -> return source.toReply()
+            is OpenedContentSource.Kept -> DescriptorContentReadSession(newSessionId(), source.descriptor)
+            is OpenedContentSource.Stream -> StreamContentReadSession(newSessionId(), source.stream)
+        }
+        sessionRegistry.addSession(session)
+        return OpenReadReply.Channel(
+            sessionId = session.sessionId,
+            sizeInBytes = session.sizeInBytes,
+            isSeekable = session.isSeekable,
+        )
+    }
+
+    private fun newSessionId() = UUID.randomUUID().toString()
 
     /**
      * Describes this detached descriptor as an `openReadSession` reply.

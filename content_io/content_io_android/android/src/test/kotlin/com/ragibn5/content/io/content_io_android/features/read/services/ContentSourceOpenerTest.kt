@@ -74,6 +74,15 @@ internal class ContentSourceOpenerTest {
         }
     }
 
+    /** A descriptor its provider watches for how the read ends. */
+    private fun watchedDescriptor(): AssetFileDescriptor {
+        val parcel = Mockito.mock(ParcelFileDescriptor::class.java)
+        Mockito.`when`(parcel.canDetectErrors()).thenReturn(true)
+        return Mockito.mock(AssetFileDescriptor::class.java).also {
+            Mockito.`when`(it.parcelFileDescriptor).thenReturn(parcel)
+        }
+    }
+
     private fun givenOpensAs(descriptor: AssetFileDescriptor?) {
         Mockito.`when`(contentResolver.openAssetFileDescriptor(uri, "r")).thenReturn(descriptor)
     }
@@ -128,6 +137,15 @@ internal class ContentSourceOpenerTest {
             opener.open(request).getOrThrow()
         }
         Mockito.verify(descriptor).close()
+    }
+
+    @Test
+    fun openShouldKeepDescriptorWithoutDetachingIfProviderWatchesIt() {
+        val descriptor = watchedDescriptor()
+        givenOpensAs(descriptor)
+
+        assertSame(descriptor, assertIs<OpenedContentSource.Kept>(opener.open(request).getOrThrow()).descriptor)
+        Mockito.verify(descriptor.parcelFileDescriptor, Mockito.never()).detachFd()
     }
 
     @Test
@@ -194,6 +212,17 @@ internal class ContentSourceOpenerTest {
         assertEquals(
             OpenedContentSource.Descriptor(fd = FD, offset = 0, sizeInBytes = 1024, isSeekable = true),
             opener.openThumbnail(thumbnailRequest).getOrThrow(),
+        )
+    }
+
+    @Test
+    fun openThumbnailShouldKeepDescriptorIfProviderWatchesIt() {
+        val descriptor = watchedDescriptor()
+        givenThumbnailOpensAs(descriptor)
+
+        assertSame(
+            descriptor,
+            assertIs<OpenedContentSource.Kept>(opener.openThumbnail(thumbnailRequest).getOrThrow()).descriptor,
         )
     }
 
