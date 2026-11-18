@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:document_tree_android/document_tree_android.dart';
 
 const treeUri =
@@ -29,6 +31,37 @@ const listRequest = ListDocumentsRequest(treeUri: treeUri, path: 'DCIM');
 
 const copyRequest = CopyDocumentRequest(
   sourceUri: 'content://media/external/images/media/1',
+  treeUri: treeUri,
+  path: 'DCIM/IMG_1.jpg',
+);
+
+const getRequest = GetDocumentRequest(treeUri: treeUri, path: 'DCIM/IMG_1.jpg');
+
+const createDirectoryRequest = CreateDirectoryRequest(
+  treeUri: treeUri,
+  path: 'DCIM',
+);
+
+final createDocumentRequest = CreateDocumentRequest(
+  treeUri: treeUri,
+  path: 'DCIM/notes.txt',
+  mimeType: 'text/plain',
+  bytes: Uint8List.fromList([1, 2, 3]),
+);
+
+const renameRequest = RenameDocumentRequest(
+  treeUri: treeUri,
+  path: 'DCIM/IMG_1.jpg',
+  newName: 'IMG_2.jpg',
+);
+
+const moveRequest = MoveDocumentRequest(
+  treeUri: treeUri,
+  path: 'DCIM/IMG_1.jpg',
+  newParentPath: 'Pictures',
+);
+
+const deleteRequest = DeleteDocumentRequest(
   treeUri: treeUri,
   path: 'DCIM/IMG_1.jpg',
 );
