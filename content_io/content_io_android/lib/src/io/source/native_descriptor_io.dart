@@ -8,6 +8,15 @@ abstract final class NativeDescriptorIo {
   /// The `EINTR` errno value.
   static const _eintr = 4;
 
+  /// The `EINVAL` errno value; from [fsync], the descriptor can't be synced.
+  static const einval = 22;
+
+  /// The `ENOSPC` errno value: the volume is full.
+  static const enospc = 28;
+
+  /// The `EROFS` errno value; from [fsync], the descriptor can't be synced.
+  static const erofs = 30;
+
   /// The loaded libc.
   static final DynamicLibrary _libc = _openLibc();
 
@@ -26,6 +35,18 @@ abstract final class NativeDescriptorIo {
         IntPtr Function(Int32, Pointer<Uint8>, Size),
         int Function(int, Pointer<Uint8>, int)
       >('read', isLeaf: true);
+
+  static final _write = _libc
+      .lookupFunction<
+        IntPtr Function(Int32, Pointer<Uint8>, Size),
+        int Function(int, Pointer<Uint8>, int)
+      >('write', isLeaf: true);
+
+  static final _fsync = _libc
+      .lookupFunction<Int32 Function(Int32), int Function(int)>(
+        'fsync',
+        isLeaf: true,
+      );
 
   static final _close = _libc
       .lookupFunction<Int32 Function(Int32), int Function(int)>(
@@ -86,6 +107,36 @@ abstract final class NativeDescriptorIo {
   /// Retries when interrupted (`EINTR`).
   static int read(int fd, Pointer<Uint8> buffer, int count) =>
       _retryInterrupted(() => _read(fd, buffer, count), 'read');
+
+  /// Writes to [fd] at its position, and advances the position.
+  ///
+  /// Parameters:
+  /// - [fd]: the descriptor to write.
+  /// - [buffer]: the native buffer to write from.
+  /// - [count]: the number of bytes to write.
+  ///
+  /// Returns: the number of bytes written; may be fewer than [count].
+  ///
+  /// Throws:
+  /// - [OSError] if the write fails; `ENOSPC` when the volume is full.
+  ///
+  /// Note:
+  /// Retries when interrupted (`EINTR`).
+  static int write(int fd, Pointer<Uint8> buffer, int count) =>
+      _retryInterrupted(() => _write(fd, buffer, count), 'write');
+
+  /// Waits until everything written to [fd] is on the storage.
+  ///
+  /// Parameters:
+  /// - [fd]: the descriptor to sync.
+  ///
+  /// Throws:
+  /// - [OSError] if the sync fails; `ENOSPC` when the volume filled up, or
+  ///   `EINVAL` or `EROFS` when [fd] can't be synced, such as a pipe.
+  ///
+  /// Note:
+  /// Retries when interrupted (`EINTR`).
+  static void fsync(int fd) => _retryInterrupted(() => _fsync(fd), 'fsync');
 
   /// Closes a descriptor, ignoring errors.
   ///

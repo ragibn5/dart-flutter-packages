@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:content_io_android/content_io_android.dart';
@@ -95,6 +96,39 @@ class _ContentPageState extends State<ContentPage> {
     );
   });
 
+  /// Creates `written.txt` in the folder, then writes it with a session;
+  /// fails if it's already there.
+  Future<void> _write() => _run(() async {
+    final treeUri = _treeUri;
+    if (treeUri == null) {
+      return;
+    }
+
+    final created = await _documentTree.createDocument(
+      CreateDocumentRequest(treeUri: treeUri, path: 'written.txt'),
+    );
+    final session = await _contentIo.openWriteSession(
+      OpenWriteRequest(uri: created.uri),
+    );
+    for (var line = 1; line <= 3; line++) {
+      await session.write(utf8.encode('Line $line, at ${DateTime.now()}\n'));
+    }
+    await session.close();
+    setState(() => _result = 'Wrote ${created.path}');
+    await _list();
+  });
+
+  /// Adds a line to the end of [file].
+  Future<void> _append(DocumentInfo file) => _run(() async {
+    final session = await _contentIo.openWriteSession(
+      OpenWriteRequest(uri: file.uri, mode: WriteMode.append),
+    );
+    await session.write(utf8.encode('Appended at ${DateTime.now()}\n'));
+    await session.close();
+    setState(() => _result = 'Appended to ${file.path}');
+    await _list();
+  });
+
   /// Reads [file]'s thumbnail, if its provider has one.
   Future<void> _readThumbnail(DocumentInfo file) => _run(() async {
     final session = await _contentIo.openThumbnailReadSession(
@@ -125,6 +159,7 @@ class _ContentPageState extends State<ContentPage> {
               onPressed: () => _run(_list),
               child: const Text('List'),
             ),
+            ElevatedButton(onPressed: _write, child: const Text('Write')),
           ],
         ),
         if (_error case final error?)
@@ -137,9 +172,18 @@ class _ContentPageState extends State<ContentPage> {
               title: Text(file.path),
               subtitle: Text('${file.sizeInBytes} bytes'),
               onTap: () => _read(file),
-              trailing: IconButton(
-                icon: const Icon(Icons.image),
-                onPressed: () => _readThumbnail(file),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () => _append(file),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.image),
+                    onPressed: () => _readThumbnail(file),
+                  ),
+                ],
               ),
             ),
       ],

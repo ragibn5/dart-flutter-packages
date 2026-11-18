@@ -40,4 +40,11 @@ abstract class ContentIoAndroidPlatform extends PlatformInterface {
       'openThumbnailReadSession() has not been implemented.',
     );
   }
+
+  /// Opens a session for writing the content [request] points to.
+  ///
+  /// See [ContentWriteSession] for more info.
+  Future<ContentWriteSession> openWriteSession(OpenWriteRequest request) {
+    throw UnimplementedError('openWriteSession() has not been implemented.');
+  }
 }
