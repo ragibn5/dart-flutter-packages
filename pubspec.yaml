@@ -13,6 +13,7 @@ workspace:
   - base_auth_interceptor
   - clean_arch_linter
   - collection_utils
+  - content_io/content_io_android
   - dart_functionals
   - dev_tools
   - document_tree/document_tree_android

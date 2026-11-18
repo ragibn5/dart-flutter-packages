@@ -37,25 +37,6 @@ abstract class MediaProviderAndroidPlatform extends PlatformInterface {
     throw UnimplementedError('getMedia() has not been implemented.');
   }
 
-  /// Opens a session for reading the item [request] points to.
-  ///
-  /// See [MediaReadSession] for more info.
-  Future<MediaReadSession> openReadSession(OpenMediaReadRequest request) {
-    throw UnimplementedError('openReadSession() has not been implemented.');
-  }
-
-  /// Opens a session for reading the thumbnail of the item [request] points
-  /// to.
-  ///
-  /// See [MediaReadSession] for more info.
-  Future<MediaReadSession> openThumbnailReadSession(
-    OpenThumbnailReadRequest request,
-  ) {
-    throw UnimplementedError(
-      'openThumbnailReadSession() has not been implemented.',
-    );
-  }
-
   /// Shows the system share sheet for the items [request] points to.
   ///
   /// See [ShareMediaRequest] for more info.

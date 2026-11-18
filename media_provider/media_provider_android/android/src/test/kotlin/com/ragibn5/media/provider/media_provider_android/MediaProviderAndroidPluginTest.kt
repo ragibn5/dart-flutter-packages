@@ -20,10 +20,9 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class MediaProviderAndroidPluginTest {
-    /** A [BinaryMessenger] that records the handler set on each channel, and its task queue. */
+    /** A [BinaryMessenger] that records the handler set on each channel. */
     private class FakeBinaryMessenger : BinaryMessenger {
         val handlers = mutableMapOf<String, BinaryMessenger.BinaryMessageHandler?>()
-        val taskQueues = mutableMapOf<String, BinaryMessenger.TaskQueue?>()
 
         override fun makeBackgroundTaskQueue(options: BinaryMessenger.TaskQueueOptions): BinaryMessenger.TaskQueue =
             object : BinaryMessenger.TaskQueue {}
@@ -42,7 +41,6 @@ internal class MediaProviderAndroidPluginTest {
             taskQueue: BinaryMessenger.TaskQueue?,
         ) {
             handlers[channel] = handler
-            taskQueues[channel] = taskQueue
         }
     }
 
@@ -71,25 +69,15 @@ internal class MediaProviderAndroidPluginTest {
     }
 
     @Test
-    fun onAttachedToEngineShouldServeReadChannelOnBackgroundTaskQueue() {
-        plugin.onAttachedToEngine(binding)
-
-        assertNotNull(messenger.handlers[READ_CHANNEL])
-        assertNotNull(messenger.taskQueues[READ_CHANNEL])
-    }
-
-    @Test
-    fun onDetachedFromEngineShouldStopServingBothChannels() {
+    fun onDetachedFromEngineShouldStopServingMainChannel() {
         plugin.onAttachedToEngine(binding)
 
         plugin.onDetachedFromEngine(binding)
 
         assertNull(messenger.handlers[MAIN_CHANNEL])
-        assertNull(messenger.handlers[READ_CHANNEL])
     }
 
     private companion object {
         const val MAIN_CHANNEL = "media_provider_android"
-        const val READ_CHANNEL = "media_provider_android/read"
     }
 }

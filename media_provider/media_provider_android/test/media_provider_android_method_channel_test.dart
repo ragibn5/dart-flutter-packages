@@ -5,25 +5,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:media_provider_android/media_provider_android_method_channel.dart';
 import 'package:media_provider_android/src/exceptions/media_action_exception.dart';
 import 'package:media_provider_android/src/exceptions/media_query_exception.dart';
-import 'package:media_provider_android/src/io/source/media_byte_source.dart';
-import 'package:media_provider_android/src/io/source/media_byte_source_factory.dart';
 import 'package:media_provider_android/src/models/media_type.dart';
-import 'package:media_provider_android/src/models/open_media_read_request.dart';
 import 'package:media_provider_android/src/models/open_media_with_request.dart';
-import 'package:media_provider_android/src/models/open_thumbnail_read_request.dart';
 import 'package:media_provider_android/src/models/query_spec.dart';
 import 'package:media_provider_android/src/models/share_media_request.dart';
-import 'package:media_provider_android/src/models/thumbnail_size.dart';
 import 'package:media_provider_android/src/models/volume_info.dart';
 import 'package:media_provider_android/src/models/volume_spec.dart';
 import 'package:media_provider_android/src/models/volume_state.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'helpers/fixtures.dart';
-
-class _MockSourceFactory extends Mock implements MediaByteSourceFactory {}
-
-class _MockSource extends Mock implements MediaByteSource {}
 
 class _MockQueryMapper extends Mock implements MediaQueryExceptionMapper {}
 
@@ -40,7 +31,6 @@ void main() {
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
-  late _MockSourceFactory sourceFactory;
   late _MockQueryMapper queryMapper;
   late _MockActionMapper actionMapper;
   late MethodChannelMediaProviderAndroid sut;
@@ -62,24 +52,15 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(PlatformException(code: 'fallback'));
-    registerFallbackValue(const OpenMediaReadRequest(contentUri: ''));
-    registerFallbackValue(
-      const OpenThumbnailReadRequest(
-        contentUri: '',
-        size: ThumbnailSize(width: 1, height: 1),
-      ),
-    );
   });
 
   setUp(() {
-    sourceFactory = _MockSourceFactory();
     queryMapper = _MockQueryMapper();
     actionMapper = _MockActionMapper();
     calls = [];
     sut = MethodChannelMediaProviderAndroid(
       queryMediaExceptionMapper: queryMapper,
       mediaActionExceptionMapper: actionMapper,
-      sourceFactory: sourceFactory,
     );
   });
 
@@ -138,37 +119,6 @@ void main() {
       replyWith(PlatformException(code: 'invalid_request'));
 
       expect(sut.getMedia(query), throwsA(isA<_MappedException>()));
-    });
-  });
-
-  group('openReadSession', () {
-    test('openReadSessionShouldReadFromSourceFactoryOpens', () async {
-      const request = OpenMediaReadRequest(contentUri: 'content://media/1');
-      final source = _MockSource();
-      when(() => source.id).thenReturn('local-1');
-      when(() => sourceFactory.open(request)).thenAnswer((_) async => source);
-
-      final session = await sut.openReadSession(request);
-
-      expect(session.sessionId, 'local-1');
-    });
-  });
-
-  group('openThumbnailReadSession', () {
-    test('openThumbnailReadSessionShouldReadFromSourceFactoryOpens', () async {
-      const request = OpenThumbnailReadRequest(
-        contentUri: 'content://media/1',
-        size: ThumbnailSize(width: 256, height: 256),
-      );
-      final source = _MockSource();
-      when(() => source.id).thenReturn('session-1');
-      when(
-        () => sourceFactory.openThumbnail(request),
-      ).thenAnswer((_) async => source);
-
-      final session = await sut.openThumbnailReadSession(request);
-
-      expect(session.sessionId, 'session-1');
     });
   });
 
