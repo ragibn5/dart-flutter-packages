@@ -10,8 +10,8 @@ import java.io.IOException
 import java.io.OutputStream
 
 /**
- * A [ContentWriteSession] for a descriptor that isn't a regular file, such as
- * a pipe a provider streams the content through.
+ * A [ContentWriteSession] for a descriptor its provider watches, such as a
+ * pipe it streams the content through, or a file it uploads once closed.
  *
  * Note: Kept on this side rather than handed over to the Dart side, because
  * handing it over detaches it: the provider would then hear that the write

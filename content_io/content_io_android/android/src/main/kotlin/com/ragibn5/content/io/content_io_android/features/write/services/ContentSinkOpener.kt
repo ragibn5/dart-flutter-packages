@@ -2,9 +2,6 @@ package com.ragibn5.content.io.content_io_android.features.write.services
 
 import android.content.ContentResolver
 import android.os.ParcelFileDescriptor
-import android.system.ErrnoException
-import android.system.Os
-import android.system.OsConstants
 import androidx.core.net.toUri
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoCommonExceptionCodes
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoException
@@ -17,8 +14,8 @@ import java.io.FileNotFoundException
  */
 internal sealed interface OpenedContentSink {
     /**
-     * A regular file's descriptor, detached from its [ParcelFileDescriptor]:
-     * whoever receives [fd] owns it and must close it.
+     * A descriptor its provider doesn't watch, detached from its
+     * [ParcelFileDescriptor]: whoever receives [fd] owns it and must close it.
      */
     data class Descriptor(
         /** The file descriptor. */
@@ -26,8 +23,8 @@ internal sealed interface OpenedContentSink {
     ) : OpenedContentSink
 
     /**
-     * A descriptor that isn't a regular file, such as a pipe, kept as it is so
-     * the provider can be told how the write ended.
+     * A descriptor its provider watches for how the write ends, kept as it is
+     * so the provider can be told; see [ParcelFileDescriptor.canDetectErrors].
      */
     class Kept(
         /** The open descriptor; whoever receives it must close it. */
@@ -36,8 +33,12 @@ internal sealed interface OpenedContentSink {
 }
 
 /**
- * Opens content for writing: a regular file as a descriptor to hand over,
- * anything else as a descriptor to keep.
+ * Opens content for writing, as a descriptor.
+ *
+ * Note: A descriptor is handed over only when its provider doesn't watch it,
+ * such as a plain file. Handing it over detaches it, which tells a watching
+ * provider, such as one streaming the content through a pipe or uploading a
+ * file once it's closed, that the write failed; such a descriptor is kept.
  */
 internal class ContentSinkOpener(
     private val contentResolver: ContentResolver,
@@ -49,7 +50,7 @@ internal class ContentSinkOpener(
      * @return the opened sink; the caller owns what it holds.
      * @throws ContentIoException with an [OpenWriteExceptionCodes] code, or
      * [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED] if the provider
-     * opens nothing or its descriptor can't be inspected.
+     * opens nothing.
      */
     fun open(request: OpenWriteRequest): Result<OpenedContentSink> = runCatching {
         val descriptor = guardOpen(request.uri) {
@@ -59,30 +60,10 @@ internal class ContentSinkOpener(
             "The content's provider opened nothing for writing: ${request.uri}"
         )
 
-        return@runCatching if (isRegularFile(descriptor)) {
-            OpenedContentSink.Descriptor(descriptor.detachFd())
-        } else {
+        return@runCatching if (descriptor.canDetectErrors()) {
             OpenedContentSink.Kept(descriptor)
-        }
-    }
-
-    /**
-     * Whether [descriptor] is a regular file.
-     *
-     * @throws ContentIoException with
-     * [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED] if it can't be
-     * inspected; it's closed then.
-     */
-    private fun isRegularFile(descriptor: ParcelFileDescriptor): Boolean {
-        try {
-            return OsConstants.S_ISREG(Os.fstat(descriptor.fileDescriptor).st_mode)
-        } catch (e: ErrnoException) {
-            descriptor.close()
-            throw ContentIoException(
-                ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
-                "Failed to inspect the content's descriptor",
-                cause = e
-            )
+        } else {
+            OpenedContentSink.Descriptor(descriptor.detachFd())
         }
     }
 

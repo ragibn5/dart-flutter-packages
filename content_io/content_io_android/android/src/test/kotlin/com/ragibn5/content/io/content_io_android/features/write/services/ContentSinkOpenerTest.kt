@@ -3,10 +3,6 @@ package com.ragibn5.content.io.content_io_android.features.write.services
 import android.content.ContentResolver
 import android.net.Uri
 import android.os.ParcelFileDescriptor
-import android.system.ErrnoException
-import android.system.Os
-import android.system.OsConstants
-import android.system.StructStat
 import com.ragibn5.content.io.content_io_android.exceptions.ContentIoCommonExceptionCodes
 import com.ragibn5.content.io.content_io_android.features.write.constants.OpenWriteExceptionCodes
 import com.ragibn5.content.io.content_io_android.features.write.models.OpenWriteRequest
@@ -15,7 +11,6 @@ import com.ragibn5.content.io.content_io_android.testing.assertContentIoError
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import java.io.FileDescriptor
 import java.io.FileNotFoundException
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -31,29 +26,15 @@ internal class ContentSinkOpenerTest {
     private val uris = Mockito.mockStatic(Uri::class.java).also {
         it.`when`<Uri> { Uri.parse(CONTENT_URI) }.thenReturn(uri)
     }
-    private val os = Mockito.mockStatic(Os::class.java)
-    private val osConstants = Mockito.mockStatic(OsConstants::class.java)
-
     @AfterEach
-    fun tearDown() {
-        uris.close()
-        os.close()
-        osConstants.close()
-    }
+    fun tearDown() = uris.close()
 
-    /** A descriptor the provider opens, which is a regular file when [isRegularFile]. */
-    private fun descriptor(isRegularFile: Boolean): ParcelFileDescriptor {
-        val fileDescriptor = FileDescriptor()
-        val stat = Mockito.mock(StructStat::class.java).also {
-            StructStat::class.java.getField("st_mode").apply { isAccessible = true }.setInt(it, MODE)
-        }
-        os.`when`<StructStat> { Os.fstat(fileDescriptor) }.thenReturn(stat)
-        osConstants.`when`<Boolean> { OsConstants.S_ISREG(MODE) }.thenReturn(isRegularFile)
-        return Mockito.mock(ParcelFileDescriptor::class.java).also {
-            Mockito.`when`(it.fileDescriptor).thenReturn(fileDescriptor)
+    /** A descriptor the provider opens, which it watches when [isWatched]. */
+    private fun descriptor(isWatched: Boolean): ParcelFileDescriptor =
+        Mockito.mock(ParcelFileDescriptor::class.java).also {
+            Mockito.`when`(it.canDetectErrors()).thenReturn(isWatched)
             Mockito.`when`(it.detachFd()).thenReturn(FD)
         }
-    }
 
     private fun givenOpensAs(descriptor: ParcelFileDescriptor?) {
         Mockito.`when`(contentResolver.openFileDescriptor(uri, "wa")).thenReturn(descriptor)
@@ -64,31 +45,19 @@ internal class ContentSinkOpenerTest {
     }
 
     @Test
-    fun openShouldReturnDetachedDescriptorIfContentOpensAsRegularFileInRequestedMode() {
-        givenOpensAs(descriptor(isRegularFile = true))
+    fun openShouldReturnDetachedDescriptorInRequestedModeIfProviderDoesNotWatchIt() {
+        givenOpensAs(descriptor(isWatched = false))
 
         assertEquals(OpenedContentSink.Descriptor(fd = FD), opener.open(request).getOrThrow())
     }
 
     @Test
-    fun openShouldKeepDescriptorWithoutDetachingIfItIsNotRegularFile() {
-        val descriptor = descriptor(isRegularFile = false)
+    fun openShouldKeepDescriptorWithoutDetachingIfProviderWatchesIt() {
+        val descriptor = descriptor(isWatched = true)
         givenOpensAs(descriptor)
 
         assertSame(descriptor, assertIs<OpenedContentSink.Kept>(opener.open(request).getOrThrow()).descriptor)
         Mockito.verify(descriptor, Mockito.never()).detachFd()
-    }
-
-    @Test
-    fun openShouldFailWithUnexpectedAndCloseDescriptorIfItCanNotBeInspected() {
-        val descriptor = Mockito.mock(ParcelFileDescriptor::class.java)
-        os.`when`<StructStat> { Os.fstat(Mockito.any()) }.thenThrow(Mockito.mock(ErrnoException::class.java))
-        givenOpensAs(descriptor)
-
-        assertContentIoError(ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED) {
-            opener.open(request).getOrThrow()
-        }
-        Mockito.verify(descriptor).close()
     }
 
     @Test
@@ -148,6 +117,5 @@ internal class ContentSinkOpenerTest {
     private companion object {
         const val CONTENT_URI = "content://com.android.externalstorage.documents/document/1"
         const val FD = 42
-        const val MODE = 0x8000
     }
 }
