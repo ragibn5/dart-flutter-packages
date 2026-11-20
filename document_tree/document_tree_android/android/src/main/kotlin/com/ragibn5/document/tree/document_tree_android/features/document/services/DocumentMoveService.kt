@@ -60,9 +60,10 @@ internal class DocumentMoveServiceImpl(
                 DocumentWriteExceptionCodes.NOT_FOUND,
                 "No folder is at: ${request.newParentPath}"
             )
-        // Checked here so it fails clearly; the provider fails the move for clashes by its rules.
-        val isNameTaken = rowReader.readChildren(treeUri, newParent.documentId)
-            .any { it.displayName == name }
+        // Checked here so it fails clearly, unless the caller knows the name is free; the provider
+        // fails the move for clashes by its rules.
+        val isNameTaken = !request.skipNameCheck &&
+            rowReader.readChildren(treeUri, newParent.documentId).any { it.displayName == name }
         if (isNameTaken) {
             throw DocumentTreeException(
                 DocumentWriteExceptionCodes.ALREADY_EXISTS,
