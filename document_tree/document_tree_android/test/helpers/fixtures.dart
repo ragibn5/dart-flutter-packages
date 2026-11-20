@@ -76,6 +76,7 @@ const moveRequest = MoveDocumentRequest(
   newParentPath: 'Pictures',
   parentUri: dcimUri,
   newParentUri: picturesUri,
+  skipNameCheck: true,
 );
 
 const deleteRequest = DeleteDocumentRequest(

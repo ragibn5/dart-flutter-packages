@@ -38,12 +38,23 @@ class MoveDocumentRequest extends Equatable {
   /// [newParentPath].
   final String? newParentUri;
 
+  /// Whether to move without first checking that no document in
+  /// [newParentPath] has the name; `false` by default.
+  ///
+  /// Note:
+  /// - Saves listing [newParentPath], whose cost grows with what it holds.
+  /// - Set it only when the name is known to be free. Otherwise what happens
+  ///   is the provider's call: Android's local storage fails the move, but
+  ///   another provider may replace the document already there.
+  final bool skipNameCheck;
+
   const MoveDocumentRequest({
     required this.treeUri,
     required this.path,
     required this.newParentPath,
     this.parentUri,
     this.newParentUri,
+    this.skipNameCheck = false,
   });
 
   @override
@@ -53,6 +64,7 @@ class MoveDocumentRequest extends Equatable {
     newParentPath,
     parentUri,
     newParentUri,
+    skipNameCheck,
   ];
 
   Map<String, dynamic> toJson() => _$MoveDocumentRequestToJson(this);
