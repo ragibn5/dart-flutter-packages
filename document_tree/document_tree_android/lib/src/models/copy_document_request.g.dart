@@ -11,6 +11,7 @@ CopyDocumentRequest _$CopyDocumentRequestFromJson(Map<String, dynamic> json) =>
       sourceUri: json['sourceUri'] as String,
       treeUri: json['treeUri'] as String,
       path: json['path'] as String,
+      parentUri: json['parentUri'] as String?,
       mimeType: json['mimeType'] as String?,
     );
 
@@ -20,5 +21,6 @@ Map<String, dynamic> _$CopyDocumentRequestToJson(
   'sourceUri': instance.sourceUri,
   'treeUri': instance.treeUri,
   'path': instance.path,
+  'parentUri': instance.parentUri,
   'mimeType': instance.mimeType,
 };

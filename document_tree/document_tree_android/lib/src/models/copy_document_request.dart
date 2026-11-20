@@ -1,3 +1,4 @@
+import 'package:document_tree_android/src/models/document_info.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
@@ -20,6 +21,14 @@ class CopyDocumentRequest extends Equatable {
   /// must be at it.
   final String path;
 
+  /// The URI of the folder holding [path], from an earlier
+  /// [DocumentInfo.uri]; `null` when it isn't known.
+  ///
+  /// Note:
+  /// Only a shortcut: it's used while that folder exists under the name
+  /// [path] gives it; otherwise the folder is found by [path].
+  final String? parentUri;
+
   /// The copy's MIME type, or `null` to tell it from [path]'s extension, then
   /// from the source.
   final String? mimeType;
@@ -28,11 +37,12 @@ class CopyDocumentRequest extends Equatable {
     required this.sourceUri,
     required this.treeUri,
     required this.path,
+    this.parentUri,
     this.mimeType,
   });
 
   @override
-  List<Object?> get props => [sourceUri, treeUri, path, mimeType];
+  List<Object?> get props => [sourceUri, treeUri, path, parentUri, mimeType];
 
   Map<String, dynamic> toJson() => _$CopyDocumentRequestToJson(this);
 

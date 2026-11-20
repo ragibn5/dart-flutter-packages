@@ -11,8 +11,13 @@ CreateDirectoryRequest _$CreateDirectoryRequestFromJson(
 ) => CreateDirectoryRequest(
   treeUri: json['treeUri'] as String,
   path: json['path'] as String,
+  parentUri: json['parentUri'] as String?,
 );
 
 Map<String, dynamic> _$CreateDirectoryRequestToJson(
   CreateDirectoryRequest instance,
-) => <String, dynamic>{'treeUri': instance.treeUri, 'path': instance.path};
+) => <String, dynamic>{
+  'treeUri': instance.treeUri,
+  'path': instance.path,
+  'parentUri': instance.parentUri,
+};
