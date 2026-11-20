@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-11-21
+
+### Added
+
+- `parentUri` on `CopyDocumentRequest`, `CreateDirectoryRequest` and
+  `GetDocumentRequest`, and `parentUri` and `newParentUri` on
+  `MoveDocumentRequest`: a folder's URI from an earlier result. While that
+  folder still has the name its path gives it, it's used as it is instead of
+  being found by walking the path.
+- `MoveDocumentRequest.skipNameCheck`: moves without first listing the
+  destination folder to check the name, for a caller that knows the name is
+  free. A move that then fails on a taken name still fails with
+  `DocumentAlreadyExistsException`; a provider that replaces instead of
+  failing does so, as Android's local storage doesn't.
+
 ## [2.0.0] - 2026-11-18
 
 ### Added
