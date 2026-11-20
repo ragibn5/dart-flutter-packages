@@ -41,7 +41,7 @@ internal class DocumentMoveServiceImpl(
         val treeUri = request.treeUri.toUri()
         grantVerifier.verify(treeUri)
 
-        val document = pathResolver.findDocument(treeUri, request.path)
+        val document = pathResolver.findDocument(treeUri, request.path, request.parentUri)
             ?: throw DocumentTreeException(
                 DocumentWriteExceptionCodes.NOT_FOUND,
                 "No document is at: ${request.path}"
@@ -55,7 +55,7 @@ internal class DocumentMoveServiceImpl(
             throw DocumentProviderCalls.unsupported("move", request.path)
         }
 
-        val newParent = pathResolver.findFolder(treeUri, request.newParentPath)
+        val newParent = pathResolver.findFolder(treeUri, request.newParentPath, request.newParentUri)
             ?: throw DocumentTreeException(
                 DocumentWriteExceptionCodes.NOT_FOUND,
                 "No folder is at: ${request.newParentPath}"

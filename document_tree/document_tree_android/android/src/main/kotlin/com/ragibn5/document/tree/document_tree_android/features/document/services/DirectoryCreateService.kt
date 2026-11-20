@@ -35,7 +35,7 @@ internal class DirectoryCreateServiceImpl(
         grantVerifier.verify(treeUri)
 
         val parentPath = DocumentPaths.parent(request.path)
-        val parent = pathResolver.findFolder(treeUri, parentPath)
+        val parent = pathResolver.findFolder(treeUri, parentPath, request.parentUri)
             ?: throw DocumentTreeException(
                 DocumentWriteExceptionCodes.NOT_FOUND,
                 "No folder is at: $parentPath"

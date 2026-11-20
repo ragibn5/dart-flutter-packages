@@ -49,7 +49,7 @@ internal class DocumentCopyServiceImpl(
         val sourceUri = request.sourceUri.toUri()
         val fileName = DocumentPaths.name(request.path)
         val parentPath = DocumentPaths.parent(request.path)
-        val folder = pathResolver.findFolder(treeUri, parentPath)
+        val folder = pathResolver.findFolder(treeUri, parentPath, request.parentUri)
             ?: throw DocumentTreeException(
                 DocumentWriteExceptionCodes.NOT_FOUND,
                 "No folder is at: $parentPath"

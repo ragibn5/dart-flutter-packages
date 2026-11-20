@@ -18,4 +18,10 @@ internal data class GetDocumentRequest(
      * root.
      */
     val path: String,
+    /**
+     * The URI of the folder holding [path], from an earlier result; `null` when it isn't known.
+     * Only a shortcut: it's used while that folder exists under the name [path] gives it;
+     * otherwise the folder is found by [path]. Unused when [path] is empty.
+     */
+    val parentUri: String? = null,
 )
