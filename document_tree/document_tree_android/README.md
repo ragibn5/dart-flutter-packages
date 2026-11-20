@@ -32,7 +32,8 @@ dependencies:
 - Create folders, and files with their content, for small files written in one go.
 - Copy a file into a folder from any URI the app can read.
 - Rename, move and delete files and folders.
-- Every operation fails rather than replace or rename around a document that already has the name.
+- Every operation fails rather than replace or rename around a document that already has the name. A move can skip that check when the caller knows the name is free.
+- Pass a folder's URI from an earlier result to skip finding it by its path again.
 
 ## Permissions
 

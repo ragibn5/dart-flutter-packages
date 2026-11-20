@@ -24,6 +24,12 @@ internal data class CopyDocumentRequest(
      */
     val path: String,
     /**
+     * The URI of the folder holding [path], from an earlier result; `null` when it isn't known.
+     * Only a shortcut: it's used while that folder exists under the name [path] gives it;
+     * otherwise the folder is found by [path].
+     */
+    val parentUri: String? = null,
+    /**
      * The copy's MIME type, or `null` to tell it from [path]'s extension, then from the source.
      */
     val mimeType: String? = null,

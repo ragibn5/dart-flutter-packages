@@ -27,19 +27,34 @@ const document = DocumentInfo(
 
 const pickRequest = PickTreeRequest(initialUri: treeUri);
 
+/// The URI of the tree's root folder, as a result gives it.
+const rootUri = '$treeUri/document/B63B-1E04%3ASync';
+
+/// The URI of the tree's `DCIM` folder, as a result gives it.
+const dcimUri = '$treeUri/document/B63B-1E04%3ASync%2FDCIM';
+
+/// The URI of the tree's `Pictures` folder, as a result gives it.
+const picturesUri = '$treeUri/document/B63B-1E04%3ASync%2FPictures';
+
 const listRequest = ListDocumentsRequest(treeUri: treeUri, path: 'DCIM');
 
 const copyRequest = CopyDocumentRequest(
   sourceUri: 'content://media/external/images/media/1',
   treeUri: treeUri,
   path: 'DCIM/IMG_1.jpg',
+  parentUri: dcimUri,
 );
 
-const getRequest = GetDocumentRequest(treeUri: treeUri, path: 'DCIM/IMG_1.jpg');
+const getRequest = GetDocumentRequest(
+  treeUri: treeUri,
+  path: 'DCIM/IMG_1.jpg',
+  parentUri: dcimUri,
+);
 
 const createDirectoryRequest = CreateDirectoryRequest(
   treeUri: treeUri,
   path: 'DCIM',
+  parentUri: rootUri,
 );
 
 final createDocumentRequest = CreateDocumentRequest(
@@ -59,6 +74,9 @@ const moveRequest = MoveDocumentRequest(
   treeUri: treeUri,
   path: 'DCIM/IMG_1.jpg',
   newParentPath: 'Pictures',
+  parentUri: dcimUri,
+  newParentUri: picturesUri,
+  skipNameCheck: true,
 );
 
 const deleteRequest = DeleteDocumentRequest(

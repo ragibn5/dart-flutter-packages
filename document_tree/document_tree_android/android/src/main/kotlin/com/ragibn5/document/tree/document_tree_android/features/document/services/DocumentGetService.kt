@@ -41,7 +41,7 @@ internal class DocumentGetServiceImpl(
         val row = if (request.path.isEmpty()) {
             rowReader.readDocument(treeUri, DocumentsContract.getTreeDocumentId(treeUri))
         } else {
-            pathResolver.findDocument(treeUri, request.path)?.row
+            pathResolver.findDocument(treeUri, request.path, request.parentUri)?.row
         }
 
         return@withContext row?.toInfo(treeUri, request.path, grant.isWritePermission)

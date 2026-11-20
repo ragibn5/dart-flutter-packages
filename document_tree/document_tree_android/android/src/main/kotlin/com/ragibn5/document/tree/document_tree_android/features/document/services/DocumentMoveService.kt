@@ -1,6 +1,7 @@
 package com.ragibn5.document.tree.document_tree_android.features.document.services
 
 import android.content.ContentResolver
+import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
 import androidx.core.net.toUri
@@ -41,7 +42,7 @@ internal class DocumentMoveServiceImpl(
         val treeUri = request.treeUri.toUri()
         grantVerifier.verify(treeUri)
 
-        val document = pathResolver.findDocument(treeUri, request.path)
+        val document = pathResolver.findDocument(treeUri, request.path, request.parentUri)
             ?: throw DocumentTreeException(
                 DocumentWriteExceptionCodes.NOT_FOUND,
                 "No document is at: ${request.path}"
@@ -55,28 +56,32 @@ internal class DocumentMoveServiceImpl(
             throw DocumentProviderCalls.unsupported("move", request.path)
         }
 
-        val newParent = pathResolver.findFolder(treeUri, request.newParentPath)
+        val newParent = pathResolver.findFolder(treeUri, request.newParentPath, request.newParentUri)
             ?: throw DocumentTreeException(
                 DocumentWriteExceptionCodes.NOT_FOUND,
                 "No folder is at: ${request.newParentPath}"
             )
-        // Checked here so it fails clearly; the provider fails the move for clashes by its rules.
-        val isNameTaken = rowReader.readChildren(treeUri, newParent.documentId)
-            .any { it.displayName == name }
-        if (isNameTaken) {
-            throw DocumentTreeException(
-                DocumentWriteExceptionCodes.ALREADY_EXISTS,
-                "A document is already at: $newPath"
-            )
+        // Checked here so it fails clearly, unless the caller knows the name is free; the provider
+        // fails the move for clashes by its rules.
+        if (!request.skipNameCheck && isNameTaken(treeUri, newParent.documentId, name)) {
+            throw alreadyExists(newPath)
         }
 
-        val movedUri = DocumentProviderCalls.run("move", request.path) {
-            DocumentsContract.moveDocument(
-                contentResolver,
-                DocumentsContract.buildDocumentUriUsingTree(treeUri, document.row.documentId),
-                DocumentsContract.buildDocumentUriUsingTree(treeUri, document.folder.documentId),
-                DocumentsContract.buildDocumentUriUsingTree(treeUri, newParent.documentId),
-            )
+        val movedUri = try {
+            DocumentProviderCalls.run("move", request.path) {
+                DocumentsContract.moveDocument(
+                    contentResolver,
+                    DocumentsContract.buildDocumentUriUsingTree(treeUri, document.row.documentId),
+                    DocumentsContract.buildDocumentUriUsingTree(treeUri, document.folder.documentId),
+                    DocumentsContract.buildDocumentUriUsingTree(treeUri, newParent.documentId),
+                )
+            }
+        } catch (e: DocumentTreeException) {
+            // Unchecked before, so a failure may be a taken name: report it as one.
+            if (request.skipNameCheck && isNameTaken(treeUri, newParent.documentId, name)) {
+                throw alreadyExists(newPath, cause = e)
+            }
+            throw e
         }
         val moved = rowReader.readDocument(treeUri, DocumentsContract.getDocumentId(movedUri))
 
@@ -86,4 +91,17 @@ internal class DocumentMoveServiceImpl(
             grantAllowsWriting = true,
         )
     }
+
+    /**
+     * Whether a document named [name] is in the folder [folderId] of [treeUri].
+     */
+    private fun isNameTaken(treeUri: Uri, folderId: String, name: String): Boolean {
+        return rowReader.readChildren(treeUri, folderId).any { it.displayName == name }
+    }
+
+    private fun alreadyExists(path: String, cause: Throwable? = null) = DocumentTreeException(
+        DocumentWriteExceptionCodes.ALREADY_EXISTS,
+        "A document is already at: $path",
+        cause = cause,
+    )
 }

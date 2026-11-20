@@ -154,8 +154,9 @@ class DocumentTreeAndroid {
   /// its tree, keeping its name.
   ///
   /// Fails with a [DocumentAlreadyExistsException] if a document there already
-  /// has its name. Whether a name differing only in case counts is the
-  /// provider's call. On local storage, no data is copied.
+  /// has its name, unless [MoveDocumentRequest.skipNameCheck] is set. Whether
+  /// a name differing only in case counts is the provider's call. On local
+  /// storage, no data is copied.
   ///
   /// Returns: the moved document.
   ///

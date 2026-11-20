@@ -1,3 +1,5 @@
+import 'package:document_tree_android/src/exceptions/document_exceptions.dart';
+import 'package:document_tree_android/src/models/document_info.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
@@ -20,14 +22,53 @@ class MoveDocumentRequest extends Equatable {
   /// `DCIM/Archive`; empty for the root. It must exist.
   final String newParentPath;
 
+  /// The URI of the folder holding [path], from an earlier
+  /// [DocumentInfo.uri]; `null` when it isn't known.
+  ///
+  /// Note:
+  /// Only a shortcut: it's used while that folder exists under the name
+  /// [path] gives it; otherwise the folder is found by [path].
+  final String? parentUri;
+
+  /// The URI of the folder [newParentPath] names, from an earlier
+  /// [DocumentInfo.uri]; `null` when it isn't known.
+  ///
+  /// Note:
+  /// Only a shortcut: it's used while that folder exists under the name
+  /// [newParentPath] gives it; otherwise the folder is found by
+  /// [newParentPath].
+  final String? newParentUri;
+
+  /// Whether to move without first checking that no document in
+  /// [newParentPath] has the name; `false` by default.
+  ///
+  /// Note:
+  /// - Saves listing [newParentPath], whose cost grows with what it holds.
+  /// - Set it only when the name is known to be free. If the move then fails,
+  ///   the folder is checked, so a taken name still fails with a
+  ///   [DocumentAlreadyExistsException]; but a provider may replace the
+  ///   document already there instead of failing, as Android's local storage
+  ///   doesn't.
+  final bool skipNameCheck;
+
   const MoveDocumentRequest({
     required this.treeUri,
     required this.path,
     required this.newParentPath,
+    this.parentUri,
+    this.newParentUri,
+    this.skipNameCheck = false,
   });
 
   @override
-  List<Object?> get props => [treeUri, path, newParentPath];
+  List<Object?> get props => [
+    treeUri,
+    path,
+    newParentPath,
+    parentUri,
+    newParentUri,
+    skipNameCheck,
+  ];
 
   Map<String, dynamic> toJson() => _$MoveDocumentRequestToJson(this);
 
