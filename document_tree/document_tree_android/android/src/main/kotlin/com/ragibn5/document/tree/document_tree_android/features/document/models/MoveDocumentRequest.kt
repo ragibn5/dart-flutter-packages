@@ -36,9 +36,9 @@ internal data class MoveDocumentRequest(
     val newParentUri: String? = null,
     /**
      * Whether to move without first checking that no document in [newParentPath] has the name.
-     * Set only when the name is known to be free; otherwise what happens is the provider's call:
-     * Android's local storage fails the move, but another provider may replace the document
-     * already there.
+     * Set only when the name is known to be free. If the move then fails, the folder is checked,
+     * so a taken name still fails as one; but a provider may replace the document already there
+     * instead of failing, as Android's local storage doesn't.
      */
     val skipNameCheck: Boolean = false,
 )

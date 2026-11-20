@@ -1,3 +1,4 @@
+import 'package:document_tree_android/src/exceptions/document_exceptions.dart';
 import 'package:document_tree_android/src/models/document_info.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -43,9 +44,11 @@ class MoveDocumentRequest extends Equatable {
   ///
   /// Note:
   /// - Saves listing [newParentPath], whose cost grows with what it holds.
-  /// - Set it only when the name is known to be free. Otherwise what happens
-  ///   is the provider's call: Android's local storage fails the move, but
-  ///   another provider may replace the document already there.
+  /// - Set it only when the name is known to be free. If the move then fails,
+  ///   the folder is checked, so a taken name still fails with a
+  ///   [DocumentAlreadyExistsException]; but a provider may replace the
+  ///   document already there instead of failing, as Android's local storage
+  ///   doesn't.
   final bool skipNameCheck;
 
   const MoveDocumentRequest({
