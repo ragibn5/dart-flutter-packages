@@ -28,8 +28,9 @@ import kotlin.test.assertSame
 
 internal class ContentReadOpenerTest {
     private val contentResolver = Mockito.mock(ContentResolver::class.java)
+    private val imageThumbnails = Mockito.mock(ImageThumbnails::class.java)
     private val videoFrameThumbnails = Mockito.mock(VideoFrameThumbnails::class.java)
-    private val opener = ContentReadOpener(contentResolver, videoFrameThumbnails)
+    private val opener = ContentReadOpener(contentResolver, imageThumbnails, videoFrameThumbnails)
 
     private val request = OpenReadRequest(uri = CONTENT_URI)
     private val thumbnailRequest = OpenThumbnailReadRequest(CONTENT_URI, ThumbnailSize(256, 256))
@@ -102,6 +103,31 @@ internal class ContentReadOpenerTest {
             ),
         ).thenReturn(descriptor)
     }
+
+    private fun givenThumbnailOpenFails(exception: Exception) {
+        Mockito.`when`(
+            contentResolver.openTypedAssetFileDescriptor(
+                Mockito.eq(uri),
+                Mockito.eq("image/*"),
+                anyOf(Bundle::class.java),
+            ),
+        ).thenThrow(exception)
+    }
+
+    /** The provider gives [descriptor], which checks as [checked]. */
+    private fun givenThumbnailChecksAs(descriptor: AssetFileDescriptor, checked: CheckedThumbnail) {
+        givenThumbnailOpensAs(descriptor)
+        Mockito.`when`(imageThumbnails.checkProviderThumbnail(descriptor, thumbnailRequest)).thenReturn(checked)
+    }
+
+    /** The provider gives no image, and the content is of [type]. */
+    private fun givenNoProviderImage(type: String?) {
+        givenThumbnailChecksAs(descriptor(), CheckedThumbnail.NotAnImage)
+        Mockito.`when`(contentResolver.getType(uri)).thenReturn(type)
+    }
+
+    private fun readAll(opened: OpenedForRead): ByteArray =
+        assertIs<OpenedForRead.FallbackStream>(opened).stream.readBytes()
 
     @Test
     fun openShouldReturnDetachedDescriptorIfContentOpensAsDescriptor() {
@@ -208,8 +234,9 @@ internal class ContentReadOpenerTest {
     }
 
     @Test
-    fun openThumbnailShouldReturnDetachedDescriptorOfImage() {
-        givenThumbnailOpensAs(descriptor(length = 1024))
+    fun openThumbnailShouldHandOverDescriptorIfProviderThumbnailFits() {
+        val descriptor = descriptor(length = 1024)
+        givenThumbnailChecksAs(descriptor, CheckedThumbnail.Unchanged)
 
         assertEquals(
             OpenedForRead.DetachedFd(fd = FD, offset = 0, sizeInBytes = 1024, isSeekable = true),
@@ -218,14 +245,22 @@ internal class ContentReadOpenerTest {
     }
 
     @Test
-    fun openThumbnailShouldKeepDescriptorIfProviderWatchesIt() {
+    fun openThumbnailShouldKeepDescriptorIfProviderWatchesFittingThumbnail() {
         val descriptor = watchedDescriptor()
-        givenThumbnailOpensAs(descriptor)
+        givenThumbnailChecksAs(descriptor, CheckedThumbnail.Unchanged)
 
         assertSame(
             descriptor,
             assertIs<OpenedForRead.WatchedAssetFd>(opener.openThumbnail(thumbnailRequest).getOrThrow()).descriptor,
         )
+    }
+
+    @Test
+    fun openThumbnailShouldReturnFittedBytesIfProviderThumbnailDoesNotFit() {
+        val fitted = byteArrayOf(1, 2, 3)
+        givenThumbnailChecksAs(descriptor(), CheckedThumbnail.Fitted(fitted))
+
+        assertContentEquals(fitted, readAll(opener.openThumbnail(thumbnailRequest).getOrThrow()))
     }
 
     @Test
@@ -238,21 +273,92 @@ internal class ContentReadOpenerTest {
     }
 
     @Test
-    fun openThumbnailShouldReturnVideoFrameIfProviderMakesNoThumbnail() {
-        val frame = byteArrayOf(1, 2, 3)
-        Mockito.`when`(videoFrameThumbnails.isNeeded(uri)).thenReturn(true)
-        Mockito.`when`(videoFrameThumbnails.readFrameAsJpeg(uri, 256, 256)).thenReturn(frame)
+    fun openThumbnailShouldFailWithPermissionDeniedWithoutFallbackIfProviderRefuses() {
+        givenThumbnailOpenFails(SecurityException("Not allowed"))
+        Mockito.`when`(contentResolver.getType(uri)).thenReturn("image/jpeg")
 
-        val opened = assertIs<OpenedForRead.FallbackStream>(opener.openThumbnail(thumbnailRequest).getOrThrow())
-
-        assertContentEquals(frame, opened.stream.readBytes())
+        assertContentIoError(OpenReadExceptionCodes.PERMISSION_DENIED) {
+            opener.openThumbnail(thumbnailRequest).getOrThrow()
+        }
+        Mockito.verifyNoInteractions(imageThumbnails, videoFrameThumbnails)
     }
 
     @Test
-    fun openThumbnailShouldFailWithContentNotFoundIfVideoHasNoFrame() {
-        Mockito.`when`(videoFrameThumbnails.isNeeded(uri)).thenReturn(true)
-        Mockito.`when`(videoFrameThumbnails.readFrameAsJpeg(uri, 256, 256))
-            .thenThrow(FileNotFoundException("No frame"))
+    fun openThumbnailShouldFailWithContentNotFoundIfProviderThumbnailCantBeDecoded() {
+        val descriptor = descriptor()
+        givenThumbnailOpensAs(descriptor)
+        Mockito.`when`(imageThumbnails.checkProviderThumbnail(descriptor, thumbnailRequest))
+            .thenAnswer { throw FileNotFoundException("Undecodable") }
+
+        assertContentIoError(OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
+            opener.openThumbnail(thumbnailRequest).getOrThrow()
+        }
+    }
+
+    @Test
+    fun openThumbnailShouldMakeThumbnailFromImageIfProviderGivesNoImage() {
+        val made = byteArrayOf(4, 5)
+        givenNoProviderImage("image/heic")
+        Mockito.`when`(imageThumbnails.makeFromImage(uri, thumbnailRequest)).thenReturn(made)
+
+        assertContentEquals(made, readAll(opener.openThumbnail(thumbnailRequest).getOrThrow()))
+    }
+
+    @Test
+    fun openThumbnailShouldMakeThumbnailFromVideoIfProviderGivesNoImage() {
+        val made = byteArrayOf(6, 7)
+        givenNoProviderImage("video/mp4")
+        Mockito.`when`(videoFrameThumbnails.makeFromVideo(uri, thumbnailRequest)).thenReturn(made)
+
+        assertContentEquals(made, readAll(opener.openThumbnail(thumbnailRequest).getOrThrow()))
+    }
+
+    @Test
+    fun openThumbnailShouldMakeThumbnailFromContentIfProviderHasNone() {
+        val made = byteArrayOf(8)
+        givenThumbnailOpenFails(FileNotFoundException("No thumbnail"))
+        Mockito.`when`(contentResolver.getType(uri)).thenReturn("image/png")
+        Mockito.`when`(imageThumbnails.makeFromImage(uri, thumbnailRequest)).thenReturn(made)
+
+        assertContentEquals(made, readAll(opener.openThumbnail(thumbnailRequest).getOrThrow()))
+    }
+
+    @Test
+    fun openThumbnailShouldMakeThumbnailFromContentIfProviderDoesntSupportThumbnails() {
+        val made = byteArrayOf(9)
+        givenThumbnailOpenFails(UnsupportedOperationException("Thumbnails not supported"))
+        Mockito.`when`(contentResolver.getType(uri)).thenReturn("video/mp4")
+        Mockito.`when`(videoFrameThumbnails.makeFromVideo(uri, thumbnailRequest)).thenReturn(made)
+
+        assertContentEquals(made, readAll(opener.openThumbnail(thumbnailRequest).getOrThrow()))
+    }
+
+    @Test
+    fun openThumbnailShouldMakeThumbnailFromVideoIfContentOfUnknownTypeIsntAnImage() {
+        val made = byteArrayOf(10)
+        givenNoProviderImage(null)
+        Mockito.`when`(imageThumbnails.makeFromImage(uri, thumbnailRequest))
+            .thenAnswer { throw FileNotFoundException("Not an image") }
+        Mockito.`when`(videoFrameThumbnails.makeFromVideo(uri, thumbnailRequest)).thenReturn(made)
+
+        assertContentEquals(made, readAll(opener.openThumbnail(thumbnailRequest).getOrThrow()))
+    }
+
+    @Test
+    fun openThumbnailShouldFailWithContentNotFoundIfContentIsNeitherImageNorVideo() {
+        givenNoProviderImage("application/pdf")
+
+        assertContentIoError(OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
+            opener.openThumbnail(thumbnailRequest).getOrThrow()
+        }
+        Mockito.verifyNoInteractions(videoFrameThumbnails)
+    }
+
+    @Test
+    fun openThumbnailShouldFailWithContentNotFoundIfNoThumbnailCanBeMadeFromContent() {
+        givenNoProviderImage("video/mp4")
+        Mockito.`when`(videoFrameThumbnails.makeFromVideo(uri, thumbnailRequest))
+            .thenAnswer { throw FileNotFoundException("No frame") }
 
         assertContentIoError(OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
             opener.openThumbnail(thumbnailRequest).getOrThrow()

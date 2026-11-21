@@ -3,6 +3,7 @@ package com.ragibn5.content.io.content_io_android.features.read.services
 import android.content.ContentResolver
 import android.content.res.AssetFileDescriptor
 import android.graphics.Point
+import android.net.Uri
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.system.ErrnoException
@@ -65,6 +66,7 @@ internal sealed interface OpenedForRead {
  */
 internal class ContentReadOpener(
     private val contentResolver: ContentResolver,
+    private val imageThumbnails: ImageThumbnails,
     private val videoFrameThumbnails: VideoFrameThumbnails,
 ) {
     /**
@@ -94,53 +96,103 @@ internal class ContentReadOpener(
     }
 
     /**
-     * Opens the thumbnail of the content [request] points to, the way
-     * `ContentResolver.loadThumbnail` does, without decoding it.
+     * Opens the thumbnail of the content [request] points to.
      *
-     * @param request the content and the size to request its thumbnail at.
+     * @param request the content, the size to request its thumbnail at, and how to fit it.
      * @return the opened thumbnail; the caller owns what it holds.
      * @throws ContentIoException with an [OpenReadExceptionCodes]
      * code; [OpenReadExceptionCodes.CONTENT_NOT_FOUND] if the content has
      * no thumbnail, or [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED]
      * if the provider isn't responding.
      *
-     * Note:
-     * - Only the thumbnail's bytes are opened, never the original content's.
-     * - A video document whose provider makes no thumbnails gets a frame of the video instead,
-     *   which reads the video.
+     * Note: The algorithm, the same as [ContentResolver.loadThumbnail]'s, with a fast path
+     * and fallbacks:
+     * 1. The content's provider is asked for a thumbnail at the requested size.
+     * 2. If it gives an image, its header alone is read. If the image fits the request by
+     *    [ThumbnailRules], it's handed over untouched; otherwise it's decoded scaled down
+     *    and rotated upright.
+     * 3. If it gives nothing, or something that isn't an image (a video handed back as it
+     *    is), the thumbnail is made from the content itself: an image is decoded the same
+     *    way, a video, or content of unknown type, gives a frame.
+     * 4. Otherwise the content has no thumbnail.
+     *
+     * Only a refusal for permissions stops it early: that's never hidden by a fallback.
      */
     fun openThumbnail(request: OpenThumbnailReadRequest): Result<OpenedForRead> =
         runCatching {
             val uri = request.uri.toUri()
-            if (guardOpen(request.uri) { videoFrameThumbnails.isNeeded(uri) }) {
-                val frame = guardOpen(request.uri) {
-                    videoFrameThumbnails.readFrameAsJpeg(
-                        uri,
-                        request.size.width,
-                        request.size.height
-                    )
+            val descriptor = openProviderThumbnail(request, uri)
+            if (descriptor != null) {
+                val checked = guardOpen(request.uri) {
+                    imageThumbnails.checkProviderThumbnail(descriptor, request)
                 }
-                return@runCatching OpenedForRead.FallbackStream(ByteArrayInputStream(frame))
+                when (checked) {
+                    CheckedThumbnail.Unchanged -> return@runCatching handOverOrKeep(descriptor)
+                    is CheckedThumbnail.Fitted ->
+                        return@runCatching OpenedForRead.FallbackStream(ByteArrayInputStream(checked.bytes))
+                    CheckedThumbnail.NotAnImage -> Unit
+                }
             }
 
-            val options = Bundle().apply {
-                putParcelable(
-                    ContentResolver.EXTRA_SIZE,
-                    Point(request.size.width, request.size.height)
-                )
-            }
-            val descriptor = guardOpen(request.uri) {
-                contentResolver.openTypedAssetFileDescriptor(
-                    uri,
-                    "image/*",
-                    options
-                )
+            val bytes = guardOpen(request.uri) { makeThumbnailFromContent(uri, request) }
+            return@runCatching OpenedForRead.FallbackStream(ByteArrayInputStream(bytes))
+        }
+
+    /**
+     * Asks the provider of [uri] for its thumbnail at [request]'s size.
+     *
+     * @return the thumbnail, or `null` if the provider has none.
+     * @throws ContentIoException if the provider refuses, or isn't responding.
+     */
+    private fun openProviderThumbnail(
+        request: OpenThumbnailReadRequest,
+        uri: Uri,
+    ): AssetFileDescriptor? {
+        val options = Bundle().apply {
+            putParcelable(
+                ContentResolver.EXTRA_SIZE,
+                Point(request.size.width, request.size.height)
+            )
+        }
+        return try {
+            guardOpen(request.uri) {
+                contentResolver.openTypedAssetFileDescriptor(uri, "image/*", options)
             } ?: throw ContentIoException(
                 ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
                 "The content provider is not responding, we probably need a device restart"
             )
-            return@runCatching handOverOrKeep(descriptor)
+        } catch (e: ContentIoException) {
+            if (e.code != OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
+                throw e
+            }
+            null
+        } catch (e: UnsupportedOperationException) {
+            // A document provider that makes no thumbnails may say so this way.
+            null
         }
+    }
+
+    /**
+     * Makes a thumbnail for [request] from the content at [uri] itself: by decoding an
+     * image, or reading a frame of a video. Content of unknown type is tried as both.
+     *
+     * @throws FileNotFoundException if no thumbnail can be made from it.
+     * @throws SecurityException if the app can't read [uri].
+     */
+    private fun makeThumbnailFromContent(uri: Uri, request: OpenThumbnailReadRequest): ByteArray {
+        val type = contentResolver.getType(uri)
+        return when {
+            type == null -> try {
+                imageThumbnails.makeFromImage(uri, request)
+            } catch (e: FileNotFoundException) {
+                videoFrameThumbnails.makeFromVideo(uri, request)
+            }
+
+            type.startsWith("image/") -> imageThumbnails.makeFromImage(uri, request)
+            type.startsWith("video/") -> videoFrameThumbnails.makeFromVideo(uri, request)
+            else -> throw FileNotFoundException("Content of type $type has no thumbnail")
+        }
+    }
 
     /**
      * Keeps [descriptor] if its provider watches it, otherwise builds a

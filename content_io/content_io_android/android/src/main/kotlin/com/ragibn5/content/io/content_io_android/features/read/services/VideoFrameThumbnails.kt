@@ -5,55 +5,30 @@ import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
-import android.provider.DocumentsContract
-import android.provider.DocumentsContract.Document
-import java.io.ByteArrayOutputStream
+import com.ragibn5.content.io.content_io_android.features.read.models.OpenThumbnailReadRequest
 import java.io.FileNotFoundException
-import kotlin.math.min
-import kotlin.math.roundToInt
+import kotlin.math.max
 
 /**
- * Makes a video's thumbnail from a frame of the video itself, for documents whose provider
- * makes none.
- *
- * Note: A document provider that doesn't flag thumbnail support, such as Android's external
- * storage provider for videos, answers a thumbnail request with the whole file instead.
+ * Makes a video's thumbnail from a frame of the video itself, by [ThumbnailRules].
  */
 internal class VideoFrameThumbnails(private val context: Context) {
     /**
-     * Whether [uri] is a video document whose provider doesn't make thumbnails.
-     *
-     * @throws SecurityException if the app can't read [uri].
-     */
-    fun isNeeded(uri: Uri): Boolean {
-        if (!DocumentsContract.isDocumentUri(context, uri)) {
-            return false
-        }
-        val type = context.contentResolver.getType(uri) ?: return false
-        if (!type.startsWith("video/")) {
-            return false
-        }
-
-        val flags = context.contentResolver
-            .query(uri, arrayOf(Document.COLUMN_FLAGS), null, null, null)
-            ?.use { cursor -> if (cursor.moveToFirst()) cursor.getInt(0) else null }
-            ?: return false
-        return flags and Document.FLAG_SUPPORTS_THUMBNAIL == 0
-    }
-
-    /**
-     * Reads a frame of the video at [uri], fitted within [width] by [height], as JPEG bytes.
+     * Makes a thumbnail for [request] from a representative frame of the video at [uri].
      *
      * @throws FileNotFoundException if no frame can be read from it.
      * @throws SecurityException if the app can't read [uri].
+     *
+     * Note: The retriever returns frames upright, by the video's rotation; a request that
+     * doesn't rotate gets the frame turned back.
      */
     @Throws(FileNotFoundException::class)
-    fun readFrameAsJpeg(uri: Uri, width: Int, height: Int): ByteArray {
+    fun makeFromVideo(uri: Uri, request: OpenThumbnailReadRequest): ByteArray {
         val retriever = MediaMetadataRetriever()
         try {
-            val frame = try {
+            val (frame, rotation) = try {
                 retriever.setDataSource(context, uri)
-                readFrame(retriever, width, height)
+                readFrame(retriever, request)
             } catch (e: SecurityException) {
                 throw e
             } catch (e: RuntimeException) {
@@ -62,40 +37,54 @@ internal class VideoFrameThumbnails(private val context: Context) {
                 throw noFrame(uri, e)
             } ?: throw noFrame(uri)
 
-            return ByteArrayOutputStream().use { output ->
-                frame.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, output)
-                frame.recycle()
-                output.toByteArray()
-            }
+            val turnedBack = if (request.rotateUpright) frame else ThumbnailBitmaps.rotate(frame, -rotation)
+            return ThumbnailBitmaps.encode(turnedBack, canBeTransparent = false)
         } finally {
             retriever.release()
         }
     }
 
-    private fun readFrame(retriever: MediaMetadataRetriever, width: Int, height: Int): Bitmap? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            return retriever.getScaledFrameAtTime(
-                -1,
-                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
-                width,
-                height,
-            )
-        }
+    /**
+     * Reads a frame fitted to [request], and the video's rotation.
+     *
+     * @return `null` if the video has no frame to read.
+     */
+    private fun readFrame(
+        retriever: MediaMetadataRetriever,
+        request: OpenThumbnailReadRequest,
+    ): Pair<Bitmap, Int>? {
+        val width = retriever.extractInt(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH) ?: return null
+        val height = retriever.extractInt(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT) ?: return null
+        val rotation = retriever.extractInt(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION) ?: 0
+        // Frames come upright, so they're fitted as shown.
+        val isTurned = rotation % 180 != 0
+        val shownWidth = if (isTurned) height else width
+        val shownHeight = if (isTurned) width else height
 
-        val frame = retriever.frameAtTime ?: return null
-        val scale = min(width.toFloat() / frame.width, height.toFloat() / frame.height)
-        if (scale >= 1f) {
-            return frame
-        }
-        val scaled = Bitmap.createScaledBitmap(
-            frame,
-            (frame.width * scale).roundToInt().coerceAtLeast(1),
-            (frame.height * scale).roundToInt().coerceAtLeast(1),
-            true,
-        )
-        frame.recycle()
-        return scaled
+        val sampleSize = ThumbnailRules.getSampleSize(shownWidth, shownHeight, request)
+        val targetWidth = ThumbnailRules.getScaledLength(shownWidth, sampleSize)
+        val targetHeight = ThumbnailRules.getScaledLength(shownHeight, sampleSize)
+
+        val frame = if (sampleSize > 1 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            // Fitted within a square of the longer side, so the frame's own orientation
+            // doesn't matter.
+            val box = max(targetWidth, targetHeight)
+            retriever.getScaledFrameAtTime(-1, MediaMetadataRetriever.OPTION_CLOSEST_SYNC, box, box)
+        } else {
+            retriever.getFrameAtTime(-1, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+                ?.let {
+                    // By the frame's own size, in case it isn't turned as shown.
+                    ThumbnailBitmaps.scale(
+                        it,
+                        ThumbnailRules.getScaledLength(it.width, sampleSize),
+                        ThumbnailRules.getScaledLength(it.height, sampleSize),
+                    )
+                }
+        } ?: return null
+        return frame to rotation
     }
+
+    private fun MediaMetadataRetriever.extractInt(key: Int): Int? = extractMetadata(key)?.toIntOrNull()
 
     private fun noFrame(uri: Uri, cause: Throwable? = null) =
         FileNotFoundException("No frame can be read from the video at $uri").apply {
@@ -103,8 +92,4 @@ internal class VideoFrameThumbnails(private val context: Context) {
                 initCause(cause)
             }
         }
-
-    private companion object {
-        private const val JPEG_QUALITY = 90
-    }
 }
