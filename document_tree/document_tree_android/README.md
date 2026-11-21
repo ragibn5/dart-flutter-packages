@@ -39,6 +39,16 @@ dependencies:
 
 None: the user's pick grants the app access to that folder, and only that folder.
 
+On Android 7 to 9, the storage permission (`READ_EXTERNAL_STORAGE`), when the app holds it, lets a folder's location be checked against the filesystem; see below.
+
+## Where a folder is
+
+`DocumentTree.location` gives a picked folder's volume (`primary`, or the volume's UUID such as `B63B-1E04`) and its path from the volume's root. It's only given when it can be confirmed, so it's never a wrong folder:
+
+- **Android 10 and later:** read from the folder's own MediaStore row, through documented calls. This includes folders MediaStore treats as not media, such as ones under a `.nomedia` file.
+- **Android 7 to 9:** read from the storage provider's document ID, whose `<volume>:<path>` shape Android doesn't document, and accepted only for a mounted volume. With the storage permission, the folder it names must also exist and hold the same entries as the picked folder.
+- Otherwise, such as for a cloud drive or a folder the system doesn't know, it's `null`.
+
 ## Get started
 
 ```dart

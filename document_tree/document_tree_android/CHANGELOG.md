@@ -45,6 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `DocumentTree.location` is confirmed instead of read off the storage
+  provider's document ID, whose `<volume id>:<relative path>` shape Android
+  doesn't document. On Android 10 and later it comes from the folder's
+  MediaStore row. On Android 7 to 9 the document ID is still read, but only
+  for a mounted volume, and, with the storage permission, only when that
+  folder holds the tree's entries. It's `null` when it can't be confirmed,
+  where a different ID shape could before give a wrong location.
 - `copyDocument` reports `NotEnoughSpaceException` when the volume fills up,
   instead of succeeding with part of the file lost: the content is now synced
   to the storage before the copy is reported done.

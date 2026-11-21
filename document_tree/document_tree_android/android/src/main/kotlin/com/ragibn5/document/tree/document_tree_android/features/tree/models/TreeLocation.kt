@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import kotlinx.serialization.Serializable
 
 /**
- * Where a tree is on the device's storage.
+ * Where a tree is on the device's storage, confirmed, never guessed; see
+ * [com.ragibn5.document.tree.document_tree_android.features.tree.services.TreeLocationResolver]
+ * for how it's found on each Android version.
  */
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable

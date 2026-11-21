@@ -26,8 +26,9 @@ internal data class DocumentTree(
      */
     val canWrite: Boolean,
     /**
-     * Where the tree is on the device's storage, or `null` when its provider isn't the device's
-     * storage, such as a cloud drive.
+     * Where the tree is on the device's storage, or `null` when that can't be confirmed: its
+     * provider isn't the device's storage, such as a cloud drive, or the system doesn't know the
+     * folder.
      */
     val location: TreeLocation?,
     /**
