@@ -21,13 +21,15 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import java.io.FileDescriptor
 import java.io.FileNotFoundException
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame
 
 internal class ContentReadOpenerTest {
     private val contentResolver = Mockito.mock(ContentResolver::class.java)
-    private val opener = ContentReadOpener(contentResolver)
+    private val videoFrameThumbnails = Mockito.mock(VideoFrameThumbnails::class.java)
+    private val opener = ContentReadOpener(contentResolver, videoFrameThumbnails)
 
     private val request = OpenReadRequest(uri = CONTENT_URI)
     private val thumbnailRequest = OpenThumbnailReadRequest(CONTENT_URI, ThumbnailSize(256, 256))
@@ -231,6 +233,28 @@ internal class ContentReadOpenerTest {
         givenThumbnailOpensAs(null)
 
         assertContentIoError(ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED) {
+            opener.openThumbnail(thumbnailRequest).getOrThrow()
+        }
+    }
+
+    @Test
+    fun openThumbnailShouldReturnVideoFrameIfProviderMakesNoThumbnail() {
+        val frame = byteArrayOf(1, 2, 3)
+        Mockito.`when`(videoFrameThumbnails.isNeeded(uri)).thenReturn(true)
+        Mockito.`when`(videoFrameThumbnails.readFrameAsJpeg(uri, 256, 256)).thenReturn(frame)
+
+        val opened = assertIs<OpenedForRead.FallbackStream>(opener.openThumbnail(thumbnailRequest).getOrThrow())
+
+        assertContentEquals(frame, opened.stream.readBytes())
+    }
+
+    @Test
+    fun openThumbnailShouldFailWithContentNotFoundIfVideoHasNoFrame() {
+        Mockito.`when`(videoFrameThumbnails.isNeeded(uri)).thenReturn(true)
+        Mockito.`when`(videoFrameThumbnails.readFrameAsJpeg(uri, 256, 256))
+            .thenThrow(FileNotFoundException("No frame"))
+
+        assertContentIoError(OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
             opener.openThumbnail(thumbnailRequest).getOrThrow()
         }
     }

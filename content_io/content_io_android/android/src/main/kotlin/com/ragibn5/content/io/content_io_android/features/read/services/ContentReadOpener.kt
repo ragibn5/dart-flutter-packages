@@ -14,6 +14,7 @@ import com.ragibn5.content.io.content_io_android.exceptions.ContentIoException
 import com.ragibn5.content.io.content_io_android.features.read.constants.OpenReadExceptionCodes
 import com.ragibn5.content.io.content_io_android.features.read.models.OpenReadRequest
 import com.ragibn5.content.io.content_io_android.features.read.models.OpenThumbnailReadRequest
+import java.io.ByteArrayInputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
 
@@ -64,6 +65,7 @@ internal sealed interface OpenedForRead {
  */
 internal class ContentReadOpener(
     private val contentResolver: ContentResolver,
+    private val videoFrameThumbnails: VideoFrameThumbnails,
 ) {
     /**
      * Opens the content [request] points to.
@@ -102,10 +104,25 @@ internal class ContentReadOpener(
      * no thumbnail, or [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED]
      * if the provider isn't responding.
      *
-     * Note: Only the thumbnail's bytes are opened, never the original content's.
+     * Note:
+     * - Only the thumbnail's bytes are opened, never the original content's.
+     * - A video document whose provider makes no thumbnails gets a frame of the video instead,
+     *   which reads the video.
      */
     fun openThumbnail(request: OpenThumbnailReadRequest): Result<OpenedForRead> =
         runCatching {
+            val uri = request.uri.toUri()
+            if (guardOpen(request.uri) { videoFrameThumbnails.isNeeded(uri) }) {
+                val frame = guardOpen(request.uri) {
+                    videoFrameThumbnails.readFrameAsJpeg(
+                        uri,
+                        request.size.width,
+                        request.size.height
+                    )
+                }
+                return@runCatching OpenedForRead.FallbackStream(ByteArrayInputStream(frame))
+            }
+
             val options = Bundle().apply {
                 putParcelable(
                     ContentResolver.EXTRA_SIZE,
@@ -114,7 +131,7 @@ internal class ContentReadOpener(
             }
             val descriptor = guardOpen(request.uri) {
                 contentResolver.openTypedAssetFileDescriptor(
-                    request.uri.toUri(),
+                    uri,
                     "image/*",
                     options
                 )

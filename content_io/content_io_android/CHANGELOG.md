@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   platform, so the provider learns whether the read finished or was
   cancelled.
 - `openThumbnailReadSession`: reads the thumbnail of the content behind a URI
-  at a requested size, without reading the content itself.
+  at a requested size, without reading the content itself. A video document
+  whose provider makes no thumbnails, such as a video on an SD card read
+  through a document tree, gets a frame of the video instead.
 - `ContentReadSession`: reads the content once, as a stream of chunks or all
   at once, and closes itself when done.
 - `openWriteSession`: writes existing content, replacing it or adding to its
