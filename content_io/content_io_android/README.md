@@ -27,7 +27,7 @@ dependencies:
 ## Features
 
 - Read the content behind any `content://` URI, such as a `MediaStore` item or a document in a picked folder, as a stream or all at once.
-- Read the thumbnail of the content behind a URI, at a requested size, without reading the content itself.
+- Read the thumbnail of the content behind a URI, at a requested size: the provider's own when it has one, scaled down and rotated upright as needed, otherwise made from the content.
 - Write existing content, replacing it or adding to its end, in pieces or from a stream.
 - Learn about a full volume when the write closes, not after the data is silently lost.
 - Read and write on worker isolates or background threads, through file descriptors when the provider offers them.
@@ -58,7 +58,7 @@ final videoSession = await contentIo.openReadSession(
 await videoSession.openRead().pipe(file.openWrite());
 ```
 
-A thumbnail is read the same way, without reading the content itself:
+A thumbnail is read the same way. The provider's thumbnail is read as it is when it fits; one much larger than requested is scaled down to close to the size, and one meant to be shown rotated is rotated upright (`scaleDownToSize` and `rotateUpright`, both on by default). Only when the provider has none, as for a video read through a document tree, is the thumbnail made from the content itself:
 
 ```dart
 final thumbnailSession = await contentIo.openThumbnailReadSession(

@@ -13,4 +13,11 @@ internal data class OpenThumbnailReadRequest(
     val uri: String,
     /** The size to request the thumbnail at. */
     val size: ThumbnailSize,
+    /**
+     * Whether a thumbnail much larger than [size] is scaled down to close to it,
+     * as [android.content.ContentResolver.loadThumbnail] does.
+     */
+    val scaleDownToSize: Boolean = true,
+    /** Whether a thumbnail meant to be shown rotated is rotated upright. */
+    val rotateUpright: Boolean = true,
 )

@@ -12,6 +12,39 @@ void main() {
     expect(request.toJson(), {
       'uri': 'content://media/external/images/media/1',
       'size': {'width': 256, 'height': 128},
+      'scaleDownToSize': true,
+      'rotateUpright': true,
     });
+  });
+
+  test('toJsonShouldEncodeFitOptionsAsGiven', () {
+    const request = OpenThumbnailReadRequest(
+      uri: 'content://media/external/images/media/1',
+      size: ThumbnailSize(width: 256, height: 128),
+      scaleDownToSize: false,
+      rotateUpright: false,
+    );
+
+    expect(request.toJson(), containsPair('scaleDownToSize', false));
+    expect(request.toJson(), containsPair('rotateUpright', false));
+  });
+
+  test('fromJsonShouldDecodeFitOptions', () {
+    final request = OpenThumbnailReadRequest.fromJson(const {
+      'uri': 'content://media/external/images/media/1',
+      'size': {'width': 256, 'height': 128},
+      'scaleDownToSize': false,
+      'rotateUpright': false,
+    });
+
+    expect(
+      request,
+      const OpenThumbnailReadRequest(
+        uri: 'content://media/external/images/media/1',
+        size: ThumbnailSize(width: 256, height: 128),
+        scaleDownToSize: false,
+        rotateUpright: false,
+      ),
+    );
   });
 }

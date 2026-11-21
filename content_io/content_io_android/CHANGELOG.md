@@ -17,7 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   platform, so the provider learns whether the read finished or was
   cancelled.
 - `openThumbnailReadSession`: reads the thumbnail of the content behind a URI
-  at a requested size, without reading the content itself.
+  at a requested size, the way `ContentResolver.loadThumbnail` does: the
+  content's provider is asked first, and a thumbnail that already fits is read
+  as it is. One much larger than requested is scaled down to close to the
+  size, and one meant to be shown rotated is rotated upright (a HEIF image by
+  its container's rotation, other images by their EXIF tag); both on by
+  default, through `OpenThumbnailReadRequest.scaleDownToSize` and
+  `rotateUpright`. When the provider has none, or gives the content itself
+  (as a document provider does for a video, or an image without an embedded
+  thumbnail), the thumbnail is made from the content: a frame of a video, or
+  the image decoded scaled down.
 - `ContentReadSession`: reads the content once, as a stream of chunks or all
   at once, and closes itself when done.
 - `openWriteSession`: writes existing content, replacing it or adding to its
