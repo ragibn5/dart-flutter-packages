@@ -73,7 +73,7 @@ abstract class DocumentTreeAndroidPlatform extends PlatformInterface {
   /// Copies the file [request] points to into its tree.
   ///
   /// See [CopyDocumentRequest] for more info.
-  Future<DocumentInfo> copyDocument(CopyDocumentRequest request) {
+  Future<CopiedDocument> copyDocument(CopyDocumentRequest request) {
     throw UnimplementedError('copyDocument() has not been implemented.');
   }
 

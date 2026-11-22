@@ -5,8 +5,9 @@ import android.net.Uri
 import androidx.core.net.toUri
 import com.ragibn5.document.tree.document_tree_android.exceptions.DocumentTreeException
 import com.ragibn5.document.tree.document_tree_android.features.document.constants.DocumentWriteExceptionCodes
+import com.ragibn5.document.tree.document_tree_android.features.document.models.ContentHash
+import com.ragibn5.document.tree.document_tree_android.features.document.models.CopiedDocument
 import com.ragibn5.document.tree.document_tree_android.features.document.models.CopyDocumentRequest
-import com.ragibn5.document.tree.document_tree_android.features.document.models.DocumentInfo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -15,6 +16,7 @@ import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
+import java.security.MessageDigest
 
 /**
  * Copies files into the trees the app holds a grant on.
@@ -24,12 +26,14 @@ internal fun interface DocumentCopyService {
      * Copies the file [request] points to into its tree, as a new file in an existing folder.
      *
      * Note:
-     * The copy is deleted again if it fails or is cancelled, so it leaves nothing behind.
+     * - The copy is deleted again if it fails or is cancelled, so it leaves nothing behind.
+     * - With [CopyDocumentRequest.hashAlgorithm], the bytes are hashed as they're written, so
+     *   the hash is of exactly what the copy holds, with no second read.
      *
-     * @return the copy.
+     * @return the copy, and its content's hash if one was asked for.
      * @throws DocumentTreeException with a [DocumentWriteExceptionCodes] code.
      */
-    suspend fun copy(request: CopyDocumentRequest): DocumentInfo
+    suspend fun copy(request: CopyDocumentRequest): CopiedDocument
 }
 
 internal class DocumentCopyServiceImpl(
@@ -42,7 +46,7 @@ internal class DocumentCopyServiceImpl(
     private val contentWriter: DocumentContentWriter,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : DocumentCopyService {
-    override suspend fun copy(request: CopyDocumentRequest): DocumentInfo = withContext(ioDispatcher) {
+    override suspend fun copy(request: CopyDocumentRequest): CopiedDocument = withContext(ioDispatcher) {
         val treeUri = request.treeUri.toUri()
         grantVerifier.verify(treeUri)
 
@@ -61,6 +65,7 @@ internal class DocumentCopyServiceImpl(
             )
         }
 
+        val hashing = request.hashAlgorithm?.let { it to MessageDigest.getInstance(it.digestName) }
         // Opened before anything is created, so a missing source leaves no trace.
         val document = openSource(sourceUri).use { input ->
             val target = creator.create(
@@ -70,7 +75,7 @@ internal class DocumentCopyServiceImpl(
                 displayName = fileName,
             )
             try {
-                contentWriter.write(treeUri, target, request.path) { copyBytes(input, it) }
+                contentWriter.write(treeUri, target, request.path) { copyBytes(input, it, hashing?.second) }
             } catch (e: Throwable) {
                 creator.delete(treeUri, target.documentId)
                 throw e
@@ -78,8 +83,12 @@ internal class DocumentCopyServiceImpl(
             target
         }
 
-        return@withContext rowReader.readDocument(treeUri, document.documentId)
+        val info = rowReader.readDocument(treeUri, document.documentId)
             .toInfo(treeUri, request.path, grantAllowsWriting = true)
+        val contentHash = hashing?.let { (algorithm, digest) ->
+            ContentHash(algorithm, digest.digest().toHex())
+        }
+        return@withContext CopiedDocument(info, contentHash)
     }
 
     private fun openSource(sourceUri: Uri): InputStream {
@@ -96,7 +105,10 @@ internal class DocumentCopyServiceImpl(
         } ?: throw sourceNotFound(sourceUri)
     }
 
-    private suspend fun copyBytes(input: InputStream, output: OutputStream) {
+    /**
+     * Copies every byte of [input] into [output], feeding each into [digest] too when given.
+     */
+    private suspend fun copyBytes(input: InputStream, output: OutputStream, digest: MessageDigest?) {
         val buffer = ByteArray(BUFFER_SIZE_IN_BYTES)
         while (true) {
             currentCoroutineContext().ensureActive()
@@ -105,8 +117,11 @@ internal class DocumentCopyServiceImpl(
                 return
             }
             output.write(buffer, 0, count)
+            digest?.update(buffer, 0, count)
         }
     }
+
+    private fun ByteArray.toHex(): String = joinToString(separator = "") { "%02x".format(it) }
 
     private fun sourceNotFound(sourceUri: Uri, cause: Throwable? = null) = DocumentTreeException(
         DocumentWriteExceptionCodes.SOURCE_NOT_FOUND,

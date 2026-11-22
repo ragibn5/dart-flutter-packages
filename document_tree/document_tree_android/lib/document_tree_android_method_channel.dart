@@ -4,6 +4,7 @@ import 'package:document_tree_android/document_tree_android_platform_interface.d
 import 'package:document_tree_android/src/exceptions/document_exceptions.dart';
 import 'package:document_tree_android/src/exceptions/tree_pick_exception.dart';
 import 'package:document_tree_android/src/exceptions/tree_request_exception.dart';
+import 'package:document_tree_android/src/models/copied_document.dart';
 import 'package:document_tree_android/src/models/copy_document_request.dart';
 import 'package:document_tree_android/src/models/create_directory_request.dart';
 import 'package:document_tree_android/src/models/create_document_request.dart';
@@ -143,7 +144,7 @@ class MethodChannelDocumentTreeAndroid extends DocumentTreeAndroidPlatform {
   }
 
   @override
-  Future<DocumentInfo> copyDocument(CopyDocumentRequest request) async {
+  Future<CopiedDocument> copyDocument(CopyDocumentRequest request) async {
     final result = await guardPlatformCall(
       _documentWriteExceptionMapper,
       () => methodChannel.invokeMethod<String>(
@@ -152,7 +153,7 @@ class MethodChannelDocumentTreeAndroid extends DocumentTreeAndroidPlatform {
       ),
     );
 
-    return decodeJsonObject(result!, DocumentInfo.fromJson);
+    return decodeJsonObject(result!, CopiedDocument.fromJson);
   }
 
   @override

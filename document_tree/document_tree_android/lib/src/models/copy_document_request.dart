@@ -1,3 +1,4 @@
+import 'package:document_tree_android/src/models/content_hash_algorithm.dart';
 import 'package:document_tree_android/src/models/document_info.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -33,16 +34,31 @@ class CopyDocumentRequest extends Equatable {
   /// from the source.
   final String? mimeType;
 
+  /// The algorithm to hash the copied bytes with, as they're written, or
+  /// `null` for no hash.
+  ///
+  /// Note:
+  /// The hash is of exactly what the copy holds, made with no second read.
+  final ContentHashAlgorithm? hashAlgorithm;
+
   const CopyDocumentRequest({
     required this.sourceUri,
     required this.treeUri,
     required this.path,
     this.parentUri,
     this.mimeType,
+    this.hashAlgorithm,
   });
 
   @override
-  List<Object?> get props => [sourceUri, treeUri, path, parentUri, mimeType];
+  List<Object?> get props => [
+    sourceUri,
+    treeUri,
+    path,
+    parentUri,
+    mimeType,
+    hashAlgorithm,
+  ];
 
   Map<String, dynamic> toJson() => _$CopyDocumentRequestToJson(this);
 

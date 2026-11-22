@@ -119,7 +119,7 @@ class _TreePageState extends State<TreePage> {
         path: 'sample.txt',
       ),
     );
-    setState(() => _written = copied);
+    setState(() => _written = copied.document);
   });
 
   /// Creates `created.txt` in the tree's root, with its content; fails if

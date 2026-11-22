@@ -54,9 +54,9 @@ void main() {
   test('copyDocumentShouldReturnWhatPlatformReturnsForRequest', () async {
     when(
       () => platform.copyDocument(copyRequest),
-    ).thenAnswer((_) async => document);
+    ).thenAnswer((_) async => copiedDocument);
 
-    expect(await sut.copyDocument(copyRequest), document);
+    expect(await sut.copyDocument(copyRequest), copiedDocument);
   });
 
   test('getDocumentShouldReturnWhatPlatformReturnsForRequest', () async {

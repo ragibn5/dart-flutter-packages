@@ -33,4 +33,8 @@ internal data class CopyDocumentRequest(
      * The copy's MIME type, or `null` to tell it from [path]'s extension, then from the source.
      */
     val mimeType: String? = null,
+    /**
+     * The algorithm to hash the copied bytes with, as they're written; `null` for no hash.
+     */
+    val hashAlgorithm: ContentHashAlgorithm? = null,
 )

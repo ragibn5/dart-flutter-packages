@@ -6,6 +6,7 @@ import 'package:document_tree_android/document_tree_android_platform_interface.d
 import 'package:document_tree_android/src/exceptions/document_exceptions.dart';
 import 'package:document_tree_android/src/exceptions/tree_pick_exception.dart';
 import 'package:document_tree_android/src/exceptions/tree_request_exception.dart';
+import 'package:document_tree_android/src/models/copied_document.dart';
 import 'package:document_tree_android/src/models/copy_document_request.dart';
 import 'package:document_tree_android/src/models/create_directory_request.dart';
 import 'package:document_tree_android/src/models/create_document_request.dart';
@@ -23,6 +24,9 @@ export 'src/exceptions/document_exceptions.dart'
 export 'src/exceptions/tree_pick_exception.dart' hide TreePickExceptionMapper;
 export 'src/exceptions/tree_request_exception.dart'
     hide TreeRequestExceptionMapper;
+export 'src/models/content_hash.dart';
+export 'src/models/content_hash_algorithm.dart';
+export 'src/models/copied_document.dart';
 export 'src/models/copy_document_request.dart';
 export 'src/models/create_directory_request.dart';
 export 'src/models/create_document_request.dart';
@@ -127,11 +131,12 @@ class DocumentTreeAndroid {
   /// its name. The copy is deleted again if it fails, so it leaves nothing
   /// behind.
   ///
-  /// Returns: the copy.
+  /// Returns: the copy, and the hash of its content when
+  /// [CopyDocumentRequest.hashAlgorithm] asks for one.
   ///
   /// Throws: a [DocumentWriteException] if the file can't be copied. See
   /// [CopyDocumentRequest] for more info.
-  Future<DocumentInfo> copyDocument(CopyDocumentRequest request) {
+  Future<CopiedDocument> copyDocument(CopyDocumentRequest request) {
     return DocumentTreeAndroidPlatform.instance.copyDocument(request);
   }
 

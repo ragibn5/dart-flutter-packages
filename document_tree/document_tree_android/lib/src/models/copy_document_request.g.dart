@@ -13,6 +13,10 @@ CopyDocumentRequest _$CopyDocumentRequestFromJson(Map<String, dynamic> json) =>
       path: json['path'] as String,
       parentUri: json['parentUri'] as String?,
       mimeType: json['mimeType'] as String?,
+      hashAlgorithm: $enumDecodeNullable(
+        _$ContentHashAlgorithmEnumMap,
+        json['hashAlgorithm'],
+      ),
     );
 
 Map<String, dynamic> _$CopyDocumentRequestToJson(
@@ -23,4 +27,7 @@ Map<String, dynamic> _$CopyDocumentRequestToJson(
   'path': instance.path,
   'parentUri': instance.parentUri,
   'mimeType': instance.mimeType,
+  'hashAlgorithm': _$ContentHashAlgorithmEnumMap[instance.hashAlgorithm],
 };
+
+const _$ContentHashAlgorithmEnumMap = {ContentHashAlgorithm.sha256: 'sha256'};
