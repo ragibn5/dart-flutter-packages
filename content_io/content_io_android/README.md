@@ -30,6 +30,7 @@ dependencies:
 - Read the thumbnail of the content behind a URI, at a requested size: the provider's own when it has one, scaled down and rotated upright as needed, otherwise made from the content.
 - Write existing content, replacing it or adding to its end, in pieces or from a stream.
 - Learn about a full volume when the write closes, not after the data is silently lost.
+- Hash the content behind a URI with SHA-256 on the platform side, without its bytes crossing to Dart.
 - Read and write on worker isolates or background threads, through file descriptors when the provider offers them.
 
 ## Permissions
@@ -88,6 +89,15 @@ final appendSession = await contentIo.openWriteSession(
 await appendSession.writeStream(readSession.openRead());
 ```
 
+### 3. Hash
+
+```dart
+final hash = await contentIo.hashContent(
+  const HashContentRequest(uri: 'content://media/external/images/media/42'),
+);
+print('${hash.algorithm.name}: ${hash.value}');
+```
+
 ## Errors
 
 Each operation reports its failures as its own exceptions:
@@ -97,6 +107,7 @@ Each operation reports its failures as its own exceptions:
 | `openReadSession`, `openThumbnailReadSession`, `openWriteSession` | `ContentOpenException`: `ContentNotFoundException`, `PermissionDeniedException`, `InvalidOpenRequestError`, `UnsupportedOperationException` |
 | `ContentReadSession` reads                                        | `ContentReadException`: `ReadException`, `SessionNotFoundException`, `InvalidReadRequestError`                                     |
 | `ContentWriteSession` writes and `close`                          | `ContentWriteException`: `NotEnoughSpaceException`, `WriteException`, `WriteSessionNotFoundException`, `InvalidWriteRequestError` |
+| `hashContent`                                                     | `ContentOpenException` as above when the content can't be opened; `ReadException` when it can't be read to its end                |
 
 > Note: An unexpected platform failure arrives as a `PlatformException`.
 
