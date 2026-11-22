@@ -62,4 +62,15 @@ void main() {
 
     expect(await sut.openWriteSession(request), same(session));
   });
+
+  test('hashContentShouldReturnWhatPlatformReturnsForRequest', () async {
+    const request = HashContentRequest(uri: 'content://media/1');
+    const hash = ContentHash(
+      algorithm: ContentHashAlgorithm.sha256,
+      value: '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
+    );
+    when(() => platform.hashContent(request)).thenAnswer((_) async => hash);
+
+    expect(await sut.hashContent(request), hash);
+  });
 }
