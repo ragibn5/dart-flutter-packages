@@ -43,6 +43,15 @@ const copyRequest = CopyDocumentRequest(
   treeUri: treeUri,
   path: 'DCIM/IMG_1.jpg',
   parentUri: dcimUri,
+  hashAlgorithm: ContentHashAlgorithm.sha256,
+);
+
+const copiedDocument = CopiedDocument(
+  document: document,
+  contentHash: ContentHash(
+    algorithm: ContentHashAlgorithm.sha256,
+    value: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+  ),
 );
 
 const getRequest = GetDocumentRequest(

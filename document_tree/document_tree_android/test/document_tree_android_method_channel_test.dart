@@ -294,7 +294,7 @@ void main() {
 
   group('copyDocument', () {
     test('copyDocumentShouldSendRequestAsJsonToCopyDocument', () async {
-      replyWith(jsonEncode(document.toJson()));
+      replyWith(jsonEncode(copiedDocument.toJson()));
 
       await sut.copyDocument(copyRequest);
 
@@ -306,9 +306,9 @@ void main() {
     });
 
     test('copyDocumentShouldReturnDecodedCopyIfPlatformReplies', () async {
-      replyWith(jsonEncode(document.toJson()));
+      replyWith(jsonEncode(copiedDocument.toJson()));
 
-      expect(await sut.copyDocument(copyRequest), document);
+      expect(await sut.copyDocument(copyRequest), copiedDocument);
     });
 
     test('copyDocumentShouldThrowMappedExceptionIfPlatformFails', () {

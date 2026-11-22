@@ -47,4 +47,11 @@ abstract class ContentIoAndroidPlatform extends PlatformInterface {
   Future<ContentWriteSession> openWriteSession(OpenWriteRequest request) {
     throw UnimplementedError('openWriteSession() has not been implemented.');
   }
+
+  /// Hashes the whole content [request] points to, on the platform side.
+  ///
+  /// See [ContentIoAndroid.hashContent] for more info.
+  Future<ContentHash> hashContent(HashContentRequest request) {
+    throw UnimplementedError('hashContent() has not been implemented.');
+  }
 }

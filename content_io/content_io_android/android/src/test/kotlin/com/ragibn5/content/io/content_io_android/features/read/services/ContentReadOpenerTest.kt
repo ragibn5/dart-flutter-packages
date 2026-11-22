@@ -20,7 +20,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import java.io.FileDescriptor
+import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.io.IOException
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -363,6 +365,58 @@ internal class ContentReadOpenerTest {
         assertContentIoError(OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
             opener.openThumbnail(thumbnailRequest).getOrThrow()
         }
+    }
+
+    @Test
+    fun openStreamShouldReturnDescriptorsStreamIfContentOpensAsDescriptor() {
+        val stream = Mockito.mock(FileInputStream::class.java)
+        val descriptor = Mockito.mock(AssetFileDescriptor::class.java).also {
+            Mockito.`when`(it.createInputStream()).thenReturn(stream)
+        }
+        givenOpensAs(descriptor)
+
+        assertSame(stream, opener.openStream(request).getOrThrow())
+    }
+
+    @Test
+    fun openStreamShouldFailWithUnexpectedAndCloseDescriptorIfItsStreamCanNotBeMade() {
+        val descriptor = Mockito.mock(AssetFileDescriptor::class.java).also {
+            Mockito.`when`(it.createInputStream()).thenThrow(IOException("Bad descriptor"))
+        }
+        givenOpensAs(descriptor)
+
+        assertContentIoError(ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED) {
+            opener.openStream(request).getOrThrow()
+        }
+        Mockito.verify(descriptor).close()
+    }
+
+    @Test
+    fun openStreamShouldReturnProvidersStreamIfContentDoesNotOpenAsDescriptor() {
+        val stream = ByteArray(0).inputStream()
+        givenOpensAs(null)
+        Mockito.`when`(contentResolver.openInputStream(uri)).thenReturn(stream)
+
+        assertSame(stream, opener.openStream(request).getOrThrow())
+    }
+
+    @Test
+    fun openStreamShouldFailWithUnexpectedIfProviderOpensNeitherDescriptorNorStream() {
+        givenOpensAs(null)
+
+        assertContentIoError(ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED) {
+            opener.openStream(request).getOrThrow()
+        }
+    }
+
+    @Test
+    fun openStreamShouldFailWithContentNotFoundAndUriIfContentDoesNotExist() {
+        givenOpenFails(FileNotFoundException("No content"))
+
+        val error = assertContentIoError(OpenReadExceptionCodes.CONTENT_NOT_FOUND) {
+            opener.openStream(request).getOrThrow()
+        }
+        assertEquals(mapOf("uri" to CONTENT_URI), error.details)
     }
 
     private companion object {

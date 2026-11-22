@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ContentWriteSession`: writes the content in pieces or from a stream, then
   closes after the content is synced to the storage, so a full volume is
   reported as `NotEnoughSpaceException` rather than lost; or aborts.
+- `hashContent`: hashes the whole content behind a URI on the platform side,
+  with SHA-256, so its bytes never cross to Dart.
 - Typed exceptions for each operation's failures, such as
   `ContentNotFoundException`, `PermissionDeniedException` and
   `NotEnoughSpaceException`.

@@ -30,7 +30,7 @@ dependencies:
 - Check a picked folder later: whether the app still holds its grant, whether it can be written to, and where it is on the device's storage.
 - List a folder's files and folders, optionally all the way down, or look up a single one.
 - Create folders, and files with their content, for small files written in one go.
-- Copy a file into a folder from any URI the app can read.
+- Copy a file into a folder from any URI the app can read, optionally hashing the copied bytes with SHA-256 as they're written.
 - Rename, move and delete files and folders.
 - Every operation fails rather than replace or rename around a document that already has the name. A move can skip that check when the caller knows the name is free.
 - Pass a folder's URI from an earlier result to skip finding it by its path again.
@@ -72,8 +72,10 @@ final copy = await documentTree.copyDocument(
     sourceUri: 'content://media/external/images/media/42',
     treeUri: tree.uri,
     path: 'Backup/IMG_42.jpg',
+    hashAlgorithm: ContentHashAlgorithm.sha256,
   ),
 );
+print('${copy.document.path}: ${copy.contentHash?.value}');
 
 // 4. Write a small file, then rename it.
 final notes = await documentTree.createDocument(

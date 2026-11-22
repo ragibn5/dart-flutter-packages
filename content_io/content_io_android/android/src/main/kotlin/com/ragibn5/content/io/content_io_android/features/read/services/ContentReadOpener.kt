@@ -17,6 +17,7 @@ import com.ragibn5.content.io.content_io_android.features.read.models.OpenReadRe
 import com.ragibn5.content.io.content_io_android.features.read.models.OpenThumbnailReadRequest
 import java.io.ByteArrayInputStream
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.io.InputStream
 
 /**
@@ -93,6 +94,43 @@ internal class ContentReadOpener(
                 "The content provider is not responding, we probably need a device restart"
             )
         return@runCatching OpenedForRead.FallbackStream(stream)
+    }
+
+    /**
+     * Opens the content [request] points to as a stream, for reading on this side.
+     *
+     * @param request the content to open.
+     * @return the open stream; the caller must close it.
+     * @throws ContentIoException with an [OpenReadExceptionCodes]
+     * code, or [ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED] if the
+     * provider isn't responding.
+     *
+     * Note: A descriptor is read through a stream that keeps to the content's
+     * own section of it, and closing the stream closes the descriptor.
+     */
+    fun openStream(request: OpenReadRequest): Result<InputStream> = runCatching {
+        val uri = request.uri.toUri()
+        val descriptor = guardOpen(request.uri) {
+            contentResolver.openAssetFileDescriptor(uri, "r")
+        }
+        if (descriptor != null) {
+            return@runCatching try {
+                descriptor.createInputStream()
+            } catch (e: IOException) {
+                descriptor.close()
+                throw ContentIoException(
+                    ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
+                    "Failed to read the content's descriptor",
+                    cause = e
+                )
+            }
+        }
+
+        return@runCatching guardOpen(request.uri) { contentResolver.openInputStream(uri) }
+            ?: throw ContentIoException(
+                ContentIoCommonExceptionCodes.ERROR_CODE_UNEXPECTED,
+                "The content provider is not responding, we probably need a device restart"
+            )
     }
 
     /**

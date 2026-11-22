@@ -31,8 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DocumentAlreadyExistsException`; a provider that replaces instead of
   failing does so, as Android's local storage doesn't.
 
+- `CopyDocumentRequest.hashAlgorithm`: hashes the copied bytes with SHA-256
+  as they're written, so the hash is of exactly what the copy holds, with no
+  second read.
+
 ### Changed
 
+- **Breaking:** `copyDocument` returns a `CopiedDocument`: the copy as
+  `document`, and its `contentHash` when the request asked for one.
 - **Breaking:** every operation that creates or renames a document fails with
   `DocumentAlreadyExistsException` when a document already has the name.
   `CopyDocumentRequest.overwrite` is removed.

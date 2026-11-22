@@ -2,6 +2,8 @@ package com.ragibn5.content.io.content_io_android
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import com.ragibn5.content.io.content_io_android.features.hash.di.ContentHashServiceFactory
+import com.ragibn5.content.io.content_io_android.features.hash.handlers.HashContentRequestHandler
 import com.ragibn5.content.io.content_io_android.features.read.di.ContentReadServiceFactory
 import com.ragibn5.content.io.content_io_android.features.read.handlers.BackgroundReadCallHandler
 import com.ragibn5.content.io.content_io_android.features.read.handlers.CloseReadSessionRequestHandler
@@ -34,8 +36,8 @@ public class ContentIoAndroidPlugin : FlutterPlugin {
     }
 
     /**
-     * Serves [contentReadService] and [contentWriteService] over
-     * [binaryMessenger].
+     * Serves [contentReadService], [contentWriteService] and the content hash
+     * service over [binaryMessenger].
      *
      * Separate from [onAttachedToEngine] so the wiring can be exercised without
      * a device: building the real services needs a `ContentResolver`, which
@@ -46,6 +48,7 @@ public class ContentIoAndroidPlugin : FlutterPlugin {
         // Services
         contentReadService = ContentReadServiceFactory.create(appContext)
         contentWriteService = ContentWriteServiceFactory.create(appContext)
+        val contentHashService = ContentHashServiceFactory.create(appContext)
 
         // Main request dispatcher
         requestDispatcher = MethodCallDispatcher(
@@ -54,6 +57,7 @@ public class ContentIoAndroidPlugin : FlutterPlugin {
                 OpenThumbnailReadRequestHandler(contentReadService),
                 CloseReadSessionRequestHandler(contentReadService),
                 OpenWriteRequestHandler(contentWriteService),
+                HashContentRequestHandler(contentHashService),
             ),
         )
 
